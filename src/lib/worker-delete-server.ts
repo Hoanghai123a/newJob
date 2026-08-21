@@ -55,16 +55,6 @@ const DEPENDENCIES: DependencyDefinition[] = [
     label: "Yêu cầu phê duyệt có số tiền",
     filter: (id) => `creator="${escapePb(id)}" && amount>0`,
   },
-  {
-    collection: "garden_exchange_requests",
-    label: "Yêu cầu quy đổi thành tiền",
-    filter: (id) => `user="${escapePb(id)}"`,
-  },
-  {
-    collection: "garden_balances",
-    label: "Tiền thưởng dự trữ",
-    filter: (id) => `user="${escapePb(id)}" && reserve_balance>0`,
-  },
 ];
 
 const EMPLOYMENT_HISTORY_DEPENDENCY: DependencyDefinition = {

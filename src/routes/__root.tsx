@@ -14,7 +14,6 @@ import { AuthProvider } from "@/lib/auth";
 import { getUserErrorMessage } from "@/lib/toast";
 import { Toaster } from "@/components/ui/sonner";
 import { installPwaPromptListeners } from "@/lib/pwa-install";
-import { RoamingPet } from "@/components/garden/RoamingPet";
 import { BrandHeadLinks } from "@/components/layout/BrandHeadLinks";
 import { PushPermissionPrompt } from "@/components/layout/PushPermissionPrompt";
 import { DEVICE_PROFILE_BOOTSTRAP } from "@/lib/device-profile";
@@ -151,7 +150,6 @@ function RootComponent() {
         <PushPermissionPrompt />
         <div className="app-shell">
           <Outlet />
-          <RoamingPet />
           <Toaster richColors position="top-center" />
         </div>
       </AuthProvider>

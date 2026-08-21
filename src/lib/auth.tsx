@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { pb, type UserRecord } from "./pocketbase";
+import { isSuperAdmin } from "./tenant";
 import { getPBUpstream } from "./pocketbase-config";
 import { clearStaffCache } from "./staff-cache";
 import { stopStaffRealtimeSync } from "./realtime-sync";
@@ -23,7 +24,11 @@ interface AuthCtx {
   loading: boolean;
   isAdmin: boolean;
   isStaff: boolean;
-  login: (identity: string, password: string) => Promise<UserRecord>;
+  login: (
+    identity: string,
+    password: string,
+    options?: { companyCode?: string; superAdmin?: boolean },
+  ) => Promise<UserRecord>;
   logout: () => void;
   refresh: () => Promise<void>;
 }
@@ -32,6 +37,7 @@ const Ctx = createContext<AuthCtx | null>(null);
 const AUTH_REFRESH_TIMEOUT_MS = 3500;
 const PASSWORD_REAUTH_INTERVAL_MS = 96 * 60 * 60 * 1000;
 const PASSWORD_REAUTH_STORAGE_PREFIX = "jobconnect:password-verified-at:";
+const LOGIN_ROLES = new Set(["super_admin", "admin", "staff"]);
 export const PASSWORD_REAUTH_NOTICE_KEY = "jobconnect:password-reauth-notice";
 export const PASSWORD_REAUTH_NOTICE =
   "Phiên đăng nhập đã hết hạn. Vui lòng nhập lại mật khẩu để tiếp tục.";
@@ -150,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           await refreshAuthOnce();
           const refreshedUser = pb.authStore.record as UserRecord | null;
-          if (refreshedUser?.status === "disabled") {
+          if (refreshedUser?.status === "disabled" || !LOGIN_ROLES.has(refreshedUser?.role || "")) {
             pb.authStore.clear();
             setUser(null);
           } else {
@@ -206,31 +212,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [expirePasswordReauth, loading, user?.id]);
 
-  const login = useCallback(async (identity: string, password: string) => {
-    const res = await fetch("/api/public/pocketbase-auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identity, password }),
-    });
-    const payload = await res.json().catch(() => ({}));
+  const login = useCallback(
+    async (
+      identity: string,
+      password: string,
+      options?: { companyCode?: string; superAdmin?: boolean },
+    ) => {
+      const res = await fetch("/api/public/pocketbase-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identity, password, ...options }),
+      });
+      const payload = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
-      const error = new Error(payload?.message || "Đăng nhập thất bại") as Error & {
-        status?: number;
-        data?: unknown;
-      };
-      error.status = res.status;
-      error.data = payload?.data;
-      throw error;
-    }
+      if (!res.ok) {
+        const error = new Error(payload?.message || "Đăng nhập thất bại") as Error & {
+          status?: number;
+          data?: unknown;
+        };
+        error.status = res.status;
+        error.data = payload?.data;
+        throw error;
+      }
 
-    if (payload?.token && payload?.record) {
-      pb.authStore.save(payload.token, payload.record);
-      savePasswordVerifiedAt(payload.record.id);
-    }
+      if (!LOGIN_ROLES.has(payload?.record?.role)) {
+        throw new Error("Tài khoản này không được phép đăng nhập hệ thống quản trị.");
+      }
 
-    return payload.record as UserRecord;
-  }, []);
+      if (payload?.token && payload?.record) {
+        pb.authStore.save(payload.token, payload.record);
+        savePasswordVerifiedAt(payload.record.id);
+      }
+
+      return payload.record as UserRecord;
+    },
+    [],
+  );
 
   const refresh = useCallback(async () => {
     if (pb.authStore.isValid) {
@@ -243,7 +260,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         loading,
-        isAdmin: user?.role === "admin",
+        isAdmin: user?.role === "admin" || isSuperAdmin(user),
         isStaff: user?.role === "staff",
         login,
         logout,

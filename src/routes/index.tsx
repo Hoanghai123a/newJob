@@ -6,7 +6,6 @@ import { useAuth } from "@/lib/auth";
 import { useAppSettings } from "@/lib/app-settings";
 import { isUserApproved } from "@/lib/user-approval";
 import { getSeen } from "@/lib/seen";
-import { getClientDeviceProfile } from "@/lib/device-profile";
 import { MobileSection } from "@/components/layout/MobileSection";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { FeatureTile } from "@/components/dashboard/FeatureTile";
@@ -36,8 +35,6 @@ import {
   BarChart3,
   BriefcaseBusiness,
   Clock,
-  BookOpen,
-  MessageSquareWarning,
   Settings,
   Building2,
   CalendarCheck,
@@ -45,18 +42,13 @@ import {
   Wallet,
   BadgeDollarSign,
   MessagesSquare,
-  BusFront,
   Bell,
   ShieldCheck,
-  Sprout,
   History,
   User,
   Users,
   LayoutGrid,
   ListOrdered,
-  Gamepad2,
-  Gem,
-  Bomb,
   ChevronRight,
   RefreshCw,
   NotebookPen,
@@ -72,37 +64,16 @@ import {
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: async () => {
-    if (typeof window === "undefined") return;
-    if (!pb.authStore.isValid) return;
-    const u = pb.authStore.record as UserRecord | null;
-    if (u && !isUserApproved(u)) throw redirect({ to: "/pending" });
-    if (u?.role === "staff") throw redirect({ to: "/staff" });
-    if (u?.role !== "user") return;
-    if (getClientDeviceProfile() === "desktop") {
-      throw redirect({ to: "/attendance" });
-    }
-
-    const today = localDateKey(new Date());
-    const tomorrow = localDateKey(addLocalDays(new Date(), 1));
-    let hasTodayAttendance: boolean;
-    try {
-      const result = await pb.collection("attendance").getList(1, 1, {
-        filter: `user="${u.id}" && date>="${today}" && date<"${tomorrow}"`,
-        fields: "id",
-      });
-      hasTodayAttendance = result.totalItems > 0;
-    } catch {
-      // Keep the dashboard available if PocketBase cannot verify today's attendance.
-      return;
-    }
-
-    if (!hasTodayAttendance) throw redirect({ to: "/attendance" });
+  beforeLoad: () => {
+    if (typeof window === "undefined" || !pb.authStore.isValid) return;
+    const user = pb.authStore.record as UserRecord | null;
+    if (user && !isUserApproved(user)) throw redirect({ to: "/pending" });
+    if (user?.role === "staff") throw redirect({ to: "/staff" });
   },
   component: DashboardPage,
 });
 
-type UtilKey = "utilities" | "entertainment" | null;
+type UtilKey = "utilities" | null;
 
 const APPROVAL_STATUSES = ["pending", "approved", "completed", "rejected"] as const;
 
@@ -113,19 +84,9 @@ type ApprovalRequestSummary = {
   amount?: number | string;
 };
 
-function localDateKey(date: Date) {
-  const pad = (value: number) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-function addLocalDays(date: Date, days: number) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
-}
-
 function DashboardPage() {
   const { loading, user, isAdmin } = useAuth();
   const { data: settings, logoUrl } = useAppSettings();
-  const [pendingComplaintCount, setPendingComplaintCount] = useState(0);
   const [pendingApprovalCount, setPendingApprovalCount] = useState(0);
   const [unread, setUnread] = useState({ news: 0, chat: 0, check: 0, advances: 0 });
   const [openUtil, setOpenUtil] = useState<UtilKey>(null);
@@ -185,34 +146,10 @@ function DashboardPage() {
       nav({ to: "/staff" });
       return;
     }
-    if (user.role === "user" && getClientDeviceProfile() === "desktop") {
-      nav({ to: "/attendance" });
-      return;
-    }
     if (!isUserApproved(user)) {
       nav({ to: "/pending" });
     }
   }, [loading, nav, user]);
-
-  useEffect(() => {
-    if (!isAdmin) return;
-    let alive = true;
-
-    (async () => {
-      try {
-        const res = await pb.collection("complaints").getList(1, 1, {
-          filter: 'status = "pending"',
-        });
-        if (alive) setPendingComplaintCount(res.totalItems || 0);
-      } catch {
-        if (alive) setPendingComplaintCount(0);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [isAdmin]);
 
   useEffect(() => {
     if (!isAdmin || !user?.id) return;
@@ -582,22 +519,6 @@ function DashboardPage() {
                   align="start"
                 />
                 <FeatureTile
-                  to="/complaints"
-                  label="Khiếu nại"
-                  icon={MessageSquareWarning}
-                  variant="accent"
-                  badge={toBadge(pendingComplaintCount)}
-                  size="compact"
-                  align="start"
-                />
-                <FeatureTile
-                  to="/attendance"
-                  label="Tự chấm công"
-                  icon={Clock}
-                  size="compact"
-                  align="start"
-                />
-                <FeatureTile
                   to="/admin/settings"
                   label="Cài đặt"
                   icon={Settings}
@@ -619,16 +540,6 @@ function DashboardPage() {
                   </div>
                   <span className="w-full text-xs font-semibold">Tiện ích</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setOpenUtil("entertainment")}
-                  className="group relative flex min-h-[94px] flex-col items-start gap-2 rounded-2xl border border-border/70 bg-card p-3 text-left shadow-soft transition-colors active:scale-[0.98]"
-                >
-                  <div className="gradient-accent flex h-10 w-10 items-center justify-center rounded-xl text-accent-foreground">
-                    <Gamepad2 className="h-[18px] w-[18px]" />
-                  </div>
-                  <span className="w-full text-xs font-semibold">Giải trí</span>
-                </button>
                 <FeatureTile
                   to="/account"
                   label="Tài khoản"
@@ -641,16 +552,6 @@ function DashboardPage() {
           </>
         ) : (
           <>
-            <section aria-label="Chấm công hôm nay">
-              <FeatureTile
-                to="/attendance"
-                label="Tự chấm công"
-                description="Ghi nhận giờ làm hôm nay"
-                icon={Clock}
-                variant="accent"
-              />
-            </section>
-
             <section aria-label="Tiện ích và giải trí">
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -675,24 +576,6 @@ function DashboardPage() {
                     </span>
                   )}
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => setOpenUtil("entertainment")}
-                  className="group relative overflow-hidden rounded-3xl border border-border/70 bg-card p-4 text-left shadow-soft transition active:scale-[0.98]"
-                >
-                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-accent/40 blur-2xl" />
-                  <div className="relative flex items-start justify-between gap-2">
-                    <div className="gradient-accent flex h-11 w-11 items-center justify-center rounded-2xl text-accent-foreground shadow-sm">
-                      <Gamepad2 className="h-5 w-5" />
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="relative mt-3 text-sm font-semibold">Giải trí</div>
-                  <div className="relative mt-1 text-xs leading-5 text-muted-foreground">
-                    Ba trò chơi thư giãn
-                  </div>
-                </button>
               </div>
             </section>
 
@@ -714,15 +597,6 @@ function DashboardPage() {
                   disabled={workDisabled}
                   disabledReason={workDisabledReason}
                   badge={workDisabled ? undefined : toBadge(unread.advances)}
-                />
-                <FeatureTile
-                  to="/complaints"
-                  label="Khiếu nại"
-                  description="Gửi phản ánh"
-                  icon={MessageSquareWarning}
-                  variant="accent"
-                  disabled={workDisabled}
-                  disabledReason={workDisabledReason}
                 />
                 <FeatureTile
                   to="/check-attendance"
@@ -825,117 +699,77 @@ function DashboardPage() {
         <DialogContent className="rounded-3xl desktop:hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {openUtil === "utilities" ? (
-                <>
-                  <div className="gradient-primary flex h-8 w-8 items-center justify-center rounded-xl text-primary-foreground shadow-sm">
-                    <LayoutGrid className="h-4 w-4" />
-                  </div>
-                  Tiện ích
-                </>
-              ) : (
-                <>
-                  <div className="gradient-accent flex h-8 w-8 items-center justify-center rounded-xl text-accent-foreground shadow-sm">
-                    <Gamepad2 className="h-4 w-4" />
-                  </div>
-                  Giải trí
-                </>
-              )}
+              <div className="gradient-primary flex h-8 w-8 items-center justify-center rounded-xl text-primary-foreground shadow-sm">
+                <LayoutGrid className="h-4 w-4" />
+              </div>
+              Tiện ích
             </DialogTitle>
-            <DialogDescription>
-              {openUtil === "utilities" ? "Chọn tiện ích cần sử dụng" : "Chơi và thư giãn"}
-            </DialogDescription>
+            <DialogDescription>Chọn tiện ích cần sử dụng</DialogDescription>
           </DialogHeader>
-
-          {openUtil === "utilities" && (
-            <div className="grid grid-cols-3 gap-2" onClick={() => setOpenUtil(null)}>
-              {isAdmin ? (
-                <>
-                  <FeatureTile
-                    to="/news"
-                    label="Bảng tin"
-                    icon={Newspaper}
-                    size="compact"
-                    badge={toBadge(unread.news)}
-                  />
-                  <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
-                  <FeatureTile
-                    to="/admin/accounts/stats"
-                    label="Thống kê"
-                    icon={Users}
-                    size="compact"
-                  />
-                  <FeatureTile
-                    to="/chat"
-                    label="Trò chuyện"
-                    icon={MessagesSquare}
-                    size="compact"
-                    badge={toBadge(unread.chat)}
-                  />
-                  <FeatureTile
-                    to="/transport"
-                    label="Tìm nhà xe"
-                    icon={BusFront}
-                    size="compact"
-                    allowGuest
-                  />
-                  <FeatureTile to="/guides" label="Hướng dẫn" icon={BookOpen} size="compact" />
-                  <FeatureTile
-                    to="/staff/money-to-text"
-                    label="Đọc số tiền"
-                    icon={BadgeDollarSign}
-                    size="compact"
-                  />
-                  <FeatureTile
-                    to="/last-working-day"
-                    label="Ngày Công Cuối"
-                    icon={CalendarClock}
-                    size="compact"
-                  />
-                </>
-              ) : (
-                <>
-                  <FeatureTile
-                    to="/news"
-                    label="Bảng tin"
-                    icon={Newspaper}
-                    size="compact"
-                    badge={toBadge(unread.news)}
-                  />
-                  <FeatureTile
-                    to="/transport"
-                    label="Tìm nhà xe"
-                    icon={BusFront}
-                    size="compact"
-                    allowGuest
-                  />
-                  <FeatureTile
-                    to="/chat"
-                    label="Trò chuyện"
-                    icon={MessagesSquare}
-                    size="compact"
-                    badge={toBadge(unread.chat)}
-                  />
-                  <FeatureTile to="/guides" label="Hướng dẫn" icon={BookOpen} size="compact" />
-                  <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
-                  <FeatureTile
-                    to="/counter"
-                    label="Bộ đếm"
-                    icon={ListOrdered}
-                    size="compact"
-                    allowGuest
-                  />
-                </>
-              )}
-            </div>
-          )}
-
-          {openUtil === "entertainment" && (
-            <div className="grid grid-cols-3 gap-2" onClick={() => setOpenUtil(null)}>
-              <FeatureTile to="/garden" label="Vườn cây" icon={Sprout} size="compact" />
-              <FeatureTile to="/gems" label="Xếp kim cương" icon={Gem} size="compact" />
-              <FeatureTile to="/minesweeper" label="Dò mìn" icon={Bomb} size="compact" />
-            </div>
-          )}
+          <div className="grid grid-cols-3 gap-2" onClick={() => setOpenUtil(null)}>
+            {isAdmin ? (
+              <>
+                <FeatureTile
+                  to="/news"
+                  label="Bảng tin"
+                  icon={Newspaper}
+                  size="compact"
+                  badge={toBadge(unread.news)}
+                />
+                <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
+                <FeatureTile
+                  to="/admin/accounts/stats"
+                  label="Thống kê"
+                  icon={Users}
+                  size="compact"
+                />
+                <FeatureTile
+                  to="/chat"
+                  label="Trò chuyện"
+                  icon={MessagesSquare}
+                  size="compact"
+                  badge={toBadge(unread.chat)}
+                />
+                <FeatureTile
+                  to="/staff/money-to-text"
+                  label="Đọc số tiền"
+                  icon={BadgeDollarSign}
+                  size="compact"
+                />
+                <FeatureTile
+                  to="/last-working-day"
+                  label="Ngày Công Cuối"
+                  icon={CalendarClock}
+                  size="compact"
+                />
+              </>
+            ) : (
+              <>
+                <FeatureTile
+                  to="/news"
+                  label="Bảng tin"
+                  icon={Newspaper}
+                  size="compact"
+                  badge={toBadge(unread.news)}
+                />
+                <FeatureTile
+                  to="/chat"
+                  label="Trò chuyện"
+                  icon={MessagesSquare}
+                  size="compact"
+                  badge={toBadge(unread.chat)}
+                />
+                <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
+                <FeatureTile
+                  to="/counter"
+                  label="Bộ đếm"
+                  icon={ListOrdered}
+                  size="compact"
+                  allowGuest
+                />
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
@@ -995,13 +829,6 @@ function GuestDashboard({
           description="Theo dõi công việc và các quyền lợi của bạn"
         >
           <FeatureTile
-            to="/attendance"
-            label="Tự chấm công"
-            description="Ghi nhận giờ làm"
-            icon={Clock}
-            variant="accent"
-          />
-          <FeatureTile
             to="/check-attendance"
             label="Check công/lương"
             description="Kiểm tra bảng công"
@@ -1016,13 +843,6 @@ function GuestDashboard({
             variant="accent"
           />
           <FeatureTile
-            to="/complaints"
-            label="Khiếu nại"
-            description="Gửi phản ánh"
-            icon={MessageSquareWarning}
-            variant="accent"
-          />
-          <FeatureTile
             to="/work-history"
             label="Lịch sử đi làm"
             description="Nhà máy và ngày làm"
@@ -1033,23 +853,9 @@ function GuestDashboard({
 
         <GuestSection title="Tiện ích" description="Thông tin, kết nối và công cụ hỗ trợ" compact>
           <FeatureTile to="/news" label="Bảng tin" icon={Newspaper} size="compact" allowGuest />
-          <FeatureTile
-            to="/transport"
-            label="Tìm nhà xe"
-            icon={BusFront}
-            size="compact"
-            allowGuest
-          />
           <FeatureTile to="/chat" label="Trò chuyện" icon={MessagesSquare} size="compact" />
-          <FeatureTile to="/guides" label="Hướng dẫn" icon={BookOpen} size="compact" />
           <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
           <FeatureTile to="/counter" label="Bộ đếm" icon={ListOrdered} size="compact" allowGuest />
-        </GuestSection>
-
-        <GuestSection title="Giải trí" description="Thư giãn sau giờ làm" compact>
-          <FeatureTile to="/garden" label="Vườn cây" icon={Sprout} size="compact" />
-          <FeatureTile to="/gems" label="Xếp kim cương" icon={Gem} size="compact" />
-          <FeatureTile to="/minesweeper" label="Dò mìn" icon={Bomb} size="compact" />
         </GuestSection>
       </main>
 

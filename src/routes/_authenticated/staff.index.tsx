@@ -6,9 +6,7 @@ import {
   BarChart3,
   CalendarCheck,
   CalendarClock,
-  BookOpen,
   Building2,
-  BusFront,
   ChevronRight,
   ClipboardCheck,
   Download,
@@ -182,16 +180,9 @@ function StaffDashboardPage() {
           </DialogHeader>
           <div className="grid grid-cols-3 gap-2" onClick={() => setUtilOpen(false)}>
             <FeatureTile to="/news" label="Bảng tin" icon={Newspaper} size="compact" />
-            <FeatureTile to="/transport" label="Tìm nhà xe" icon={BusFront} size="compact" />
             <FeatureTile to="/chat" label="Trò chuyện" icon={MessagesSquare} size="compact" />
             <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
-            <FeatureTile to="/guides" label="Hướng dẫn" icon={BookOpen} size="compact" />
-            <FeatureTile
-              to="/staff/tools/qr"
-              label="Tạo mã QR"
-              icon={QrCode}
-              size="compact"
-            />
+            <FeatureTile to="/staff/tools/qr" label="Tạo mã QR" icon={QrCode} size="compact" />
             <FeatureTile
               to="/staff/money-to-text"
               label="Đọc số tiền"

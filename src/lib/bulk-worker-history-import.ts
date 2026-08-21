@@ -630,7 +630,6 @@ export async function applyBulkWorkerImportReferences(
             code: item.code.trim(),
             address: "",
             hotline: "",
-            attendance_cutoff_day: 31,
             advance_limit: 0,
             status: "active",
             note: "Tạo từ import NLĐ và lịch sử đi làm",
@@ -1075,20 +1074,38 @@ function packWorkers(workers: PreparedWorkerImport[]) {
 }
 
 async function sendWorkerBatch(workers: PreparedWorkerImport[]) {
+  const tenantCompany = pb.authStore.record?.tenant_company;
+  if (!tenantCompany) throw new Error("Tài khoản chưa được gán công ty hợp lệ.");
   const batch = pb.createBatch();
   for (const worker of workers) {
-    batch.collection("users").create(worker.userPayload);
+    batch.collection("users").create({ ...worker.userPayload, tenant_company: tenantCompany });
     for (const version of worker.cccdVersions) batch.collection("cccd_versions").create(version);
     for (const history of worker.histories)
-      batch.collection("employment_histories").create(history.payload);
+      batch
+        .collection("employment_histories")
+        .create({ ...history.payload, company: tenantCompany });
   }
   await batch.send();
+}
+
+async function assertBulkEmploymentHistoryCapacity(workers: PreparedWorkerImport[]) {
+  const adding = workers.reduce((total, worker) => total + worker.histories.length, 0);
+  if (!adding) return;
+  const response = await fetch("/api/employment-histories/capacity", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${pb.authStore.token}` },
+    body: JSON.stringify({ adding }),
+  });
+  const body = await response.json().catch(() => null);
+  if (!response.ok)
+    throw new Error(body?.message || "Không kiểm tra được hạn mức lịch sử lao động.");
 }
 
 export async function executePreparedBulkImport(
   workers: PreparedWorkerImport[],
   onProgress?: (processedWorkers: number, createdWorkers: number, failedWorkers: number) => void,
 ): Promise<BulkImportExecutionResult> {
+  await assertBulkEmploymentHistoryCapacity(workers);
   const createdWorkers: PreparedWorkerImport[] = [];
   const errors: WorkerImportError[] = [];
   let processedWorkers = 0;

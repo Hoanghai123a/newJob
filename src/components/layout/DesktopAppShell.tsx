@@ -11,9 +11,6 @@ import {
   Banknote,
   BadgeDollarSign,
   BarChart3,
-  BookOpen,
-  BusFront,
-  CalendarCheck,
   CalendarClock,
   ChevronDown,
   ChevronLeft,
@@ -23,23 +20,15 @@ import {
   ClipboardList,
   Download,
   FileInput,
-  Gem,
-  Gamepad2,
   Landmark,
   LogOut,
-  MessageCircle,
-  Newspaper,
   QrCode,
   Settings,
   ScrollText,
-  ShieldCheck,
-  Sprout,
   User,
   Users,
-  WalletCards,
 } from "lucide-react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ReloadButton } from "@/components/layout/ReloadButton";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -50,7 +39,7 @@ type NavigationItem = {
   hash?: string;
   label: string;
   icon: ComponentType<{ className?: string }>;
-  action?: "game" | "staff-export";
+  action?: "staff-export";
 };
 
 type NavigationSection = {
@@ -58,37 +47,6 @@ type NavigationSection = {
   items: readonly NavigationItem[];
   hideHeader?: boolean;
 };
-
-const workerNavigation: readonly NavigationSection[] = [
-  {
-    label: "Công việc",
-    items: [
-      { to: "/attendance", label: "Chấm công", icon: CalendarCheck },
-      { to: "/check-attendance", label: "Bảng công", icon: ClipboardCheck },
-      { to: "/advances", label: "Ứng lương", icon: WalletCards },
-      { to: "/work-history", label: "Lịch sử làm việc", icon: ClipboardList },
-    ],
-  },
-  {
-    label: "Hỗ trợ",
-    items: [
-      { to: "/news", label: "Tin tức", icon: Newspaper },
-      { to: "/guides", label: "Hướng dẫn", icon: BookOpen },
-      { to: "/notebook", label: "Sổ tay", icon: ClipboardList },
-      { to: "/transport", label: "Tìm nhà xe", icon: BusFront },
-      { to: "/complaints", label: "Khiếu nại", icon: ShieldCheck },
-      { to: "/chat", label: "Trò chuyện", icon: MessageCircle },
-    ],
-  },
-  {
-    label: "Giải trí",
-    items: [
-      { to: "/garden", label: "Vườn cây", icon: Sprout },
-      { to: "/gems", label: "Xếp kim cương", icon: Gem },
-      { to: "/minesweeper", label: "Dò mìn", icon: Gamepad2 },
-    ],
-  },
-];
 
 const staffNavigation: readonly NavigationSection[] = [
   {
@@ -110,17 +68,11 @@ const staffNavigation: readonly NavigationSection[] = [
   {
     label: "Tiện ích mở rộng",
     items: [
-      { to: "/transport", label: "Tìm nhà xe", icon: BusFront },
       { to: "/notebook", label: "Sổ tay", icon: ClipboardList },
-      { to: "/guides", label: "Hướng dẫn", icon: BookOpen },
       { to: "/staff/tools/qr", label: "Tạo mã QR", icon: QrCode },
       { to: "/staff/money-to-text", label: "Đọc số tiền", icon: BadgeDollarSign },
       { to: "/last-working-day", label: "Ngày Công Cuối", icon: CalendarClock },
     ],
-  },
-  {
-    label: "Giải trí",
-    items: [{ to: "/chat", label: "Trò chuyện", icon: MessageCircle }],
   },
   {
     label: "Khác",
@@ -149,47 +101,26 @@ const adminNavigation: readonly NavigationSection[] = [
     ],
   },
   {
-    label: "Người lao động",
-    items: [
-      { to: "/news", label: "Bảng tin", icon: Newspaper },
-      { to: "/check-attendance", label: "Check công/lương", icon: CalendarCheck },
-      { to: "/attendance", label: "NLĐ chấm công", icon: ClipboardCheck },
-      { to: "/complaints", label: "Khiếu nại", icon: ShieldCheck },
-    ],
-  },
-  {
     label: "Tiện ích mở rộng",
     items: [
-      { to: "/transport", label: "Tìm nhà xe", icon: BusFront },
       { to: "/notebook", label: "Sổ tay", icon: ClipboardList },
-      { to: "/guides", label: "Hướng dẫn", icon: BookOpen },
       { to: "/staff/tools/qr", label: "Tạo mã QR", icon: QrCode },
       { to: "/staff/money-to-text", label: "Đọc số tiền", icon: BadgeDollarSign },
       { to: "/last-working-day", label: "Ngày Công Cuối", icon: CalendarClock },
     ],
   },
-  {
-    label: "Giải trí",
-    items: [{ label: "Game", icon: Gamepad2, action: "game" }],
-  },
 ];
-
-const gameItems = [
-  { to: "/garden", label: "Vườn cây", icon: Sprout },
-  { to: "/gems", label: "Xếp kim cương", icon: Gem },
-  { to: "/minesweeper", label: "Dò mìn", icon: Gamepad2 },
-] as const;
 
 function navigationForRole(role?: string): readonly NavigationSection[] {
   if (role === "staff") return staffNavigation;
   if (role === "admin") return adminNavigation;
-  return workerNavigation;
+  return [];
 }
 
 function roleLabel(role?: string) {
   if (role === "staff") return "Nhân sự";
   if (role === "admin") return "Quản trị viên";
-  return "Người lao động";
+  return "Quản trị";
 }
 
 function isNavigationItemActive(pathname: string, hash: string, item: NavigationItem) {
@@ -218,7 +149,6 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
   const { logout, user } = useAuth();
   const [collapsed, setCollapsed] = useState(() => desktopSidebarCollapsed);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
-  const [gameOpen, setGameOpen] = useState(false);
   const { openStaffExcelExport } = useStaffExcelExport();
   const immersive = pathname === "/force-change-password";
   const sections = navigationForRole(user?.role);
@@ -341,12 +271,10 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
 
                           return (
                             <li key={`${item.label}-${item.to || item.action || "item"}`}>
-                              {item.action === "game" || item.action === "staff-export" ? (
+                              {item.action === "staff-export" ? (
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    item.action === "game" ? setGameOpen(true) : openStaffExcelExport()
-                                  }
+                                  onClick={() => openStaffExcelExport()}
                                   title={collapsed ? item.label : undefined}
                                   aria-label={item.label}
                                   className={itemClassName + " w-full"}
@@ -501,35 +429,6 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
       >
         {children}
       </div>
-
-      <Dialog open={gameOpen} onOpenChange={setGameOpen}>
-        <DialogContent className="rounded-3xl sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Gamepad2 className="h-5 w-5" />
-              </div>
-              Game
-            </DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-3 gap-3">
-            {gameItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  onClick={() => setGameOpen(false)}
-                  className="flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-card p-3 text-center text-xs font-medium text-foreground transition hover:-translate-y-0.5 hover:bg-muted"
-                >
-                  <Icon className="h-6 w-6 text-primary" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

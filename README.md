@@ -42,7 +42,7 @@ chamcongchua.com
   -> http://localhost:3000
   -> JobConnect app
   -> PB_URL
-  -> http://127.0.0.1:8090
+  -> http://127.0.0.1:8290
 ```
 
 Browser requests should stay same-origin and go through `/api/public/pb`.
@@ -51,8 +51,8 @@ PocketBase should stay private on the Linux server when possible.
 Example `.env` for CentOS / PM2 / Cloudflare Tunnel:
 
 ```bash
-PB_URL=http://127.0.0.1:8090
-VITE_PB_URL=http://127.0.0.1:8090
+PB_URL=http://127.0.0.1:8290
+VITE_PB_URL=http://127.0.0.1:8290
 PB_ADMIN_EMAIL=your-pocketbase-superuser@example.com
 PB_ADMIN_PASSWORD=your-pocketbase-superuser-password
 ```

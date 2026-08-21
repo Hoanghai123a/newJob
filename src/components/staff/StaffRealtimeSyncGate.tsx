@@ -11,7 +11,12 @@ export function StaffRealtimeSyncGate() {
     let syncing = false;
 
     const sync = async () => {
-      if (cancelled || !user?.id || (user.role !== "staff" && user.role !== "admin")) {
+      if (
+        cancelled ||
+        !user?.id ||
+        user.must_change_password ||
+        (user.role !== "staff" && user.role !== "admin")
+      ) {
         await stopStaffRealtimeSync();
         return;
       }
@@ -50,7 +55,7 @@ export function StaffRealtimeSyncGate() {
     };
     // Re-sync when identity or role changes; the callback only needs those stable fields.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, user?.role]);
+  }, [user?.id, user?.must_change_password, user?.role]);
 
   return null;
 }

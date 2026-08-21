@@ -1,4 +1,5 @@
 import { pb, type UserRecord } from "./pocketbase";
+import type { WorkerRecord } from "./workers";
 import { relationInFilter } from "./delegations";
 import type { EmploymentHistoryRecord } from "./employment";
 import type { CccdVersionRecord } from "./cccd-versions";
@@ -8,7 +9,7 @@ import type { RecruitmentEntityRecord } from "./recruitment-entities";
 const DB_NAME = "jobconnect-staff-cache";
 const DB_VERSION = 6;
 const STORE_HISTORIES = "employment_histories";
-const STORE_USERS = "users";
+const STORE_USERS = "workers";
 const STORE_CCCD_VERSIONS = "cccd_versions";
 const STORE_FACTORIES = "factories";
 const STORE_RECRUITMENT_ENTITIES = "recruitment_entities";
@@ -118,8 +119,8 @@ function idbDelete(db: IDBDatabase, store: string, key: IDBValidKey): Promise<vo
   });
 }
 
-function usersFromExpandedHistories(histories: EmploymentHistoryRecord[]): UserRecord[] {
-  const map = new Map<string, UserRecord>();
+function usersFromExpandedHistories(histories: EmploymentHistoryRecord[]): WorkerRecord[] {
+  const map = new Map<string, WorkerRecord>();
   for (const history of histories) {
     const user = history.expand?.user;
     if (user?.id) map.set(user.id, user);
@@ -136,17 +137,17 @@ function idbClear(db: IDBDatabase, store: string): Promise<void> {
   });
 }
 
-export async function fetchUsersBatched(userIds: string[]): Promise<UserRecord[]> {
+export async function fetchUsersBatched(userIds: string[]): Promise<WorkerRecord[]> {
   const unique = [...new Set(userIds.filter(Boolean))];
   if (!unique.length) return [];
 
-  const results: UserRecord[] = [];
+  const results: WorkerRecord[] = [];
   for (let i = 0; i < unique.length; i += BATCH_SIZE) {
     const batch = unique.slice(i, i + BATCH_SIZE);
-    const items = (await pb.collection("users").getFullList({
+    const items = (await pb.collection("workers").getFullList({
       filter: relationInFilter("id", batch),
       sort: "full_name,username",
-    })) as unknown as UserRecord[];
+    })) as unknown as WorkerRecord[];
     results.push(...items);
   }
   return results;
@@ -170,7 +171,7 @@ function getLatestUpdatedAt(records: Array<{ updated?: string }>, fallback = "")
 
 export async function readCachedStaffData(): Promise<{
   histories: EmploymentHistoryRecord[];
-  users: UserRecord[];
+  users: WorkerRecord[];
 } | null> {
   try {
     const db = await openDB();
@@ -178,7 +179,7 @@ export async function readCachedStaffData(): Promise<{
     if (!lastSync) return null;
 
     const histories = await idbGetAll<EmploymentHistoryRecord>(db, STORE_HISTORIES);
-    const users = await idbGetAll<UserRecord>(db, STORE_USERS);
+    const users = await idbGetAll<WorkerRecord>(db, STORE_USERS);
     if (!histories.length) return null;
     return { histories, users };
   } catch {
@@ -193,7 +194,7 @@ export async function syncStaffData(opts?: {
   hydrateCache?: boolean;
 }): Promise<{
   histories: EmploymentHistoryRecord[];
-  users: UserRecord[];
+  users: WorkerRecord[];
 }> {
   const db = await openDB();
   const useCache = opts?.useCache ?? true;
@@ -249,7 +250,7 @@ export async function syncStaffData(opts?: {
   // scoped user ids instead of listing every recently updated account.
   const refreshedUsers = await fetchUsersBatched(userIds).catch((error) => {
     console.warn("[staff-cache] scoped user refresh failed", error);
-    return [] as UserRecord[];
+    return [] as WorkerRecord[];
   });
 
   if (refreshedUsers.length) {
@@ -271,7 +272,7 @@ export async function syncStaffData(opts?: {
     }
   }
 
-  const allUsers = await idbGetAll<UserRecord>(db, STORE_USERS);
+  const allUsers = await idbGetAll<WorkerRecord>(db, STORE_USERS);
   const latestHistoryUpdate = getLatestUpdatedAt(freshHistories, lastSync);
   if (latestHistoryUpdate) {
     await setLastSyncAt(db, latestHistoryUpdate);
@@ -311,7 +312,7 @@ export async function reconcileStaffData(opts: {
   const expandedUserIds = new Set(expandedUsers.map((user) => user.id));
   const fetchedUsers = await fetchUsersBatched(
     scopeUserIds.filter((id) => !expandedUserIds.has(id)),
-  ).catch(() => [] as UserRecord[]);
+  ).catch(() => [] as WorkerRecord[]);
   const users = [...expandedUsers, ...fetchedUsers];
 
   await idbReplaceMany(db, STORE_HISTORIES, histories);
@@ -367,7 +368,7 @@ export async function updateCachedHistory(record: EmploymentHistoryRecord): Prom
   }
 }
 
-export async function updateCachedUser(record: UserRecord): Promise<boolean> {
+export async function updateCachedUser(record: WorkerRecord): Promise<boolean> {
   try {
     const db = await openDB();
     await idbPut(db, STORE_USERS, record);
@@ -527,10 +528,10 @@ export async function readCachedHistory(id: string): Promise<EmploymentHistoryRe
   }
 }
 
-export async function readCachedUser(id: string): Promise<UserRecord | undefined> {
+export async function readCachedUser(id: string): Promise<WorkerRecord | undefined> {
   try {
     const db = await openDB();
-    return await idbGet<UserRecord>(db, STORE_USERS, id);
+    return await idbGet<WorkerRecord>(db, STORE_USERS, id);
   } catch {
     return undefined;
   }
@@ -540,7 +541,7 @@ export async function getCachedUserIds(): Promise<Set<string>> {
   try {
     const db = await openDB();
     const histories = await idbGetAll<EmploymentHistoryRecord>(db, STORE_HISTORIES);
-    const users = await idbGetAll<UserRecord>(db, STORE_USERS);
+    const users = await idbGetAll<WorkerRecord>(db, STORE_USERS);
     const ids = new Set<string>();
     for (const h of histories) if (h.user) ids.add(h.user);
     for (const u of users) if (u.id) ids.add(u.id);
@@ -565,11 +566,11 @@ export async function upsertCachedHistoryIfNewer(
   }
 }
 
-export async function upsertCachedUserIfNewer(record: UserRecord): Promise<boolean> {
+export async function upsertCachedUserIfNewer(record: WorkerRecord): Promise<boolean> {
   try {
     const db = await openDB();
-    const cached = await idbGet<UserRecord & { updated?: string }>(db, STORE_USERS, record.id);
-    const recordUpdated = (record as UserRecord & { updated?: string }).updated;
+    const cached = await idbGet<WorkerRecord & { updated?: string }>(db, STORE_USERS, record.id);
+    const recordUpdated = (record as WorkerRecord & { updated?: string }).updated;
     if (cached?.updated && recordUpdated && cached.updated >= recordUpdated) return false;
     await idbPut(db, STORE_USERS, record);
     return true;

@@ -1,4 +1,5 @@
 import { pb, type UserRecord } from "./pocketbase";
+import type { WorkerRecord } from "./workers";
 import type { FactoryRecord } from "./factories";
 import type { RecruitmentEntityRecord } from "./recruitment-entities";
 import {
@@ -112,7 +113,7 @@ export interface EmploymentHistoryRecord {
   created?: string;
   updated?: string;
   expand?: {
-    user?: UserRecord;
+    user?: WorkerRecord;
     factory?: FactoryRecord;
     main_house?: RecruitmentEntityRecord;
     recruiter_staff?: UserRecord;
@@ -498,7 +499,19 @@ async function resolveHistoryCccdVersion(
   return (await ensureCccdVersion(userId, normalized)).id;
 }
 
+async function assertEmploymentHistoryCapacity(adding = 1) {
+  const response = await fetch("/api/employment-histories/capacity", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${pb.authStore.token}` },
+    body: JSON.stringify({ adding }),
+  });
+  const body = await response.json().catch(() => null);
+  if (!response.ok)
+    throw new Error(body?.message || "Không kiểm tra được hạn mức lịch sử lao động.");
+}
+
 export async function createEmploymentHistory(draft: EmploymentDraft, opts?: { uid?: string }) {
+  await assertEmploymentHistoryCapacity();
   const normalizedDraft = normalizeEmploymentPayload(draft);
   normalizedDraft.status = deriveEmploymentStatus(normalizedDraft);
   const missingFields = getMissingEmploymentSnapshotFields(normalizedDraft);
@@ -515,12 +528,14 @@ export async function createEmploymentHistory(draft: EmploymentDraft, opts?: { u
   );
 
   const uid = opts?.uid || (await generateEmploymentHistoryUid());
-  const record = (await pb
-    .collection("employment_histories")
-    .create(
-      { ...normalizedDraft, uid },
-      { expand: "user,factory,recruiter_staff,recruiter_partner,main_house,cccd_version" },
-    )) as unknown as EmploymentHistoryRecord;
+  const response = await fetch("/api/employment-histories", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${pb.authStore.token}` },
+    body: JSON.stringify({ payload: { ...normalizedDraft, uid } }),
+  });
+  const body = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(body?.message || "Không tạo được lịch sử lao động.");
+  const record = body as EmploymentHistoryRecord;
   await updateCachedHistory(record);
   return record;
 }
@@ -612,7 +627,7 @@ export async function restoreEmploymentHistoryToWorking(
 }
 
 export async function updateUserAndCache(id: string, payload: Record<string, unknown> | FormData) {
-  const record = (await pb.collection("users").update(id, payload)) as unknown as UserRecord;
+  const record = (await pb.collection("workers").update(id, payload)) as unknown as WorkerRecord;
   await updateCachedUser(record);
   return record;
 }
@@ -631,10 +646,7 @@ export interface RegisterableUserHistory {
 
 export async function fetchRegisterableUsers(opts: { includeLongLeft?: boolean } = {}) {
   const [users, histories] = await Promise.all([
-    pb.collection("users").getFullList<UserRecord>({
-      filter: 'role="user" || role=""',
-      sort: "full_name,username",
-    }),
+    pb.collection("workers").getFullList<WorkerRecord>({ sort: "full_name" }),
     pb.collection("employment_histories").getFullList<RegisterableUserHistory>({
       fields: "user,leave_date",
     }),

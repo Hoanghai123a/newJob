@@ -1,4 +1,5 @@
 import { pb, type UserRecord } from "./pocketbase";
+import type { WorkerRecord } from "./workers";
 import {
   getLatestEmploymentHistory,
   isCurrentlyWorking,
@@ -22,7 +23,7 @@ import { canUseEmploymentFactory } from "./staff-employment-scope";
 export type StaffVisibilityReason = "qlnm" | "nvtd";
 
 export interface StaffWorkerRecord {
-  user: UserRecord;
+  user: WorkerRecord;
   histories: EmploymentHistoryRecord[];
   latestHistory: EmploymentHistoryRecord | null;
   recentHistories: EmploymentHistoryRecord[];
@@ -285,7 +286,7 @@ function isWorkerInStaffScope(
 function buildWorkspace(
   viewer: UserRecord,
   histories: EmploymentHistoryRecord[],
-  users: UserRecord[],
+  users: WorkerRecord[],
   managedFactoryIds: Set<string>,
   opts?: { bypassScope?: boolean },
 ) {
@@ -301,7 +302,6 @@ function buildWorkspace(
   const workerEntries =
     viewer.role === "admin"
       ? users
-          .filter((item) => item.role === "user")
           .map((item) => [item.id, grouped.get(item.id) || []] as const)
       : [...grouped.entries()];
 
@@ -372,20 +372,17 @@ async function getManagedFactoryIds(viewer: UserRecord) {
   );
 }
 
-async function fetchAdminWorkerAccounts(viewer: UserRecord): Promise<UserRecord[]> {
+async function fetchAdminWorkerAccounts(viewer: UserRecord): Promise<WorkerRecord[]> {
   if (viewer.role !== "admin") return [];
 
   return pb
-    .collection("users")
-    .getFullList<UserRecord>({
-      filter: 'role="user"',
-      sort: "full_name,username",
-    })
-    .catch(() => [] as UserRecord[]);
+    .collection("workers")
+    .getFullList<WorkerRecord>({ sort: "full_name" })
+    .catch(() => [] as WorkerRecord[]);
 }
 
-function mergeUsers(...groups: UserRecord[][]): UserRecord[] {
-  const usersById = new Map<string, UserRecord>();
+function mergeUsers(...groups: WorkerRecord[][]): WorkerRecord[] {
+  const usersById = new Map<string, WorkerRecord>();
   for (const group of groups) {
     for (const user of group) usersById.set(user.id, user);
   }

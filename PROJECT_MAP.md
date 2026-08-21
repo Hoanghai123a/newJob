@@ -57,21 +57,14 @@ Layout file: `routes/_authenticated.tsx` — guards auth, renders `<BottomNav>`.
 | Route | File | Description |
 |---|---|---|
 | `/` (index) | `routes/index.tsx` | Dashboard — feature tiles, unread badges |
-| `/attendance` | `routes/_authenticated/attendance.tsx` | Self-attendance tracking |
 | `/check-attendance` | `routes/_authenticated/check-attendance.tsx` | View attendance/salary sheets |
 | `/advances` | `routes/_authenticated/advances.tsx` | Salary advance requests |
-| `/complaints` | `routes/_authenticated/complaints.tsx` | Submit/manage complaints |
 | `/work-history` | `routes/_authenticated/work-history.tsx` | Employment history |
 | `/news` | `routes/_authenticated/news.tsx` | Recruitment news board |
-| `/transport` | `routes/_authenticated/transport.tsx` | Bus/transport search |
 | `/chat` | `routes/_authenticated/chat.tsx` | Group chat |
-| `/guides` | `routes/_authenticated/guides.tsx` | User guides |
 | `/notebook` | `routes/_authenticated/notebook.tsx` | Daily notebook (admin) |
 | `/account` | `routes/_authenticated/account.tsx` | User profile/settings |
 | `/force-change-password` | `routes/_authenticated/force-change-password.tsx` | Forced password change |
-| `/garden` | `routes/_authenticated/garden.tsx` | Virtual garden game |
-| `/gems` | `routes/_authenticated/gems.tsx` | Gems puzzle game |
-| `/minesweeper` | `routes/_authenticated/minesweeper.tsx` | Minesweeper game |
 
 ### Staff routes
 
@@ -137,8 +130,6 @@ Layout file: `routes/_authenticated.tsx` — guards auth, renders `<BottomNav>`.
 | `staff-log.ts` | Staff activity logging |
 | `approval-requests.ts` | Approval request types & helpers |
 | `app-settings.ts` | App settings (company name, logo, etc.) |
-| `garden.ts` | Garden game logic (client) |
-| `garden-server.ts` | Garden game server calls |
 | `push-notifications.ts` | Push notification client helpers |
 | `push-server.ts` | Push notification server-side send |
 | `excel.ts` | Excel import/export utilities |
@@ -182,7 +173,6 @@ Layout file: `routes/_authenticated.tsx` — guards auth, renders `<BottomNav>`.
 | `components/cccd/CccdManager.tsx` | CCCD document manager |
 | `components/cccd/CccdVersionViewer.tsx` | CCCD version viewer |
 | `components/workforce/RecruitChartDialog.tsx` | Recruitment chart dialog |
-| `components/garden/RoamingPet.tsx` | Garden pet animation |
 
 ## Agent navigation rule
 

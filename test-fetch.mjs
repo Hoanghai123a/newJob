@@ -1,4 +1,4 @@
-﻿const resp = await fetch("http://127.0.0.1:8090/api/collections/guides/records?perPage=1");
+﻿const resp = await fetch("http://127.0.0.1:8290/api/collections/guides/records?perPage=1");
 const text = await resp.text();
 const data = JSON.parse(text);
 console.log("Headers content-type:", resp.headers.get("content-type"));

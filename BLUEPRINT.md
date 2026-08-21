@@ -76,7 +76,7 @@ flowchart TB
         Brand["/api/public/app-icon* + manifest — branding động"]
     end
 
-    subgraph PB["PocketBase :8090 (SQLite)"]
+    subgraph PB["PocketBase :8290 (SQLite)"]
         Coll["Collections + rules"]
         RT["Realtime engine (SSE)"]
         Files["File storage"]
@@ -94,7 +94,7 @@ flowchart TB
     Brand --> Files
 
     CF["Cloudflare Tunnel<br/>chamcongchua.com"] --> Node
-    Node -->|PB_URL 127.0.0.1:8090| PB
+    Node -->|PB_URL 127.0.0.1:8290| PB
 ```
 
 **Luồng request điển hình (đọc dữ liệu worker):**
@@ -260,17 +260,12 @@ erDiagram
 > Tên field chính xác từ TS types + payload `.create()/.update()`; **constraint/rule cấp PocketBase phải tự định nghĩa lại**.
 
 - **`advances`** (tạm ứng) — xem ERD + §8.1. Full field: `user, requested_by, recruiter_id, target_admins[], employee_code, full_name, company, phone, join_date, bank_name, bank_account_number, bank_account_name, amount, original_amount, reason, status, recovery_status, admin_note, recruiter_note, recovery_note, resolved_at, recovered_at, disbursed, disbursed_at`.
-- **`attendance`** — `user, date, shift (day|night), is_holiday, hc_hours, ot_hours`.
 - **`check_attendance_batches` / `check_attendance_items`** — sheet chấm công import. Batch: `month, round_no, note, total_users, total_rows, source_file`. Item: `batch, user, month, round_no, rows[] (json), summary (json)`.
 - **`check_salary_batches` / `check_salary_items`** — sheet lương import. Item: `batch, user, month, round_no, personal, wage_lines, allowance_lines, deduction_lines, totals` (đều json).
-- **`complaints`** — `full_name, employee_code, company, phone, content, status (pending|accepted|rejected), admin_note, resolved_at`.
 - **`recruitments`** (bảng tin) + **`recruitment_areas`** — Recruitment nhiều field mô tả tuyển dụng (`company, area, images[], map_url, introduction, interview_time, recruitment_deadline, employment_type, is_active, gender[], salary_base, allowance, bonus_other, short_term_salary, environment, work_posture, production_qc, documents, notes, admin_phone`).
 - **`main_houses`** — `name, address, hotline, note`.
-- **`transport_contacts`** — `user, edited_by, carrier_name, title, run_time, phone`.
-- **`guides`** — `icon, title, content, font_size, order, target_type (all|factories|users), target_factories[], target_users[]`.
 - **Chat**: `chat_rooms` (`name, description, is_default, created_by`), `chat_room_members` (`room, user`), `chat_join_requests` (`room, user, status, handled_by, handled_at`), `group_chat_messages` (`user, room, content`).
 - **`app_settings`** — singleton (getList(1,1)). Field: `company_name, slogan, address, hotline, email, about, logo (file), requireApproval, account_code_prefix, advance_limit, advance_rules, allow_advance_after_leave, advance_reporting_enabled, install_guide_images[]`, + branding icons.
-- **Game garden/gems**: `garden_foods, garden_exchange_tiers, garden_balances, garden_exchange_requests, garden_visit_saves, garden_game_sessions, garden_gem_rewards`.
 
 ---
 
@@ -327,8 +322,7 @@ flowchart LR
     Public --> login & register & pending & about
 
     Auth --> Home["/ index.tsx (dashboard)"]
-    Auth --> Worker["Worker/shared:<br/>attendance, check-attendance,<br/>advances, complaints, work-history,<br/>news, transport, chat, guides,<br/>notebook, account, force-change-password"]
-    Auth --> Games["garden, gems, minesweeper"]
+    Auth --> Worker["Worker/shared:<br/>check-attendance, advances,<br/>work-history, news, chat,<br/>notebook, account, force-change-password"]
     Auth --> Staff["staff.* (staff+admin)"]
     Auth --> Admin["admin/* (admin only)"]
 
@@ -341,7 +335,7 @@ flowchart LR
 ### Shell (`__root.tsx`)
 
 - `head()`: meta viewport `viewport-fit=cover`, `theme-color #0e6b7a`, title "Hoàng Long DJC", Google Fonts (Noto Sans), manifest link, apple-touch/favicon trỏ tới `/api/public/app-icon` (động).
-- `RootComponent`: `QueryClientProvider` → `AuthProvider` → `BrandHeadLinks` + `PushPermissionPrompt` + `.app-shell` (`Outlet` + `RoamingPet` + `Toaster`). On mount đăng ký `/sw.js`, cài PWA prompt listener.
+- `RootComponent`: `QueryClientProvider` → `AuthProvider` → `BrandHeadLinks` + `PushPermissionPrompt` + `.app-shell` (`Outlet` + `Toaster`). On mount đăng ký `/sw.js`, cài PWA prompt listener.
 - `ErrorComponent`: auto reload **1 lần** khi lỗi chunk-load (deploy cũ) qua sentinel `sessionStorage`.
 
 ### Nav & layout
@@ -458,7 +452,7 @@ Status `received → approved → disbursed`, hoặc `→ rejected` / `→ cance
 
 - `calcSalary`: rate buckets **100/130/150/200/270/300/390** + phụ cấp chuyên cần / đời sống / thâm niên. `distributeDay`/`aggregate`.
 - `getPayrollPeriod`: chu kỳ lương theo `factory.attendance_cutoff_day`, sinh cell lịch.
-- Chấm công tự (`attendance.tsx`) + xem sheet import (`check-attendance.tsx`).
+- Xem sheet công/lương import (`check-attendance.tsx`).
 
 ### 8.6 Dashboard (`index.tsx`, `staff.index.tsx`)
 
@@ -521,12 +515,11 @@ src/
 │  ├─ factories/       # FactoryManagersDialog
 │  ├─ users/           # UserCombobox
 │  ├─ admin/           # AccountActivityStats
-│  └─ garden/          # RoamingPet
 ├─ hooks/              # use-mobile.tsx (còn lại là hooks trong lib/)
 └─ lib/                # logic nghiệp vụ + data (xem bên dưới)
 ```
 
-`src/lib/` chia nhóm: **infra/data** (`pocketbase.ts`, `pocketbase-config.ts`, `staff-cache.ts`, `realtime-sync.ts`, `use-staff-cache-signal.ts`, `delegations.ts`), **auth/authz** (`auth.tsx`, `user-approval.ts`, `staff-permissions.ts`, `profile.ts`, `account-identity.ts`, `uid.ts`), **domain** (`employment.ts`, `factories.ts`, `main-houses.ts`, `salary.ts`, `payroll-cycle.ts`, `advances.ts`, `salary-holds.ts`, `approval-requests.ts`, `cccd-qr.ts`, `cccd-versions.ts`, `staff-log.ts`, `app-settings.ts`), **utils** (`utils.ts` `cn()`, `money.ts`, `date-utils.ts`, `vn-banks.ts`, `excel.ts`, `image-compress.ts`, `seen.ts`, garden), **PWA/push/SSR** (`pwa-install.ts`, `push-notifications.ts`, `push-server.ts`, `error-capture.ts`, `error-page.ts`, `server-app-brand.ts`).
+`src/lib/` chia nhóm: **infra/data** (`pocketbase.ts`, `pocketbase-config.ts`, `staff-cache.ts`, `realtime-sync.ts`, `use-staff-cache-signal.ts`, `delegations.ts`), **auth/authz** (`auth.tsx`, `user-approval.ts`, `staff-permissions.ts`, `profile.ts`, `account-identity.ts`, `uid.ts`), **domain** (`employment.ts`, `factories.ts`, `main-houses.ts`, `salary.ts`, `payroll-cycle.ts`, `advances.ts`, `salary-holds.ts`, `approval-requests.ts`, `cccd-qr.ts`, `cccd-versions.ts`, `staff-log.ts`, `app-settings.ts`), **utils** (`utils.ts` `cn()`, `money.ts`, `date-utils.ts`, `vn-banks.ts`, `excel.ts`, `image-compress.ts`, `seen.ts`), **PWA/push/SSR** (`pwa-install.ts`, `push-notifications.ts`, `push-server.ts`, `error-capture.ts`, `error-page.ts`, `server-app-brand.ts`).
 
 > Không có barrel `index.ts`; import trực tiếp qua alias `@/`.
 
@@ -545,8 +538,8 @@ src/
 ### Biến môi trường (`.env`)
 
 ```
-PB_URL=http://127.0.0.1:8090          # PocketBase upstream (server/SSR)
-VITE_PB_URL=http://127.0.0.1:8090
+PB_URL=http://127.0.0.1:8290          # PocketBase upstream (server/SSR)
+VITE_PB_URL=http://127.0.0.1:8290
 VAPID_PUBLIC_KEY=...                   # web-push
 VAPID_PRIVATE_KEY=...
 VAPID_SUBJECT=mailto:admin@...
@@ -558,7 +551,7 @@ PB_ADMIN_EMAIL=... / PB_ADMIN_PASSWORD=...  # hoặc PB_ADMIN_TOKEN — cho push
 ### URL resolution (`pocketbase-config.ts`)
 
 - Client: `window.__PB_URL__` (runtime override) → nếu không có, `${window.location.origin}/api/public/pb` (same-origin proxy).
-- Server/build: `PB_URL` / `VITE_PB_URL` env, mặc định `http://127.0.0.1:8090`. `getPBUpstream()` trả upstream trực tiếp cho handler server.
+- Server/build: `PB_URL` / `VITE_PB_URL` env, mặc định `http://127.0.0.1:8290`. `getPBUpstream()` trả upstream trực tiếp cho handler server.
 
 ### Scripts
 
@@ -570,7 +563,7 @@ PB_ADMIN_EMAIL=... / PB_ADMIN_PASSWORD=...  # hoặc PB_ADMIN_TOKEN — cho push
 flowchart LR
     User["Người dùng"] --> CF["chamcongchua.com<br/>Cloudflare Tunnel"]
     CF --> Node["PM2: node .output/server/index.mjs<br/>PORT 3000"]
-    Node --> PB[("PocketBase :8090<br/>SQLite + file storage")]
+    Node --> PB[("PocketBase :8290<br/>SQLite + file storage")]
 ```
 
 Deploy phụ: Netlify (`netlify.toml`, publish `dist/client`, Node 22, `NETLIFY=true` → chọn plugin netlify thay nitro). Cloudflare Workers scaffold (`wrangler.jsonc`) có nhưng `cloudflare:false`.
@@ -580,7 +573,7 @@ Deploy phụ: Netlify (`netlify.toml`, publish `dist/client`, Node 22, `NETLIFY=
 ## 13. Checklist dựng lại từ đầu
 
 1. **Khởi tạo project**: Vite 7 + `@lovable.dev/vite-tanstack-config`, React 19, TanStack Router/Start/Query, TypeScript strict, alias `@/* → src/*`. ESLint flat config (cấm import `server-only`).
-2. **Cài PocketBase** :8090. Import collections theo thứ tự trong `docs/pocketbase/README.md`, sau đó **tự tạo** các collection chưa có JSON (§4) với đúng field + rule (đặc biệt: unique "one active job", state-machine `salary_holds`, delete rule advances).
+2. **Cài PocketBase** :8290. Import collections theo thứ tự trong `docs/pocketbase/README.md`, sau đó **tự tạo** các collection chưa có JSON (§4) với đúng field + rule (đặc biệt: unique "one active job", state-machine `salary_holds`, delete rule advances).
 3. **Setup Tailwind v4** qua vite plugin + `styles.css` (biến màu, `theme-color #0e6b7a`). Cài shadcn/ui style "new-york", base slate.
 4. **Reverse proxy** `/api/public/pb/*` (CORS + SSE passthrough + bọc lỗi) — làm trước vì mọi thứ phụ thuộc.
 5. **Auth**: `pocketbase.ts` (`pb`, `autoCancellation(false)`), `pocketbase-config.ts`, `auth.tsx` (`AuthProvider`/`useAuth`), server login route (zod + canonicalize), `user-approval.ts`. Guards trong `_authenticated.tsx` + các layout.
@@ -590,7 +583,6 @@ Deploy phụ: Netlify (`netlify.toml`, publish `dist/client`, Node 22, `NETLIFY=
 9. **Nghiệp vụ**: employment (snapshot per-record + one-active-job + UID), advances (3 bước + recovery + disbursed + VietQR + swipe), salary-holds (state-machine), approvals (request + responses aggregation), account approval, salary/payroll calc.
 10. **Import/Export Excel** (log 1 dòng summary), CCCD QR + versions, push VAPID, branding động + PWA manifest/icons + service worker.
 11. **Dashboard** (unread aggregation + tile gating theo employment), settings (company + factories + managers + advance rules).
-12. **Games** (garden/gems/minesweeper) — tùy chọn, tách riêng.
 13. **Deploy**: PM2 + Cloudflare Tunnel (chính) hoặc Netlify (phụ). Secret qua `.env`, không commit.
 
 ### Cạm bẫy dễ sai (must-not-break)

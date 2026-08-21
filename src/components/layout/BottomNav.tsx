@@ -1,7 +1,15 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useState, type ComponentType, type ReactNode } from "react";
-import { ChevronLeft, Download, Home, Info, LogIn, Settings, Upload, User, Users } from "lucide-react";
-import { LoginRequiredDialog } from "@/components/auth/LoginRequiredDialog";
+import {
+  Building2,
+  ChevronLeft,
+  Download,
+  Home,
+  Settings,
+  Upload,
+  User,
+  Users,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { InstallFloatingBanner } from "./InstallFloatingBanner";
@@ -12,7 +20,6 @@ export type RoleNavigationItem = {
   label: string;
   icon: ComponentType<{ className?: string }>;
   exact?: boolean;
-  requiresLogin?: boolean;
   action?: "staff-export";
 };
 
@@ -25,32 +32,29 @@ function isItemActive(item: RoleNavigationItem, pathname: string) {
 export function BottomNav() {
   const { pathname } = useLocation();
   const { user } = useAuth();
-  const [loginOpen, setLoginOpen] = useState(false);
   const { openStaffExcelExport } = useStaffExcelExport();
 
   const items: readonly RoleNavigationItem[] =
-    user?.role === "staff"
+    user?.role === "super_admin"
       ? [
-          { to: "/staff", label: "Trang chủ", icon: Home, exact: true },
-          { to: "/staff/workers", label: "Lao động", icon: Users },
-          { to: "/staff/export", label: "Xuất file", icon: Download, action: "staff-export" },
+          { to: "/super-admin", label: "Công ty", icon: Building2, exact: true },
           { to: "/account", label: "Tài khoản", icon: User },
         ]
-      : user?.role === "admin"
+      : user?.role === "staff"
         ? [
-            { to: "/", label: "Trang chủ", icon: Home, exact: true },
-            { to: "/admin/settings", label: "Cài đặt", icon: Settings },
-            { to: "/admin/imports", label: "Nhập liệu", icon: Upload },
+            { to: "/staff", label: "Trang chủ", icon: Home, exact: true },
+            { to: "/staff/workers", label: "Lao động", icon: Users },
+            { to: "/staff/export", label: "Xuất file", icon: Download, action: "staff-export" },
             { to: "/account", label: "Tài khoản", icon: User },
           ]
-        : [
-            { to: "/", label: "Trang chủ", icon: Home, exact: true },
-            { to: "/login", label: "Đăng nhập", icon: LogIn, requiresLogin: true },
-            { to: "/about", label: "Về chúng tôi", icon: Info },
-          ];
-
-  const focusMode = pathname === "/gems" || pathname === "/minesweeper";
-  if (focusMode) return null;
+        : user?.role === "admin"
+          ? [
+              { to: "/", label: "Trang chủ", icon: Home, exact: true },
+              { to: "/admin/settings", label: "Cài đặt", icon: Settings },
+              { to: "/admin/imports", label: "Nhập liệu", icon: Upload },
+              { to: "/account", label: "Tài khoản", icon: User },
+            ]
+          : [];
 
   return (
     <>
@@ -83,17 +87,17 @@ export function BottomNav() {
                       {item.label}
                     </span>
                   </button>
-                ) : item.requiresLogin ? (
-                  <button type="button" onClick={() => setLoginOpen(true)} className={className}>
-                    <Icon className="h-[22px] w-[22px]" />
-                    <span className="line-clamp-2 text-center text-[11px] leading-[1.1]">
-                      {item.label}
-                    </span>
-                  </button>
                 ) : (
-                  <Link to={item.to as never} aria-current={active ? "page" : undefined} className={className}>
+                  <Link
+                    to={item.to as never}
+                    aria-current={active ? "page" : undefined}
+                    className={className}
+                  >
                     <Icon
-                      className={cn("h-[22px] w-[22px] transition-transform", active && "scale-105")}
+                      className={cn(
+                        "h-[22px] w-[22px] transition-transform",
+                        active && "scale-105",
+                      )}
                     />
                     <span className="line-clamp-2 text-center text-[11px] leading-[1.1]">
                       {item.label}
@@ -105,7 +109,6 @@ export function BottomNav() {
           })}
         </ul>
       </nav>
-      {!user && <LoginRequiredDialog open={loginOpen} onOpenChange={setLoginOpen} />}
     </>
   );
 }

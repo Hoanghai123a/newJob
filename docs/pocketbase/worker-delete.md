@@ -1,4 +1,4 @@
-﻿# Xóa tài khoản người lao động an toàn
+# Xóa tài khoản người lao động an toàn
 
 ## Mục đích
 
@@ -47,10 +47,8 @@ Chỉ các nghiệp vụ liên quan tới tiền mới chặn xóa:
 - Yêu cầu ứng lương trong `advances`.
 - Dữ liệu giữ lương trong `salary_holds`.
 - Yêu cầu phê duyệt của NLĐ có `amount > 0`.
-- Yêu cầu quy đổi xu thành tiền trong `garden_exchange_requests`.
-- Số dư `reserve_balance > 0` trong `garden_balances`.
 
-`employment_histories`, `cccd_versions`, dữ liệu check công trong `attendance`/`check_attendance_items`, dữ liệu check lương trong `check_salary_items`, sổ tay và dữ liệu trò chơi không chặn xóa. Để dữ liệu check công/check lương không chặn xóa tài khoản và vẫn được giữ lại, field relation `user` của `attendance`, `check_attendance_items` và `check_salary_items` phải cho phép rỗng (`required = false`) và giữ `cascadeDelete = false`. Các bản ghi có relation `cascadeDelete = true` sẽ bị PocketBase xóa cùng tài khoản. Cần hiển thị cảnh báo rõ vì hành động không thể hoàn tác. Collection chưa được cài đặt sẽ được bỏ qua; lỗi quyền hoặc lỗi truy vấn khác vẫn dừng thao tác để tránh xóa thiếu an toàn.
+`employment_histories`, `cccd_versions`, dữ liệu check công trong `check_attendance_items`, dữ liệu check lương trong `check_salary_items`, sổ tay và dữ liệu trò chơi không chặn xóa. Để dữ liệu check công/check lương không chặn xóa tài khoản và vẫn được giữ lại, field relation `user` của `check_attendance_items` và `check_salary_items` phải cho phép rỗng (`required = false`) và giữ `cascadeDelete = false`. Các bản ghi có relation `cascadeDelete = true` sẽ bị PocketBase xóa cùng tài khoản. Cần hiển thị cảnh báo rõ vì hành động không thể hoàn tác. Collection chưa được cài đặt sẽ được bỏ qua; lỗi quyền hoặc lỗi truy vấn khác vẫn dừng thao tác để tránh xóa thiếu an toàn.
 
 ## Nhật ký
 

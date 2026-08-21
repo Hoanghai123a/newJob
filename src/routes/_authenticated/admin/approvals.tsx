@@ -128,7 +128,6 @@ function ApprovalsPage() {
       "Địa chỉ email": u.email,
       "Vai trò": u.role,
       "Đã duyệt": isUserApproved(u) ? "Có" : "Không",
-      "Lương cơ bản": u.lcb,
       "Ngân hàng": u.bank_name,
       "Số tài khoản": u.bank_account_number,
       "Tên chủ tài khoản": u.bank_account_name,

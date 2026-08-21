@@ -53,7 +53,7 @@ export async function connectPocketBase({ requireExplicitUrl = false } = {}) {
   if (requireExplicitUrl && !process.env.PB_URL) {
     throw new Error("Khi chạy --apply, bắt buộc cấu hình PB_URL rõ ràng cho PocketBase đích.");
   }
-  const baseUrl = process.env.PB_URL || process.env.VITE_PB_URL || "http://127.0.0.1:8090";
+  const baseUrl = process.env.PB_URL || process.env.VITE_PB_URL || "http://127.0.0.1:8290";
   const identity = process.env.PB_ADMIN_EMAIL;
   const password = process.env.PB_ADMIN_PASSWORD;
   const token = process.env.PB_ADMIN_TOKEN;

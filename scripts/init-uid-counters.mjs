@@ -1,6 +1,6 @@
 ﻿import PocketBase from "pocketbase";
 
-const pbUrl = process.env.PB_URL || process.env.VITE_PB_URL || "http://127.0.0.1:8090";
+const pbUrl = process.env.PB_URL || process.env.VITE_PB_URL || "http://127.0.0.1:8290";
 const identity = process.env.PB_ADMIN_EMAIL;
 const password = process.env.PB_ADMIN_PASSWORD;
 if (!identity || !password) throw new Error("Thiếu PB_ADMIN_EMAIL hoặc PB_ADMIN_PASSWORD.");

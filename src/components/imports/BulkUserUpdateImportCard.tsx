@@ -38,29 +38,6 @@ const FIELD_SPECS: FieldSpec[] = [
     label: "Ghi ch\u00fa t\u00e0i kho\u1ea3n ng\u00e2n h\u00e0ng",
     kind: "text",
   },
-  {
-    field: "default_hc_hours",
-    label: "S\u1ed1 gi\u1edd h\u00e0nh ch\u00ednh m\u1eb7c \u0111\u1ecbnh",
-    kind: "number",
-    min: 0,
-  },
-  {
-    field: "default_ot_hours",
-    label: "S\u1ed1 gi\u1edd t\u0103ng ca m\u1eb7c \u0111\u1ecbnh",
-    kind: "number",
-    min: 0,
-  },
-  {
-    field: "attendance_cutoff_day",
-    label: "Ng\u00e0y ch\u1ed1t c\u00f4ng",
-    kind: "number",
-    min: 1,
-    max: 31,
-  },
-  { field: "lcb", label: "L\u01b0\u01a1ng c\u01a1 b\u1ea3n", kind: "number", min: 0 },
-  { field: "chuyen_can", label: "Chuy\u00ean c\u1ea7n", kind: "number", min: 0 },
-  { field: "doi_song", label: "\u0110\u1eddi s\u1ed1ng", kind: "number", min: 0 },
-  { field: "tham_nien", label: "Th\u00e2m ni\u00ean", kind: "number", min: 0 },
 ];
 
 const FIELD_BY_LABEL = new Map(FIELD_SPECS.map((spec) => [spec.label, spec]));

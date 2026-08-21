@@ -27,7 +27,7 @@ const baseUrl =
   process.env.VITE_PB_URL ||
   fileEnv.PB_URL ||
   fileEnv.VITE_PB_URL ||
-  "http://127.0.0.1:8090";
+  "http://127.0.0.1:8290";
 const email = process.env.PB_ADMIN_EMAIL || fileEnv.PB_ADMIN_EMAIL;
 const password = process.env.PB_ADMIN_PASSWORD || fileEnv.PB_ADMIN_PASSWORD;
 

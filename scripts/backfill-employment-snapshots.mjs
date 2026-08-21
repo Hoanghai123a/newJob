@@ -40,7 +40,7 @@ async function main() {
   await loadLocalEnv();
 
   const pocketBaseUrl =
-    process.env.VITE_PB_URL || process.env.POCKETBASE_URL || "http://127.0.0.1:8090";
+    process.env.VITE_PB_URL || process.env.POCKETBASE_URL || "http://127.0.0.1:8290";
   const adminEmail = process.env.PB_ADMIN_EMAIL;
   const adminPassword = process.env.PB_ADMIN_PASSWORD;
 

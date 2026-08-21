@@ -78,7 +78,6 @@ import {
   KeyRound,
   Trash2,
   UserCog,
-  Send,
   Ban,
   CheckCircle2,
   UserPlus,
@@ -106,6 +105,7 @@ export const Route = createFileRoute("/_authenticated/account")({
 });
 
 const ROLE_LABELS: Record<Role, string> = {
+  super_admin: "Quản trị tối cao",
   admin: "Quản trị viên",
   staff: "Staff",
   user: "Người dùng",
@@ -521,8 +521,6 @@ function AdminUsersPanel() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [guideOpen, setGuideOpen] = useState(false);
-  const [guide, setGuide] = useState({ title: "", content: "" });
   const [resetTarget, setResetTarget] = useState<any>(null);
   const [newPwd, setNewPwd] = useState("");
   const [roleTarget, setRoleTarget] = useState<any>(null);
@@ -1035,32 +1033,6 @@ function AdminUsersPanel() {
     }
   };
 
-  const sendGuide = async () => {
-    if (!guide.title.trim() || !guide.content.trim()) {
-      toast.error("Nhập tiêu đề và nội dung");
-      return;
-    }
-    const targets = Array.from(selected);
-    try {
-      await pb.collection("guides").create({
-        title: guide.title,
-        content: guide.content,
-        target_type: targets.length ? "users" : "all",
-        target_users: targets,
-        target_factories: [],
-        created_by: me?.id,
-      });
-      toast.success(
-        targets.length ? "Đã gửi đến " + targets.length + " người" : "Đã gửi tới tất cả",
-      );
-      setGuideOpen(false);
-      setGuide({ title: "", content: "" });
-      setSelected(new Set());
-    } catch (e: any) {
-      toast.error(e?.message || "Lỗi gửi hướng dẫn");
-    }
-  };
-
   const createOne = async () => {
     const full_name = (newUser.full_name || "").trim();
     const phone = (newUser.phone || "").trim();
@@ -1519,17 +1491,6 @@ function AdminUsersPanel() {
                     variant="outline"
                     onClick={() => {
                       setActionSheetOpen(false);
-                      setGuideOpen(true);
-                    }}
-                    className="justify-start rounded-2xl"
-                  >
-                    <Send className="h-3.5 w-3.5" /> Gửi HD
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setActionSheetOpen(false);
                       bulkDisable(false);
                     }}
                     className="justify-start rounded-2xl"
@@ -1798,42 +1759,6 @@ function AdminUsersPanel() {
             </Button>
             <Button onClick={confirmToggleApprovalRequirement} disabled={confirmingApproval}>
               {confirmingApproval ? "Đang xác thực..." : "Xác nhận"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Send guide dialog */}
-      <Dialog open={guideOpen} onOpenChange={setGuideOpen}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              {"Gửi hướng dẫn (" + (selected.size ? selected.size + " người" : "tất cả") + ")"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Tiêu đề</Label>
-              <Input
-                value={guide.title}
-                onChange={(e) => setGuide({ ...guide, title: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Nội dung</Label>
-              <Textarea
-                rows={6}
-                value={guide.content}
-                onChange={(e) => setGuide({ ...guide, content: e.target.value })}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setGuideOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={sendGuide}>
-              <Send className="h-4 w-4" /> Gửi
             </Button>
           </DialogFooter>
         </DialogContent>

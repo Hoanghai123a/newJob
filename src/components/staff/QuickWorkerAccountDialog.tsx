@@ -55,12 +55,12 @@ import {
   type CccdQrScanFailureReason,
   type CccdQrScanMode,
 } from "@/lib/cccd-qr";
-import { findUserByUsernameInsensitive, normalizeAccountUsername } from "@/lib/account-identity";
 import { createEmploymentHistory, type EmploymentHistoryRecord } from "@/lib/employment";
 import type { FactoryRecord } from "@/lib/factories";
 import { compressImage } from "@/lib/image-compress";
 import type { MainHouseRecord } from "@/lib/main-houses";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import type { WorkerRecord } from "@/lib/workers";
 import { updateCachedUser } from "@/lib/staff-cache";
 import { createStaffActionLog } from "@/lib/staff-log";
 import { allocateEmploymentHistoryUids, allocateUserUids } from "@/lib/uid-counter";
@@ -73,7 +73,7 @@ import { BankPicker } from "@/components/staff/BankNameInput";
 import { getUserErrorMessage } from "@/lib/toast";
 
 export interface QuickWorkerCreatedResult {
-  user: UserRecord;
+  user: WorkerRecord;
   history?: EmploymentHistoryRecord;
   cccdVersion?: CccdVersionRecord;
   warnings: string[];
@@ -188,11 +188,6 @@ function normalizeStoredNumericField(value: string) {
 
 function hasRequiredDigits(value: string, count: number) {
   return digitsOnly(value).length === count;
-}
-
-function buildUsername(phone: string, cccd: string) {
-  const base = phone.trim() || cccd.trim();
-  return normalizeAccountUsername(base);
 }
 
 function getErrorMessage(error: unknown, fallback: string) {
@@ -543,7 +538,6 @@ export function QuickWorkerAccountDialog({
     const cccdForValidation = cccdRaw.trim();
     const phoneForValidation = phoneRaw.trim();
     const cccdDigits = digitsOnly(cccdForValidation);
-    const username = buildUsername(phoneRaw, cccdRaw);
     const birthForPb = displayDateToPocketBase(form.date_of_birth);
     const issueDateForPb = displayDateToPocketBase(form.cccd_issue_date);
     const errors: string[] = [];
@@ -560,7 +554,6 @@ export function QuickWorkerAccountDialog({
         "CCCD phải có đúng 12 chữ số; ký tự ở cuối chỉ dùng để phân biệt tài khoản và không được lưu",
       );
     }
-    if (!username) errors.push("Không tạo được tên đăng nhập từ SĐT/CCCD");
     if (!form.date_of_birth.trim()) errors.push("Nhập ngày sinh");
     else if (!birthForPb) errors.push("Ngày sinh không hợp lệ");
     if (!form.cccd_issue_date.trim()) errors.push("Nhập ngày cấp CCCD");
@@ -577,7 +570,7 @@ export function QuickWorkerAccountDialog({
     if (!form.recruiter_staff) errors.push("Chọn người tuyển");
     if (!form.join_date) errors.push("Nhập ngày vào làm");
 
-    return { errors, username };
+    return { errors };
   };
 
   const createWorker = async (entry: QuickWorkerEntry, uid: string, historyUid: string) => {
@@ -588,12 +581,8 @@ export function QuickWorkerAccountDialog({
     const phoneRaw = form.phone;
     const cccd = normalizeStoredNumericField(cccdRaw);
     const phone = normalizeStoredNumericField(phoneRaw);
-    const username = buildUsername(phoneRaw, cccdRaw);
     const birthForPb = displayDateToPocketBase(form.date_of_birth);
     const issueDateForPb = displayDateToPocketBase(form.cccd_issue_date);
-    const existing = await findUserByUsernameInsensitive(username);
-    if (existing) throw new Error("Tên đăng nhập đã tồn tại. Hãy đổi SĐT hoặc CCCD.");
-
     const [compressedFront, compressedBack] = await Promise.all([
       entry.frontFile ? compressImage(entry.frontFile) : Promise.resolve(null),
       entry.backFile ? compressImage(entry.backFile) : Promise.resolve(null),
@@ -602,15 +591,8 @@ export function QuickWorkerAccountDialog({
     const fd = new FormData();
     fd.append("full_name", realName);
     fd.append("phone", phone);
-    fd.append("username", username);
     fd.append("uid", uid);
-    fd.append("password", "12345678");
-    fd.append("passwordConfirm", "12345678");
-    fd.append("role", "user");
-    fd.append("approvalStatus", "approved");
-    fd.append("approved", "true");
     fd.append("status", "active");
-    fd.append("must_change_password", "true");
     fd.append("cccd", cccd);
     fd.append("gender", form.gender.trim());
     if (birthForPb) fd.append("date_of_birth", birthForPb);
@@ -621,20 +603,19 @@ export function QuickWorkerAccountDialog({
     fd.append("bank_account_name", form.bank_account_name.trim());
     fd.append("bank_account_note", form.bank_account_note.trim());
 
-    const createdUser = await pb.collection("users").create<UserRecord>(fd);
+    const createdUser = await pb.collection("workers").create<WorkerRecord>(fd);
     const secondaryWarnings: string[] = [];
-    const cacheUser: UserRecord = {
+    const cacheUser: WorkerRecord = {
       ...createdUser,
       full_name: realName,
       phone,
-      username,
       cccd,
     };
 
     try {
       await updateCachedUser(cacheUser);
     } catch {
-      secondaryWarnings.push("chưa cập nhật được cache tài khoản");
+      secondaryWarnings.push("chưa cập nhật được cache hồ sơ");
     }
 
     let cccdVersion: CccdVersionRecord | undefined;
@@ -689,11 +670,11 @@ export function QuickWorkerAccountDialog({
       await createStaffActionLog({
         actor,
         targetUserId: createdUser.id,
-        targetCollection: "users",
+        targetCollection: "workers",
         targetRecord: createdUser.id,
         action: "create",
-        after: { id: createdUser.id, username, uid, full_name: realName, cccd },
-        note: "Tạo nhanh tài khoản NLĐ từ mục NLĐ",
+        after: { id: createdUser.id, uid, full_name: realName, cccd },
+        note: "Tạo nhanh hồ sơ NLĐ từ mục NLĐ",
       });
       if (historyId) {
         await createStaffActionLog({
@@ -723,23 +704,10 @@ export function QuickWorkerAccountDialog({
     if (!actor?.id) return toast.error("Không xác định người thao tác");
 
     const validationErrors: Record<string, string[]> = {};
-    const usernames = new Map<string, number[]>();
-    entries.forEach((entry, index) => {
-      const { errors, username } = validateEntry(entry);
+        entries.forEach((entry, index) => {
+      const { errors } = validateEntry(entry);
       if (errors.length > 0) validationErrors[entry.id] = errors;
-      if (username) usernames.set(username, [...(usernames.get(username) || []), index + 1]);
     });
-    usernames.forEach((indexes) => {
-      if (indexes.length < 2) return;
-      indexes.forEach((index) => {
-        const entry = entries[index - 1];
-        validationErrors[entry.id] = [
-          ...(validationErrors[entry.id] || []),
-          `Tên đăng nhập trùng với NLĐ #${indexes.filter((item) => item !== index).join(", #")}`,
-        ];
-      });
-    });
-
     if (Object.keys(validationErrors).length > 0) {
       setRecordErrors(validationErrors);
       const details = entries
@@ -779,7 +747,7 @@ export function QuickWorkerAccountDialog({
       } catch (error) {
         const message =
           getPocketBaseFieldErrors(error) ||
-          getErrorMessage(error, "Không tạo được tài khoản nhanh");
+          getErrorMessage(error, "Không tạo được hồ sơ NLĐ");
         failed[entry.id] = [message];
       }
     }
@@ -789,7 +757,7 @@ export function QuickWorkerAccountDialog({
       try {
         await onCreated(created.map(({ result }) => result));
       } catch {
-        refreshWarning = "Đã tạo tài khoản nhưng chưa cập nhật được danh sách cục bộ";
+        refreshWarning = "Đã tạo hồ sơ nhưng chưa cập nhật được danh sách cục bộ";
       }
     }
 
@@ -825,7 +793,7 @@ export function QuickWorkerAccountDialog({
         toast.warning(`Đã tạo ${created.length} NLĐ, nhưng ${warnings.join("; ")}.`);
       } else {
         toast.success(
-          created.length === 1 ? "Đã tạo nhanh tài khoản NLĐ" : `Đã tạo ${created.length} NLĐ`,
+          created.length === 1 ? "Đã tạo nhanh hồ sơ NLĐ" : `Đã tạo ${created.length} NLĐ`,
         );
       }
     }
@@ -849,9 +817,9 @@ export function QuickWorkerAccountDialog({
           className="fixed flex h-[92dvh] max-h-[92dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-5xl desktop:left-[var(--desktop-workspace-left,17.5rem)] desktop:top-20 desktop:right-0 desktop:bottom-0 desktop:h-auto desktop:max-h-none desktop:w-auto desktop:max-w-none desktop:translate-x-0 desktop:translate-y-0 desktop:rounded-none"
         >
           <DialogHeader className="shrink-0 border-b bg-background px-5 py-4 pr-14 desktop:px-5 desktop:py-3 desktop:pr-14">
-            <DialogTitle>Tạo nhanh tài khoản NLĐ</DialogTitle>
+            <DialogTitle>Tạo nhanh hồ sơ NLĐ</DialogTitle>
             <DialogDescription>
-              Tạo tài khoản user và ghi nhận lịch sử đang đi làm trong một bước.
+              Tạo hồ sơ NLĐ và ghi nhận lịch sử đang đi làm trong một bước.
             </DialogDescription>
           </DialogHeader>
 

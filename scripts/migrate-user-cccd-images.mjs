@@ -398,7 +398,7 @@ export async function main(argv = process.argv.slice(2)) {
     process.env.PB_URL ||
     process.env.VITE_PB_URL ||
     process.env.POCKETBASE_URL ||
-    "http://127.0.0.1:8090";
+    "http://127.0.0.1:8290";
   const email = process.env.PB_ADMIN_EMAIL;
   const password = process.env.PB_ADMIN_PASSWORD;
   if (!email || !password)

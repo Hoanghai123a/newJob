@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/force-change-password")({
 });
 
 function ForceChangePasswordPage() {
-  const { user, login } = useAuth();
+  const { user } = useAuth();
   const nav = useNavigate();
   const [newPwd, setNewPwd] = useState("");
   const [confirmPwd, setConfirmPwd] = useState("");
@@ -40,18 +40,22 @@ function ForceChangePasswordPage() {
     }
     setSaving(true);
     try {
-      await pb.collection("users").update(user.id, {
-        oldPassword: "12345678",
-        password: newPwd,
-        passwordConfirm: confirmPwd,
-        must_change_password: false,
+      const response = await fetch("/api/public/force-change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${pb.authStore.token}`,
+        },
+        body: JSON.stringify({ password: newPwd, passwordConfirm: confirmPwd }),
       });
-      await login(user.username || "", newPwd);
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(payload?.message || "Lỗi đổi mật khẩu");
+      pb.authStore.save(payload.token, payload.record);
       toast.success("Đổi mật khẩu thành công");
       const role = user.role;
       if (role === "admin") nav({ to: "/" });
       else if (role === "staff") nav({ to: "/staff" });
-      else nav({ to: "/attendance" });
+      else nav({ to: "/" });
     } catch (e: any) {
       toast.error(e?.response?.message || e?.message || "Lỗi đổi mật khẩu");
     } finally {

@@ -4,11 +4,12 @@ import { PB_URL } from "./pocketbase-config";
 export const pb = new PocketBase(PB_URL);
 pb.autoCancellation(false);
 
-export type Role = "admin" | "user" | "staff";
+export type Role = "super_admin" | "admin" | "user" | "staff";
 
 export interface UserRecord {
   id: string;
   username?: string;
+  login_name?: string;
   email?: string;
   phone?: string;
   full_name?: string;
@@ -16,16 +17,11 @@ export interface UserRecord {
   cccd_issue_date?: string;
   uid?: string;
   role?: Role;
+  company?: string;
+  tenant_company?: string;
   approved?: boolean | string;
   approvalStatus?: "pending" | "approved" | "rejected";
   status?: "active" | "disabled";
-  default_hc_hours?: number;
-  default_ot_hours?: number;
-  attendance_cutoff_day?: number;
-  lcb?: number;
-  chuyen_can?: number;
-  doi_song?: number;
-  tham_nien?: number;
   bank_name?: string;
   bank_account_number?: string;
   bank_account_name?: string;
