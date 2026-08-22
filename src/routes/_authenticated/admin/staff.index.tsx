@@ -35,6 +35,8 @@ import {
 import { exportToExcel } from "@/lib/excel";
 import { normalizeDate } from "@/lib/date-utils";
 import { escapePb } from "@/lib/delegations";
+import { companyFilter, companyIdOf, resolveTenantAccountIdentity } from "@/lib/tenant";
+import { accountLoginName } from "@/lib/login-identity";
 
 export const Route = createFileRoute("/_authenticated/admin/staff/")({
   beforeLoad: () => {
@@ -48,7 +50,7 @@ const DEFAULT_PASSWORD = "nv123456";
 
 function staffSearchFilter(search: string) {
   const q = escapePb(search.trim());
-  const roleFilter = '(role="staff" || role="admin")';
+  const roleFilter = 'role="staff"';
   if (!q) return roleFilter;
   const searchFilter = `(${["full_name", "username", "phone", "address"]
     .map((field) => `${field}~"${q}"`)
@@ -75,12 +77,12 @@ function AdminStaffPage() {
         pb
           .collection("users")
           .getList<UserRecord>(1, 500, {
-            filter: staffSearchFilter(debouncedSearch),
+            filter: `${companyFilter(currentUser, "tenant_company")} && (${staffSearchFilter(debouncedSearch)})`,
             sort: "full_name,username",
           })
           .then((res) => res.items),
-        fetchFactories(),
-        fetchFactoryManagers(),
+        fetchFactories(currentUser),
+        fetchFactoryManagers(undefined, currentUser),
       ]);
       setStaffUsers(userRows);
       setFactories(factoryRows);
@@ -104,10 +106,7 @@ function AdminStaffPage() {
   }, [debouncedSearch]);
 
   const summary = useMemo(
-    () => ({
-      admin: staffUsers.filter((u) => u.role === "admin").length,
-      staff: staffUsers.filter((u) => u.role === "staff").length,
-    }),
+    () => staffUsers.filter((u) => u.role === "staff").length,
     [staffUsers],
   );
 
@@ -141,7 +140,7 @@ function AdminStaffPage() {
     setImportingStaff(true);
     setImportResult("");
     try {
-      const factoryRows = await fetchFactories();
+      const factoryRows = await fetchFactories(currentUser);
       const factoryByName = new Map(factoryRows.map((f) => [f.name.toLowerCase(), f]));
 
       const buffer = await file.arrayBuffer();
@@ -194,9 +193,11 @@ function AdminStaffPage() {
         }
 
         try {
+          const identity = await resolveTenantAccountIdentity(currentUser, username);
           const uid = await generateUid();
           const newUser = await pb.collection("users").create({
-            username,
+            username: identity.username,
+            ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
             uid,
             full_name: fullName,
             phone: phone || undefined,
@@ -205,6 +206,7 @@ function AdminStaffPage() {
             password,
             passwordConfirm: password,
             role: "staff",
+            tenant_company: companyIdOf(currentUser),
             approvalStatus: "approved",
             approved: "true",
             status: "active",
@@ -223,6 +225,7 @@ function AdminStaffPage() {
               await pb.collection("factory_managers").create({
                 staff: newUser.id,
                 factory: factory.id,
+                tenant_company: companyIdOf(currentUser),
                 status: "active",
               });
             }
@@ -234,7 +237,7 @@ function AdminStaffPage() {
             targetCollection: "users",
             targetRecord: newUser.id,
             action: "create",
-            after: { username, full_name: fullName, role: "staff", uid },
+            after: { username: identity.loginName, full_name: fullName, role: "staff", uid },
             note: "Admin import tạo tài khoản staff từ Excel",
           });
           created++;
@@ -269,13 +272,10 @@ function AdminStaffPage() {
 
   return (
     <PageContainer
-      title="Quản lý Staff & Admin"
+      title="Quản lý Staff"
       subtitle="Tạo, quản lý tài khoản staff và phân quyền nhà máy"
     >
-      <div className="grid grid-cols-2 gap-2">
-        <StatCard label="Admin" value={summary.admin} icon={ShieldCheck} tone="info" />
-        <StatCard label="Staff" value={summary.staff} icon={Users} tone="success" />
-      </div>
+      <StatCard label="Staff" value={summary} icon={Users} tone="success" />
 
       <div className="grid grid-cols-2 gap-2">
         <Link
@@ -370,7 +370,7 @@ function AdminStaffPage() {
                       {staff.full_name || staff.username || "Chưa có tên"}
                     </div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">
-                      @{staff.username || "—"} · {staff.phone || "chưa có SĐT"}
+                      @{accountLoginName(staff) || "—"} · {staff.phone || "chưa có SĐT"}
                     </div>
                     {(staff.date_of_birth || staff.address) && (
                       <div className="mt-0.5 text-[11px] text-muted-foreground">
@@ -470,11 +470,13 @@ function CreateStaffDialog({
         return;
       }
 
+      const identity = await resolveTenantAccountIdentity(actor, username);
       const password = form.password.trim() || DEFAULT_PASSWORD;
       const uid = await generateUid();
 
       const newUser = await pb.collection("users").create({
-        username,
+        username: identity.username,
+        ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
         uid,
         full_name: form.full_name.trim(),
         phone: form.phone.trim() || undefined,
@@ -483,6 +485,7 @@ function CreateStaffDialog({
         password,
         passwordConfirm: password,
         role: "staff",
+        tenant_company: companyIdOf(actor),
         approvalStatus: "approved",
         approved: "true",
         status: "active",
@@ -496,7 +499,12 @@ function CreateStaffDialog({
         targetCollection: "users",
         targetRecord: newUser.id,
         action: "create",
-        after: { username, full_name: form.full_name.trim(), role: "staff", uid },
+        after: {
+          username: identity.loginName,
+          full_name: form.full_name.trim(),
+          role: "staff",
+          uid,
+        },
         note: "Admin tạo tài khoản staff trực tiếp",
       });
 

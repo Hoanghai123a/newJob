@@ -1,5 +1,6 @@
 import { pb, type UserRecord } from "./pocketbase";
 import type { AdvanceRecord } from "./advances";
+import { companyPayload, joinTenantFilters } from "./tenant";
 
 export type StaffActionType =
   | "create"
@@ -26,6 +27,7 @@ export interface StaffActionLogInput {
 
 export interface StaffActionLogRecord {
   id: string;
+  tenant_company: string;
   actor: string;
   actor_role_snapshot: string;
   target_user?: string;
@@ -361,14 +363,19 @@ export function getWorkerActionSummary(log: StaffActionLogRecord) {
 
     if (reason) parts.push(`Lý do: ${reason}`);
 
-    return compactText(parts.join(" · ") || log.note || "") || getStaffActionCollectionLabel(log.target_collection);
+    return (
+      compactText(parts.join(" · ") || log.note || "") ||
+      getStaffActionCollectionLabel(log.target_collection)
+    );
   }
 
   const changedSummary = summarizeChangedFields(log);
 
   if (log.action === "update" && changedSummary) return changedSummary;
 
-  return compactText(log.note || changedSummary || getStaffActionCollectionLabel(log.target_collection));
+  return compactText(
+    log.note || changedSummary || getStaffActionCollectionLabel(log.target_collection),
+  );
 }
 
 function timestamp(value?: string) {
@@ -430,7 +437,10 @@ async function fetchVisibleStaffActionLogs(userId: string, limit: number) {
     const result = await pb
       .collection("staff_action_logs")
       .getList<StaffActionLogRecord>(page, LOG_PAGE_SIZE, {
-        filter: `target_user="${userId}"`,
+        filter: joinTenantFilters(
+          pb.authStore.record as UserRecord | null,
+          `target_user="${userId}"`,
+        ),
         sort: "-created",
         expand: "actor",
       });
@@ -451,7 +461,7 @@ export async function fetchWorkerActionHistory(userId: string, limit = 50) {
   let advances: AdvanceRecord[] = [];
   try {
     const result = await pb.collection("advances").getList<AdvanceRecord>(1, limit, {
-      filter: `user="${userId}"`,
+      filter: joinTenantFilters(pb.authStore.record as UserRecord | null, `user="${userId}"`),
       sort: "-created",
       expand: "requested_by",
     });
@@ -481,6 +491,7 @@ export async function createStaffActionLog(input: StaffActionLogInput) {
   if (!input.actor?.id) return;
 
   await pb.collection("staff_action_logs").create({
+    ...companyPayload(input.actor as UserRecord),
     actor: input.actor.id,
     actor_role_snapshot: input.actor.role || "user",
     target_user: input.targetUserId || "",

@@ -4,11 +4,11 @@
     "name": "approval_requests",
     "type": "base",
     "system": false,
-    "listRule": "creator = @request.auth.id || admins ~ @request.auth.id",
-    "viewRule": "creator = @request.auth.id || admins ~ @request.auth.id",
-    "createRule": "@request.auth.role = \"staff\" || @request.auth.role = \"admin\"",
-    "updateRule": "creator = @request.auth.id || @request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (creator = @request.auth.id || admins ~ @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (creator = @request.auth.id || admins ~ @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"staff\" || @request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (creator = @request.auth.id || @request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -23,6 +23,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "autogeneratePattern": "",
@@ -68,7 +79,9 @@
         "protected": false,
         "required": false,
         "system": false,
-        "thumbs": ["200x200"],
+        "thumbs": [
+          "200x200"
+        ],
         "type": "file"
       },
       {
@@ -162,18 +175,20 @@
         "type": "autodate"
       }
     ],
-    "indexes": []
+    "indexes": [
+      "CREATE INDEX `idx_approval_requests_tenant_company` ON `approval_requests` (`tenant_company`)"
+    ]
   },
   {
     "id": "pbc_approval_res",
     "name": "approval_responses",
     "type": "base",
     "system": false,
-    "listRule": "admin = @request.auth.id || request.creator = @request.auth.id",
-    "viewRule": "admin = @request.auth.id || request.creator = @request.auth.id",
-    "createRule": "@request.auth.role = \"staff\" || @request.auth.role = \"admin\"",
-    "updateRule": "admin = @request.auth.id",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (admin = @request.auth.id || request.creator = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (admin = @request.auth.id || request.creator = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"staff\" || @request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (admin = @request.auth.id)",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -188,6 +203,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "cascadeDelete": true,
@@ -276,6 +302,8 @@
         "type": "autodate"
       }
     ],
-    "indexes": []
+    "indexes": [
+      "CREATE INDEX `idx_approval_responses_tenant_company` ON `approval_responses` (`tenant_company`)"
+    ]
   }
 ]

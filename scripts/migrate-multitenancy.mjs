@@ -49,19 +49,15 @@ const COMPANY_FIELDS = [
   { name: "email", type: "email" },
   ...LIMIT_FIELDS,
 ];
-const EXCLUDED = new Set(["_superusers", "companies", "uid_counters"]);
+// Audit logs must survive company deletion, so they intentionally keep only company snapshots.
+const EXCLUDED = new Set([
+  "_superusers",
+  "companies",
+  "uid_counters",
+  "tenant_purge_logs",
+  "tenant_restore_logs",
+]);
 const MAX_INVALID_RECORDS_PER_COLLECTION = 25;
-const HOANG_LONG_COMPANY = {
-  code: "HOANGLONGDJC",
-  name: "Hoàng Long DJC",
-  status: "active",
-  max_accounts: 0,
-  max_workers: 0,
-  max_factories: 0,
-  max_file_bytes: 0,
-  max_employment_histories: 0,
-};
-
 function tenantCollections(collections) {
   return collections.filter(
     (collection) =>
@@ -197,40 +193,23 @@ function isCompanyRelation(field, companyCollection) {
   return field?.type === "relation" && field.collectionId === companyCollection.id;
 }
 
-function tenantFieldName(collection, companyCollection) {
-  const fields = collection.fields || [];
-  const company = fields.find((field) => field.name === "company");
-  if (isCompanyRelation(company, companyCollection)) return "company";
-  const tenantCompany = fields.find((field) => field.name === "tenant_company");
-  if (isCompanyRelation(tenantCompany, companyCollection)) return "tenant_company";
-  return company ? "tenant_company" : "company";
+function tenantFieldName() {
+  return "tenant_company";
 }
 
 async function planCompanyFields(collections, companyCollection) {
   const changes = [];
   for (const collection of tenantCollections(collections)) {
-    const fields = collection.fields || [];
-    const company = fields.find((field) => field.name === "company");
-    if (!company) {
-      changes.push({
-        collection: collection.name,
-        field: "company",
-        action: "thêm relation tenant",
-      });
-      continue;
-    }
-    if (isCompanyRelation(company, companyCollection)) continue;
-
-    const tenantCompany = fields.find((field) => field.name === "tenant_company");
+    const tenantCompany = (collection.fields || []).find(
+      (field) => field.name === "tenant_company",
+    );
     if (tenantCompany && !isCompanyRelation(tenantCompany, companyCollection))
       throw new Error(`${collection.name}.tenant_company phải là relation tới companies.`);
-    if (isCompanyRelation(tenantCompany, companyCollection)) continue;
-
+    if (tenantCompany) continue;
     changes.push({
       collection: collection.name,
       field: "tenant_company",
-      action: "giữ company cũ và thêm relation tenant riêng",
-      preservesLegacyCompany: true,
+      action: "thêm relation tenant_company; giữ nguyên field company cũ để tương thích",
     });
   }
   return changes;
@@ -254,25 +233,152 @@ async function applyCompanyFieldPlan(collections, companyCollection, changes) {
     if (!collection) continue;
     applied.push({ collection: change.collection, field: change.field, action: change.action });
     if (!apply) continue;
-    const fields = collection.fields || [];
     await pb.collections.update(collection.id, {
-      fields: [...fields, relationField(change.field, companyCollection)],
+      fields: [...(collection.fields || []), relationField("tenant_company", companyCollection)],
     });
   }
   return applied;
 }
 
-async function buildVerification(collections, companyCollection) {
+function relationValues(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  return value ? [value] : [];
+}
+
+async function inferTenantAssignments(collections, companyCollection) {
+  const companies = await pb.collection("companies").getFullList({ fields: "id,code,name" });
+  const validCompanyIds = new Set(companies.map((company) => company.id));
+  const collectionById = new Map(collections.map((collection) => [collection.id, collection]));
+  const tenantCols = tenantCollections(collections).filter((collection) =>
+    (collection.fields || []).some((field) => field.name === "tenant_company"),
+  );
+  const rowsByCollection = new Map();
+  const rowByCollectionAndId = new Map();
+
+  for (const collection of tenantCols) {
+    const relationFields = (collection.fields || []).filter((field) => field.type === "relation");
+    const fields = ["id", "tenant_company", ...relationFields.map((field) => field.name)];
+    const rows = await pb
+      .collection(collection.name)
+      .getFullList({ fields: [...new Set(fields)].join(",") });
+    rowsByCollection.set(collection.name, rows);
+    rowByCollectionAndId.set(collection.name, new Map(rows.map((row) => [row.id, row])));
+  }
+
+  const inferredBySource = {};
+  const conflicts = [];
+  const assignments = [];
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const collection of tenantCols) {
+      const rows = rowsByCollection.get(collection.name) || [];
+      const relationFields = (collection.fields || []).filter((field) => field.type === "relation");
+      const legacyCompany = relationFields.find(
+        (field) => field.name === "company" && field.collectionId === companyCollection.id,
+      );
+      const parentFields = relationFields.filter(
+        (field) => field.name !== "tenant_company" && field.collectionId !== companyCollection.id,
+      );
+
+      for (const row of rows) {
+        if (validCompanyIds.has(row.tenant_company)) continue;
+        const candidates = [];
+        if (legacyCompany && validCompanyIds.has(row.company))
+          candidates.push({ tenant: row.company, source: "company_relation", priority: 1 });
+
+        for (const field of parentFields) {
+          const targetCollection = collectionById.get(field.collectionId);
+          if (!targetCollection) continue;
+          const targetRows = rowByCollectionAndId.get(targetCollection.name);
+          for (const relationId of relationValues(row[field.name])) {
+            const tenant = targetRows?.get(relationId)?.tenant_company;
+            if (validCompanyIds.has(tenant)) {
+              const directParent = [
+                "request",
+                "room",
+                "batch",
+                "factory",
+                "employment_history",
+                "worker",
+                "user",
+                "creator",
+                "created_by",
+                "staff",
+                "admin",
+                "requested_by",
+                "recruiter_id",
+              ].includes(field.name);
+              candidates.push({
+                tenant,
+                source: `${targetCollection.name}.${field.name}`,
+                priority: directParent ? 2 : 3,
+              });
+            }
+          }
+        }
+
+        if (!candidates.length && companies.length === 1)
+          candidates.push({ tenant: companies[0].id, source: "single_company", priority: 9 });
+        if (!candidates.length) continue;
+
+        candidates.sort((a, b) => a.priority - b.priority);
+        const chosen = candidates[0];
+        const distinct = [...new Set(candidates.map((candidate) => candidate.tenant))];
+        if (distinct.length > 1) {
+          conflicts.push({
+            collection: collection.name,
+            id: row.id,
+            chosen: chosen.tenant,
+            candidates,
+          });
+        }
+        row.tenant_company = chosen.tenant;
+        assignments.push({ collection: collection.name, id: row.id, ...chosen });
+        inferredBySource[chosen.source] = (inferredBySource[chosen.source] || 0) + 1;
+        changed = true;
+      }
+    }
+  }
+
+  if (apply) {
+    for (const assignment of assignments) {
+      await pb.collection(assignment.collection).update(assignment.id, {
+        tenant_company: assignment.tenant,
+      });
+    }
+  }
+
+  const unresolved = [];
+  for (const collection of tenantCols) {
+    const invalid = (rowsByCollection.get(collection.name) || []).filter(
+      (row) => !validCompanyIds.has(row.tenant_company),
+    );
+    if (!invalid.length) continue;
+    unresolved.push({
+      collection: collection.name,
+      field: "tenant_company",
+      count: invalid.length,
+      records: invalid.slice(0, MAX_INVALID_RECORDS_PER_COLLECTION).map((row) => ({ id: row.id })),
+      truncated: invalid.length > MAX_INVALID_RECORDS_PER_COLLECTION,
+      resolution:
+        "Không đủ quan hệ để suy luận tenant; cần gán thủ công trước khi bật rule bắt buộc.",
+    });
+  }
+
+  return { assignments, inferredBySource, conflicts, unresolved };
+}
+
+async function buildVerification(collections) {
   const companies = await pb.collection("companies").getFullList({ fields: "id,code,name,status" });
   const tenantSummary = [];
   for (const collection of tenantCollections(collections)) {
-    const field = tenantFieldName(collection, companyCollection);
-    if (!(collection.fields || []).some((item) => item.name === field)) continue;
-    const rows = await pb.collection(collection.name).getFullList({ fields: `id,${field}` });
-    const assigned = rows.filter((row) => Boolean(row[field])).length;
+    if (!(collection.fields || []).some((item) => item.name === "tenant_company")) continue;
+    const rows = await pb.collection(collection.name).getFullList({ fields: "id,tenant_company" });
+    const assigned = rows.filter((row) => Boolean(row.tenant_company)).length;
     tenantSummary.push({
       collection: collection.name,
-      field,
+      field: "tenant_company",
       total: rows.length,
       assigned,
       missing: rows.length - assigned,
@@ -286,59 +392,96 @@ async function buildVerification(collections, companyCollection) {
   };
 }
 
-async function ensureHoangLongCompany() {
-  const companies = await pb.collection("companies").getFullList();
-  const primary =
-    companies.find((company) => company.code === HOANG_LONG_COMPANY.code) ||
-    companies.find((company) => company.name === HOANG_LONG_COMPANY.name) ||
-    companies[0] ||
-    null;
-  const duplicates = primary ? companies.filter((company) => company.id !== primary.id) : [];
+function removeLegacyCompanyTenantConstraint(rule) {
+  if (rule === null || rule === undefined) return rule;
+  return String(rule)
+    .replaceAll(
+      '(@request.auth.id != "" && @request.auth.role != "super_admin" && company = @request.auth.tenant_company && (@request.body.company:isset = false || @request.body.company = @request.auth.tenant_company))',
+      '(@request.auth.id != "")',
+    )
+    .replaceAll(
+      '(@request.auth.id != "" && @request.auth.role != "super_admin" && @request.body.company = @request.auth.tenant_company)',
+      '(@request.auth.id != "")',
+    )
+    .replaceAll(
+      '(@request.auth.id != "" && @request.auth.role != "super_admin" && company = @request.auth.tenant_company)',
+      '(@request.auth.id != "")',
+    );
+}
 
-  if (!primary) {
-    if (!apply) return { action: "sẽ tạo công ty Hoàng Long DJC", company: null, duplicates };
-    const company = await pb.collection("companies").create(HOANG_LONG_COMPANY);
-    return { action: "đã tạo công ty Hoàng Long DJC", company, duplicates };
-  }
+function appendRule(existingRule, constraint) {
+  if (existingRule === null || existingRule === undefined) return existingRule;
+  const trimmed = removeLegacyCompanyTenantConstraint(existingRule).trim();
+  if (!trimmed) return constraint;
+  if (trimmed.includes("tenant_company = @request.auth.tenant_company")) return trimmed;
+  return `(${trimmed}) && (${constraint})`;
+}
+function usersAccessRules() {
+  const tenant = 'tenant_company = @request.auth.tenant_company';
+  const manageableRole = '(role = "user" || role = "staff" || role = "")';
+  const requestedManageableRole =
+    '(@request.body.role:isset = false || @request.body.role = "user" || @request.body.role = "staff" || @request.body.role = "")';
+  const unchangedTenant =
+    '(@request.body.tenant_company:isset = false || @request.body.tenant_company = @request.auth.tenant_company)';
+  const selfAdminUpdate =
+    `(@request.auth.id = id && ${tenant} && ${unchangedTenant} && ` +
+    '(@request.body.role:isset = false || @request.body.role = "admin"))';
 
-  if (apply) await pb.collection("companies").update(primary.id, HOANG_LONG_COMPANY);
   return {
-    action: duplicates.length
-      ? `sẽ hợp nhất ${duplicates.length} công ty vào Hoàng Long DJC`
-      : "đã chuẩn hóa công ty Hoàng Long DJC",
-    company: apply ? { ...primary, ...HOANG_LONG_COMPANY } : primary,
-    duplicates,
+    listRule: `(@request.auth.role = "super_admin" || (@request.auth.role = "admin" && ${tenant} && ${manageableRole}) || (@request.auth.role != "admin" && @request.auth.id != "" && ${tenant}))`,
+    viewRule: `(@request.auth.role = "super_admin" || (@request.auth.role = "admin" && ${tenant} && ${manageableRole}) || (@request.auth.role != "admin" && @request.auth.id != "" && ${tenant}))`,
+    createRule: `(@request.auth.role = "super_admin" || (@request.auth.role = "admin" && @request.body.tenant_company = @request.auth.tenant_company && ${requestedManageableRole}) || (@request.auth.role != "admin" && @request.auth.id != "" && @request.body.tenant_company = @request.auth.tenant_company))`,
+    updateRule: `(@request.auth.role = "super_admin" || (@request.auth.role = "admin" && (${selfAdminUpdate} || (${tenant} && ${manageableRole} && ${unchangedTenant} && ${requestedManageableRole}))) || (@request.auth.role != "admin" && @request.auth.id != "" && ${tenant} && ${unchangedTenant}))`,
+    deleteRule: `(@request.auth.role = "super_admin" || (@request.auth.role = "admin" && ${tenant} && ${manageableRole}) || (@request.auth.role != "admin" && @request.auth.id != "" && ${tenant}))`,
   };
 }
 
-async function assignCompanyRecords(
-  collections,
-  companyCollection,
-  targetCompany,
-  duplicateCompanies,
-) {
-  const assignments = [];
-  const sourceCompanyIds = new Set(duplicateCompanies.map((company) => company.id));
+async function ensureTenantRules(collections) {
+  const changes = [];
   for (const collection of tenantCollections(collections)) {
-    const field = tenantFieldName(collection, companyCollection);
-    if (!(collection.fields || []).some((item) => item.name === field)) continue;
-    const records = await pb.collection(collection.name).getFullList({ fields: `id,${field}` });
-    const toAssign = records.filter(
-      (record) => !record[field] || sourceCompanyIds.has(record[field]),
-    );
-    if (toAssign.length) {
-      assignments.push({ collection: collection.name, field, count: toAssign.length });
-      if (apply) {
-        for (const record of toAssign)
-          await pb.collection(collection.name).update(record.id, { [field]: targetCompany.id });
-      }
-    }
+    const tenantField = (collection.fields || []).find((item) => item.name === "tenant_company");
+    if (!tenantField) continue;
+
+    const recordConstraint = `(@request.auth.role = "super_admin" || (@request.auth.id != "" && tenant_company = @request.auth.tenant_company))`;
+    const createBodyConstraint = `(@request.auth.role = "super_admin" || (@request.auth.id != "" && @request.body.tenant_company = @request.auth.tenant_company))`;
+    const updateBodyConstraint = `(@request.auth.role = "super_admin" || (@request.auth.id != "" && tenant_company = @request.auth.tenant_company && (@request.body.tenant_company:isset = false || @request.body.tenant_company = @request.auth.tenant_company)))`;
+    const deleteConstraint = `(@request.auth.role = "super_admin" || (@request.auth.id != "" && tenant_company = @request.auth.tenant_company))`;
+    const tenantIndex = `CREATE INDEX idx_${collection.name}_tenant_company ON ${collection.name} (tenant_company)`;
+    const accessRules = collection.name === "users" ? usersAccessRules() : null;
+    const next = {
+      listRule: accessRules?.listRule || appendRule(collection.listRule, recordConstraint),
+      viewRule: accessRules?.viewRule || appendRule(collection.viewRule, recordConstraint),
+      createRule: accessRules?.createRule || appendRule(collection.createRule, createBodyConstraint),
+      updateRule: accessRules?.updateRule || appendRule(collection.updateRule, updateBodyConstraint),
+      deleteRule: accessRules?.deleteRule || appendRule(collection.deleteRule, deleteConstraint),
+      fields: (collection.fields || []).map((item) =>
+        item.name === "tenant_company" ? { ...item, required: true } : item,
+      ),
+      indexes: [...new Set([...(collection.indexes || []), tenantIndex])],
+    };
+    const changed =
+      JSON.stringify(next) !==
+      JSON.stringify({
+        listRule: collection.listRule,
+        viewRule: collection.viewRule,
+        createRule: collection.createRule,
+        updateRule: collection.updateRule,
+        deleteRule: collection.deleteRule,
+        fields: collection.fields || [],
+        indexes: collection.indexes || [],
+      });
+    if (!changed) continue;
+    changes.push({
+      collection: collection.name,
+      field: "tenant_company",
+      action:
+        collection.name === "users"
+          ? "bắt buộc tenant, thêm index và rule chặn Admin quản trị Admin/Super Admin"
+          : "bắt buộc tenant, thêm index và rule tenant",
+    });
+    if (apply) await pb.collections.update(collection.id, next);
   }
-  if (apply) {
-    for (const duplicate of duplicateCompanies)
-      await pb.collection("companies").delete(duplicate.id);
-  }
-  return assignments;
+  return changes;
 }
 
 const report = {
@@ -349,6 +492,8 @@ const report = {
   companyFieldChanges: [],
   defaultCompany: null,
   normalizedAssignments: [],
+  inferredBySource: {},
+  conflicts: [],
   unresolved: [],
   invalidRecords: [],
   orphanChatMessages: null,
@@ -382,24 +527,22 @@ if (report.invalidRecords.length) {
     await applyCompanyFieldPlan(allCollections, companyCollection, report.companyFieldChanges);
     allCollections = await pb.collections.getFullList();
 
-    const normalized = await ensureHoangLongCompany();
-    const defaultCompany = normalized.company;
-    report.defaultCompany = defaultCompany
-      ? { id: defaultCompany.id, name: HOANG_LONG_COMPANY.name, code: HOANG_LONG_COMPANY.code }
-      : { name: HOANG_LONG_COMPANY.name, code: HOANG_LONG_COMPANY.code };
-    if (defaultCompany) {
-      report.normalizedAssignments = await assignCompanyRecords(
-        allCollections,
-        companyCollection,
-        defaultCompany,
-        normalized.duplicates,
+    const inference = await inferTenantAssignments(allCollections, companyCollection);
+    report.normalizedAssignments = inference.assignments;
+    report.inferredBySource = inference.inferredBySource;
+    report.conflicts = inference.conflicts;
+    report.unresolved = inference.unresolved;
+    if (apply && report.unresolved.length) {
+      console.error(
+        "Migration đã backfill phần xác định được nhưng còn bản ghi thiếu tenant; chưa bật rule bắt buộc.",
       );
-      report.unresolved = report.normalizedAssignments.map((item) => ({
-        ...item,
-        resolution: "gán vào Hoàng Long DJC",
-      }));
+      process.exitCode = 1;
     }
-    report.verification = await buildVerification(allCollections, companyCollection);
+    if (!report.unresolved.length) {
+      report.tenantRuleChanges = await ensureTenantRules(allCollections);
+      if (apply) allCollections = await pb.collections.getFullList();
+    }
+    report.verification = await buildVerification(allCollections);
     console.log(JSON.stringify(report, null, 2));
   }
 }

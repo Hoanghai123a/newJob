@@ -14,6 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { accountLoginName } from "@/lib/login-identity";
 
 export function UserCombobox({
   value,
@@ -40,7 +41,7 @@ export function UserCombobox({
     if (!keyword) return users;
     return users.filter((item) =>
       normalizeUserPickerSearch(
-        `${item.full_name || ""} ${item.username || ""} ${item.phone || ""}`,
+        `${item.full_name || ""} ${accountLoginName(item)} ${item.username || ""} ${item.phone || ""}`,
       ).includes(keyword),
     );
   }, [debouncedQuery, users]);
@@ -77,7 +78,7 @@ export function UserCombobox({
             {filteredUsers.map((item) => (
               <CommandItem
                 key={item.id}
-                value={`${item.full_name || ""} ${item.username || ""} ${item.phone || ""}`}
+                value={`${item.full_name || ""} ${accountLoginName(item)} ${item.username || ""} ${item.phone || ""}`}
                 onSelect={() => {
                   onChange(item.id);
                   setOpen(false);
@@ -90,7 +91,7 @@ export function UserCombobox({
                     {item.id === currentUserId ? "Bạn" : userDisplayName(item)}
                   </div>
                   <div className="truncate text-[11px] text-muted-foreground">
-                    @{item.username || "?"} ? {item.phone || "?"}
+                    @{accountLoginName(item) || "?"} · {item.phone || "?"}
                   </div>
                 </div>
               </CommandItem>

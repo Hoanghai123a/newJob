@@ -54,6 +54,7 @@ import { createStaffActionLog } from "@/lib/staff-log";
 import { buildVietQrUrl } from "@/lib/vn-banks";
 import { fetchFactories, type FactoryRecord } from "@/lib/factories";
 import { exportToExcel } from "@/lib/excel";
+import { companyFilter } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/staff/salary-holds")({
   component: SalaryHoldsPage,
@@ -98,7 +99,9 @@ function SalaryHoldsPage() {
       if (!viewer?.id) return;
       if (showLoading) setLoading(true);
       try {
-        const filter = isAdmin ? "" : `staff="${viewer.id}"`;
+        const filter = [companyFilter(viewer), !isAdmin ? `staff="${viewer.id}"` : ""]
+          .filter(Boolean)
+          .join(" && ");
         const result = await pb.collection("salary_holds").getList<SalaryHoldRecord>(1, 500, {
           filter,
           sort: "-created",
@@ -132,7 +135,9 @@ function SalaryHoldsPage() {
     let cancelled = false;
     let unsubscribe: (() => void) | undefined;
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
-    const filter = isAdmin ? "" : `staff="${viewer.id}"`;
+    const filter = [companyFilter(viewer), !isAdmin ? `staff="${viewer.id}"` : ""]
+      .filter(Boolean)
+      .join(" && ");
 
     void pb
       .collection("salary_holds")
@@ -142,7 +147,7 @@ function SalaryHoldsPage() {
           if (refreshTimer) clearTimeout(refreshTimer);
           refreshTimer = setTimeout(() => void load(false), 150);
         },
-        { filter: filter || undefined },
+        { filter },
       )
       .then((stop) => {
         if (cancelled) void stop();
@@ -163,7 +168,7 @@ function SalaryHoldsPage() {
       setQrTemplate(localStorage.getItem(QR_TEMPLATE_KEY) || DEFAULT_QR_TEMPLATE);
     } catch {}
     if (isAdmin)
-      fetchFactories()
+      fetchFactories(viewer)
         .then(setFactories)
         .catch(() => {});
     else

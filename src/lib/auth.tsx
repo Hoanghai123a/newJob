@@ -105,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     const userId = (pb.authStore.record as UserRecord | null)?.id;
     clearPasswordVerifiedAt(userId);
+    // Disconnect SSE before clearing/changing the auth token to avoid PocketBase 403.
+    pb.realtime.disconnect();
     pb.authStore.clear();
     queryClient.removeQueries({ queryKey: STAFF_WORKSPACE_QUERY_ROOT });
     queryClient.removeQueries({ queryKey: STAFF_DIRECTORY_AUX_QUERY_ROOT });

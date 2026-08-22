@@ -24,9 +24,13 @@ export function loginNameFromUsername(value: unknown) {
   return separator >= 0 ? username.slice(separator + 2) : username;
 }
 
+export function accountLoginName(user?: { login_name?: string; username?: string } | null) {
+  return normalizeLoginName(user?.login_name) || loginNameFromUsername(user?.username);
+}
+
 export function buildTechnicalUsername(companyCode: string, loginName: string) {
   const normalizedCompanyCode = normalizeCompanyCode(companyCode).toLowerCase();
-  const normalizedLoginName = normalizeLoginName(loginName);
+  const normalizedLoginName = loginNameFromUsername(loginName);
   if (!isSupportedCompanyCode(normalizedCompanyCode) || !normalizedLoginName) {
     throw new Error("Mã công ty hoặc tên đăng nhập không hợp lệ.");
   }

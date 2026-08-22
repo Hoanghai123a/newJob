@@ -1,0 +1,275 @@
+{
+  "mode": "--finalize",
+  "generatedAt": "2026-08-19T17:54:58.969Z",
+  "before": {
+    "totals": {
+      "users": 16,
+      "histories": 14,
+      "versions": 10
+    },
+    "blockers": 0,
+    "usersWithLegacyImages": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "cccd": "",
+        "front": true,
+        "back": true
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "cccd": "",
+        "front": true,
+        "back": true
+      },
+      {
+        "id": "1ahxwxyhp7fll9i",
+        "username": "0343733777",
+        "cccd": "010309003820",
+        "front": true,
+        "back": true
+      }
+    ],
+    "usersWithImagesButInvalidCccd": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "cccd": "",
+        "front": true,
+        "back": true,
+        "reason": "Không có số CMND/CCCD hợp lệ trên users"
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "cccd": "",
+        "front": true,
+        "back": true,
+        "reason": "Không có số CMND/CCCD hợp lệ trên users"
+      }
+    ],
+    "invalidHistories": [
+      {
+        "id": "edxw0hb2252h6ci",
+        "uid": "HL2607001",
+        "user": "uiv0bjbth0h2nhx",
+        "cccd": "123456"
+      },
+      {
+        "id": "06jmm3xf3nhw88r",
+        "uid": "HL2607003",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      },
+      {
+        "id": "a0s8wcowqzj7hco",
+        "uid": "HL2607004",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "1234559"
+      },
+      {
+        "id": "y4ygkod50aypj3p",
+        "uid": "HL26070005",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      }
+    ],
+    "fallbackHistoryCandidates": [],
+    "skippedHistories": [
+      {
+        "id": "edxw0hb2252h6ci",
+        "uid": "HL2607001",
+        "user": "uiv0bjbth0h2nhx",
+        "cccd": "123456",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "06jmm3xf3nhw88r",
+        "uid": "HL2607003",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "a0s8wcowqzj7hco",
+        "uid": "HL2607004",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "1234559",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "y4ygkod50aypj3p",
+        "uid": "HL26070005",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      }
+    ],
+    "skippedLegacyImages": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "cccd": "",
+        "front": true,
+        "back": true,
+        "reason": "Không có số CMND/CCCD hợp lệ trên users"
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "cccd": "",
+        "front": true,
+        "back": true,
+        "reason": "Không có số CMND/CCCD hợp lệ trên users"
+      }
+    ],
+    "missingUsers": [],
+    "missingHistoryVersions": [],
+    "mismatchedHistoryVersions": [],
+    "duplicateVersionKeys": [],
+    "legacyImagesNotMigrated": [],
+    "legacyImageConflicts": [
+      {
+        "user": "1ahxwxyhp7fll9i",
+        "cccd": "010309003820",
+        "side": "front",
+        "keptVersionFile": "cccd_mat_truoc_1786112965841_sevppqgf4j.jpg"
+      },
+      {
+        "user": "1ahxwxyhp7fll9i",
+        "cccd": "010309003820",
+        "side": "back",
+        "keptVersionFile": "cccd_mat_sau_1786112977890_zzaggmb1c3.jpg"
+      }
+    ]
+  },
+  "migration": {
+    "createdVersions": 0,
+    "linkedHistories": 0,
+    "uploadedImages": 0,
+    "preservedVersionImages": 2,
+    "historiesUsingUserCccd": 0,
+    "skippedHistories": [
+      {
+        "id": "edxw0hb2252h6ci",
+        "uid": "HL2607001",
+        "user": "uiv0bjbth0h2nhx",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "06jmm3xf3nhw88r",
+        "uid": "HL2607003",
+        "user": "7zgadkco1qi6rb8",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "a0s8wcowqzj7hco",
+        "uid": "HL2607004",
+        "user": "7zgadkco1qi6rb8",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "y4ygkod50aypj3p",
+        "uid": "HL26070005",
+        "user": "7zgadkco1qi6rb8",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      }
+    ],
+    "skippedLegacyImages": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "reason": "Không có số CMND/CCCD hợp lệ trên users; chấp nhận xóa ảnh cũ"
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "reason": "Không có số CMND/CCCD hợp lệ trên users; chấp nhận xóa ảnh cũ"
+      }
+    ],
+    "failed": []
+  },
+  "finalize": {
+    "historyCccdVersionRequired": false,
+    "skippedHistoryCount": 4,
+    "removedUserFields": [
+      "cccd_front",
+      "cccd_back"
+    ]
+  },
+  "after": {
+    "totals": {
+      "users": 16,
+      "histories": 14,
+      "versions": 10
+    },
+    "blockers": 0,
+    "usersWithLegacyImages": [],
+    "usersWithImagesButInvalidCccd": [],
+    "invalidHistories": [
+      {
+        "id": "edxw0hb2252h6ci",
+        "uid": "HL2607001",
+        "user": "uiv0bjbth0h2nhx",
+        "cccd": "123456"
+      },
+      {
+        "id": "06jmm3xf3nhw88r",
+        "uid": "HL2607003",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      },
+      {
+        "id": "a0s8wcowqzj7hco",
+        "uid": "HL2607004",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "1234559"
+      },
+      {
+        "id": "y4ygkod50aypj3p",
+        "uid": "HL26070005",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      }
+    ],
+    "fallbackHistoryCandidates": [],
+    "skippedHistories": [
+      {
+        "id": "edxw0hb2252h6ci",
+        "uid": "HL2607001",
+        "user": "uiv0bjbth0h2nhx",
+        "cccd": "123456",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "06jmm3xf3nhw88r",
+        "uid": "HL2607003",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "a0s8wcowqzj7hco",
+        "uid": "HL2607004",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "1234559",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      },
+      {
+        "id": "y4ygkod50aypj3p",
+        "uid": "HL26070005",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345",
+        "reason": "History và users đều không có số CMND/CCCD hợp lệ"
+      }
+    ],
+    "skippedLegacyImages": [],
+    "missingUsers": [],
+    "missingHistoryVersions": [],
+    "mismatchedHistoryVersions": [],
+    "duplicateVersionKeys": [],
+    "legacyImagesNotMigrated": [],
+    "legacyImageConflicts": []
+  }
+}

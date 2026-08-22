@@ -16,6 +16,7 @@ import type { FactoryRecord } from "@/lib/factories";
 import type { MainHouseRecord } from "@/lib/main-houses";
 import type { UserRecord } from "@/lib/pocketbase";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import { accountLoginName } from "@/lib/login-identity";
 
 const COMBINING_DIACRITICS = /[̀-ͯ]/g;
 
@@ -54,7 +55,7 @@ export function UserPicker({
     if (!keyword) return users;
     return users.filter((u) =>
       normalizeUserPickerSearch(
-        `${u.full_name || ""} ${u.username || ""} ${u.phone || ""} ${u.uid || ""} ${u.cccd || ""}`,
+        `${u.full_name || ""} ${accountLoginName(u)} ${u.username || ""} ${u.phone || ""} ${u.uid || ""} ${u.cccd || ""}`,
       ).includes(keyword),
     );
   }, [debouncedQuery, users]);
@@ -76,7 +77,7 @@ export function UserPicker({
           >
             <span className={cn("truncate", !selected && "text-muted-foreground")}>
               {selected
-                ? `${selected.full_name || selected.username} · ${selected.phone || "—"}`
+                ? `${selected.full_name || accountLoginName(selected)} · ${selected.phone || "—"}`
                 : placeholder || "Chọn..."}
             </span>
             <ChevronRight className="h-4 w-4 rotate-90 text-muted-foreground" />
@@ -102,7 +103,7 @@ export function UserPicker({
                 {filteredUsers.map((u) => (
                   <CommandItem
                     key={u.id}
-                    value={`${u.full_name || ""} ${u.username || ""} ${u.phone || ""} ${u.uid || ""} ${u.cccd || ""}`}
+                    value={`${u.full_name || ""} ${accountLoginName(u)} ${u.username || ""} ${u.phone || ""} ${u.uid || ""} ${u.cccd || ""}`}
                     onSelect={() => {
                       onChange(u.id);
                       setOpen(false);
@@ -110,10 +111,10 @@ export function UserPicker({
                   >
                     <div className="flex min-w-0 flex-col">
                       <span className="truncate text-sm font-medium">
-                        {u.full_name || u.username || "—"}
+                        {u.full_name || accountLoginName(u) || "—"}
                       </span>
                       <span className="truncate text-[11px] text-muted-foreground">
-                        {[u.username, u.phone, u.uid, u.cccd].filter(Boolean).join(" · ")}
+                        {[accountLoginName(u), u.phone, u.uid, u.cccd].filter(Boolean).join(" · ")}
                       </span>
                     </div>
                   </CommandItem>

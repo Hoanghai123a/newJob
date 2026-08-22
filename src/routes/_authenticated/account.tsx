@@ -65,6 +65,8 @@ import {
   type FactoryStatus,
 } from "@/lib/factories";
 import { createStaffActionLog } from "@/lib/staff-log";
+import { companyFilter, companyIdOf, resolveTenantAccountIdentity } from "@/lib/tenant";
+import { accountLoginName } from "@/lib/login-identity";
 import * as XLSX from "xlsx";
 import { toast } from "@/lib/toast";
 import {
@@ -111,14 +113,68 @@ const ROLE_LABELS: Record<Role, string> = {
   user: "Người dùng",
 };
 
+const USER_FIELD_LABELS: Record<string, string> = {
+  username: "Tên đăng nhập",
+  uid: "Mã tài khoản",
+  phone: "Số điện thoại",
+  password: "Mật khẩu",
+  passwordConfirm: "Xác nhận mật khẩu",
+  tenant_company: "Công ty",
+  role: "Vai trò",
+};
+
+function getPocketBaseUserCreateError(error: unknown, fallback = "Không tạo được tài khoản") {
+  const response = (error as any)?.response;
+  const validation = response?.data;
+  if (validation && typeof validation === "object") {
+    const details = Object.entries(validation)
+      .map(([field, value]) => {
+        const message = (value as any)?.message;
+        if (typeof message !== "string" || !message.trim()) return "";
+        const label = USER_FIELD_LABELS[field] || field;
+        if (/unique|already exists|must be unique/i.test(message)) return `${label} đã tồn tại`;
+        if (/required|missing/i.test(message)) return `Thiếu ${label.toLowerCase()}`;
+        if (/invalid/i.test(message)) return `${label} không hợp lệ`;
+        return `${label}: ${message}`;
+      })
+      .filter(Boolean);
+    if (details.length) return details.join("; ");
+  }
+  return response?.message && response.message !== "Failed to create record."
+    ? response.message
+    : fallback;
+}
+
+function requireTenantCompany(user?: UserRecord | null) {
+  const tenantCompany = companyIdOf(user);
+  if (!tenantCompany) {
+    toast.error(
+      "Tài khoản Admin chưa được gán công ty. Vui lòng gán công ty trong PocketBase trước.",
+    );
+    return "";
+  }
+  return tenantCompany;
+}
+
+function isManageableAccount(user?: Pick<UserRecord, "role"> | null) {
+  return !user?.role || user.role === "user" || user.role === "staff";
+}
+
+function requireManageableAccount(user?: Pick<UserRecord, "role"> | null) {
+  if (isManageableAccount(user)) return true;
+  toast.error("Admin không được phép quản trị tài khoản Admin hoặc Quản trị tối cao.");
+  return false;
+}
+
 function buildUserSearchFilter(search: string, extraFilter = "") {
   const q = escapePb(search.trim());
+  const roleFilter = '(role="user" || role="staff" || role="")';
   const searchFilter = q
     ? `(${["full_name", "username", "phone", "role"]
         .map((field) => `${field}~"${q}"`)
         .join(" || ")})`
     : "";
-  return [extraFilter, searchFilter].filter(Boolean).join(" && ");
+  return [extraFilter, roleFilter, searchFilter].filter(Boolean).join(" && ");
 }
 
 function AccountPage() {
@@ -176,7 +232,7 @@ function AccountPage() {
                 Tài khoản NLĐ
               </TabsTrigger>
               <TabsTrigger value="staff" className="rounded-xl text-xs">
-                Staff & Admin
+                Staff
               </TabsTrigger>
               <TabsTrigger value="factories" className="rounded-xl text-xs">
                 QLNM
@@ -567,7 +623,7 @@ function AdminUsersPanel() {
     setLoading(true);
     try {
       const res = await pb.collection("users").getList(1, 500, {
-        filter: buildUserSearchFilter(debouncedSearch, me?.id ? `id!="${escapePb(me.id)}"` : ""),
+        filter: `${companyFilter(me, "tenant_company")} && (${buildUserSearchFilter(debouncedSearch, me?.id ? `id!="${escapePb(me.id)}"` : "")})`,
         sort: "-created",
       });
       setUsers(res.items);
@@ -611,7 +667,7 @@ function AdminUsersPanel() {
   const formatUserRow = (u: any, i: number) => ({
     STT: i + 1,
     "Họ tên": u.full_name || "",
-    "Tên đăng nhập": u.username || "",
+    "Tên đăng nhập": accountLoginName(u),
     "Số điện thoại": u.phone || "",
     "Giới tính": u.gender || "",
     CCCD: u.cccd || "",
@@ -638,7 +694,10 @@ function AdminUsersPanel() {
 
   const exportAll = async () => {
     try {
-      const all = await pb.collection("users").getFullList({ sort: "-created" });
+      const all = await pb.collection("users").getFullList({
+        filter: `${companyFilter(me, "tenant_company")} && (${buildUserSearchFilter("")})`,
+        sort: "-created",
+      });
       const rows = all.map(formatUserRow);
       exportToExcel(
         "tat_ca_tai_khoan_" + Date.now(),
@@ -655,6 +714,8 @@ function AdminUsersPanel() {
       return;
     try {
       for (const id of selected) {
+        const target = users.find((user) => user.id === id);
+        if (!requireManageableAccount(target)) return;
         await pb.collection("users").update(id, {
           approvalStatus: disable ? "pending" : "approved",
           approved: disable ? "false" : "true",
@@ -692,6 +753,7 @@ function AdminUsersPanel() {
       const factoryMap = new Map(factories.map((f: any) => [f.name.toLowerCase(), f.id]));
       const allUsers = await pb.collection("users").getFullList<UserRecord>({
         fields: "id,username,uid,role",
+        filter: `${companyFilter(me, "tenant_company")} && (role="user" || role="")`,
       });
       const { userByUid, userByUsername } = buildUserIdentityMaps(allUsers);
 
@@ -744,6 +806,10 @@ function AdminUsersPanel() {
           const user = userByUsername.get(identityKey) || userByUid.get(identityKey);
           if (!user) {
             addFailedStaffRow(r, rowNumber, "Không tìm thấy tài khoản");
+            continue;
+          }
+          if (!requireManageableAccount(user)) {
+            addFailedStaffRow(r, rowNumber, "Không được phép quản trị tài khoản này");
             continue;
           }
           await pb.collection("users").update(user.id, { role: "staff" });
@@ -859,6 +925,7 @@ function AdminUsersPanel() {
   };
 
   const openDetailUser = (user: UserRecord) => {
+    if (!requireManageableAccount(user)) return;
     setDetailUser(user);
     setDetailBankEditing(false);
     setDetailProfileEditing(false);
@@ -911,6 +978,7 @@ function AdminUsersPanel() {
 
   const saveDetailBank = async () => {
     if (!detailUser || !me) return;
+    if (!requireManageableAccount(detailUser)) return;
     setDetailBankSaving(true);
     try {
       await pb.collection("users").update(detailUser.id, detailBankForm);
@@ -944,6 +1012,7 @@ function AdminUsersPanel() {
 
   const saveDetailProfile = async () => {
     if (!detailUser || !me) return;
+    if (!requireManageableAccount(detailUser)) return;
     const payload = {
       full_name: detailProfileForm.full_name.trim(),
       phone: detailProfileForm.phone.trim(),
@@ -989,6 +1058,7 @@ function AdminUsersPanel() {
 
   const doResetPassword = async () => {
     if (!resetTarget) return;
+    if (!requireManageableAccount(resetTarget)) return;
     if (newPwd.length < 8) {
       toast.error("Mật khẩu tối thiểu 8 ký tự");
       return;
@@ -1007,12 +1077,18 @@ function AdminUsersPanel() {
   };
 
   const openRoleDialog = (u: any) => {
+    if (!requireManageableAccount(u)) return;
     setRoleTarget(u);
     setRoleValue((u.role || "user") as Role);
   };
 
   const updateRole = async () => {
     if (!roleTarget || !me) return;
+    if (!requireManageableAccount(roleTarget)) return;
+    if (roleValue !== "user" && roleValue !== "staff") {
+      toast.error("Admin chỉ được phân quyền Người dùng hoặc Staff.");
+      return;
+    }
     try {
       await pb.collection("users").update(roleTarget.id, { role: roleValue });
       await createStaffActionLog({
@@ -1047,6 +1123,9 @@ function AdminUsersPanel() {
       toast.error("Mật khẩu tối thiểu 8 ký tự");
       return;
     }
+    const tenantCompany = requireTenantCompany(me);
+    if (!tenantCompany) return;
+
     try {
       const existingUser = await findUserByUsernameInsensitive(username);
       if (existingUser) {
@@ -1057,26 +1136,29 @@ function AdminUsersPanel() {
         toast.error("Mã tài khoản đã tồn tại");
         return;
       }
+      const identity = await resolveTenantAccountIdentity(me, username);
       const uid = await generateUid(manualUid || undefined);
       await pb.collection("users").create({
         full_name,
         phone,
-        username,
+        username: identity.username,
+        ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
         uid,
         password,
         passwordConfirm: password,
-        role: "user",
+        role: "staff",
+        tenant_company: tenantCompany,
         approvalStatus: "approved",
         approved: "true",
         status: "active",
         must_change_password: password === "12345678",
       });
-      toast.success("Đã tạo tài khoản");
+      toast.success("Đã tạo tài khoản Staff");
       setCreateOpen(false);
       setNewUser(emptyNew);
       load();
     } catch (e: any) {
-      toast.error(e?.response?.message || e?.message || "Lỗi tạo");
+      toast.error(getPocketBaseUserCreateError(e, "Không tạo được tài khoản"));
     }
   };
 
@@ -1129,11 +1211,15 @@ function AdminUsersPanel() {
       let ok = 0;
       let fail = 0;
       const failedRows: Array<Record<string, unknown>> = [];
+      const tenantCompany = requireTenantCompany(me);
+      if (!tenantCompany) return;
+
       const existingUsers = await pb.collection("users").getFullList<UserRecord>({
         fields: "id,username,uid",
+        filter: companyFilter(me, "tenant_company"),
       });
       const existingUsernameKeys = new Set(
-        existingUsers.map((user) => accountIdentityKey(user.username)).filter(Boolean),
+        existingUsers.map((user) => accountIdentityKey(accountLoginName(user))).filter(Boolean),
       );
       const existingUidKeys = new Set(
         existingUsers.map((user) => accountIdentityKey(user.uid)).filter(Boolean),
@@ -1188,11 +1274,14 @@ function AdminUsersPanel() {
           continue;
         }
         try {
+          const identity = await resolveTenantAccountIdentity(me, normalizedUsername);
           const uid = await generateUid(manualUid || undefined);
           await pb.collection("users").create({
             full_name,
             phone,
-            username: normalizedUsername,
+            username: identity.username,
+            ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
+            tenant_company: tenantCompany,
             uid,
             password,
             passwordConfirm: password,
@@ -1209,14 +1298,14 @@ function AdminUsersPanel() {
             status: "active",
             must_change_password: password === "12345678",
           });
-          existingUsernameKeys.add(normalizedUsername);
+          existingUsernameKeys.add(accountIdentityKey(identity.loginName));
           existingUidKeys.add(accountIdentityKey(uid));
           ok++;
         } catch (err: any) {
           fail++;
           failedRows.push({
             Dòng: rowNum,
-            "Lý do lỗi": err?.response?.message || err?.message || "Lỗi tạo tài khoản",
+            "Lý do lỗi": getPocketBaseUserCreateError(err, "Lỗi tạo tài khoản"),
             ...r,
           });
         }
@@ -1356,7 +1445,7 @@ function AdminUsersPanel() {
                 }}
                 className="w-full justify-start rounded-2xl"
               >
-                <UserPlus className="h-4 w-4" /> Tạo tài khoản mới
+                <UserPlus className="h-4 w-4" /> Tạo tài khoản Staff
               </Button>
             </section>
 
@@ -1623,6 +1712,7 @@ function AdminUsersPanel() {
                   <button
                     onClick={(event) => {
                       event.stopPropagation();
+                      if (!requireManageableAccount(u)) return;
                       setResetTarget(u);
                       setNewPwd("");
                     }}
@@ -1709,7 +1799,6 @@ function AdminUsersPanel() {
               <SelectContent>
                 <SelectItem value="user">Người dùng</SelectItem>
                 <SelectItem value="staff">Staff</SelectItem>
-                <SelectItem value="admin">Quản trị viên</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1764,11 +1853,14 @@ function AdminUsersPanel() {
         </DialogContent>
       </Dialog>
 
-      {/* Create user dialog */}
+      {/* Create staff dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="rounded-2xl">
           <DialogHeader>
-            <DialogTitle>Tạo tài khoản mới</DialogTitle>
+              <DialogTitle>Tạo tài khoản Staff</DialogTitle>
+            <DialogDescription>
+              Tài khoản được kích hoạt quyền Staff và đăng nhập bằng mã công ty hiện tại.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <TextField
@@ -2234,7 +2326,7 @@ const STAFF_DEFAULT_PASSWORD = "nv123456";
 
 function staffSearchFilter(search: string) {
   const q = escapePb(search.trim());
-  const roleFilter = '(role="staff" || role="admin")';
+  const roleFilter = 'role="staff"';
   if (!q) return roleFilter;
   const searchFilter = `(${["full_name", "username", "phone", "address"]
     .map((field) => `${field}~"${q}"`)
@@ -2261,7 +2353,7 @@ function StaffPanel() {
         pb
           .collection("users")
           .getList<UserRecord>(1, 500, {
-            filter: staffSearchFilter(debouncedSearch),
+            filter: `${companyFilter(currentUser, "tenant_company")} && (${staffSearchFilter(debouncedSearch)})`,
             sort: "full_name,username",
           })
           .then((res) => res.items),
@@ -2290,10 +2382,7 @@ function StaffPanel() {
   }, [debouncedSearch]);
 
   const summary = useMemo(
-    () => ({
-      admin: staffUsers.filter((u) => u.role === "admin").length,
-      staff: staffUsers.filter((u) => u.role === "staff").length,
-    }),
+    () => staffUsers.filter((u) => u.role === "staff").length,
     [staffUsers],
   );
 
@@ -2324,10 +2413,13 @@ function StaffPanel() {
     event.target.value = "";
     if (!file) return;
 
+    const tenantCompany = requireTenantCompany(currentUser);
+    if (!tenantCompany) return;
+
     setImportingStaff(true);
     setImportResult("");
     try {
-      const factoryRows = await fetchFactories();
+      const factoryRows = await fetchFactories(currentUser);
       const factoryByName = new Map(factoryRows.map((f) => [f.name.toLowerCase(), f]));
 
       const buffer = await file.arrayBuffer();
@@ -2390,9 +2482,11 @@ function StaffPanel() {
         }
 
         try {
+          const identity = await resolveTenantAccountIdentity(currentUser, username);
           const uid = await generateUid();
           const newUser = await pb.collection("users").create({
-            username,
+            username: identity.username,
+            ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
             uid,
             full_name: fullName,
             phone: phone || undefined,
@@ -2401,6 +2495,7 @@ function StaffPanel() {
             password,
             passwordConfirm: password,
             role: "staff",
+            tenant_company: tenantCompany,
             approvalStatus: "approved",
             approved: "true",
             status: "active",
@@ -2430,14 +2525,14 @@ function StaffPanel() {
             targetCollection: "users",
             targetRecord: newUser.id,
             action: "create",
-            after: { username, full_name: fullName, role: "staff", uid },
+            after: { username: identity.loginName, full_name: fullName, role: "staff", uid },
             note: "Admin import tạo tài khoản staff từ Excel",
           });
           created++;
         } catch (error: any) {
           failedRows.push({
             Dòng: rowNum,
-            "Lý do lỗi": error?.message || "Lỗi tạo tài khoản",
+            "Lý do lỗi": getPocketBaseUserCreateError(error, "Lỗi tạo tài khoản"),
             ...row,
           });
           failed++;
@@ -2491,11 +2586,16 @@ function StaffPanel() {
       return false;
     }
 
+    const tenantCompany = requireTenantCompany(currentUser);
+    if (!tenantCompany) return false;
+
+    const identity = await resolveTenantAccountIdentity(currentUser, username);
     const password = form.password.trim() || STAFF_DEFAULT_PASSWORD;
     const uid = await generateUid();
 
     const newUser = await pb.collection("users").create({
-      username,
+      username: identity.username,
+      ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
       uid,
       full_name: form.full_name.trim(),
       phone: form.phone.trim() || undefined,
@@ -2504,6 +2604,7 @@ function StaffPanel() {
       password,
       passwordConfirm: password,
       role: "staff",
+      tenant_company: tenantCompany,
       approvalStatus: "approved",
       approved: "true",
       status: "active",
@@ -2517,7 +2618,7 @@ function StaffPanel() {
       targetCollection: "users",
       targetRecord: newUser.id,
       action: "create",
-      after: { username, full_name: form.full_name.trim(), role: "staff", uid },
+      after: { username: identity.loginName, full_name: form.full_name.trim(), role: "staff", uid },
       note: "Admin tạo tài khoản staff trực tiếp",
     });
 
@@ -2530,8 +2631,7 @@ function StaffPanel() {
     <Card className="space-y-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-2">
-          <StatusChip tone="info">{summary.admin} admin</StatusChip>
-          <StatusChip tone="success">{summary.staff} staff</StatusChip>
+          <StatusChip tone="success">{summary} staff</StatusChip>
         </div>
         <Button size="sm" className="rounded-full" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" /> Tạo staff
@@ -2594,7 +2694,7 @@ function StaffPanel() {
                     {staff.full_name || staff.username || "Chưa có tên"}
                   </div>
                   <div className="mt-0.5 text-[11px] text-muted-foreground">
-                    @{staff.username || "—"} · {staff.phone || "chưa có SĐT"}
+                    @{accountLoginName(staff) || "—"} · {staff.phone || "chưa có SĐT"}
                   </div>
                   {(staff.date_of_birth || staff.address) && (
                     <div className="mt-0.5 text-[11px] text-muted-foreground">
@@ -2674,7 +2774,7 @@ function CreateStaffDialog({
       const ok = await onSubmit(form);
       if (ok) onClose();
     } catch (error: any) {
-      toast.error(error?.message || "Lỗi tạo tài khoản staff");
+      toast.error(getPocketBaseUserCreateError(error, "Lỗi tạo tài khoản staff"));
     } finally {
       setSubmitting(false);
     }
@@ -2992,7 +3092,8 @@ function FactoryAssignmentsPanel() {
                       {staff.full_name || staff.username || "Chưa có tên"}
                     </div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">
-                      @{staff.username || "chưa có username"} · {staff.phone || "chưa có SĐT"}
+                      @{accountLoginName(staff) || "chưa có username"} ·{" "}
+                      {staff.phone || "chưa có SĐT"}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">

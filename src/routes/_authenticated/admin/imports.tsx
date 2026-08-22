@@ -42,6 +42,8 @@ import { generateUid } from "@/lib/uid";
 import { allocateEmploymentHistoryUids } from "@/lib/uid-counter";
 import { resolveBankName } from "@/lib/vn-banks";
 import { getUserErrorMessage } from "@/lib/toast";
+import { companyFilter, companyIdOf, resolveTenantAccountIdentity } from "@/lib/tenant";
+import { accountLoginName } from "@/lib/login-identity";
 
 const HISTORY_UID_KEYS = ["history_uid", "uid", "Mã lịch sử (UID)"];
 const CLEAR_VALUE = "[XÓA]";
@@ -104,9 +106,12 @@ function AdminImportsPage() {
     setBulkEditResult("");
     try {
       const [factoryRows, allUsers, allHistories] = await Promise.all([
-        fetchFactories(),
-        pb.collection("users").getFullList<UserRecord>({ sort: "full_name,username" }),
-        fetchEmploymentHistories(),
+        fetchFactories(currentUser),
+        pb.collection("users").getFullList<UserRecord>({
+          filter: companyFilter(currentUser, "tenant_company"),
+          sort: "full_name,username",
+        }),
+        fetchEmploymentHistories(undefined, currentUser),
       ]);
       const factoryByName = new Map(
         factoryRows.map((factory) => [accountIdentityKey(factory.name), factory]),
@@ -120,7 +125,7 @@ function AdminImportsPage() {
       const userByUsername = new Map(
         allUsers
           .filter((user) => user.username)
-          .map((user) => [accountIdentityKey(user.username), user]),
+          .map((user) => [accountIdentityKey(accountLoginName(user)), user]),
       );
       const usersByPhone = new Map<string, UserRecord[]>();
       for (const user of allUsers) {
@@ -132,7 +137,7 @@ function AdminImportsPage() {
         allUsers
           .filter((user) => user.role === "staff" || user.role === "admin")
           .filter((user) => user.username)
-          .map((user) => [accountIdentityKey(user.username), user]),
+          .map((user) => [accountIdentityKey(accountLoginName(user)), user]),
       );
       const historyById = new Map(allHistories.map((history) => [history.id, history]));
       const historiesByUid = new Map<string, typeof allHistories>();
@@ -425,8 +430,11 @@ function AdminImportsPage() {
     setImportingHistories(true);
     try {
       const [factoryRows, allUsers, mainHouseRows] = await Promise.all([
-        fetchFactories(),
-        pb.collection("users").getFullList<UserRecord>({ sort: "full_name,username" }),
+        fetchFactories(currentUser),
+        pb.collection("users").getFullList<UserRecord>({
+          filter: companyFilter(currentUser, "tenant_company"),
+          sort: "full_name,username",
+        }),
         fetchMainHouses().catch(() => [] as MainHouseRecord[]),
       ]);
       const staffUsers = allUsers.filter((item) => item.role === "staff" || item.role === "admin");
@@ -439,12 +447,12 @@ function AdminImportsPage() {
       );
       const { userByUid, userByUsername } = buildUserIdentityMaps(allUsers);
       const staffByUsername = new Map(
-        staffUsers.map((item) => [accountIdentityKey(item.username), item]),
+        staffUsers.map((item) => [accountIdentityKey(accountLoginName(item)), item]),
       );
       const staffByUid = new Map(
         staffUsers.filter((item) => item.uid).map((item) => [accountIdentityKey(item.uid), item]),
       );
-      const existingHistories = await fetchEmploymentHistories();
+      const existingHistories = await fetchEmploymentHistories(undefined, currentUser);
       for (const history of getStaleWorkingEmploymentHistories(existingHistories)) {
         const updatedHistory = await updateEmploymentHistory(
           history.id,
@@ -741,9 +749,10 @@ function AdminImportsPage() {
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
       const existingUsers = await pb.collection("users").getFullList<UserRecord>({
         fields: "id,username,uid",
+        filter: companyFilter(currentUser, "tenant_company"),
       });
       const usernameKeys = new Set(
-        existingUsers.map((user) => accountIdentityKey(user.username)).filter(Boolean),
+        existingUsers.map((user) => accountIdentityKey(accountLoginName(user))).filter(Boolean),
       );
       const uidKeys = new Set(
         existingUsers.map((user) => accountIdentityKey(user.uid)).filter(Boolean),
@@ -801,11 +810,14 @@ function AdminImportsPage() {
         }
 
         try {
+          const identity = await resolveTenantAccountIdentity(currentUser, username);
           const uid = await generateUid(manualUid || undefined);
           await pb.collection("users").create({
             full_name: fullName,
             phone,
-            username,
+            username: identity.username,
+            ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
+            tenant_company: companyIdOf(currentUser),
             uid,
             password,
             passwordConfirm: password,
@@ -823,7 +835,7 @@ function AdminImportsPage() {
             status: "active",
             must_change_password: password === "12345678",
           });
-          usernameKeys.add(accountIdentityKey(username));
+          usernameKeys.add(accountIdentityKey(identity.loginName));
           uidKeys.add(accountIdentityKey(uid));
           created++;
         } catch (error: unknown) {

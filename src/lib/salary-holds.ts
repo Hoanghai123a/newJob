@@ -1,10 +1,12 @@
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import type { EmploymentHistoryRecord } from "@/lib/employment";
+import { companyPayload } from "@/lib/tenant";
 
 export type SalaryHoldStatus = "received" | "approved" | "rejected" | "disbursed" | "cancelled";
 
 export type SalaryHoldRecord = {
   id: string;
+  tenant_company: string;
   worker: string;
   employment_history: string;
   staff: string;
@@ -62,6 +64,7 @@ export function createSalaryHoldPayload(
   content: string,
 ) {
   return {
+    ...companyPayload(viewer),
     worker: worker.id,
     employment_history: history.id,
     staff: viewer.id,

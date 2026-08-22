@@ -49,7 +49,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const userMessage = getUserErrorMessage(error);
 
   useEffect(() => {
-    if (import.meta.env.DEV) console.error("[JobConnect] L?i giao di?n g?c:", error);
+    if (import.meta.env.DEV) console.error("[JobConnect] Lỗi giao diện gốc:", error);
   }, [error]);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" data-ui-device="mobile">
+    <html lang="vi" data-ui-device="mobile" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: DEVICE_PROFILE_BOOTSTRAP }} />
         <HeadContent />

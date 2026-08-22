@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { buildTechnicalUsername, loginNameFromUsername } from "@/lib/login-identity";
 import {
   escapePb,
   getPocketBaseAdminToken,
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId/admi
         const ctx = await context(request);
         if (!ctx) return error("Bạn không có quyền quản trị tối cao.", 403);
         const ownership = await pbServerFetch(
-          `/api/collections/users/records/${encodeURIComponent(params.adminId)}?fields=id,tenant_company,role`,
+          `/api/collections/users/records/${encodeURIComponent(params.adminId)}?fields=id,tenant_company,role,username,login_name`,
           {},
           ctx.adminToken,
         );
@@ -41,6 +42,19 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId/admi
           payload.password = password;
           payload.passwordConfirm = password;
           payload.must_change_password = true;
+          if (!String(target?.username || "").includes("__")) {
+            const companyResponse = await pbServerFetch(
+              `/api/collections/companies/records/${encodeURIComponent(params.companyId)}?fields=id,code`,
+              {},
+              ctx.adminToken,
+            );
+            const company = await readPbJson(companyResponse);
+            if (!companyResponse.ok || !company?.code)
+              return error("Không tìm thấy mã công ty để chuẩn hóa tài khoản.", 404);
+            const loginName = String(target?.login_name || loginNameFromUsername(target?.username));
+            payload.username = buildTechnicalUsername(company.code, loginName);
+            payload.login_name = loginName;
+          }
         } else {
           if (body?.full_name !== undefined)
             payload.full_name = String(body.full_name).trim().slice(0, 120);

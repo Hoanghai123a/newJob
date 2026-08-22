@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { createStaffActionLog } from "@/lib/staff-log";
+import { companyFilter, companyPayload } from "@/lib/tenant";
 import {
   fetchFactoryManagers,
   isFactoryAssignmentActive,
@@ -47,7 +48,7 @@ export function FactoryManagersDialog({
         pb
           .collection("users")
           .getList<UserRecord>(1, 200, {
-            filter: 'role = "staff"',
+            filter: `${companyFilter(pb.authStore.record as UserRecord | null)} && role = "staff"`,
             sort: "full_name,username",
           })
           .then((res) => res.items),
@@ -92,7 +93,9 @@ export function FactoryManagersDialog({
         status: "active",
         note: "",
       };
-      const created = await pb.collection("factory_managers").create(payload);
+      const created = await pb
+        .collection("factory_managers")
+        .create({ ...payload, ...companyPayload(pb.authStore.record as UserRecord | null) });
       await createStaffActionLog({
         actor: pb.authStore.record as any,
         targetUserId: selectedStaff,

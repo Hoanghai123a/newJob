@@ -1,12 +1,18 @@
 import { pb, type UserRecord } from "./pocketbase";
 import { escapePb } from "./delegations";
 import { notifyApprovalCreated, notifyApprovalResolved } from "./push-notifications";
+import { companyFilter, companyPayload, joinTenantFilters } from "./tenant";
 
 export type ApprovalStatus = "pending" | "approved" | "rejected" | "completed";
 export type ResponseStatus = "pending" | "approved" | "rejected";
 
+function currentTenantUser() {
+  return pb.authStore.record as UserRecord | null;
+}
+
 export interface ApprovalRequestRecord {
   id: string;
+  tenant_company: string;
   title: string;
   content: string;
   amount?: number;
@@ -26,6 +32,7 @@ export interface ApprovalRequestRecord {
 
 export interface ApprovalResponseRecord {
   id: string;
+  tenant_company: string;
   request: string;
   admin: string;
   status: ResponseStatus;
@@ -48,7 +55,10 @@ export async function createApprovalRequest(data: {
   adminIds: string[];
   creatorId: string;
 }): Promise<ApprovalRequestRecord> {
+  const currentUser = pb.authStore.record as UserRecord | null;
+  const tenantPayload = companyPayload(currentUser);
   const formData = new FormData();
+  formData.append("tenant_company", tenantPayload.tenant_company);
   formData.append("title", data.title);
   formData.append("content", data.content);
   if (data.amount !== undefined && data.amount > 0) {
@@ -65,6 +75,7 @@ export async function createApprovalRequest(data: {
   await Promise.all(
     data.adminIds.map((adminId) =>
       pb.collection("approval_responses").create({
+        ...tenantPayload,
         request: request.id,
         admin: adminId,
         status: "pending",
@@ -94,7 +105,7 @@ export async function respondToApproval(
   const allResponses = await pb
     .collection("approval_responses")
     .getFullList<ApprovalResponseRecord>({
-      filter: `request = "${escapePb(response.request)}"`,
+      filter: joinTenantFilters(currentTenantUser(), `request = "${escapePb(response.request)}"`),
     });
 
   let overall: ApprovalStatus = "pending";
@@ -127,14 +138,17 @@ export async function markRequestCompleted(requestId: string): Promise<void> {
 
 export async function getPendingApprovalCount(adminId: string): Promise<number> {
   const res = await pb.collection("approval_responses").getList(1, 1, {
-    filter: `admin = "${escapePb(adminId)}" && status = "pending"`,
+    filter: joinTenantFilters(
+      currentTenantUser(),
+      `admin = "${escapePb(adminId)}" && status = "pending"`,
+    ),
   });
   return res.totalItems;
 }
 
 export async function withdrawApprovalRequest(requestId: string): Promise<void> {
   const responses = await pb.collection("approval_responses").getFullList<ApprovalResponseRecord>({
-    filter: `request = "${escapePb(requestId)}"`,
+    filter: joinTenantFilters(currentTenantUser(), `request = "${escapePb(requestId)}"`),
   });
 
   await Promise.all(responses.map((r) => pb.collection("approval_responses").delete(r.id)));
@@ -143,7 +157,7 @@ export async function withdrawApprovalRequest(requestId: string): Promise<void> 
 
 export async function deleteOldRequests(beforeDate: string): Promise<number> {
   const requests = await pb.collection("approval_requests").getFullList<ApprovalRequestRecord>({
-    filter: `created < "${escapePb(beforeDate)}"`,
+    filter: joinTenantFilters(currentTenantUser(), `created < "${escapePb(beforeDate)}"`),
   });
 
   await Promise.all(requests.map((r) => pb.collection("approval_requests").delete(r.id)));

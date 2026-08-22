@@ -35,7 +35,7 @@ Một số collection cũ (`advances`, `recruitments`) đã dùng field text `co
 
 - Tạo collection `companies`: mã duy nhất, tên, trạng thái, thông tin liên hệ và hạn mức `max_accounts`, `max_workers`, `max_factories`, `max_file_bytes`.
 - Bổ sung relation tenant cho collection nghiệp vụ; không thay đổi `uid_counters` và collection hệ thống không thuộc tenant.
-- Tạo công ty `LEGACY` từ `app_settings.company_name` nếu chưa có công ty; gán mọi bản ghi cũ chưa có tenant vào công ty này.
+- Không tự tạo công ty mặc định hoặc gán hàng loạt bản ghi thiếu tenant. Dry-run xuất `unresolved`; chỉ backfill khi có bằng chứng xác định duy nhất từ quan hệ hiện có.
 
 ## Rules bắt buộc sau khi backfill
 
@@ -59,8 +59,6 @@ Dùng field tenant thực tế của collection:
 Với relation tới `users`, `factories`, `employment_histories`, phải thêm điều kiện relation đó cùng tenant field bằng `@request.auth.company`. Không cấp quyền nghiệp vụ cho `super_admin`; role này chỉ có rule CRUD với collection `companies` và API `/api/super-admin/*`.
 
 Sau khi backfill và kiểm tra hoàn tất, đặt relation tenant thành bắt buộc theo từng collection. Không đặt `company` text của các collection tương thích thành bắt buộc như tenant relation.
-
-
 
 ## Cách xác minh trong PocketBase Admin UI
 

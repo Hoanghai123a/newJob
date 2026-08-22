@@ -63,6 +63,7 @@ import { pb, type UserRecord } from "@/lib/pocketbase";
 import type { WorkerRecord } from "@/lib/workers";
 import { updateCachedUser } from "@/lib/staff-cache";
 import { createStaffActionLog } from "@/lib/staff-log";
+import { companyIdOf } from "@/lib/tenant";
 import { allocateEmploymentHistoryUids, allocateUserUids } from "@/lib/uid-counter";
 import { cn } from "@/lib/utils";
 import { FactoryPicker, MainHousePicker } from "@/components/workforce/UserPicker";
@@ -73,7 +74,7 @@ import { BankPicker } from "@/components/staff/BankNameInput";
 import { getUserErrorMessage } from "@/lib/toast";
 
 export interface QuickWorkerCreatedResult {
-  user: WorkerRecord;
+  worker: WorkerRecord;
   history?: EmploymentHistoryRecord;
   cccdVersion?: CccdVersionRecord;
   warnings: string[];
@@ -546,12 +547,12 @@ export function QuickWorkerAccountDialog({
     if (!cccdRaw) errors.push("Nhập CCCD để lưu lịch sử đi làm");
     if (phoneForValidation && !hasRequiredDigits(phoneForValidation, 10)) {
       errors.push(
-        "Số điện thoại phải có đúng 10 chữ số; ký tự ở cuối chỉ dùng để phân biệt tài khoản và không được lưu",
+        "Số điện thoại phải có đúng 10 chữ số.",
       );
     }
     if (cccdForValidation && !hasRequiredDigits(cccdForValidation, 12)) {
       errors.push(
-        "CCCD phải có đúng 12 chữ số; ký tự ở cuối chỉ dùng để phân biệt tài khoản và không được lưu",
+        "CCCD phải có đúng 12 chữ số.",
       );
     }
     if (!form.date_of_birth.trim()) errors.push("Nhập ngày sinh");
@@ -603,10 +604,12 @@ export function QuickWorkerAccountDialog({
     fd.append("bank_account_name", form.bank_account_name.trim());
     fd.append("bank_account_note", form.bank_account_note.trim());
 
-    const createdUser = await pb.collection("workers").create<WorkerRecord>(fd);
+    const currentActor = pb.authStore.record as UserRecord | null;
+    if (companyIdOf(currentActor)) fd.append("tenant_company", companyIdOf(currentActor));
+    const createdWorker = await pb.collection("workers").create<WorkerRecord>(fd);
     const secondaryWarnings: string[] = [];
     const cacheUser: WorkerRecord = {
-      ...createdUser,
+      ...createdWorker,
       full_name: realName,
       phone,
       cccd,
@@ -623,7 +626,7 @@ export function QuickWorkerAccountDialog({
     if (cccd && (compressedFront || compressedBack)) {
       try {
         const version = await findOrCreateCccdVersion(
-          createdUser.id,
+          createdWorker.id,
           cccd,
           compressedFront,
           compressedBack,
@@ -642,7 +645,7 @@ export function QuickWorkerAccountDialog({
     try {
       history = await createEmploymentHistory(
         {
-          user: createdUser.id,
+          user: createdWorker.id,
           factory: form.factory,
           main_house: form.main_house,
           employee_code: form.employee_code.trim(),
@@ -669,17 +672,17 @@ export function QuickWorkerAccountDialog({
     try {
       await createStaffActionLog({
         actor,
-        targetUserId: createdUser.id,
+        targetUserId: undefined,
         targetCollection: "workers",
-        targetRecord: createdUser.id,
+        targetRecord: createdWorker.id,
         action: "create",
-        after: { id: createdUser.id, uid, full_name: realName, cccd },
+        after: { id: createdWorker.id, uid, full_name: realName, cccd },
         note: "Tạo nhanh hồ sơ NLĐ từ mục NLĐ",
       });
       if (historyId) {
         await createStaffActionLog({
           actor,
-          targetUserId: createdUser.id,
+          targetUserId: undefined,
           targetCollection: "employment_histories",
           targetRecord: historyId,
           action: "report_join",
@@ -692,7 +695,7 @@ export function QuickWorkerAccountDialog({
     }
 
     return {
-      user: cacheUser,
+      worker: cacheUser,
       history,
       cccdVersion,
       warnings: secondaryWarnings,
@@ -704,7 +707,7 @@ export function QuickWorkerAccountDialog({
     if (!actor?.id) return toast.error("Không xác định người thao tác");
 
     const validationErrors: Record<string, string[]> = {};
-        entries.forEach((entry, index) => {
+    entries.forEach((entry, index) => {
       const { errors } = validateEntry(entry);
       if (errors.length > 0) validationErrors[entry.id] = errors;
     });
@@ -746,8 +749,7 @@ export function QuickWorkerAccountDialog({
         created.push({ entry, result });
       } catch (error) {
         const message =
-          getPocketBaseFieldErrors(error) ||
-          getErrorMessage(error, "Không tạo được hồ sơ NLĐ");
+          getPocketBaseFieldErrors(error) || getErrorMessage(error, "Không tạo được hồ sơ NLĐ");
         failed[entry.id] = [message];
       }
     }

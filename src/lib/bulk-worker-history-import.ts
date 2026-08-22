@@ -1,6 +1,7 @@
 import * as XLSX from "xlsx";
 
 import { accountIdentityKey, normalizeAccountUsername } from "./account-identity";
+import { accountLoginName } from "./login-identity";
 import { normalizeDate } from "./date-utils";
 import { deriveEmploymentStatus, type EmploymentStatus } from "./employment";
 import { allocateEmploymentHistoryUids, allocateUserUids } from "./uid-counter";
@@ -8,6 +9,7 @@ import { exportToExcel } from "./excel";
 import { fetchFactories, type FactoryRecord } from "./factories";
 import { fetchMainHouses, type MainHouseRecord } from "./main-houses";
 import { pb, type UserRecord } from "./pocketbase";
+import { companyFilter, companyIdOf, resolveTenantAccountIdentity } from "./tenant";
 import { resolveBankName } from "./vn-banks";
 
 export const MAX_BULK_WORKERS = 1_000;
@@ -493,9 +495,11 @@ export async function inspectBulkWorkerImportReferences(
   const [factories, mainHouses, users] = await Promise.all([
     fetchFactories(),
     fetchMainHouses({ includeInactive: true }),
-    pb
-      .collection("users")
-      .getFullList<UserRecord>({ fields: "id,username,role", sort: "username" }),
+    pb.collection("users").getFullList<UserRecord>({
+      fields: "id,username,role",
+      filter: companyFilter(pb.authStore.record as UserRecord | null, "tenant_company"),
+      sort: "username",
+    }),
   ]);
   const factoryByName = new Map(
     factories.filter((item) => item.name).map((item) => [referenceKey(item.name), item]),
@@ -510,7 +514,7 @@ export async function inspectBulkWorkerImportReferences(
     users
       .filter((user) => user.role === "staff" || user.role === "admin")
       .filter((user) => user.username)
-      .map((user) => [accountIdentityKey(user.username), user]),
+      .map((user) => [accountIdentityKey(accountLoginName(user)), user]),
   );
 
   const missingFactories = new Map<string, MissingFactoryReference>();
@@ -637,7 +641,10 @@ export async function applyBulkWorkerImportReferences(
         : { status: "active" };
     const record = item.existingId
       ? await pb.collection("factories").update(item.existingId, payload)
-      : await pb.collection("factories").create(payload);
+      : await pb.collection("factories").create({
+          ...payload,
+          tenant_company: companyIdOf(pb.authStore.record as UserRecord | null),
+        });
     applied.push({
       id: record.id,
       name: item.name,
@@ -660,7 +667,10 @@ export async function applyBulkWorkerImportReferences(
         : { status: "active" };
     const record = item.existingId
       ? await pb.collection("recruitment_entities").update(item.existingId, payload)
-      : await pb.collection("recruitment_entities").create(payload);
+      : await pb.collection("recruitment_entities").create({
+          ...payload,
+          tenant_company: companyIdOf(pb.authStore.record as UserRecord | null),
+        });
     applied.push({
       id: record.id,
       name: item.name,
@@ -677,9 +687,11 @@ async function fetchReferenceData(): Promise<ImportReferenceData> {
   const [factories, mainHouses, users] = await Promise.all([
     fetchFactories(),
     fetchMainHouses(),
-    pb
-      .collection("users")
-      .getFullList<UserRecord>({ fields: "id,username,uid,role", sort: "username" }),
+    pb.collection("users").getFullList<UserRecord>({
+      fields: "id,username,uid,role",
+      filter: companyFilter(pb.authStore.record as UserRecord | null, "tenant_company"),
+      sort: "username",
+    }),
   ]);
   return {
     factories,
@@ -752,7 +764,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
   markDuplicates(workersByUsername, "Tên đăng nhập");
 
   const existingUsernames = new Set(
-    refs.users.map((user) => accountIdentityKey(user.username)).filter(Boolean),
+    refs.users.map((user) => accountIdentityKey(accountLoginName(user))).filter(Boolean),
   );
   for (const worker of parsedWorkers) {
     if (!existingUsernames.has(accountIdentityKey(worker.accountIdentity))) continue;
@@ -786,7 +798,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
     refs.users
       .filter((user) => user.role === "staff" || user.role === "admin")
       .filter((user) => user.username)
-      .map((user) => [accountIdentityKey(user.username), user]),
+      .map((user) => [accountIdentityKey(accountLoginName(user)), user]),
   );
 
   const historiesByWorkerKey = new Map<string, ParsedHistoryEntry[]>();
@@ -1074,16 +1086,23 @@ function packWorkers(workers: PreparedWorkerImport[]) {
 }
 
 async function sendWorkerBatch(workers: PreparedWorkerImport[]) {
-  const tenantCompany = pb.authStore.record?.tenant_company;
+  const currentUser = pb.authStore.record as UserRecord | null;
+  const tenantCompany = companyIdOf(currentUser);
   if (!tenantCompany) throw new Error("Tài khoản chưa được gán công ty hợp lệ.");
   const batch = pb.createBatch();
   for (const worker of workers) {
-    batch.collection("users").create({ ...worker.userPayload, tenant_company: tenantCompany });
+    const identity = await resolveTenantAccountIdentity(currentUser, worker.username);
+    batch.collection("users").create({
+      ...worker.userPayload,
+      username: identity.username,
+      ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
+      tenant_company: tenantCompany,
+    });
     for (const version of worker.cccdVersions) batch.collection("cccd_versions").create(version);
     for (const history of worker.histories)
       batch
         .collection("employment_histories")
-        .create({ ...history.payload, company: tenantCompany });
+        .create({ ...history.payload, tenant_company: tenantCompany });
   }
   await batch.send();
 }

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { pb, fileUrl } from "./pocketbase";
 import { useAuth } from "./auth";
+import { companyIdOf } from "./tenant";
 
 export interface AppSettings {
   id?: string;
@@ -22,7 +23,7 @@ export interface AppSettings {
   install_guide_images?: string[];
   collectionId?: string;
   collectionName?: string;
-  company?: string;
+  tenant_company?: string;
 }
 
 const DEFAULTS: AppSettings = {
@@ -46,7 +47,7 @@ function escapePb(value: string) {
 export async function fetchAppSettingsStrict(companyId?: string): Promise<AppSettings> {
   const res = await pb
     .collection("app_settings")
-    .getList(1, 1, { filter: companyId ? `company = "${escapePb(companyId)}"` : "" });
+    .getList(1, 1, { filter: companyId ? `tenant_company = "${escapePb(companyId)}"` : "" });
   return { ...DEFAULTS, ...((res.items[0] as AppSettings | undefined) || {}) };
 }
 export async function fetchAppSettings(companyId?: string): Promise<AppSettings> {
@@ -60,7 +61,7 @@ export async function fetchAppSettings(companyId?: string): Promise<AppSettings>
 export function useAppSettings() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const companyId = user?.company || "";
+  const companyId = companyIdOf(user);
   const q = useQuery({
     queryKey: ["app_settings", companyId],
     queryFn: () => fetchAppSettings(companyId),

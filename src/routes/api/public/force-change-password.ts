@@ -7,9 +7,9 @@ import {
   readPbJson,
 } from "@/lib/tenant-server";
 
-const DEFAULT_PASSWORD = "12345678";
 const PasswordSchema = z
   .object({
+    currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại.").max(200),
     password: z.string().min(8, "Mật khẩu mới tối thiểu 8 ký tự.").max(200),
     passwordConfirm: z.string().max(200),
   })
@@ -17,8 +17,8 @@ const PasswordSchema = z
     message: "Mật khẩu xác nhận không khớp.",
     path: ["passwordConfirm"],
   })
-  .refine((value) => value.password !== DEFAULT_PASSWORD, {
-    message: "Mật khẩu mới không được trùng mật khẩu mặc định.",
+  .refine((value) => value.password !== value.currentPassword, {
+    message: "Mật khẩu mới không được trùng mật khẩu hiện tại.",
     path: ["password"],
   });
 
@@ -47,9 +47,9 @@ export const Route = createFileRoute("/api/public/force-change-password")({
         if (!parsed.success)
           return error(parsed.error.issues[0]?.message || "Dữ liệu không hợp lệ.");
 
-        const defaultLogin = await authenticate(auth.user.username, DEFAULT_PASSWORD);
-        if (!defaultLogin.response.ok || defaultLogin.body?.record?.id !== auth.user.id)
-          return error("Mật khẩu mặc định không còn hợp lệ. Vui lòng liên hệ quản trị viên.", 403);
+        const currentLogin = await authenticate(auth.user.username, parsed.data.currentPassword);
+        if (!currentLogin.response.ok || currentLogin.body?.record?.id !== auth.user.id)
+          return error("Mật khẩu hiện tại không đúng.", 403);
 
         const adminToken = await getPocketBaseAdminToken();
         if (!adminToken) return error("Không kết nối được PocketBase.", 502);

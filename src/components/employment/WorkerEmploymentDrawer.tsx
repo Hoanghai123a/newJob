@@ -15,6 +15,7 @@ import {
   Trash2,
   Wallet,
 } from "lucide-react";
+import { companyPayload } from "@/lib/tenant";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -69,10 +70,7 @@ import {
 } from "@/lib/employment";
 import type { FactoryRecord } from "@/lib/factories";
 import type { MainHouseRecord } from "@/lib/main-houses";
-import {
-  canReportJoin,
-  canViewHistoryInStaffScope,
-} from "@/lib/staff-permissions";
+import { canReportJoin, canViewHistoryInStaffScope } from "@/lib/staff-permissions";
 import {
   createStaffActionLog,
   fetchWorkerActionHistory,
@@ -485,9 +483,7 @@ export function WorkerEmploymentDrawer({
       .catch((error: unknown) => {
         if (!active) return;
         setAdvancePolicy(null);
-        setAdvancePolicyError(
-          getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"),
-        );
+        setAdvancePolicyError(getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"));
       })
       .finally(() => active && setAdvanceOutstandingLoading(false));
 
@@ -766,9 +762,9 @@ export function WorkerEmploymentDrawer({
           history.id,
           { status: "left" },
           {
-          actor,
-          source: "Hồ sơ lao động",
-          note: "Báo đi làm mới: đồng bộ lịch sử đã có ngày nghỉ",
+            actor,
+            source: "Hồ sơ lao động",
+            note: "Báo đi làm mới: đồng bộ lịch sử đã có ngày nghỉ",
             before: history,
           },
         );
@@ -1023,7 +1019,9 @@ export function WorkerEmploymentDrawer({
       const isOldHistory = latest?.id !== editingId;
       const originalLeaveDate = before.leave_date || "";
       if (isOldHistory && form.leave_date !== originalLeaveDate) {
-        toast.error("Không được sửa ngày nghỉ của lịch sử cũ để tránh chồng chéo thời gian làm việc");
+        toast.error(
+          "Không được sửa ngày nghỉ của lịch sử cũ để tránh chồng chéo thời gian làm việc",
+        );
         setForm((current) => ({ ...current, leave_date: originalLeaveDate }));
         return;
       }
@@ -1076,7 +1074,9 @@ export function WorkerEmploymentDrawer({
       const audit = {
         actor,
         source: "Biểu mẫu sửa lịch sử đi làm",
-        note: isRestoring ? "Xóa ngày nghỉ, khôi phục trạng thái đang làm" : "Cập nhật lịch sử đi làm",
+        note: isRestoring
+          ? "Xóa ngày nghỉ, khôi phục trạng thái đang làm"
+          : "Cập nhật lịch sử đi làm",
         before,
       };
       if (isRestoring) {
@@ -1113,12 +1113,16 @@ export function WorkerEmploymentDrawer({
     try {
       const latestHistories = await fetchEmploymentHistories([user.id]);
       const before = validateRestoreRequest(latestHistories, restoreRequest.history.id);
-      await restoreEmploymentHistoryToWorking(restoreRequest.history.id, {}, {
-        actor,
-        source: "Hồ sơ lao động",
-        note: "Xóa ngày nghỉ, khôi phục trạng thái đang làm",
-        before,
-      });
+      await restoreEmploymentHistoryToWorking(
+        restoreRequest.history.id,
+        {},
+        {
+          actor,
+          source: "Hồ sơ lao động",
+          note: "Xóa ngày nghỉ, khôi phục trạng thái đang làm",
+          before,
+        },
+      );
       toast.success("Đã khôi phục trạng thái đang làm");
       setRestoreRequest(null);
       await notifyDataChanged();
@@ -1163,6 +1167,7 @@ export function WorkerEmploymentDrawer({
       const employment = policy.employment;
 
       const created = await pb.collection("advances").create({
+        ...companyPayload(pb.authStore.record as UserRecord),
         user: user.id,
         requested_by: actor.id,
         recruiter_id: employment.recruiter_staff || "",
@@ -1339,7 +1344,12 @@ export function WorkerEmploymentDrawer({
 
   return (
     <>
-      <WorkerPayrollDialog open={payrollOpen} onOpenChange={setPayrollOpen} viewer={actor as UserRecord} workerId={user?.id || ""} />
+      <WorkerPayrollDialog
+        open={payrollOpen}
+        onOpenChange={setPayrollOpen}
+        viewer={actor as UserRecord}
+        workerId={user?.id || ""}
+      />
 
       <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
         <DialogContent
@@ -1421,7 +1431,6 @@ export function WorkerEmploymentDrawer({
                         }}
                       />
                     )}
-
                     {((isWorking && permissions.canReportLeave) || canOpenAdvance) && (
                       <ActionButton
                         icon={Hash}
@@ -1429,7 +1438,8 @@ export function WorkerEmploymentDrawer({
                         tone="primary"
                         onClick={openEmployeeCodeDialog}
                       />
-                    )}                    {permissions.canAddOldHistory && (
+                    )}{" "}
+                    {permissions.canAddOldHistory && (
                       <ActionButton
                         icon={Plus}
                         label="Bổ sung lịch sử"
@@ -2333,7 +2343,9 @@ export function WorkerEmploymentDrawer({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Ngày nghỉ{isEditingOldHistory ? " (không được sửa)" : ""}</Label>
+                  <Label className="text-xs">
+                    Ngày nghỉ{isEditingOldHistory ? " (không được sửa)" : ""}
+                  </Label>
                   <DateInput
                     value={form.leave_date}
                     onChange={(leave_date) => setForm((current) => ({ ...current, leave_date }))}

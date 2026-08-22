@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
+import { companyFilter } from "@/lib/tenant";
 
 function daysAgoIso(days: number) {
   const d = new Date();
@@ -42,9 +43,16 @@ export function AccountActivityStats() {
     (async () => {
       setLoading(true);
       try {
+        const currentUser = pb.authStore.record as UserRecord | null;
         const [userList, histList] = await Promise.all([
-          pb.collection("users").getFullList<MinimalUser>({ fields: "id,role,last_login" }),
-          pb.collection("employment_histories").getFullList<{ user: string }>({ fields: "user" }),
+          pb.collection("users").getFullList<MinimalUser>({
+            fields: "id,role,last_login",
+            filter: companyFilter(currentUser, "tenant_company"),
+          }),
+          pb.collection("employment_histories").getFullList<{ user: string }>({
+            fields: "user",
+            filter: companyFilter(currentUser),
+          }),
         ]);
         if (!alive) return;
         setUsers(userList);

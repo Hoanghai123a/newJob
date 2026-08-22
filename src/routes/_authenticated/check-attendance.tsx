@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { fileUrl, pb } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
+import { companyFilter, companyIdOf } from "@/lib/tenant";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -430,11 +431,11 @@ function employeeCompanyKey(employeeCode?: string, company?: string) {
 }
 
 function CheckAttendancePage() {
-  const { isAdmin } = useAuth();
-  return isAdmin ? <AdminCheckAttendance /> : <UserCheckAttendance />;
+  const { isAdmin, user } = useAuth();
+  return isAdmin ? <AdminCheckAttendance viewer={user} /> : <UserCheckAttendance />;
 }
 
-function AdminCheckAttendance() {
+function AdminCheckAttendance({ viewer }: { viewer: import("@/lib/pocketbase").UserRecord | null }) {
   const [month, setMonth] = useState(todayMonth());
   const [note, setNote] = useState("");
   const [salaryMonth, setSalaryMonth] = useState(todayMonth());
@@ -449,10 +450,10 @@ function AdminCheckAttendance() {
   const load = async () => {
     const [batchRes, userRes, historyRows] = await Promise.all([
       pb.collection("check_attendance_batches").getList(1, 100, {
-        filter: `month="${month}"`,
+        filter: `${companyFilter(viewer)} && month="${month}"`,
         sort: "-created",
       }),
-      pb.collection("users").getList(1, 500, { sort: "full_name" }),
+      pb.collection("users").getList(1, 500, { filter: companyFilter(viewer), sort: "full_name" }),
       fetchEmploymentHistories(),
     ]);
     setBatches(batchRes.items as unknown as BatchRecord[]);
@@ -461,7 +462,7 @@ function AdminCheckAttendance() {
     try {
       const salaryBatchRes = await pb
         .collection("check_salary_batches")
-        .getList(1, 100, { filter: `month="${salaryMonth}"`, sort: "-created" });
+        .getList(1, 100, { filter: `${companyFilter(viewer)} && month="${salaryMonth}"`, sort: "-created" });
       setSalaryBatches(salaryBatchRes.items as unknown as BatchRecord[]);
     } catch {
       setSalaryBatches([]);
@@ -562,7 +563,7 @@ function AdminCheckAttendance() {
       }
 
       const [allUsers, allHistories] = await Promise.all([
-        pb.collection("users").getFullList<UserRecord>({ sort: "full_name" }),
+        pb.collection("users").getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -629,6 +630,7 @@ function AdminCheckAttendance() {
       }
 
       const formData = new FormData();
+      formData.append("tenant_company", companyIdOf(viewer));
       formData.append("month", month);
       formData.append("round_no", String(nextRound));
       formData.append("note", note);
@@ -643,6 +645,7 @@ function AdminCheckAttendance() {
       for (const { user, fullName, rows, summary } of grouped.values()) {
         rows.sort((a, b) => a.date.localeCompare(b.date));
         await pb.collection("check_attendance_items").create({
+          tenant_company: companyIdOf(viewer),
           batch: batch.id,
           user: user.id,
           month,
@@ -722,7 +725,7 @@ function AdminCheckAttendance() {
       }
 
       const [allUsers, allHistories] = await Promise.all([
-        pb.collection("users").getFullList<UserRecord>({ sort: "full_name" }),
+        pb.collection("users").getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -805,6 +808,7 @@ function AdminCheckAttendance() {
       }
 
       const formData = new FormData();
+      formData.append("tenant_company", companyIdOf(viewer));
       formData.append("month", salaryMonth);
       formData.append("round_no", String(nextSalaryRound));
       formData.append("note", salaryNote);

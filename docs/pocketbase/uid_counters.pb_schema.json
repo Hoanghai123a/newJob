@@ -1,11 +1,11 @@
 ﻿[
   {
     "id": "pbc_3794621835",
-    "listRule": null,
-    "viewRule": null,
-    "createRule": null,
-    "updateRule": null,
-    "deleteRule": null,
+    "listRule": "tenant_company = @request.auth.tenant_company",
+    "viewRule": "tenant_company = @request.auth.tenant_company",
+    "createRule": "@request.body.tenant_company = @request.auth.tenant_company",
+    "updateRule": "tenant_company = @request.auth.tenant_company && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company)",
+    "deleteRule": "tenant_company = @request.auth.tenant_company",
     "name": "uid_counters",
     "type": "base",
     "fields": [
@@ -23,6 +23,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "autogeneratePattern": "",
@@ -148,6 +159,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_uid_counters_tenant_company` ON `uid_counters` (`tenant_company`)",
       "CREATE UNIQUE INDEX `idx_uid_counters_key` ON `uid_counters` (`counter_key`)"
     ],
     "system": false

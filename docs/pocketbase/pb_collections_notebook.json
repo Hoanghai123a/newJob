@@ -4,11 +4,11 @@
     "name": "notebook_categories",
     "type": "base",
     "system": false,
-    "listRule": "created_by = @request.auth.id",
-    "viewRule": "created_by = @request.auth.id",
-    "createRule": "@request.auth.id != \"\" && created_by = @request.auth.id",
-    "updateRule": "created_by = @request.auth.id",
-    "deleteRule": "created_by = @request.auth.id",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (created_by = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (created_by = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\" && created_by = @request.auth.id)",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (created_by = @request.auth.id)",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (created_by = @request.auth.id)",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -23,6 +23,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "autogeneratePattern": "",
@@ -72,18 +83,20 @@
         "type": "autodate"
       }
     ],
-    "indexes": []
+    "indexes": [
+      "CREATE INDEX `idx_notebook_categories_tenant_company` ON `notebook_categories` (`tenant_company`)"
+    ]
   },
   {
     "id": "pbc_nbentries01",
     "name": "notebook_entries",
     "type": "base",
     "system": false,
-    "listRule": "created_by = @request.auth.id",
-    "viewRule": "created_by = @request.auth.id",
-    "createRule": "@request.auth.id != \"\" && created_by = @request.auth.id",
-    "updateRule": "created_by = @request.auth.id",
-    "deleteRule": "created_by = @request.auth.id",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (created_by = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (created_by = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\" && created_by = @request.auth.id)",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (created_by = @request.auth.id)",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (created_by = @request.auth.id)",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -98,6 +111,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "hidden": false,
@@ -227,6 +251,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_notebook_entries_tenant_company` ON `notebook_entries` (`tenant_company`)",
       "CREATE INDEX `idx_nbentries_created_by` ON `notebook_entries` (`created_by`)",
       "CREATE INDEX `idx_nbentries_status` ON `notebook_entries` (`status`)",
       "CREATE INDEX `idx_nbentries_date` ON `notebook_entries` (`date`)"

@@ -26,6 +26,7 @@ import { updateUserAndCache } from "@/lib/employment";
 import { createStaffActionLog } from "@/lib/staff-log";
 import { BankPicker } from "@/components/staff/BankNameInput";
 import { DeleteWorkerDialog } from "@/components/admin/DeleteWorkerDialog";
+import { companyFilter } from "@/lib/tenant";
 
 function userSearchFilter(search: string) {
   const q = escapePb(search.trim());
@@ -38,10 +39,14 @@ function userSearchFilter(search: string) {
 }
 
 export const Route = createFileRoute("/_authenticated/admin/accounts/")({
+  beforeLoad: () => {
+    throw redirect({ to: "/admin/staff" });
+  },
   component: AdminAccountsPage,
 });
 
 function AdminAccountsPage() {
+  const currentUser = pb.authStore.record as UserRecord | null;
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
@@ -68,7 +73,7 @@ function AdminAccountsPage() {
       const userRows = await pb
         .collection("users")
         .getList<UserRecord>(1, 500, {
-          filter: userSearchFilter(debouncedSearch),
+          filter: `${companyFilter(currentUser, "tenant_company")} && (${userSearchFilter(debouncedSearch)})`,
           sort: "full_name,username",
         })
         .then((res) => res.items);
@@ -162,7 +167,7 @@ function AdminAccountsPage() {
   return (
     <PageContainer
       title="Tài khoản người lao động"
-      subtitle="Quản lý tài khoản NLĐ. Staff & Admin được quản lý ở trang riêng."
+      subtitle="Quản lý tài khoản NLĐ. Staff được quản lý ở trang riêng."
     >
       <div className="grid grid-cols-2 gap-2">
         <Link
@@ -187,7 +192,7 @@ function AdminAccountsPage() {
             <ShieldCheck className="h-4 w-4" />
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold">Staff & Admin</span>
+            <span className="block truncate text-sm font-semibold">Staff</span>
             <span className="block text-[11px] font-normal text-muted-foreground">
               Tạo, quản lý tài khoản staff
             </span>

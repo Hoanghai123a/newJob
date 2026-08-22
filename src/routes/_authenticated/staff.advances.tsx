@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
+import { companyFilter, companyPayload, joinTenantFilters } from "@/lib/tenant";
 import { useAppSettings } from "@/lib/app-settings";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import {
@@ -187,7 +188,10 @@ function groupOutstandingAdvances(rows: OutstandingAdvance[]): OutstandingWorker
 
 async function loadStaffAdvanceHistory(staffId: string) {
   return pb.collection("advances").getFullList<OutstandingAdvance>({
-    filter: joinPbFilters([`recruiter_id="${escapePb(staffId)}"`, `user!="${escapePb(staffId)}"`]),
+    filter: joinTenantFilters(
+      pb.authStore.record as UserRecord | null,
+      joinPbFilters([`recruiter_id="${escapePb(staffId)}"`, `user!="${escapePb(staffId)}"`]),
+    ),
     sort: "-created",
     expand: "requested_by",
   });
@@ -545,9 +549,7 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
       .catch((error: unknown) => {
         if (!active) return;
         setWorkerPolicy(null);
-        setWorkerPolicyError(
-          getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"),
-        );
+        setWorkerPolicyError(getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"));
       })
       .finally(() => active && setLoadingWorkerPolicy(false));
     return () => {
@@ -681,7 +683,9 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
         status: "recruiter_approved",
         recovery_status: "none",
       };
-      const created = await pb.collection("advances").create(payload);
+      const created = await pb
+        .collection("advances")
+        .create({ ...payload, ...companyPayload(user) });
       await createStaffActionLog({
         actor: user,
         targetUserId: currentWorker.user.id,
@@ -1492,7 +1496,10 @@ function MyAdvancesView({ interactionAllowed }: { interactionAllowed: boolean })
   useEffect(() => {
     if (!showForm) return;
     pb.collection("users")
-      .getFullList<UserRecord>({ filter: 'role="admin"', sort: "full_name" })
+      .getFullList<UserRecord>({
+        filter: `${companyFilter(user)} && role="admin"`,
+        sort: "full_name",
+      })
       .then(setAdminList)
       .catch(() => {});
   }, [showForm]);
@@ -1508,6 +1515,7 @@ function MyAdvancesView({ interactionAllowed }: { interactionAllowed: boolean })
     try {
       await assertAdvanceInteractionAllowed(user?.role);
       const created = await pb.collection("advances").create({
+        ...companyPayload(user),
         user: user!.id,
         requested_by: user!.id,
         recruiter_id: "",

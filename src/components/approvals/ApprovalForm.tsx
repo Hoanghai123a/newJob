@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ResponsiveOverlay } from "@/components/layout/ResponsiveOverlay";
 import { toast } from "@/lib/toast";
 import { ImagePlus, FileSpreadsheet, Send, X } from "lucide-react";
+import { companyFilter } from "@/lib/tenant";
 
 export function ApprovalForm({
   open,
@@ -40,7 +41,10 @@ export function ApprovalForm({
   useEffect(() => {
     if (!open) return;
     pb.collection("users")
-      .getFullList<UserRecord>({ filter: 'role = "admin"', sort: "full_name" })
+      .getFullList<UserRecord>({
+        filter: `${companyFilter(pb.authStore.record as UserRecord)} && role = "admin"`,
+        sort: "full_name",
+      })
       .then((admins) => setAdminList(admins.filter((a) => a.id !== currentUserId)))
       .catch(() => {});
   }, [open, currentUserId]);

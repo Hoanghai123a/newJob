@@ -28,6 +28,7 @@ import { fetchFactories, type FactoryRecord } from "@/lib/factories";
 import { findActiveEmploymentByUser, type EmploymentHistoryRecord } from "@/lib/employment";
 import { fetchFreshStaffWorkspace } from "@/lib/staff-permissions";
 import { escapePb } from "@/lib/delegations";
+import { joinTenantFilters } from "@/lib/tenant";
 import { fetchCccdVersionsByIds, type CccdVersionRecord } from "@/lib/cccd-versions";
 import { getRecentDateKeys } from "@/lib/workforce-other-stats";
 import {
@@ -137,7 +138,7 @@ function DashboardPage() {
     return () => {
       alive = false;
     };
-  }, [isAdmin, user?.id]);
+  }, [isAdmin, user]);
 
   useEffect(() => {
     if (loading) return;
@@ -158,7 +159,7 @@ function DashboardPage() {
     (async () => {
       try {
         const res = await pb.collection("approval_responses").getList(1, 1, {
-          filter: `admin = "${user.id}" && status = "pending"`,
+          filter: joinTenantFilters(user, `admin = "${user.id}" && status = "pending"`),
         });
         if (alive) setPendingApprovalCount(res.totalItems || 0);
       } catch {
@@ -169,7 +170,7 @@ function DashboardPage() {
     return () => {
       alive = false;
     };
-  }, [isAdmin, user?.id]);
+  }, [isAdmin, user]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -188,7 +189,7 @@ function DashboardPage() {
       const seen = since(scope);
       const parts = [extraFilter, seen ? `${field} > "${seen}"` : ""].filter(Boolean);
       const res = await pb.collection(collection).getList(1, 1, {
-        filter: parts.join(" && "),
+        filter: joinTenantFilters(user, parts.join(" && ")),
       });
       return res.totalItems || 0;
     };
@@ -198,7 +199,7 @@ function DashboardPage() {
       const chatCount = async () => {
         try {
           const memberships = await pb.collection("chat_room_members").getFullList({
-            filter: `user = "${user.id}"`,
+            filter: joinTenantFilters(user, `user = "${user.id}"`),
           });
           const roomIds = (memberships as unknown as Array<{ room: string }>).map((m) => m.room);
           if (!roomIds.length) return 0;
@@ -213,7 +214,9 @@ function DashboardPage() {
             ]
               .filter(Boolean)
               .join(" && ");
-            const res = await pb.collection("group_chat_messages").getList(1, 1, { filter });
+            const res = await pb.collection("group_chat_messages").getList(1, 1, {
+              filter: joinTenantFilters(user, filter),
+            });
             total += res.totalItems || 0;
           }
           return total;
@@ -234,7 +237,7 @@ function DashboardPage() {
     return () => {
       alive = false;
     };
-  }, [user?.id]);
+  }, [user]);
 
   useEffect(() => {
     if (!isAdmin || !user?.id || desktopSection !== "khac" || typeof window === "undefined") {

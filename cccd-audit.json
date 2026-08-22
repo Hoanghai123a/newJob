@@ -1,0 +1,232 @@
+{
+  "mode": "--audit",
+  "generatedAt": "2026-08-19T17:44:59.730Z",
+  "before": {
+    "totals": {
+      "users": 16,
+      "histories": 14,
+      "versions": 6
+    },
+    "blockers": 10,
+    "usersWithLegacyImages": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "cccd": "",
+        "front": true,
+        "back": true
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "cccd": "",
+        "front": true,
+        "back": true
+      },
+      {
+        "id": "1ahxwxyhp7fll9i",
+        "username": "0343733777",
+        "cccd": "010309003820",
+        "front": true,
+        "back": true
+      }
+    ],
+    "usersWithImagesButInvalidCccd": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "cccd": ""
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "cccd": ""
+      }
+    ],
+    "invalidHistories": [
+      {
+        "id": "edxw0hb2252h6ci",
+        "uid": "HL2607001",
+        "user": "uiv0bjbth0h2nhx",
+        "cccd": "123456"
+      },
+      {
+        "id": "06jmm3xf3nhw88r",
+        "uid": "HL2607003",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      },
+      {
+        "id": "a0s8wcowqzj7hco",
+        "uid": "HL2607004",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "1234559"
+      },
+      {
+        "id": "y4ygkod50aypj3p",
+        "uid": "HL26070005",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      }
+    ],
+    "missingUsers": [],
+    "missingHistoryVersions": [
+      {
+        "id": "3lpu9qlcm3a2xlo",
+        "uid": "HL26070006",
+        "user": "e1e5az09dfop723",
+        "cccd": "026098004932"
+      },
+      {
+        "id": "e6pfozcbvsseq6m",
+        "uid": "HL26070008",
+        "user": "u7i50k0teemm3mb",
+        "cccd": "023622546922"
+      },
+      {
+        "id": "gwk8fdwybtbzcx7",
+        "uid": "HL26070009",
+        "user": "m9ukni4c390eaa4",
+        "cccd": "031204005724"
+      },
+      {
+        "id": "rt66a2z1fpcx2f0",
+        "uid": "HL26070010",
+        "user": "m9ukni4c390eaa4",
+        "cccd": "023622546922"
+      }
+    ],
+    "mismatchedHistoryVersions": [],
+    "duplicateVersionKeys": [],
+    "legacyImagesNotMigrated": [],
+    "legacyImageConflicts": [
+      {
+        "user": "1ahxwxyhp7fll9i",
+        "cccd": "010309003820",
+        "side": "front",
+        "keptVersionFile": "cccd_mat_truoc_1786112965841_sevppqgf4j.jpg"
+      },
+      {
+        "user": "1ahxwxyhp7fll9i",
+        "cccd": "010309003820",
+        "side": "back",
+        "keptVersionFile": "cccd_mat_sau_1786112977890_zzaggmb1c3.jpg"
+      }
+    ]
+  },
+  "migration": null,
+  "finalize": null,
+  "after": {
+    "totals": {
+      "users": 16,
+      "histories": 14,
+      "versions": 6
+    },
+    "blockers": 10,
+    "usersWithLegacyImages": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "cccd": "",
+        "front": true,
+        "back": true
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "cccd": "",
+        "front": true,
+        "back": true
+      },
+      {
+        "id": "1ahxwxyhp7fll9i",
+        "username": "0343733777",
+        "cccd": "010309003820",
+        "front": true,
+        "back": true
+      }
+    ],
+    "usersWithImagesButInvalidCccd": [
+      {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "NV02",
+        "cccd": ""
+      },
+      {
+        "id": "e1e5az09dfop723",
+        "username": "nldtest",
+        "cccd": ""
+      }
+    ],
+    "invalidHistories": [
+      {
+        "id": "edxw0hb2252h6ci",
+        "uid": "HL2607001",
+        "user": "uiv0bjbth0h2nhx",
+        "cccd": "123456"
+      },
+      {
+        "id": "06jmm3xf3nhw88r",
+        "uid": "HL2607003",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      },
+      {
+        "id": "a0s8wcowqzj7hco",
+        "uid": "HL2607004",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "1234559"
+      },
+      {
+        "id": "y4ygkod50aypj3p",
+        "uid": "HL26070005",
+        "user": "7zgadkco1qi6rb8",
+        "cccd": "12345"
+      }
+    ],
+    "missingUsers": [],
+    "missingHistoryVersions": [
+      {
+        "id": "3lpu9qlcm3a2xlo",
+        "uid": "HL26070006",
+        "user": "e1e5az09dfop723",
+        "cccd": "026098004932"
+      },
+      {
+        "id": "e6pfozcbvsseq6m",
+        "uid": "HL26070008",
+        "user": "u7i50k0teemm3mb",
+        "cccd": "023622546922"
+      },
+      {
+        "id": "gwk8fdwybtbzcx7",
+        "uid": "HL26070009",
+        "user": "m9ukni4c390eaa4",
+        "cccd": "031204005724"
+      },
+      {
+        "id": "rt66a2z1fpcx2f0",
+        "uid": "HL26070010",
+        "user": "m9ukni4c390eaa4",
+        "cccd": "023622546922"
+      }
+    ],
+    "mismatchedHistoryVersions": [],
+    "duplicateVersionKeys": [],
+    "legacyImagesNotMigrated": [],
+    "legacyImageConflicts": [
+      {
+        "user": "1ahxwxyhp7fll9i",
+        "cccd": "010309003820",
+        "side": "front",
+        "keptVersionFile": "cccd_mat_truoc_1786112965841_sevppqgf4j.jpg"
+      },
+      {
+        "user": "1ahxwxyhp7fll9i",
+        "cccd": "010309003820",
+        "side": "back",
+        "keptVersionFile": "cccd_mat_sau_1786112977890_zzaggmb1c3.jpg"
+      }
+    ]
+  }
+}

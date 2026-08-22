@@ -28,6 +28,9 @@ import { Separator } from "@/components/ui/separator";
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
     if (typeof window === "undefined" || !pb.authStore.isValid) return;
+    if (pb.authStore.record?.must_change_password) {
+      throw redirect({ to: "/force-change-password" });
+    }
     const role = pb.authStore.record?.role;
     const isDesktop = getClientDeviceProfile() === "desktop";
     if (role === "super_admin") throw redirect({ to: "/super-admin" });

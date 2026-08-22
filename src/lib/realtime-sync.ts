@@ -5,6 +5,7 @@ import type { CccdVersionRecord } from "./cccd-versions";
 import type { FactoryRecord } from "./factories";
 import type { RecruitmentEntityRecord } from "./recruitment-entities";
 import { buildScopedHistoryFilter } from "./staff-permissions";
+import { companyIdOf } from "./tenant";
 import {
   deleteCachedHistory,
   deleteCachedUser,
@@ -51,7 +52,7 @@ let requestedVersion = 0;
 let operationQueue: Promise<void> = Promise.resolve();
 
 function syncKey(viewer: UserRecord, managedFactoryIds: Set<string>) {
-  return buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role);
+  return buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role, companyIdOf(viewer));
 }
 
 function enqueue(operation: () => Promise<void>): Promise<void> {
@@ -211,7 +212,14 @@ async function handleRecruitmentEntityEvent(event: RealtimeEvent<RecruitmentEnti
   dispatchSignal({ collection: "recruitment_entities", action, id: record.id });
 }
 
-async function cleanupSubscriptions(unsubs: UnsubscribeFunc[]) {
+async function cleanupSubscriptions(unsubs: UnsubscribeFunc[], viewerId?: string) {
+  // PocketBase ties a realtime client to the token that opened it. After logout or
+  // account switching, submitting an unsubscribe with the new token returns 403.
+  const authenticatedUser = pb.authStore.record as UserRecord | null;
+  if (viewerId && authenticatedUser?.id !== viewerId) {
+    pb.realtime.disconnect();
+    return;
+  }
   for (const unsub of unsubs) {
     try {
       await unsub();
@@ -220,7 +228,6 @@ async function cleanupSubscriptions(unsubs: UnsubscribeFunc[]) {
     }
   }
 }
-
 async function unsubscribeRealtimeTopics() {
   for (const collection of [
     "employment_histories",
@@ -246,7 +253,7 @@ async function runStopStaffRealtimeSync(): Promise<void> {
   if (current.visibilityHandler)
     document.removeEventListener("visibilitychange", current.visibilityHandler);
   if (current.onlineHandler) window.removeEventListener("online", current.onlineHandler);
-  await cleanupSubscriptions(current.unsubs);
+  await cleanupSubscriptions(current.unsubs, current.viewerId);
   if (current.catchupPromise) await current.catchupPromise;
 }
 
@@ -261,6 +268,8 @@ async function runStartStaffRealtimeSync(
   if (version !== requestedVersion) return;
 
   const unsubs: UnsubscribeFunc[] = [];
+  // Ensure an SSE client created by a previous login cannot reuse another account token.
+  pb.realtime.disconnect();
   try {
     const historyFilter = buildScopedHistoryFilter(viewer, managedFactoryIds);
     const historyUnsub = await pb
@@ -401,7 +410,12 @@ export function catchUpStaffRealtimeSync(viewer: UserRecord): Promise<void> {
         includeCccdVersions: true,
       });
       await saveScopeFingerprint(
-        buildScopeFingerprint(viewer.id, current.managedFactoryIds, viewer.role),
+        buildScopeFingerprint(
+          viewer.id,
+          current.managedFactoryIds,
+          viewer.role,
+          companyIdOf(viewer),
+        ),
       );
       if (state === current) {
         dispatchSignal({ collection: "employment_histories", action: "update", id: "__catchup__" });

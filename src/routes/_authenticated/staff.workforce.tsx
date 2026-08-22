@@ -23,6 +23,7 @@ import {
 import { useStaffCacheSignal } from "@/lib/use-staff-cache-signal";
 import { useAuth } from "@/lib/auth";
 import { escapePb } from "@/lib/delegations";
+import { joinTenantFilters } from "@/lib/tenant";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import type { EmploymentHistoryRecord } from "@/lib/employment";
 import { getRecentDateKeys } from "@/lib/workforce-other-stats";
@@ -221,7 +222,7 @@ function StaffWorkforceDashboardPage() {
     Promise.all([
       fetchCccdVersionsByIds(referencedVersionIds),
       pb.collection("approval_requests").getFullList<ApprovalRequestSummary>({
-        filter: `creator = "${escapePb(viewer.id)}"`,
+        filter: joinTenantFilters(viewer, `creator = "${escapePb(viewer.id)}"`),
         fields: "status,amount",
       }),
     ])

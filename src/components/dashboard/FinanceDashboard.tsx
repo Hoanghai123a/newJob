@@ -1,3 +1,5 @@
+import { joinTenantFilters } from "@/lib/tenant";
+import { useAuth } from "@/lib/auth";
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -224,6 +226,7 @@ export function FinanceDashboard({
 }: {
   presentation?: "default" | "mobile-dialog";
 }) {
+  const { user } = useAuth();
   const [period, setPeriod] = useState<PeriodKey>("last30");
   const [range, setRange] = useState<DateRange>(todayRange);
   const [rows, setRows] = useState<FinanceAdvance[]>([]);
@@ -242,7 +245,7 @@ export function FinanceDashboard({
     setError("");
     try {
       const data = await pb.collection("advances").getFullList<FinanceAdvance>({
-        filter: buildAdminAdvanceSegmentFilter("workers"),
+        filter: joinTenantFilters(user, buildAdminAdvanceSegmentFilter("workers")),
         sort: "-created",
         fields:
           "id,full_name,company,employee_code,amount,status,recovery_status,created,resolved_at,disbursed,disbursed_at,recovered_at",
@@ -254,7 +257,7 @@ export function FinanceDashboard({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     load();

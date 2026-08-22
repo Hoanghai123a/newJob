@@ -16,6 +16,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUidCounterRouteImport } from './routes/api/uid-counter'
+import { Route as ApiTenantCompanyRouteImport } from './routes/api/tenant-company'
 import { Route as ApiEmploymentHistoriesRouteImport } from './routes/api/employment-histories'
 import { Route as AuthenticatedWorkHistoryRouteImport } from './routes/_authenticated/work-history'
 import { Route as AuthenticatedWorkRouteImport } from './routes/_authenticated/work'
@@ -71,6 +72,7 @@ import { Route as AuthenticatedStaffWorkersIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedStaffToolsIndexRouteImport } from './routes/_authenticated/staff.tools.index'
 import { Route as AuthenticatedAdminStaffIndexRouteImport } from './routes/_authenticated/admin/staff.index'
 import { Route as AuthenticatedAdminAccountsIndexRouteImport } from './routes/_authenticated/admin/accounts.index'
+import { Route as ApiSuperAdminCompaniesImportRouteImport } from './routes/api/super-admin/companies.import'
 import { Route as ApiSuperAdminCompaniesCompanyIdRouteImport } from './routes/api/super-admin/companies.$companyId'
 import { Route as ApiPublicPbSplatRouteImport } from './routes/api/public/pb.$'
 import { Route as ApiPublicManifestWebmanifestRouteImport } from './routes/api/public/manifest.webmanifest'
@@ -79,6 +81,9 @@ import { Route as AuthenticatedStaffToolsQrRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminAccountsStatsRouteImport } from './routes/_authenticated/admin/accounts.stats'
 import { Route as AuthenticatedAdminAccountsLogsRouteImport } from './routes/_authenticated/admin/accounts.logs'
 import { Route as AuthenticatedAdminAccountsFactoriesRouteImport } from './routes/_authenticated/admin/accounts.factories'
+import { Route as ApiSuperAdminCompaniesImportPreviewRouteImport } from './routes/api/super-admin/companies.import.preview'
+import { Route as ApiSuperAdminCompaniesCompanyIdPurgeRouteImport } from './routes/api/super-admin/companies.$companyId.purge'
+import { Route as ApiSuperAdminCompaniesCompanyIdExportRouteImport } from './routes/api/super-admin/companies.$companyId.export'
 import { Route as ApiSuperAdminCompaniesCompanyIdAdminsRouteImport } from './routes/api/super-admin/companies.$companyId.admins'
 import { Route as ApiAdminWorkersWorkerIdDeleteRouteImport } from './routes/api/admin/workers.$workerId.delete'
 import { Route as AuthenticatedStaffWorkersWorkerIdPayrollRouteImport } from './routes/_authenticated/staff.workers.$workerId_.payroll'
@@ -116,6 +121,11 @@ const IndexRoute = IndexRouteImport.update({
 const ApiUidCounterRoute = ApiUidCounterRouteImport.update({
   id: '/api/uid-counter',
   path: '/api/uid-counter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTenantCompanyRoute = ApiTenantCompanyRouteImport.update({
+  id: '/api/tenant-company',
+  path: '/api/tenant-company',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEmploymentHistoriesRoute = ApiEmploymentHistoriesRouteImport.update({
@@ -418,6 +428,12 @@ const AuthenticatedAdminAccountsIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminAccountsRoute,
   } as any)
+const ApiSuperAdminCompaniesImportRoute =
+  ApiSuperAdminCompaniesImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => ApiSuperAdminCompaniesRoute,
+  } as any)
 const ApiSuperAdminCompaniesCompanyIdRoute =
   ApiSuperAdminCompaniesCompanyIdRouteImport.update({
     id: '/$companyId',
@@ -465,6 +481,24 @@ const AuthenticatedAdminAccountsFactoriesRoute =
     path: '/factories',
     getParentRoute: () => AuthenticatedAdminAccountsRoute,
   } as any)
+const ApiSuperAdminCompaniesImportPreviewRoute =
+  ApiSuperAdminCompaniesImportPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => ApiSuperAdminCompaniesImportRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdPurgeRoute =
+  ApiSuperAdminCompaniesCompanyIdPurgeRouteImport.update({
+    id: '/purge',
+    path: '/purge',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdExportRoute =
+  ApiSuperAdminCompaniesCompanyIdExportRouteImport.update({
+    id: '/export',
+    path: '/export',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
+  } as any)
 const ApiSuperAdminCompaniesCompanyIdAdminsRoute =
   ApiSuperAdminCompaniesCompanyIdAdminsRouteImport.update({
     id: '/admins',
@@ -511,6 +545,7 @@ export interface FileRoutesByFullPath {
   '/work': typeof AuthenticatedWorkRoute
   '/work-history': typeof AuthenticatedWorkHistoryRoute
   '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
+  '/api/tenant-company': typeof ApiTenantCompanyRoute
   '/api/uid-counter': typeof ApiUidCounterRoute
   '/admin/accounts': typeof AuthenticatedAdminAccountsRouteWithChildren
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
@@ -556,6 +591,7 @@ export interface FileRoutesByFullPath {
   '/api/public/manifest/webmanifest': typeof ApiPublicManifestWebmanifestRoute
   '/api/public/pb/$': typeof ApiPublicPbSplatRoute
   '/api/super-admin/companies/$companyId': typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  '/api/super-admin/companies/import': typeof ApiSuperAdminCompaniesImportRouteWithChildren
   '/admin/accounts/': typeof AuthenticatedAdminAccountsIndexRoute
   '/admin/staff/': typeof AuthenticatedAdminStaffIndexRoute
   '/staff/tools/': typeof AuthenticatedStaffToolsIndexRoute
@@ -563,6 +599,9 @@ export interface FileRoutesByFullPath {
   '/staff/workers/$workerId/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
+  '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
   '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
 }
 export interface FileRoutesByTo {
@@ -585,6 +624,7 @@ export interface FileRoutesByTo {
   '/work': typeof AuthenticatedWorkRoute
   '/work-history': typeof AuthenticatedWorkHistoryRoute
   '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
+  '/api/tenant-company': typeof ApiTenantCompanyRoute
   '/api/uid-counter': typeof ApiUidCounterRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/imports': typeof AuthenticatedAdminImportsRoute
@@ -627,6 +667,7 @@ export interface FileRoutesByTo {
   '/api/public/manifest/webmanifest': typeof ApiPublicManifestWebmanifestRoute
   '/api/public/pb/$': typeof ApiPublicPbSplatRoute
   '/api/super-admin/companies/$companyId': typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  '/api/super-admin/companies/import': typeof ApiSuperAdminCompaniesImportRouteWithChildren
   '/admin/accounts': typeof AuthenticatedAdminAccountsIndexRoute
   '/admin/staff': typeof AuthenticatedAdminStaffIndexRoute
   '/staff/tools': typeof AuthenticatedStaffToolsIndexRoute
@@ -634,6 +675,9 @@ export interface FileRoutesByTo {
   '/staff/workers/$workerId/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
+  '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
   '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
 }
 export interface FileRoutesById {
@@ -659,6 +703,7 @@ export interface FileRoutesById {
   '/_authenticated/work': typeof AuthenticatedWorkRoute
   '/_authenticated/work-history': typeof AuthenticatedWorkHistoryRoute
   '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
+  '/api/tenant-company': typeof ApiTenantCompanyRoute
   '/api/uid-counter': typeof ApiUidCounterRoute
   '/_authenticated/admin/accounts': typeof AuthenticatedAdminAccountsRouteWithChildren
   '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
@@ -704,6 +749,7 @@ export interface FileRoutesById {
   '/api/public/manifest/webmanifest': typeof ApiPublicManifestWebmanifestRoute
   '/api/public/pb/$': typeof ApiPublicPbSplatRoute
   '/api/super-admin/companies/$companyId': typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  '/api/super-admin/companies/import': typeof ApiSuperAdminCompaniesImportRouteWithChildren
   '/_authenticated/admin/accounts/': typeof AuthenticatedAdminAccountsIndexRoute
   '/_authenticated/admin/staff/': typeof AuthenticatedAdminStaffIndexRoute
   '/_authenticated/staff/tools/': typeof AuthenticatedStaffToolsIndexRoute
@@ -711,6 +757,9 @@ export interface FileRoutesById {
   '/_authenticated/staff/workers/$workerId_/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
+  '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
   '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
 }
 export interface FileRouteTypes {
@@ -736,6 +785,7 @@ export interface FileRouteTypes {
     | '/work'
     | '/work-history'
     | '/api/employment-histories'
+    | '/api/tenant-company'
     | '/api/uid-counter'
     | '/admin/accounts'
     | '/admin/approvals'
@@ -781,6 +831,7 @@ export interface FileRouteTypes {
     | '/api/public/manifest/webmanifest'
     | '/api/public/pb/$'
     | '/api/super-admin/companies/$companyId'
+    | '/api/super-admin/companies/import'
     | '/admin/accounts/'
     | '/admin/staff/'
     | '/staff/tools/'
@@ -788,6 +839,9 @@ export interface FileRouteTypes {
     | '/staff/workers/$workerId/payroll'
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
+    | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/purge'
+    | '/api/super-admin/companies/import/preview'
     | '/api/super-admin/companies/$companyId/admins/$adminId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -810,6 +864,7 @@ export interface FileRouteTypes {
     | '/work'
     | '/work-history'
     | '/api/employment-histories'
+    | '/api/tenant-company'
     | '/api/uid-counter'
     | '/admin/approvals'
     | '/admin/imports'
@@ -852,6 +907,7 @@ export interface FileRouteTypes {
     | '/api/public/manifest/webmanifest'
     | '/api/public/pb/$'
     | '/api/super-admin/companies/$companyId'
+    | '/api/super-admin/companies/import'
     | '/admin/accounts'
     | '/admin/staff'
     | '/staff/tools'
@@ -859,6 +915,9 @@ export interface FileRouteTypes {
     | '/staff/workers/$workerId/payroll'
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
+    | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/purge'
+    | '/api/super-admin/companies/import/preview'
     | '/api/super-admin/companies/$companyId/admins/$adminId'
   id:
     | '__root__'
@@ -883,6 +942,7 @@ export interface FileRouteTypes {
     | '/_authenticated/work'
     | '/_authenticated/work-history'
     | '/api/employment-histories'
+    | '/api/tenant-company'
     | '/api/uid-counter'
     | '/_authenticated/admin/accounts'
     | '/_authenticated/admin/approvals'
@@ -928,6 +988,7 @@ export interface FileRouteTypes {
     | '/api/public/manifest/webmanifest'
     | '/api/public/pb/$'
     | '/api/super-admin/companies/$companyId'
+    | '/api/super-admin/companies/import'
     | '/_authenticated/admin/accounts/'
     | '/_authenticated/admin/staff/'
     | '/_authenticated/staff/tools/'
@@ -935,6 +996,9 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/workers/$workerId_/payroll'
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
+    | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/purge'
+    | '/api/super-admin/companies/import/preview'
     | '/api/super-admin/companies/$companyId/admins/$adminId'
   fileRoutesById: FileRoutesById
 }
@@ -946,6 +1010,7 @@ export interface RootRouteChildren {
   PendingRoute: typeof PendingRoute
   RegisterRoute: typeof RegisterRoute
   ApiEmploymentHistoriesRoute: typeof ApiEmploymentHistoriesRouteWithChildren
+  ApiTenantCompanyRoute: typeof ApiTenantCompanyRoute
   ApiUidCounterRoute: typeof ApiUidCounterRoute
   ApiCompanyLoginContextRoute: typeof ApiCompanyLoginContextRoute
   ApiPublicAppIconRoute: typeof ApiPublicAppIconRoute
@@ -1017,6 +1082,13 @@ declare module '@tanstack/react-router' {
       path: '/api/uid-counter'
       fullPath: '/api/uid-counter'
       preLoaderRoute: typeof ApiUidCounterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tenant-company': {
+      id: '/api/tenant-company'
+      path: '/api/tenant-company'
+      fullPath: '/api/tenant-company'
+      preLoaderRoute: typeof ApiTenantCompanyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/employment-histories': {
@@ -1404,6 +1476,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAccountsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminAccountsRoute
     }
+    '/api/super-admin/companies/import': {
+      id: '/api/super-admin/companies/import'
+      path: '/import'
+      fullPath: '/api/super-admin/companies/import'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesImportRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesRoute
+    }
     '/api/super-admin/companies/$companyId': {
       id: '/api/super-admin/companies/$companyId'
       path: '/$companyId'
@@ -1459,6 +1538,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/accounts/factories'
       preLoaderRoute: typeof AuthenticatedAdminAccountsFactoriesRouteImport
       parentRoute: typeof AuthenticatedAdminAccountsRoute
+    }
+    '/api/super-admin/companies/import/preview': {
+      id: '/api/super-admin/companies/import/preview'
+      path: '/preview'
+      fullPath: '/api/super-admin/companies/import/preview'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesImportPreviewRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesImportRoute
+    }
+    '/api/super-admin/companies/$companyId/purge': {
+      id: '/api/super-admin/companies/$companyId/purge'
+      path: '/purge'
+      fullPath: '/api/super-admin/companies/$companyId/purge'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdPurgeRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
+    }
+    '/api/super-admin/companies/$companyId/export': {
+      id: '/api/super-admin/companies/$companyId/export'
+      path: '/export'
+      fullPath: '/api/super-admin/companies/$companyId/export'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdExportRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
     }
     '/api/super-admin/companies/$companyId/admins': {
       id: '/api/super-admin/companies/$companyId/admins'
@@ -1666,12 +1766,18 @@ const ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren =
 
 interface ApiSuperAdminCompaniesCompanyIdRouteChildren {
   ApiSuperAdminCompaniesCompanyIdAdminsRoute: typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  ApiSuperAdminCompaniesCompanyIdExportRoute: typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  ApiSuperAdminCompaniesCompanyIdPurgeRoute: typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
 }
 
 const ApiSuperAdminCompaniesCompanyIdRouteChildren: ApiSuperAdminCompaniesCompanyIdRouteChildren =
   {
     ApiSuperAdminCompaniesCompanyIdAdminsRoute:
       ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren,
+    ApiSuperAdminCompaniesCompanyIdExportRoute:
+      ApiSuperAdminCompaniesCompanyIdExportRoute,
+    ApiSuperAdminCompaniesCompanyIdPurgeRoute:
+      ApiSuperAdminCompaniesCompanyIdPurgeRoute,
   }
 
 const ApiSuperAdminCompaniesCompanyIdRouteWithChildren =
@@ -1679,14 +1785,32 @@ const ApiSuperAdminCompaniesCompanyIdRouteWithChildren =
     ApiSuperAdminCompaniesCompanyIdRouteChildren,
   )
 
+interface ApiSuperAdminCompaniesImportRouteChildren {
+  ApiSuperAdminCompaniesImportPreviewRoute: typeof ApiSuperAdminCompaniesImportPreviewRoute
+}
+
+const ApiSuperAdminCompaniesImportRouteChildren: ApiSuperAdminCompaniesImportRouteChildren =
+  {
+    ApiSuperAdminCompaniesImportPreviewRoute:
+      ApiSuperAdminCompaniesImportPreviewRoute,
+  }
+
+const ApiSuperAdminCompaniesImportRouteWithChildren =
+  ApiSuperAdminCompaniesImportRoute._addFileChildren(
+    ApiSuperAdminCompaniesImportRouteChildren,
+  )
+
 interface ApiSuperAdminCompaniesRouteChildren {
   ApiSuperAdminCompaniesCompanyIdRoute: typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  ApiSuperAdminCompaniesImportRoute: typeof ApiSuperAdminCompaniesImportRouteWithChildren
 }
 
 const ApiSuperAdminCompaniesRouteChildren: ApiSuperAdminCompaniesRouteChildren =
   {
     ApiSuperAdminCompaniesCompanyIdRoute:
       ApiSuperAdminCompaniesCompanyIdRouteWithChildren,
+    ApiSuperAdminCompaniesImportRoute:
+      ApiSuperAdminCompaniesImportRouteWithChildren,
   }
 
 const ApiSuperAdminCompaniesRouteWithChildren =
@@ -1702,6 +1826,7 @@ const rootRouteChildren: RootRouteChildren = {
   PendingRoute: PendingRoute,
   RegisterRoute: RegisterRoute,
   ApiEmploymentHistoriesRoute: ApiEmploymentHistoriesRouteWithChildren,
+  ApiTenantCompanyRoute: ApiTenantCompanyRoute,
   ApiUidCounterRoute: ApiUidCounterRoute,
   ApiCompanyLoginContextRoute: ApiCompanyLoginContextRoute,
   ApiPublicAppIconRoute: ApiPublicAppIconRoute,

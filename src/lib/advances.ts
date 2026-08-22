@@ -18,6 +18,7 @@ export type AdminAdvanceSegment = "workers" | "staff";
 
 export type AdvanceRecord = {
   id: string;
+  tenant_company: string;
   user?: string;
   requested_by?: string;
   recruiter_id?: string;
@@ -104,9 +105,7 @@ export function joinPbFilters(parts: Array<string | false | null | undefined>) {
 }
 
 export function buildAdminAdvanceSegmentFilter(segment: AdminAdvanceSegment) {
-  return segment === "workers"
-    ? '(user.role="user" || user.role="")'
-    : 'user.role="staff"';
+  return segment === "workers" ? '(user.role="user" || user.role="")' : 'user.role="staff"';
 }
 
 export function containsAny(fields: string[], keyword: string) {

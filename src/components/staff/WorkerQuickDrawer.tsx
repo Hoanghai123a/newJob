@@ -11,6 +11,7 @@ import {
   UserSquare2,
   Wallet,
 } from "lucide-react";
+import { companyPayload } from "@/lib/tenant";
 import { toast } from "@/lib/toast";
 import { useNavigate } from "@tanstack/react-router";
 import { WorkerPayrollDialog } from "@/components/payroll/WorkerPayrollView";
@@ -247,7 +248,7 @@ export function WorkerQuickDrawer({
   const canOpenAdvance =
     canReportAdvanceByScope &&
     advanceInteractionAllowed &&
-      (!latest?.recruiter_partner || viewer?.role === "admin");
+    (!latest?.recruiter_partner || viewer?.role === "admin");
   const canOpenJoin = canReportJoin(
     viewer,
     worker?.histories || [],
@@ -337,9 +338,9 @@ export function WorkerQuickDrawer({
           history.id,
           { status: "left" },
           {
-          actor: viewer,
-          source: "Danh sách lao động",
-          note: "Báo đi làm mới: đồng bộ lịch sử đã có ngày nghỉ",
+            actor: viewer,
+            source: "Danh sách lao động",
+            note: "Báo đi làm mới: đồng bộ lịch sử đã có ngày nghỉ",
             before: history,
           },
         );
@@ -448,6 +449,7 @@ export function WorkerQuickDrawer({
       const employment = policy.employment;
 
       const created = await pb.collection("advances").create({
+        ...companyPayload(pb.authStore.record as UserRecord),
         user: worker.user.id,
         requested_by: viewer.id,
         recruiter_id: employment.recruiter_staff || "",
@@ -956,7 +958,12 @@ export function WorkerQuickDrawer({
           </Button>
         </DrawerFooter>
       </DrawerContent>
-      <WorkerPayrollDialog open={payrollOpen} onOpenChange={setPayrollOpen} viewer={viewer} workerId={worker?.user.id || ""} />
+      <WorkerPayrollDialog
+        open={payrollOpen}
+        onOpenChange={setPayrollOpen}
+        viewer={viewer}
+        workerId={worker?.user.id || ""}
+      />
     </Drawer>
   );
 }
@@ -1051,9 +1058,7 @@ function AdvanceForm({
       .catch((error: unknown) => {
         if (!active) return;
         setPolicy(null);
-        setPolicyError(
-          getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"),
-        );
+        setPolicyError(getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"));
       })
       .finally(() => active && setPolicyLoading(false));
     return () => {
@@ -1202,10 +1207,3 @@ function AdvanceForm({
     </form>
   );
 }
-
-
-
-
-
-
-

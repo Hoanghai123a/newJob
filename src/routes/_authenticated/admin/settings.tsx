@@ -1,6 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { pb, dataUrlToFile, fileUrl, type UserRecord } from "@/lib/pocketbase";
+import { fetchFactories } from "@/lib/factories";
+import { fetchRecruitmentEntities } from "@/lib/recruitment-entities";
+import { companyFilter, companyIdOf, companyPayload } from "@/lib/tenant";
 import { useAppSettings } from "@/lib/app-settings";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import { createStaffActionLog } from "@/lib/staff-log";
@@ -246,9 +249,7 @@ function CompanyTab() {
         <Label className="text-xs">Phạm vi nhà máy khi tạo/báo đi làm</Label>
         <Select
           value={form.staff_employment_factory_scope || "assigned"}
-          onValueChange={(value) =>
-            setForm({ ...form, staff_employment_factory_scope: value })
-          }
+          onValueChange={(value) => setForm({ ...form, staff_employment_factory_scope: value })}
         >
           <SelectTrigger className="mt-1 rounded-xl">
             <SelectValue />
@@ -341,7 +342,8 @@ function CompanyTab() {
         Yêu cầu collection PocketBase tên <code>app_settings</code> với các field: company_name,
         slogan, address, hotline, email, about (text), advance_limit (number), advance_rules (text),
         logo (file), install_guide_images (multiple files), staff_employment_factory_scope (select:
-        assigned/all). Collection <code>factories</code> cần thêm field attendance_cutoff_day (number).
+        assigned/all). Collection <code>factories</code> cần thêm field attendance_cutoff_day
+        (number).
       </p>
     </Card>
   );
@@ -469,7 +471,10 @@ function FactoriesTab() {
   const loadAreas = async () => {
     setAreasLoading(true);
     try {
-      const res = await pb.collection("recruitment_areas").getList(1, 300, { sort: "name" });
+      const res = await pb.collection("recruitment_areas").getList(1, 300, {
+        filter: companyFilter(pb.authStore.record as UserRecord),
+        sort: "name",
+      });
       setAreas(res.items as any);
     } catch (e: any) {
       toast.error(e?.message || "Lỗi tải khu vực. Hãy tạo collection 'recruitment_areas'.");
@@ -538,7 +543,9 @@ function FactoriesTab() {
           note: "Admin cập nhật nhà máy",
         });
       } else {
-        const created = await pb.collection("factories").create(payload);
+        const created = await pb
+          .collection("factories")
+          .create({ ...payload, tenant_company: companyIdOf(currentUser) });
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "factories",
@@ -711,7 +718,10 @@ function FactoriesTab() {
           note: "Admin cập nhật khu vực tuyển dụng",
         });
       } else {
-        const created = await pb.collection("recruitment_areas").create(payload);
+        const created = await pb.collection("recruitment_areas").create({
+          ...payload,
+          ...companyPayload(pb.authStore.record as UserRecord),
+        });
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "recruitment_areas",
@@ -783,7 +793,9 @@ function FactoriesTab() {
           note: "Admin cập nhật đơn vị Nhà chính & Đối tác",
         });
       } else {
-        const created = await pb.collection("recruitment_entities").create(payload);
+        const created = await pb
+          .collection("recruitment_entities")
+          .create({ ...payload, tenant_company: companyIdOf(currentUser) });
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "recruitment_entities",

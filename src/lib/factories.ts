@@ -1,10 +1,12 @@
-import { pb } from "./pocketbase";
+import { pb, type UserRecord } from "./pocketbase";
 import { escapePb } from "./delegations";
+import { companyIdOf } from "./tenant";
 
 export type FactoryStatus = "active" | "inactive";
 
 export interface FactoryRecord {
   id: string;
+  tenant_company?: string;
   code?: string;
   name: string;
   address?: string;
@@ -19,6 +21,7 @@ export interface FactoryRecord {
 
 export interface FactoryManagerRecord {
   id: string;
+  tenant_company?: string;
   factory: string;
   staff: string;
   active_from?: string;
@@ -30,14 +33,25 @@ export interface FactoryManagerRecord {
   };
 }
 
-export async function fetchFactories() {
+export async function fetchFactories(user?: Pick<UserRecord, "tenant_company"> | null) {
+  const tenant = companyIdOf(user || (pb.authStore.record as UserRecord | null));
+  if (!tenant) throw new Error("Tài khoản chưa được gán công ty.");
+  const filter = `tenant_company = "${escapePb(tenant)}"`;
   return (await pb.collection("factories").getFullList({
+    filter,
     sort: "name",
   })) as unknown as FactoryRecord[];
 }
 
-export async function fetchFactoryManagers(staffId?: string) {
-  const filter = staffId ? `staff="${escapePb(staffId)}"` : "";
+export async function fetchFactoryManagers(
+  staffId?: string,
+  user?: Pick<UserRecord, "tenant_company"> | null,
+) {
+  const tenant = companyIdOf(user || (pb.authStore.record as UserRecord | null));
+  if (!tenant) throw new Error("Tài khoản chưa được gán công ty.");
+  const filters = [`tenant_company = "${escapePb(tenant)}"`];
+  if (staffId) filters.push(`staff = "${escapePb(staffId)}"`);
+  const filter = filters.join(" && ");
   return (await pb.collection("factory_managers").getFullList({
     filter,
     sort: "-created",

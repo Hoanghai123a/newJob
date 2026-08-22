@@ -7,7 +7,7 @@ import type { FactoryRecord } from "./factories";
 import type { RecruitmentEntityRecord } from "./recruitment-entities";
 
 const DB_NAME = "jobconnect-staff-cache";
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 const STORE_HISTORIES = "employment_histories";
 const STORE_USERS = "workers";
 const STORE_CCCD_VERSIONS = "cccd_versions";
@@ -43,7 +43,7 @@ function openDB(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains(STORE_META)) {
         db.createObjectStore(STORE_META);
       }
-      if (event.oldVersion < 6) {
+      if (event.oldVersion < 7) {
         for (const store of [
           STORE_HISTORIES,
           STORE_USERS,
@@ -57,7 +57,24 @@ function openDB(): Promise<IDBDatabase> {
         }
       }
     };
-    request.onsuccess = () => resolve(request.result);
+    request.onsuccess = () => {
+      const db = request.result;
+      const requiredStores = [
+        STORE_HISTORIES,
+        STORE_USERS,
+        STORE_CCCD_VERSIONS,
+        STORE_FACTORIES,
+        STORE_RECRUITMENT_ENTITIES,
+        STORE_STAFF_USERS,
+        STORE_META,
+      ];
+      if (requiredStores.some((store) => !db.objectStoreNames.contains(store))) {
+        db.close();
+        reject(new Error("Bộ nhớ đệm staff chưa được nâng cấp đầy đủ."));
+        return;
+      }
+      resolve(db);
+    };
     request.onerror = () => reject(request.error);
   });
 }
@@ -407,8 +424,9 @@ export function buildScopeFingerprint(
   viewerId: string,
   managedFactoryIds: Set<string>,
   role = "",
+  tenantCompany = "",
 ): string {
-  return [viewerId, role, ...[...managedFactoryIds].sort()].join("|");
+  return [viewerId, role, tenantCompany, ...[...managedFactoryIds].sort()].join("|");
 }
 
 export async function isCacheScopeValid(currentFingerprint: string): Promise<boolean> {
@@ -457,9 +475,9 @@ export async function writeCachedAuxData(data: {
 }): Promise<void> {
   try {
     const db = await openDB();
-    await idbPutMany(db, STORE_FACTORIES, data.factories);
-    await idbPutMany(db, STORE_RECRUITMENT_ENTITIES, data.recruitmentEntities);
-    await idbPutMany(db, STORE_STAFF_USERS, data.staffUsers);
+    await idbReplaceMany(db, STORE_FACTORIES, data.factories);
+    await idbReplaceMany(db, STORE_RECRUITMENT_ENTITIES, data.recruitmentEntities);
+    await idbReplaceMany(db, STORE_STAFF_USERS, data.staffUsers);
   } catch {
     // Ignore IndexedDB cache failures.
   }

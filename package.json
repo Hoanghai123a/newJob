@@ -17,6 +17,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "pb:migrate-multitenancy": "node --env-file=.env scripts/migrate-multitenancy.mjs",
+    "pb:migrate-tenant-transfer": "node --env-file=.env scripts/migrate-tenant-transfer.mjs --apply",
+    "pb:audit-tenant-transfer": "node --env-file=.env scripts/migrate-tenant-transfer.mjs",
     "pb:migrate-company-login-identities": "node --env-file=.env scripts/migrate-company-login-identities.mjs",
     "pb:migrate-workers": "node scripts/migrate-workers.mjs",
     "pb:backfill-employment-snapshots": "node scripts/backfill-employment-snapshots.mjs",

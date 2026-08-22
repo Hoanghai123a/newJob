@@ -1,5 +1,7 @@
-﻿import { pb } from "./pocketbase";
+import { pb } from "./pocketbase";
 import { escapePb } from "./delegations";
+import { companyFilter, companyPayload, joinTenantFilters } from "./tenant";
+import type { UserRecord } from "./pocketbase";
 
 export const WORK_PROGRESS_COLLECTIONS = {
   tabs: "work_progress_tabs",
@@ -9,6 +11,7 @@ export const WORK_PROGRESS_COLLECTIONS = {
 
 export interface WorkProgressTabRecord {
   id: string;
+  tenant_company: string;
   name: string;
   position: number;
   created_by: string;
@@ -18,6 +21,7 @@ export interface WorkProgressTabRecord {
 
 export interface WorkProgressStatusRecord {
   id: string;
+  tenant_company: string;
   tab: string;
   name: string;
   position: number;
@@ -28,6 +32,7 @@ export interface WorkProgressStatusRecord {
 
 export interface WorkProgressTaskRecord {
   id: string;
+  tenant_company: string;
   tab: string;
   status: string;
   name: string;
@@ -44,17 +49,24 @@ export interface WorkProgressData {
 }
 
 type OrderedRecord = { id: string; position: number };
+function tenantUser() {
+  return pb.authStore.record as UserRecord | null;
+}
+
 type OrderedCollection = (typeof WORK_PROGRESS_COLLECTIONS)[keyof typeof WORK_PROGRESS_COLLECTIONS];
 
 export async function fetchWorkProgressData(): Promise<WorkProgressData> {
   const [tabs, statuses, tasks] = await Promise.all([
     pb.collection(WORK_PROGRESS_COLLECTIONS.tabs).getFullList<WorkProgressTabRecord>({
+      filter: companyFilter(tenantUser()),
       sort: "position,created",
     }),
     pb.collection(WORK_PROGRESS_COLLECTIONS.statuses).getFullList<WorkProgressStatusRecord>({
+      filter: companyFilter(tenantUser()),
       sort: "tab,position,created",
     }),
     pb.collection(WORK_PROGRESS_COLLECTIONS.tasks).getFullList<WorkProgressTaskRecord>({
+      filter: companyFilter(tenantUser()),
       sort: "tab,position,created",
     }),
   ]);
@@ -65,16 +77,20 @@ export async function fetchWorkProgressData(): Promise<WorkProgressData> {
 async function nextPosition(collection: OrderedCollection, tabId?: string) {
   const record = await pb
     .collection(collection)
-    .getFirstListItem<OrderedRecord>(tabId ? `tab = "${escapePb(tabId)}"` : "", {
-      sort: "-position",
-      fields: "id,position",
-    })
+    .getFirstListItem<OrderedRecord>(
+      joinTenantFilters(tenantUser(), tabId && `tab = "${escapePb(tabId)}"`),
+      {
+        sort: "-position",
+        fields: "id,position",
+      },
+    )
     .catch(() => null);
   return Math.max(0, Number(record?.position) || 0) + 1;
 }
 
 export async function createWorkProgressTab(name: string, adminId: string) {
   return pb.collection(WORK_PROGRESS_COLLECTIONS.tabs).create<WorkProgressTabRecord>({
+    ...companyPayload(tenantUser()),
     name,
     position: await nextPosition(WORK_PROGRESS_COLLECTIONS.tabs),
     created_by: adminId,
@@ -94,6 +110,7 @@ export async function deleteWorkProgressTab(id: string) {
 
 export async function createWorkProgressStatus(tabId: string, name: string, adminId: string) {
   return pb.collection(WORK_PROGRESS_COLLECTIONS.statuses).create<WorkProgressStatusRecord>({
+    ...companyPayload(tenantUser()),
     tab: tabId,
     name,
     position: await nextPosition(WORK_PROGRESS_COLLECTIONS.statuses, tabId),
@@ -121,6 +138,7 @@ export async function createWorkProgressTask(
   adminId: string,
 ) {
   return pb.collection(WORK_PROGRESS_COLLECTIONS.tasks).create<WorkProgressTaskRecord>({
+    ...companyPayload(tenantUser()),
     tab: tabId,
     status: statusId,
     name,
@@ -154,7 +172,13 @@ export async function swapWorkProgressPositions(
 export async function subscribeWorkProgress(onChange: () => void) {
   const unsubscribers = await Promise.all(
     Object.values(WORK_PROGRESS_COLLECTIONS).map((collection) =>
-      pb.collection(collection).subscribe("*", onChange),
+      pb.collection(collection).subscribe("*", (event) => {
+        if (
+          (event.record as { tenant_company?: string }).tenant_company ===
+          companyPayload(tenantUser()).tenant_company
+        )
+          onChange();
+      }),
     ),
   );
   return () => unsubscribers.forEach((unsubscribe) => unsubscribe());

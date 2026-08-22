@@ -58,6 +58,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { companyFilter, companyIdOf, joinTenantFilters } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/news")({
   component: NewsPage,
@@ -65,6 +66,7 @@ export const Route = createFileRoute("/_authenticated/news")({
 
 interface Recruitment {
   id: string;
+  tenant_company: string;
   company: string;
   area: string;
   images: string[];
@@ -235,6 +237,7 @@ const findFactoryByCompany = (factories: FactoryOption[], company?: string) => {
 };
 
 function useFactoryOptions() {
+  const { user } = useAuth();
   const [factories, setFactories] = useState<FactoryOption[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -242,7 +245,7 @@ function useFactoryOptions() {
     let cancelled = false;
     setLoading(true);
     pb.collection("factories")
-      .getList(1, 300, { sort: "name" })
+      .getList(1, 300, { filter: companyFilter(user), sort: "name" })
       .then((res) => {
         if (!cancelled) setFactories(res.items as unknown as FactoryOption[]);
       })
@@ -256,12 +259,13 @@ function useFactoryOptions() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   return { factories, loading };
 }
 
 function useRecruitmentAreaOptions() {
+  const { user } = useAuth();
   const [areas, setAreas] = useState<RecruitmentAreaOption[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -269,7 +273,7 @@ function useRecruitmentAreaOptions() {
     let cancelled = false;
     setLoading(true);
     pb.collection("recruitment_areas")
-      .getList(1, 300, { sort: "name" })
+      .getList(1, 300, { filter: companyFilter(user), sort: "name" })
       .then((res) => {
         if (!cancelled) setAreas(res.items as unknown as RecruitmentAreaOption[]);
       })
@@ -283,7 +287,7 @@ function useRecruitmentAreaOptions() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   return { areas, loading };
 }
@@ -316,16 +320,19 @@ function NewsPage() {
     setLoading(true);
     try {
       const res = await pb.collection("recruitments").getList(1, 200, {
-        filter: buildRecruitmentFilter({
-          isAdmin,
-          search: debouncedSearch,
-          gender: filter,
-          area: areaFilter,
-          employmentType: employmentTypeFilter,
-          environment: environmentFilter,
-          posture: postureFilter,
-          productionQc: productionQcFilter,
-        }),
+        filter: joinTenantFilters(
+          user,
+          buildRecruitmentFilter({
+            isAdmin,
+            search: debouncedSearch,
+            gender: filter,
+            area: areaFilter,
+            employmentType: employmentTypeFilter,
+            environment: environmentFilter,
+            posture: postureFilter,
+            productionQc: productionQcFilter,
+          }),
+        ),
         sort: "-created",
       });
       const rows = res.items as unknown as Recruitment[];
@@ -987,6 +994,7 @@ function EditDialog({
       const adminPhone = currentFactory?.hotline?.trim() || user?.phone || form.admin_phone || "";
       const mapUrl = factoryMapUrl(currentFactory) || form.map_url || "";
       const fd = new FormData();
+      fd.append("tenant_company", companyIdOf(user));
       fd.append("company", form.company);
       fd.append("area", normalizeArea(form.area));
       fd.append("map_url", mapUrl);

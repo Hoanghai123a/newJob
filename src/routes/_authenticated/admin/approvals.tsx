@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { exportToExcel, formatDateOnly } from "@/lib/excel";
 import { toast } from "@/lib/toast";
+import { companyFilter } from "@/lib/tenant";
 import { Check, FileDown, X, Users, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,8 +33,9 @@ function ApprovalsPage() {
   const load = async () => {
     setLoading(true);
     try {
+      const currentUser = pb.authStore.record as UserRecord | null;
       const res = await pb.collection("users").getList(1, 300, {
-        filter: `approvalStatus = "pending" || approved = "false"`,
+        filter: `${companyFilter(currentUser, "tenant_company")} && (approvalStatus = "pending" || approved = "false")`,
         sort: "-created",
       });
       setUsers(res.items);
@@ -120,7 +122,11 @@ function ApprovalsPage() {
   };
 
   const exportUsers = async () => {
-    const all = await pb.collection("users").getFullList({ sort: "-created" });
+    const currentUser = pb.authStore.record as UserRecord | null;
+    const all = await pb.collection("users").getFullList({
+      filter: companyFilter(currentUser, "tenant_company"),
+      sort: "-created",
+    });
     const rows = all.map((u: any) => ({
       "Họ tên": u.full_name,
       "Mã tài khoản (UID)": u.uid || "",

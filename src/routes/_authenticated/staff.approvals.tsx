@@ -24,6 +24,7 @@ import { deleteOldRequests } from "@/lib/approval-requests";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { ClipboardCheck, Clock, Plus, Trash2 } from "lucide-react";
+import { joinTenantFilters } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/staff/approvals")({
   component: ApprovalsPage,
@@ -93,7 +94,7 @@ function ApprovalsPage() {
       const searchPart = debouncedSearch.trim()
         ? `title ~ "${escapePb(debouncedSearch.trim())}"`
         : "";
-      const filter = [rolePart, tabPart, searchPart].filter(Boolean).join(" && ");
+      const filter = joinTenantFilters(user, rolePart, tabPart, searchPart);
 
       const res = await pb.collection("approval_requests").getList(1, 200, {
         filter,
@@ -122,7 +123,7 @@ function ApprovalsPage() {
     const counts = await Promise.all(
       (Object.keys(TAB_FILTERS) as Tab[]).map(async (key) => {
         const tabPart = TAB_FILTERS[key];
-        const filter = [rolePart, tabPart, searchPart].filter(Boolean).join(" && ");
+        const filter = joinTenantFilters(user, rolePart, tabPart, searchPart);
         try {
           const r = await pb
             .collection("approval_requests")
@@ -147,7 +148,7 @@ function ApprovalsPage() {
     setDetailRequest(req);
     try {
       const res = await pb.collection("approval_responses").getFullList<ApprovalResponseRecord>({
-        filter: `request = "${escapePb(req.id)}"`,
+        filter: joinTenantFilters(user, `request = "${escapePb(req.id)}"`),
         expand: "admin",
         sort: "created",
       });

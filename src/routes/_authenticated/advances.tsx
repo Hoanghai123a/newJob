@@ -11,6 +11,7 @@ import {
 } from "react";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
+import { companyPayload, joinTenantFilters } from "@/lib/tenant";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import { useAppSettings, type AppSettings } from "@/lib/app-settings";
 import {
@@ -376,9 +377,12 @@ export function AdvancesPage() {
         factoryName: isAdmin ? selectedFactoryName : "",
         disbursed: isAdmin ? disbursementFilter : "all",
       });
-      const segmentFilter = isAdmin
-        ? joinPbFilters([baseFilter, buildAdminAdvanceSegmentFilter(adminSegment)])
-        : baseFilter;
+      const segmentFilter = joinTenantFilters(
+        user,
+        isAdmin
+          ? joinPbFilters([baseFilter, buildAdminAdvanceSegmentFilter(adminSegment)])
+          : baseFilter,
+      );
       const listOptions = {
         filter: segmentFilter,
         sort: "-created",
@@ -427,9 +431,10 @@ export function AdvancesPage() {
       factoryName: isAdmin ? selectedFactoryName : "",
       disbursed: isAdmin ? disbursementFilter : "all",
     });
-    const segmentBase = isAdmin
-      ? joinPbFilters([base, buildAdminAdvanceSegmentFilter(adminSegment)])
-      : base;
+    const segmentBase = joinTenantFilters(
+      user,
+      isAdmin ? joinPbFilters([base, buildAdminAdvanceSegmentFilter(adminSegment)]) : base,
+    );
     const withBase = (statusFilter: string) => joinPbFilters([segmentBase, statusFilter]);
     const adminPendingFilter = `(status="recruiter_approved" || ${LEGACY_STAFF_REQUESTED_PENDING_FILTER})`;
     try {
@@ -488,9 +493,7 @@ export function AdvancesPage() {
       .catch((error: unknown) => {
         if (!active) return;
         setAdvancePolicy(null);
-        setAdvancePolicyError(
-          getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"),
-        );
+        setAdvancePolicyError(getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"));
       })
       .finally(() => active && setAdvancePolicyLoading(false));
     return () => {
@@ -557,9 +560,7 @@ export function AdvancesPage() {
       );
       if (!enabled) setDisableConfirmationOpen(false);
     } catch (error: unknown) {
-      toast.error(
-        getUserErrorMessage(error, "Không thể lưu trạng thái chức năng báo ứng"),
-      );
+      toast.error(getUserErrorMessage(error, "Không thể lưu trạng thái chức năng báo ứng"));
     } finally {
       setAdvanceSettingSaving(false);
     }
@@ -590,6 +591,7 @@ export function AdvancesPage() {
       validateAdvanceAmount(policy, amount);
       const employment = policy.employment;
       const created = await pb.collection("advances").create({
+        ...companyPayload(user),
         user: selectedAdvanceUser.id,
         requested_by: user?.id || selectedAdvanceUser.id,
         recruiter_id: employment.recruiter_staff || "",

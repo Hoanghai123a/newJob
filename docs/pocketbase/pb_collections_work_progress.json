@@ -4,11 +4,11 @@
     "name": "work_progress_tabs",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.role = \"admin\"",
-    "viewRule": "@request.auth.role = \"admin\"",
-    "createRule": "@request.auth.role = \"admin\"",
-    "updateRule": "@request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -23,6 +23,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "autogeneratePattern": "",
@@ -85,6 +96,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_work_progress_tabs_tenant_company` ON `work_progress_tabs` (`tenant_company`)",
       "CREATE INDEX `idx_work_progress_tabs_position` ON `work_progress_tabs` (`position`)"
     ]
   },
@@ -93,11 +105,11 @@
     "name": "work_progress_statuses",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.role = \"admin\"",
-    "viewRule": "@request.auth.role = \"admin\"",
-    "createRule": "@request.auth.role = \"admin\"",
-    "updateRule": "@request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -112,6 +124,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "cascadeDelete": true,
@@ -187,6 +210,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_work_progress_statuses_tenant_company` ON `work_progress_statuses` (`tenant_company`)",
       "CREATE INDEX `idx_work_progress_statuses_tab_position` ON `work_progress_statuses` (`tab`, `position`)"
     ]
   },
@@ -195,11 +219,11 @@
     "name": "work_progress_tasks",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.role = \"admin\"",
-    "viewRule": "@request.auth.role = \"admin\"",
-    "createRule": "@request.auth.role = \"admin\"",
-    "updateRule": "@request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -214,6 +238,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "cascadeDelete": true,
@@ -302,6 +337,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_work_progress_tasks_tenant_company` ON `work_progress_tasks` (`tenant_company`)",
       "CREATE INDEX `idx_work_progress_tasks_tab_position` ON `work_progress_tasks` (`tab`, `position`)",
       "CREATE INDEX `idx_work_progress_tasks_status` ON `work_progress_tasks` (`status`)"
     ]

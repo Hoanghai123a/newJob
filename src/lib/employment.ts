@@ -12,6 +12,7 @@ import {
 import { relationInFilter } from "./delegations";
 import { updateCachedHistory, updateCachedUser } from "./staff-cache";
 import { allocateEmploymentHistoryUids } from "./uid-counter";
+import { companyFilter } from "./tenant";
 import { normalizeDate } from "./date-utils";
 import { createStaffActionLog, type StaffActionType } from "./staff-log";
 
@@ -378,8 +379,14 @@ export async function generateEmploymentHistoryUid(referenceDate = new Date()): 
   return uid;
 }
 
-export async function fetchEmploymentHistories(userIds?: string[]) {
-  const filter = userIds?.length ? relationInFilter("user", userIds) : "";
+export async function fetchEmploymentHistories(
+  userIds?: string[],
+  user?: Pick<UserRecord, "tenant_company"> | null,
+) {
+  const currentUser = user || (pb.authStore.record as UserRecord | null);
+  const parts = [companyFilter(currentUser)];
+  if (userIds?.length) parts.push(relationInFilter("user", userIds));
+  const filter = parts.join(" && ");
   return (await pb.collection("employment_histories").getFullList({
     filter,
     sort: "-join_date,-created",
@@ -644,10 +651,20 @@ export interface RegisterableUserHistory {
   leave_date?: string;
 }
 
-export async function fetchRegisterableUsers(opts: { includeLongLeft?: boolean } = {}) {
+export async function fetchRegisterableUsers(
+  opts: {
+    includeLongLeft?: boolean;
+    user?: Pick<UserRecord, "tenant_company"> | null;
+  } = {},
+) {
+  const currentUser = opts.user || (pb.authStore.record as UserRecord | null);
   const [users, histories] = await Promise.all([
-    pb.collection("workers").getFullList<WorkerRecord>({ sort: "full_name" }),
+    pb.collection("workers").getFullList<WorkerRecord>({
+      filter: companyFilter(currentUser),
+      sort: "full_name",
+    }),
     pb.collection("employment_histories").getFullList<RegisterableUserHistory>({
+      filter: companyFilter(currentUser),
       fields: "user,leave_date",
     }),
   ]);

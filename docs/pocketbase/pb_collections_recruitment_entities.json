@@ -4,11 +4,11 @@
     "name": "recruitment_entities",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.role = \"admin\"",
-    "updateRule": "@request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -23,6 +23,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "autogeneratePattern": "",
@@ -144,6 +155,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_recruitment_entities_tenant_company` ON `recruitment_entities` (`tenant_company`)",
       "CREATE UNIQUE INDEX `idx_recruitment_entities_legacy_user` ON `recruitment_entities` (`legacy_user_id`) WHERE `legacy_user_id` != ''",
       "CREATE INDEX `idx_recruitment_entities_name` ON `recruitment_entities` (`name`)",
       "CREATE INDEX `idx_recruitment_entities_status` ON `recruitment_entities` (`status`)"

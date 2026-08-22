@@ -49,6 +49,7 @@ import {
 } from "@/lib/factories";
 import { createStaffActionLog } from "@/lib/staff-log";
 import { escapePb } from "@/lib/delegations";
+import { companyFilter, companyIdOf } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/admin/accounts/factories")({
   beforeLoad: () => {
@@ -95,12 +96,12 @@ function AccountStaffFactoriesPage() {
         pb
           .collection("users")
           .getList<UserRecord>(1, 200, {
-            filter: staffSearchFilter(debouncedSearch),
+            filter: `${companyFilter(currentUser, "tenant_company")} && (${staffSearchFilter(debouncedSearch)})`,
             sort: "full_name,username",
           })
           .then((res) => res.items),
-        fetchFactories(),
-        fetchFactoryManagers(),
+        fetchFactories(currentUser),
+        fetchFactoryManagers(undefined, currentUser),
       ]);
       setStaffUsers(userRows);
       setFactories(factoryRows);
@@ -187,7 +188,9 @@ function AccountStaffFactoriesPage() {
           note: "Admin cập nhật phân công nhà máy cho staff",
         });
       } else {
-        const created = await pb.collection("factory_managers").create(payload);
+        const created = await pb
+          .collection("factory_managers")
+          .create({ ...payload, tenant_company: companyIdOf(currentUser) });
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "factory_managers",

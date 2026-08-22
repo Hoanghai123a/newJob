@@ -1,11 +1,27 @@
-import { pb, type Role, type UserRecord } from "./pocketbase";
+import { pb } from "./pocketbase";
 
 /** Non-authenticated worker profile stored in PocketBase collection `workers`. */
-export interface WorkerRecord extends Omit<UserRecord, "role" | "status"> {
+export interface WorkerRecord {
+  id: string;
   full_name?: string;
-  role?: Role;
-  status?: "active" | "disabled";
+  phone?: string;
+  uid?: string;
+  cccd?: string;
+  cccd_issue_date?: string;
+  gender?: string;
+  date_of_birth?: string;
+  address?: string;
+  bank_name?: string;
+  bank_account_number?: string;
+  bank_account_name?: string;
+  bank_account_note?: string;
+  employee_code?: string;
+  tenant_company?: string;
+  company?: string;
+  status?: "active" | "inactive";
   source_user_id?: string;
+  created?: string;
+  updated?: string;
 }
 
 export function workerDisplayName(worker: Pick<WorkerRecord, "full_name" | "phone" | "uid">) {

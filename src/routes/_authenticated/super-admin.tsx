@@ -7,6 +7,10 @@ import { toast } from "@/lib/toast";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  CompanyRestoreButton,
+  CompanyTransferActions,
+} from "@/components/admin/CompanyTenantTransfer";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -38,6 +42,7 @@ type Company = CompanyRecord & {
 type Admin = {
   id: string;
   username?: string;
+  display_username?: string;
   full_name?: string;
   email?: string;
   status?: "active" | "disabled";
@@ -197,10 +202,13 @@ function SuperAdminPage() {
       back={false}
       desktopWidth="wide"
       right={
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4" />
-          Mở công ty
-        </Button>
+        <div className="flex gap-2">
+          <CompanyRestoreButton onChanged={load} />
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Mở công ty
+          </Button>
+        </div>
       }
     >
       <div className="flex items-center justify-between">
@@ -301,6 +309,7 @@ function SuperAdminPage() {
                   <span className="truncate">Quản trị Admin</span>
                 </Button>
               </div>
+              <CompanyTransferActions company={company} onChanged={load} />
             </Card>
           );
         })}
@@ -479,7 +488,8 @@ function SuperAdminPage() {
                     <div>
                       <b>{admin.full_name || admin.username}</b>
                       <p className="text-xs text-muted-foreground">
-                        @{admin.username} · {admin.email || "Chưa có email"}
+                        @{admin.display_username || admin.username} ·{" "}
+                        {admin.email || "Chưa có email"}
                       </p>
                     </div>
                     <span className="text-xs">

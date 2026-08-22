@@ -1,0 +1,134 @@
+[
+  {
+    "collection": "users",
+    "count": 20
+  },
+  {
+    "collection": "app_settings",
+    "count": 5
+  },
+  {
+    "collection": "advances",
+    "count": 6
+  },
+  {
+    "collection": "factories",
+    "count": 3
+  },
+  {
+    "collection": "recruitments",
+    "count": 1
+  },
+  {
+    "collection": "check_attendance_batches",
+    "count": 3
+  },
+  {
+    "collection": "check_attendance_items",
+    "count": 5
+  },
+  {
+    "collection": "check_salary_batches",
+    "count": 4
+  },
+  {
+    "collection": "check_salary_items",
+    "count": 4
+  },
+  {
+    "collection": "group_chat_messages",
+    "count": 14
+  },
+  {
+    "collection": "recruitment_areas",
+    "count": 4
+  },
+  {
+    "collection": "factory_managers",
+    "count": 1
+  },
+  {
+    "collection": "employment_histories",
+    "count": 10
+  },
+  {
+    "collection": "staff_action_logs",
+    "count": 148
+  },
+  {
+    "collection": "recruitment_entities",
+    "count": 2
+  },
+  {
+    "collection": "chat_rooms",
+    "count": 2
+  },
+  {
+    "collection": "chat_room_members",
+    "count": 1
+  },
+  {
+    "collection": "chat_join_requests",
+    "count": 1
+  },
+  {
+    "collection": "cccd_versions",
+    "count": 10
+  },
+  {
+    "collection": "notebook_categories",
+    "count": 1
+  },
+  {
+    "collection": "notebook_entries",
+    "count": 0
+  },
+  {
+    "collection": "approval_requests",
+    "count": 1
+  },
+  {
+    "collection": "approval_responses",
+    "count": 1
+  },
+  {
+    "collection": "push_subscriptions",
+    "count": 1
+  },
+  {
+    "collection": "salary_holds",
+    "count": 7
+  },
+  {
+    "collection": "work_progress_tabs",
+    "count": 1
+  },
+  {
+    "collection": "work_progress_statuses",
+    "count": 3
+  },
+  {
+    "collection": "work_progress_tasks",
+    "count": 2
+  },
+  {
+    "collection": "uid_counters",
+    "count": 3
+  },
+  {
+    "collection": "companies",
+    "count": 4
+  },
+  {
+    "collection": "workers",
+    "count": 0
+  },
+  {
+    "collection": "tenant_purge_logs",
+    "count": 1
+  },
+  {
+    "collection": "tenant_restore_logs",
+    "count": 1
+  }
+]

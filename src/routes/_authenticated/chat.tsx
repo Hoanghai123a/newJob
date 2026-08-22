@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ResponsiveOverlay } from "@/components/layout/ResponsiveOverlay";
+import { companyFilter, companyPayload, joinTenantFilters } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/chat")({
   component: GroupChatPage,
@@ -48,6 +49,7 @@ type ChatUser = UserRecord & { chat_blocked?: boolean };
 
 type ChatRoom = {
   id: string;
+  tenant_company: string;
   name: string;
   description?: string;
   is_default?: boolean;
@@ -58,12 +60,14 @@ type ChatRoom = {
 
 type ChatRoomMember = {
   id: string;
+  tenant_company: string;
   room: string;
   user: string;
 };
 
 type JoinRequest = {
   id: string;
+  tenant_company: string;
   room: string;
   user: string;
   status: "pending" | "approved" | "rejected";
@@ -78,6 +82,7 @@ type JoinRequest = {
 
 type ChatMessage = {
   id: string;
+  tenant_company: string;
   user: string;
   room?: string;
   content: string;
@@ -164,19 +169,22 @@ function GroupChatPage() {
 
   const loadRooms = useCallback(async () => {
     try {
-      const res = await pb.collection("chat_rooms").getFullList({ sort: "-is_default,name" });
+      const res = await pb.collection("chat_rooms").getFullList({
+        filter: companyFilter(user),
+        sort: "-is_default,name",
+      });
       setRooms(res as unknown as ChatRoom[]);
     } catch (error) {
       toast.error(getErrorMessage(error, "Lỗi tải danh sách phòng"));
     }
-  }, []);
+  }, [user]);
 
   const loadMemberships = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const filter = isAdmin ? "" : `user = "${user.id}"`;
+      const filter = joinTenantFilters(user, !isAdmin && `user = "${user.id}"`);
       const res = await pb.collection("chat_room_members").getFullList({
-        ...(filter ? { filter } : {}),
+        filter,
       });
       setMemberships(res as unknown as ChatRoomMember[]);
     } catch {
@@ -189,14 +197,14 @@ function GroupChatPage() {
     try {
       if (isAdmin) {
         const res = await pb.collection("chat_join_requests").getFullList({
-          filter: 'status = "pending"',
+          filter: joinTenantFilters(user, 'status = "pending"'),
           sort: "-created",
           expand: "user,room",
         });
         setPendingRequests(res as unknown as JoinRequest[]);
       }
       const mine = await pb.collection("chat_join_requests").getFullList({
-        filter: `user = "${user.id}"`,
+        filter: joinTenantFilters(user, `user = "${user.id}"`),
         sort: "-created",
       });
       setMyRequests(mine as unknown as JoinRequest[]);
@@ -279,6 +287,7 @@ function GroupChatPage() {
         toast.success("Đã cập nhật phòng");
       } else {
         await pb.collection("chat_rooms").create({
+          ...companyPayload(user),
           name,
           description: roomForm.description.trim(),
           is_default: false,
@@ -314,6 +323,7 @@ function GroupChatPage() {
     if (!user?.id) return;
     try {
       await pb.collection("chat_join_requests").create({
+        ...companyPayload(user),
         room: room.id,
         user: user.id,
         status: "pending",
@@ -351,6 +361,7 @@ function GroupChatPage() {
           const already = memberships.find((m) => m.room === req.room && m.user === req.user);
           if (!already) {
             await pb.collection("chat_room_members").create({
+              ...companyPayload(user),
               room: req.room,
               user: req.user,
             });
@@ -662,7 +673,7 @@ function RoomListItem({
     previewInFlightRef.current = true;
     try {
       const res = await pb.collection("group_chat_messages").getList(1, 1, {
-        filter: `room = "${room.id}"`,
+        filter: joinTenantFilters(user, `room = "${room.id}"`),
         sort: "-created",
         expand: "user",
       });
@@ -673,9 +684,12 @@ function RoomListItem({
         const seen = getSeen(chatSeenScope(room.id), userId);
         const seenIso = seen ? new Date(seen).toISOString().replace("T", " ") : "";
         const countRes = await pb.collection("group_chat_messages").getList(1, 1, {
-          filter: seenIso
-            ? `room = "${room.id}" && created > "${seenIso}" && user != "${userId}"`
-            : `room = "${room.id}" && user != "${userId}"`,
+          filter: joinTenantFilters(
+            user,
+            seenIso
+              ? `room = "${room.id}" && created > "${seenIso}" && user != "${userId}"`
+              : `room = "${room.id}" && user != "${userId}"`,
+          ),
         });
         setUnreadCount(countRes.totalItems || 0);
       }
@@ -792,7 +806,7 @@ function RoomChatView({
   const fetchMessagePage = useCallback(
     async (pageNo: number) => {
       const res = await pb.collection("group_chat_messages").getList(pageNo, PAGE_SIZE, {
-        filter: `room = "${room.id}"`,
+        filter: joinTenantFilters(user, `room = "${room.id}"`),
         sort: "-created",
         expand: "user",
       });
@@ -915,6 +929,7 @@ function RoomChatView({
     setSending(true);
     try {
       await pb.collection("group_chat_messages").create({
+        ...companyPayload(user),
         user: user.id,
         room: room.id,
         content: text,

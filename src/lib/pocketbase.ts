@@ -4,7 +4,8 @@ import { PB_URL } from "./pocketbase-config";
 export const pb = new PocketBase(PB_URL);
 pb.autoCancellation(false);
 
-export type Role = "super_admin" | "admin" | "user" | "staff";
+/** Roles for authenticated internal accounts only. */
+export type Role = "super_admin" | "admin" | "staff";
 
 export interface UserRecord {
   id: string;

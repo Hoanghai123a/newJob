@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
+import { companyFilter, companyPayload } from "@/lib/tenant";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import {
   fetchCachedStaffWorkspace,
@@ -138,7 +139,7 @@ function NotebookPage() {
     }
     try {
       const res = await pb.collection("notebook_categories").getList(1, 200, {
-        filter: `created_by="${escapePb(user.id)}"`,
+        filter: `${companyFilter(user)} && created_by="${escapePb(user.id)}"`,
         sort: "name",
       });
       setCategories(res.items as unknown as CategoryRecord[]);
@@ -153,7 +154,7 @@ function NotebookPage() {
     }
     setLoading(true);
     try {
-      const parts: string[] = [`created_by="${escapePb(user.id)}"`];
+      const parts: string[] = [companyFilter(user), `created_by="${escapePb(user.id)}"`];
 
       if (statusTab !== "all") {
         parts.push(`status="${statusTab}"`);
@@ -264,6 +265,7 @@ function NotebookPage() {
         note: fNote.trim(),
         status: editingEntry?.status || "pending",
         created_by: user!.id,
+        ...companyPayload(user),
       };
       if (editingEntry) {
         await pb.collection("notebook_entries").update(editingEntry.id, data);
@@ -309,6 +311,7 @@ function NotebookPage() {
       await pb.collection("notebook_categories").create({
         name: newCatName.trim(),
         created_by: user!.id,
+        ...companyPayload(user),
       });
       setNewCatName("");
       loadCategories();

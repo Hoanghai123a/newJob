@@ -8,7 +8,8 @@ import {
   type EmploymentHistoryRecord,
 } from "./employment";
 import type { FactoryRecord } from "./factories";
-import type { Role } from "./pocketbase";
+import type { Role, UserRecord } from "./pocketbase";
+import { joinTenantFilters } from "./tenant";
 
 export const ADVANCE_INTERACTION_DISABLED_MESSAGE =
   "Chức năng báo ứng đang tạm khóa. User và Staff hiện chỉ có thể xem dữ liệu.";
@@ -52,7 +53,10 @@ const OUTSTANDING_FILTER =
 
 export async function loadAdvanceOutstanding(userId: string) {
   const rows = await pb.collection("advances").getFullList<{ amount?: number }>({
-    filter: `user="${escapePb(userId)}" && ${OUTSTANDING_FILTER}`,
+    filter: joinTenantFilters(
+      pb.authStore.record as UserRecord | null,
+      `user="${escapePb(userId)}" && ${OUTSTANDING_FILTER}`,
+    ),
     fields: "amount",
   });
   return rows.reduce((sum, row) => sum + Number(row.amount || 0), 0);
@@ -74,9 +78,7 @@ export async function resolveAdvancePolicy(
   }
 
   if (!String(employment.employee_code || "").trim()) {
-    throw new Error(
-      "Người lao động chưa có mã nhân viên tại nhà máy gần nhất, không thể báo ứng.",
-    );
+    throw new Error("Người lao động chưa có mã nhân viên tại nhà máy gần nhất, không thể báo ứng.");
   }
 
   if (employment.recruiter_partner && options.actorRole !== "admin") {

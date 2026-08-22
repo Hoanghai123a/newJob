@@ -1,8 +1,13 @@
-import { pb } from "./pocketbase";
+import { pb, type UserRecord } from "./pocketbase";
 import { updateCachedCccdVersion } from "./staff-cache";
 import { relationInFilter } from "./delegations";
+import { companyFilter, companyPayload, joinTenantFilters } from "./tenant";
 
 export const VALID_CCCD_LENGTHS = new Set([9, 12]);
+
+function tenantUser() {
+  return pb.authStore.record as UserRecord | null;
+}
 
 export function normalizeCccdNumber(value?: string | null) {
   return String(value ?? "").replace(/\D/g, "");
@@ -18,6 +23,7 @@ export function requireValidCccdNumber(value?: string | null) {
 
 export interface CccdVersionRecord {
   id: string;
+  tenant_company: string;
   user: string;
   cccd_number: string;
   front_image?: string;
@@ -34,7 +40,9 @@ export async function getCurrentCccdVersion(userId: string): Promise<CccdVersion
   try {
     return (await pb
       .collection("cccd_versions")
-      .getFirstListItem(`user="${userId}" && is_current=true`)) as unknown as CccdVersionRecord;
+      .getFirstListItem(
+        joinTenantFilters(tenantUser(), `user="${userId}" && is_current=true`),
+      )) as unknown as CccdVersionRecord;
   } catch {
     return null;
   }
@@ -48,7 +56,7 @@ export async function getCccdVersionByNumber(
   if (!userId || !normalized) return null;
   try {
     const records = (await pb.collection("cccd_versions").getFullList({
-      filter: `user="${userId}"`,
+      filter: joinTenantFilters(tenantUser(), `user="${userId}"`),
       sort: "-updated,-created",
     })) as unknown as CccdVersionRecord[];
     return (
@@ -90,6 +98,7 @@ export async function ensureCccdVersion(
 
   try {
     const created = (await pb.collection("cccd_versions").create({
+      ...companyPayload(tenantUser()),
       user: userId,
       cccd_number: normalized,
       is_current: true,
@@ -162,7 +171,7 @@ export async function fetchCccdVersionsByIds(ids: string[]): Promise<CccdVersion
   for (let i = 0; i < uniqueIds.length; i += 50) {
     const batch = uniqueIds.slice(i, i + 50);
     const records = (await pb.collection("cccd_versions").getFullList({
-      filter: relationInFilter("id", batch),
+      filter: joinTenantFilters(tenantUser(), relationInFilter("id", batch)),
       sort: "-updated,-created",
     })) as unknown as CccdVersionRecord[];
     items.push(...records);
@@ -172,7 +181,7 @@ export async function fetchCccdVersionsByIds(ids: string[]): Promise<CccdVersion
 
 export async function fetchCccdVersionsByUser(userId: string): Promise<CccdVersionRecord[]> {
   return (await pb.collection("cccd_versions").getFullList({
-    filter: `user="${userId}"`,
+    filter: joinTenantFilters(tenantUser(), `user="${userId}"`),
     sort: "-created",
   })) as unknown as CccdVersionRecord[];
 }
@@ -189,7 +198,7 @@ export async function fetchCccdVersionsByUsers(
     signal?.throwIfAborted();
     const batch = uniqueIds.slice(i, i + 50);
     const records = (await pb.collection("cccd_versions").getFullList({
-      filter: relationInFilter("user", batch),
+      filter: joinTenantFilters(tenantUser(), relationInFilter("user", batch)),
       sort: "-updated,-created",
       signal,
     })) as unknown as CccdVersionRecord[];

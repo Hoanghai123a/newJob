@@ -4,6 +4,7 @@ import { fetchRecruitmentEntities, type RecruitmentEntityRecord } from "./recrui
 import { pb, type UserRecord } from "./pocketbase";
 import { readCachedAuxData, writeCachedAuxData } from "./staff-cache";
 import { fetchStaffWorkspace, type StaffWorkspaceResult } from "./staff-permissions";
+import { companyIdOf } from "./tenant";
 
 const WORKSPACE_STALE_TIME = 15_000;
 const AUX_STALE_TIME = 5 * 60_000;
@@ -19,12 +20,26 @@ export interface StaffDirectoryAuxData {
   staffUsers: UserRecord[];
 }
 
-export function staffWorkspaceQueryKey(viewer: Pick<UserRecord, "id" | "role">) {
-  return [...STAFF_WORKSPACE_QUERY_ROOT, viewer.id, viewer.role || ""] as const;
+export function staffWorkspaceQueryKey(
+  viewer: Pick<UserRecord, "id" | "role" | "tenant_company">,
+) {
+  return [
+    ...STAFF_WORKSPACE_QUERY_ROOT,
+    viewer.id,
+    viewer.role || "",
+    companyIdOf(viewer),
+  ] as const;
 }
 
-export function staffDirectoryAuxQueryKey(viewer: Pick<UserRecord, "id" | "role">) {
-  return [...STAFF_DIRECTORY_AUX_QUERY_ROOT, viewer.id, viewer.role || ""] as const;
+export function staffDirectoryAuxQueryKey(
+  viewer: Pick<UserRecord, "id" | "role" | "tenant_company">,
+) {
+  return [
+    ...STAFF_DIRECTORY_AUX_QUERY_ROOT,
+    viewer.id,
+    viewer.role || "",
+    companyIdOf(viewer),
+  ] as const;
 }
 
 export function useStaffWorkspaceQuery(viewer: UserRecord | null) {
@@ -66,15 +81,15 @@ export function useStaffDirectoryAuxQuery(viewer: UserRecord | null) {
     queryFn: async (): Promise<StaffDirectoryAuxData> => {
       if (!viewer) throw new Error("Chưa xác định tài khoản nhân sự");
 
-      const cached = await readCachedAuxData();
+      const cached = companyIdOf(viewer) ? await readCachedAuxData() : null;
       if (cached) queryClient.setQueryData(queryKey, cached);
 
       const [factoriesResult, recruitmentEntitiesResult, staffUsersResult] =
         await Promise.allSettled([
-          fetchFactories(),
-          fetchRecruitmentEntities(),
+          fetchFactories(viewer),
+          fetchRecruitmentEntities({ user: viewer }),
           pb.collection("users").getFullList<UserRecord>({
-            filter: `(role="staff" || role="admin")`,
+            filter: `(role="staff" || role="admin") && tenant_company="${companyIdOf(viewer)}"`,
             sort: "full_name,username",
           }),
         ]);
@@ -110,4 +125,3 @@ export function useStaffDirectoryAuxQuery(viewer: UserRecord | null) {
     retry: 1,
   });
 }
-

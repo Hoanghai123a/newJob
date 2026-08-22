@@ -1,5 +1,6 @@
 import { pb } from "@/lib/pocketbase";
 import { escapePb } from "@/lib/delegations";
+import { companyFilter } from "@/lib/tenant";
 import type {
   WorkerAttendanceCheckItem,
   WorkerSalaryCheckItem,
@@ -119,7 +120,7 @@ async function refreshWorkerCheckPayroll(
   workerId: string,
   previous?: CacheEntry,
 ): Promise<CheckPayrollLoadResult> {
-  const filter = `user="${escapePb(workerId)}"`;
+  const filter = `${companyFilter(pb.authStore.record as any)} && user="${escapePb(workerId)}"`;
   const metadataFields = "id,user,month,round_no,created,summary,personal,batch,expand.batch";
   const detailFields = "id,rows";
   const salaryDetailFields = "id,wage_lines,allowance_lines,deduction_lines,totals";

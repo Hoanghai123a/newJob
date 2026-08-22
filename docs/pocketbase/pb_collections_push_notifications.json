@@ -4,11 +4,11 @@
     "name": "push_subscriptions",
     "type": "base",
     "system": false,
-    "listRule": "user = @request.auth.id",
-    "viewRule": "user = @request.auth.id",
-    "createRule": "@request.auth.id != \"\" && user = @request.auth.id",
-    "updateRule": "user = @request.auth.id",
-    "deleteRule": "user = @request.auth.id",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (user = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (user = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\" && user = @request.auth.id)",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (user = @request.auth.id)",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (user = @request.auth.id)",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -23,6 +23,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "cascadeDelete": true,
@@ -149,6 +160,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_push_subscriptions_tenant_company` ON `push_subscriptions` (`tenant_company`)",
       "CREATE UNIQUE INDEX idx_push_subscriptions_endpoint ON push_subscriptions (endpoint)",
       "CREATE INDEX idx_push_subscriptions_user_enabled ON push_subscriptions (user, enabled)"
     ]

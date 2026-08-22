@@ -33,8 +33,13 @@ function normalizeLoginName(value) {
     .trim()
     .toLowerCase();
 }
+function loginNameFromUsername(value) {
+  const username = normalizeLoginName(value);
+  const separator = username.indexOf("__");
+  return separator >= 0 ? username.slice(separator + 2) : username;
+}
 function technicalUsername(code, loginName) {
-  return `${String(code).toLowerCase()}__${normalizeLoginName(loginName)}`;
+  return `${String(code).toLowerCase()}__${loginNameFromUsername(loginName)}`;
 }
 function validCode(code) {
   return /^[A-Za-z0-9_.]+$/.test(String(code || ""));
@@ -56,7 +61,7 @@ const seen = new Map();
 for (const user of users) {
   if (user.role === "super_admin") continue;
   const company = companyById.get(user.tenant_company);
-  const loginName = normalizeLoginName(user.login_name || user.username);
+  const loginName = normalizeLoginName(user.login_name || loginNameFromUsername(user.username));
   if (!company || !validCode(company.code) || !validLoginName(loginName)) {
     errors.push({
       id: user.id,

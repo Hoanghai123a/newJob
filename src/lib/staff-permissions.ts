@@ -19,6 +19,7 @@ import {
 } from "./staff-cache";
 import { escapePb, relationInFilter } from "./delegations";
 import { canUseEmploymentFactory } from "./staff-employment-scope";
+import { companyFilter, companyIdOf } from "./tenant";
 
 export type StaffVisibilityReason = "qlnm" | "nvtd";
 
@@ -82,6 +83,7 @@ export function buildScopedHistoryFilter(viewer: UserRecord, managedFactoryIds: 
   const tomorrow = new Date(referenceDate);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const scopeFilter = [
+    companyFilter(viewer),
     `join_date < "${toDateOnly(tomorrow)}"`,
     `(leave_date="" || leave_date >= "${toDateOnly(windowStart)}")`,
   ].join(" && ");
@@ -301,8 +303,7 @@ function buildWorkspace(
   const workerMap = new Map(users.map((item) => [item.id, item]));
   const workerEntries =
     viewer.role === "admin"
-      ? users
-          .map((item) => [item.id, grouped.get(item.id) || []] as const)
+      ? users.map((item) => [item.id, grouped.get(item.id) || []] as const)
       : [...grouped.entries()];
 
   const workers = workerEntries
@@ -377,7 +378,10 @@ async function fetchAdminWorkerAccounts(viewer: UserRecord): Promise<WorkerRecor
 
   return pb
     .collection("workers")
-    .getFullList<WorkerRecord>({ sort: "full_name" })
+    .getFullList<WorkerRecord>({
+      filter: companyFilter(viewer),
+      sort: "full_name",
+    })
     .catch(() => [] as WorkerRecord[]);
 }
 
@@ -392,7 +396,12 @@ function mergeUsers(...groups: WorkerRecord[][]): WorkerRecord[] {
 export async function fetchCachedStaffWorkspace(viewer: UserRecord) {
   const managedFactoryIds = await getManagedFactoryIds(viewer);
   const useCache = viewer.role === "admin" || viewer.role === "staff";
-  const fingerprint = buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role);
+  const fingerprint = buildScopeFingerprint(
+    viewer.id,
+    managedFactoryIds,
+    viewer.role,
+    companyIdOf(viewer),
+  );
   const cacheValid = useCache ? await isCacheScopeValid(fingerprint) : false;
   const cached = useCache && cacheValid ? await readCachedStaffData() : null;
   const adminWorkerAccounts = await fetchAdminWorkerAccounts(viewer);
@@ -431,7 +440,9 @@ export async function fetchFreshStaffWorkspace(
   }
 
   if (opts?.hydrateCache) {
-    await saveScopeFingerprint(buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role));
+    await saveScopeFingerprint(
+      buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role, companyIdOf(viewer)),
+    );
   }
 
   const adminWorkerAccounts = await fetchAdminWorkerAccounts(viewer);
@@ -456,7 +467,12 @@ export async function fetchStaffWorkspace(
 
   let cacheValid = false;
   if (useCache) {
-    const fingerprint = buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role);
+    const fingerprint = buildScopeFingerprint(
+      viewer.id,
+      managedFactoryIds,
+      viewer.role,
+      companyIdOf(viewer),
+    );
     cacheValid = await isCacheScopeValid(fingerprint);
     if (!cacheValid) {
       await clearStaffCache();
@@ -476,7 +492,9 @@ export async function fetchStaffWorkspace(
   });
 
   if (useCache) {
-    await saveScopeFingerprint(buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role));
+    await saveScopeFingerprint(
+      buildScopeFingerprint(viewer.id, managedFactoryIds, viewer.role, companyIdOf(viewer)),
+    );
   }
 
   const userIds = [...new Set(synced.histories.map((h) => h.user).filter(Boolean))];
