@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
@@ -8,7 +8,6 @@ import { getSeen } from "@/lib/seen";
 import { MobileSection } from "@/components/layout/MobileSection";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { FeatureTile } from "@/components/dashboard/FeatureTile";
-import { LoginRequiredDialog } from "@/components/auth/LoginRequiredDialog";
 import { DesktopAppShell } from "@/components/layout/DesktopAppShell";
 import { WorkforceDashboard } from "@/components/workforce/WorkforceDashboard";
 import { FinanceDashboard } from "@/components/dashboard/FinanceDashboard";
@@ -104,9 +103,7 @@ function DashboardPage() {
   );
   const [currentEmployment, setCurrentEmployment] = useState<EmploymentHistoryRecord | null>(null);
   const nav = useNavigate();
-  const { hash, search } = useLocation();
-  const guestSearch = (search || {}) as { login?: string; redirect?: string };
-  const [guestLoginOpen, setGuestLoginOpen] = useState(guestSearch.login === "1");
+  const { hash } = useLocation();
   const normalizedHash = hash.startsWith("#") ? hash.slice(1) : hash;
   const desktopSection: DesktopDashboardSection =
     normalizedHash === "tai-chinh" ? "tai-chinh" : normalizedHash === "khac" ? "khac" : "nhan-luc";
@@ -141,10 +138,12 @@ function DashboardPage() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user) return;
+    if (!user) {
+      nav({ to: "/login", replace: true });
+      return;
+    }
     if (user.role === "staff") {
       nav({ to: "/staff" });
-      return;
     }
   }, [loading, nav, user]);
 
@@ -764,129 +763,6 @@ function DashboardPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function GuestDashboard({
-  settings,
-  logoUrl,
-  loginOpen,
-  onLoginOpenChange,
-  redirectTo,
-}: {
-  settings: { company_name: string; slogan?: string };
-  logoUrl: string;
-  loginOpen: boolean;
-  onLoginOpenChange: (open: boolean) => void;
-  redirectTo: string;
-}) {
-  return (
-    <div className="pb-nav desktop:mx-auto desktop:max-w-6xl">
-      <section className="gradient-hero relative overflow-hidden px-5 py-8 text-white desktop:mx-6 desktop:mt-6 desktop:rounded-3xl desktop:px-10 desktop:py-12">
-        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
-        <div className="absolute -bottom-16 -left-8 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-        <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-3xl bg-white/95 shadow-soft">
-            {logoUrl ? (
-              <img src={logoUrl} alt={`Logo ${settings.company_name}`} className="logo-fit" />
-            ) : (
-              <Building2 className="h-8 w-8 text-primary" />
-            )}
-          </div>
-          <p className="mt-4 text-sm font-medium text-white/80">Chào mừng bạn đến</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight desktop:text-3xl">
-            {settings.company_name}
-          </h1>
-          {settings.slogan && <p className="mt-2 text-sm text-white/80">{settings.slogan}</p>}
-          <p className="mt-5 max-w-xl text-sm leading-6 text-white/90">
-            Khám phá các tiện ích dành cho người lao động. Đăng nhập để xem và sử dụng thông tin của
-            bạn.
-          </p>
-          <Button
-            type="button"
-            variant="secondary"
-            className="mt-5 bg-white text-primary hover:bg-white/90"
-            onClick={() => onLoginOpenChange(true)}
-          >
-            <LogIn aria-hidden="true" />
-            Đăng nhập
-          </Button>
-        </div>
-      </section>
-
-      <main className="space-y-6 px-4 py-5 desktop:px-6 desktop:py-8">
-        <GuestSection
-          title="Dành cho người lao động"
-          description="Theo dõi công việc và các quyền lợi của bạn"
-        >
-          <FeatureTile
-            to="/check-attendance"
-            label="Check công/lương"
-            description="Kiểm tra bảng công"
-            icon={CalendarCheck}
-            variant="accent"
-          />
-          <FeatureTile
-            to="/advances"
-            label="Ứng lương"
-            description="Gửi và theo dõi yêu cầu"
-            icon={Wallet}
-            variant="accent"
-          />
-          <FeatureTile
-            to="/work-history"
-            label="Lịch sử đi làm"
-            description="Nhà máy và ngày làm"
-            icon={History}
-            variant="accent"
-          />
-        </GuestSection>
-
-        <GuestSection title="Tiện ích" description="Thông tin, kết nối và công cụ hỗ trợ" compact>
-          <FeatureTile to="/news" label="Bảng tin" icon={Newspaper} size="compact" allowGuest />
-          <FeatureTile to="/chat" label="Trò chuyện" icon={MessagesSquare} size="compact" />
-          <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
-          <FeatureTile to="/counter" label="Bộ đếm" icon={ListOrdered} size="compact" allowGuest />
-        </GuestSection>
-      </main>
-
-      <BottomNav />
-      <LoginRequiredDialog
-        open={loginOpen}
-        onOpenChange={onLoginOpenChange}
-        redirectTo={redirectTo}
-      />
-    </div>
-  );
-}
-
-function GuestSection({
-  title,
-  description,
-  compact = false,
-  children,
-}: {
-  title: string;
-  description: string;
-  compact?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <section>
-      <div className="mb-3">
-        <h2 className="text-base font-bold tracking-tight">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      </div>
-      <div
-        className={
-          compact
-            ? "grid grid-cols-3 gap-3 desktop:grid-cols-6"
-            : "grid grid-cols-2 gap-3 desktop:grid-cols-5"
-        }
-      >
-        {children}
-      </div>
-    </section>
   );
 }
 
