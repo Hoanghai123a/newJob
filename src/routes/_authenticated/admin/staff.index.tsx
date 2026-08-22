@@ -105,10 +105,7 @@ function AdminStaffPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  const summary = useMemo(
-    () => staffUsers.filter((u) => u.role === "staff").length,
-    [staffUsers],
-  );
+  const summary = useMemo(() => staffUsers.filter((u) => u.role === "staff").length, [staffUsers]);
 
   const downloadTemplate = () => {
     exportToExcel(
@@ -277,36 +274,20 @@ function AdminStaffPage() {
     >
       <StatCard label="Staff" value={summary} icon={Users} tone="success" />
 
-      <div className="grid grid-cols-2 gap-2">
-        <Link
-          to="/admin/accounts/factories"
-          className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card px-3 py-3 text-left text-sm font-medium shadow-soft"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Building2 className="h-4 w-4" />
+      <Link
+        to="/admin/accounts/factories"
+        className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card px-3 py-3 text-left text-sm font-medium shadow-soft"
+      >
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Building2 className="h-4 w-4" />
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm font-semibold">Cấp quyền QLNM</span>
+          <span className="block text-[11px] font-normal text-muted-foreground">
+            Gán nhà máy cho staff
           </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold">Cấp quyền QLNM</span>
-            <span className="block text-[11px] font-normal text-muted-foreground">
-              Gán nhà máy cho staff
-            </span>
-          </span>
-        </Link>
-        <Link
-          to="/admin/accounts"
-          className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card px-3 py-3 text-left text-sm font-medium shadow-soft"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Users className="h-4 w-4" />
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold">Tài khoản NLĐ</span>
-            <span className="block text-[11px] font-normal text-muted-foreground">
-              Quản lý người lao động
-            </span>
-          </span>
-        </Link>
-      </div>
+        </span>
+      </Link>
 
       <Card className="space-y-3 rounded-2xl p-4 shadow-soft">
         <div className="text-sm font-semibold">Tạo & Import staff</div>

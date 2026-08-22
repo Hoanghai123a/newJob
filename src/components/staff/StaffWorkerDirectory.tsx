@@ -26,11 +26,7 @@ import { StatusChip } from "@/components/ui/status-chip";
 import { RegisterDialog } from "@/components/workforce/RegisterDialog";
 import { useAuth } from "@/lib/auth";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
-import {
-  getHistoryCccdImageProgress,
-  isCurrentlyWorking,
-  maskCccd,
-} from "@/lib/employment";
+import { getHistoryCccdImageProgress, isCurrentlyWorking, maskCccd } from "@/lib/employment";
 import type { UserRecord } from "@/lib/pocketbase";
 import { readCachedAuxData } from "@/lib/staff-cache";
 import {
@@ -107,7 +103,6 @@ function readDirectoryState(
 function buildWorkerSearchText(worker: StaffWorkerRecord) {
   return [
     worker.user.full_name,
-    worker.user.username,
     worker.user.phone,
     worker.user.uid,
     ...worker.histories.flatMap((history) => [
@@ -147,7 +142,7 @@ function isRecruitedByViewer(worker: StaffWorkerRecord, viewerId?: string) {
 }
 
 function getWorkerDisplayName(worker: StaffWorkerRecord) {
-  return worker.user.full_name?.trim() || worker.user.username?.trim() || "Thiếu thông tin";
+  return worker.user.full_name?.trim() || worker.user.uid?.trim() || "Thiếu thông tin";
 }
 
 export function StaffWorkerDirectory({
@@ -370,7 +365,6 @@ export function StaffWorkerDirectory({
               <Fragment key={worker.user.id}>
                 <WorkerDesktopCard
                   name={workerName}
-                  username={worker.user.username}
                   uid={latest?.uid || worker.user.uid}
                   employeeCode={latest?.employee_code || ""}
                   cccd={maskCccd(snapshotCccd)}
@@ -599,7 +593,7 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
               type="button"
               onClick={() => setQuickCreateOpen(true)}
               className="hidden h-9 items-center gap-1.5 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground shadow active:scale-[0.98] desktop:flex"
-              aria-label="Tạo nhanh tài khoản NLĐ"
+              aria-label="Tạo nhanh hồ sơ NLĐ"
             >
               <Plus className="h-4 w-4" />
               Tạo nhanh
@@ -715,13 +709,7 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
           canUpdateBank: selected?.canUpdateBank ?? false,
           canReportLeave: selected?.canReportLeave ?? false,
           canReportJoin: selected
-            ? canReportJoin(
-                viewer,
-                selected.histories,
-                managedFactoryIds,
-                undefined,
-                factoryScope,
-              )
+            ? canReportJoin(viewer, selected.histories, managedFactoryIds, undefined, factoryScope)
             : false,
           canViewPayroll: selected?.canViewPayroll ?? false,
         }}
@@ -782,7 +770,7 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
               if (results.length === 1) {
                 navigate({
                   to: "/staff/workers/$workerId",
-                  params: { workerId: results[0].user.id },
+                  params: { workerId: results[0].worker.id },
                 });
               }
             }}

@@ -5,7 +5,7 @@ export const pb = new PocketBase(PB_URL);
 pb.autoCancellation(false);
 
 /** Roles for authenticated internal accounts only. */
-export type Role = "super_admin" | "admin" | "staff";
+export type Role = "super_admin" | "admin" | "staff" | "user";
 
 export interface UserRecord {
   id: string;
@@ -22,7 +22,7 @@ export interface UserRecord {
   tenant_company?: string;
   approved?: boolean | string;
   approvalStatus?: "pending" | "approved" | "rejected";
-  status?: "active" | "disabled";
+  status?: "active" | "disabled" | "inactive";
   bank_name?: string;
   bank_account_number?: string;
   bank_account_name?: string;

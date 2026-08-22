@@ -157,7 +157,7 @@ function requireTenantCompany(user?: UserRecord | null) {
 }
 
 function isManageableAccount(user?: Pick<UserRecord, "role"> | null) {
-  return !user?.role || user.role === "user" || user.role === "staff";
+  return user?.role === "staff";
 }
 
 function requireManageableAccount(user?: Pick<UserRecord, "role"> | null) {
@@ -168,7 +168,7 @@ function requireManageableAccount(user?: Pick<UserRecord, "role"> | null) {
 
 function buildUserSearchFilter(search: string, extraFilter = "") {
   const q = escapePb(search.trim());
-  const roleFilter = '(role="user" || role="staff" || role="")';
+  const roleFilter = 'role="staff"';
   const searchFilter = q
     ? `(${["full_name", "username", "phone", "role"]
         .map((field) => `${field}~"${q}"`)
@@ -215,7 +215,7 @@ function AccountPage() {
                 <div className="text-sm opacity-80">@{user?.username}</div>
               </div>
               <Badge variant="secondary" className="bg-white/20 text-primary-foreground">
-                {isAdmin ? "Admin" : "User"}
+                {isAdmin ? "Admin" : "Staff"}
               </Badge>
             </div>
           </div>
@@ -226,11 +226,8 @@ function AccountPage() {
         </div>
 
         {isAdmin ? (
-          <Tabs defaultValue="admin" className="space-y-3">
-            <TabsList className="grid h-10 w-full grid-cols-4 rounded-2xl">
-              <TabsTrigger value="admin" className="rounded-xl text-xs">
-                Tài khoản NLĐ
-              </TabsTrigger>
+          <Tabs defaultValue="staff" className="space-y-3">
+            <TabsList className="grid h-10 w-full grid-cols-3 rounded-2xl">
               <TabsTrigger value="staff" className="rounded-xl text-xs">
                 Staff
               </TabsTrigger>
@@ -241,9 +238,6 @@ function AccountPage() {
                 Thông tin
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="admin" className="mt-0">
-              <AdminUsersPanel />
-            </TabsContent>
             <TabsContent value="staff" className="mt-0">
               <StaffPanel />
             </TabsContent>
@@ -580,7 +574,7 @@ function AdminUsersPanel() {
   const [resetTarget, setResetTarget] = useState<any>(null);
   const [newPwd, setNewPwd] = useState("");
   const [roleTarget, setRoleTarget] = useState<any>(null);
-  const [roleValue, setRoleValue] = useState<Role>("user");
+  const [roleValue, setRoleValue] = useState<Role>("staff");
   const [createOpen, setCreateOpen] = useState(false);
   const [actionSheetOpen, setActionSheetOpen] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -753,7 +747,7 @@ function AdminUsersPanel() {
       const factoryMap = new Map(factories.map((f: any) => [f.name.toLowerCase(), f.id]));
       const allUsers = await pb.collection("users").getFullList<UserRecord>({
         fields: "id,username,uid,role",
-        filter: `${companyFilter(me, "tenant_company")} && (role="user" || role="")`,
+        filter: `${companyFilter(me, "tenant_company")} && role="staff"`,
       });
       const { userByUid, userByUsername } = buildUserIdentityMaps(allUsers);
 
@@ -1293,7 +1287,7 @@ function AdminUsersPanel() {
             bank_account_number,
             bank_account_name,
             bank_account_note,
-            role: "user",
+            role: "staff",
             approvalStatus: "approved",
             status: "active",
             must_change_password: password === "12345678",
@@ -1731,7 +1725,7 @@ function AdminUsersPanel() {
                   >
                     <UserCog className="h-4 w-4" />
                   </button>
-                  {(u.role === "user" || !u.role) && (
+                  {u.role === "staff" && (
                     <button
                       onClick={(event) => {
                         event.stopPropagation();
@@ -1857,7 +1851,7 @@ function AdminUsersPanel() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="rounded-2xl">
           <DialogHeader>
-              <DialogTitle>Tạo tài khoản Staff</DialogTitle>
+            <DialogTitle>Tạo tài khoản Staff</DialogTitle>
             <DialogDescription>
               Tài khoản được kích hoạt quyền Staff và đăng nhập bằng mã công ty hiện tại.
             </DialogDescription>
@@ -2026,7 +2020,7 @@ function AdminUsersPanel() {
             </>
           )}
           <DialogFooter className="border-t border-border/70 bg-card px-4 py-3 sm:px-5">
-            {(detailUser?.role === "user" || !detailUser?.role) && (
+            {detailUser?.role === "staff" && (
               <Button
                 variant="destructive"
                 className="rounded-xl sm:mr-auto"
@@ -2381,10 +2375,7 @@ function StaffPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  const summary = useMemo(
-    () => staffUsers.filter((u) => u.role === "staff").length,
-    [staffUsers],
-  );
+  const summary = useMemo(() => staffUsers.filter((u) => u.role === "staff").length, [staffUsers]);
 
   const downloadTemplate = () => {
     exportToExcel(

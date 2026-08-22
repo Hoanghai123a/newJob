@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
@@ -42,6 +42,9 @@ import { ResponsiveOverlay } from "@/components/layout/ResponsiveOverlay";
 import { companyFilter, companyPayload, joinTenantFilters } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/chat")({
+  beforeLoad: () => {
+    throw redirect({ to: "/staff/workers" });
+  },
   component: GroupChatPage,
 });
 

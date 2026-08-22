@@ -8,12 +8,12 @@ type AuthUser = {
   role?: string;
 };
 
-type WorkerRecord = AuthUser & {
+type WorkerRecord = {
+  id: string;
+  full_name?: string;
   uid?: string;
   phone?: string;
   status?: string;
-  approved?: boolean | string;
-  approvalStatus?: string;
   created?: string;
 };
 
@@ -128,12 +128,12 @@ async function verifyAdminPassword(admin: AuthUser, password: string) {
 
 async function getWorker(workerId: string, token: string) {
   const response = await pbFetch(
-    `/api/collections/users/records/${encodeURIComponent(workerId)}`,
+    `/api/collections/workers/records/${encodeURIComponent(workerId)}`,
     { method: "GET" },
     token,
   );
   if (response.status === 404) return null;
-  if (!response.ok) throw new Error("Không tải được tài khoản NLĐ từ PocketBase.");
+  if (!response.ok) throw new Error("Không tải được hồ sơ NLĐ từ PocketBase.");
   return (await readJson(response)) as WorkerRecord;
 }
 
@@ -181,13 +181,9 @@ function workerSnapshot(worker: WorkerRecord) {
   return {
     id: worker.id,
     uid: worker.uid || "",
-    username: worker.username || "",
     full_name: worker.full_name || "",
     phone: worker.phone || "",
-    role: worker.role || "user",
     status: worker.status || "",
-    approved: worker.approved ?? "",
-    approvalStatus: worker.approvalStatus || "",
   };
 }
 
@@ -197,7 +193,7 @@ async function deleteWorkerWithLog(
   employmentHistoryCount: number,
   token: string,
 ) {
-  const name = worker.full_name || worker.username || worker.uid || worker.id;
+  const name = worker.full_name || worker.uid || worker.phone || worker.id;
   const payload = {
     requests: [
       {
@@ -208,7 +204,7 @@ async function deleteWorkerWithLog(
           actor: admin.id,
           actor_role_snapshot: "admin",
           target_user: "",
-          target_collection: "users",
+          target_collection: "workers",
           target_record: worker.id,
           action: "delete",
           before: {
@@ -216,12 +212,12 @@ async function deleteWorkerWithLog(
             employment_history_count: employmentHistoryCount,
           },
           after: null,
-          note: `Admin xóa tài khoản NLĐ ${name} và ${employmentHistoryCount} lịch sử đi làm sau khi xác thực lại mật khẩu`,
+          note: `Admin xóa hồ sơ NLĐ ${name} và ${employmentHistoryCount} lịch sử đi làm sau khi xác thực lại mật khẩu`,
         },
       },
       {
         method: "DELETE",
-        url: `/api/collections/users/records/${encodeURIComponent(worker.id)}`,
+        url: `/api/collections/workers/records/${encodeURIComponent(worker.id)}`,
         headers: {},
         body: {},
       },
@@ -244,7 +240,7 @@ async function getWorkerDeletePreview(
 ): Promise<WorkerDeletePreview> {
   const deleteWindow = getDeleteWindow(worker);
   if (!deleteWindow) {
-    throw new Error("Không xác định được thời điểm tạo tài khoản từ PocketBase.");
+    throw new Error("Không xác định được thời điểm tạo hồ sơ từ PocketBase.");
   }
 
   const [dependencies, employmentHistoryCount] = await Promise.all([
@@ -273,33 +269,25 @@ export async function deleteWorkerAccount(request: Request, workerId: string) {
   const confirmed = body?.confirmed === true;
 
   if (!workerId || workerId === auth.user.id) {
-    return errorResponse("Admin không thể tự xóa tài khoản đang đăng nhập.", 400, "INVALID_TARGET");
+    return errorResponse("Không thể xóa hồ sơ NLĐ không hợp lệ.", 400, "INVALID_TARGET");
   }
 
   try {
     const worker = await getWorker(workerId, auth.token);
     if (!worker) {
-      return errorResponse("Tài khoản NLĐ không còn tồn tại.", 404, "WORKER_NOT_FOUND");
+      return errorResponse("Hồ sơ NLĐ không còn tồn tại.", 404, "WORKER_NOT_FOUND");
     }
-    if (worker.role && worker.role !== "user") {
-      return errorResponse(
-        "Chức năng này chỉ được phép xóa tài khoản người lao động.",
-        400,
-        "INVALID_WORKER_ROLE",
-      );
-    }
-
     const deleteWindow = getDeleteWindow(worker);
     if (!deleteWindow) {
       return errorResponse(
-        "Không xác định được thời điểm tạo tài khoản từ PocketBase.",
+        "Không xác định được thời điểm tạo hồ sơ từ PocketBase.",
         502,
         "ACCOUNT_CREATED_AT_UNAVAILABLE",
       );
     }
     if (deleteWindow.expired) {
       return errorResponse(
-        "Tài khoản đã quá thời hạn 72 giờ kể từ khi được tạo nên không thể xóa.",
+        "Hồ sơ đã quá thời hạn 72 giờ kể từ khi được tạo nên không thể xóa.",
         409,
         "ACCOUNT_DELETE_WINDOW_EXPIRED",
         {
@@ -333,19 +321,19 @@ export async function deleteWorkerAccount(request: Request, workerId: string) {
     // Re-read immediately before deletion so leaving the dialog open cannot bypass the window.
     const currentWorker = await getWorker(workerId, verifiedToken);
     if (!currentWorker) {
-      return errorResponse("Tài khoản NLĐ không còn tồn tại.", 404, "WORKER_NOT_FOUND");
+      return errorResponse("Hồ sơ NLĐ không còn tồn tại.", 404, "WORKER_NOT_FOUND");
     }
     const currentDeleteWindow = getDeleteWindow(currentWorker);
     if (!currentDeleteWindow) {
       return errorResponse(
-        "Không xác định được thời điểm tạo tài khoản từ PocketBase.",
+        "Không xác định được thời điểm tạo hồ sơ từ PocketBase.",
         502,
         "ACCOUNT_CREATED_AT_UNAVAILABLE",
       );
     }
     if (currentDeleteWindow.expired) {
       return errorResponse(
-        "Tài khoản đã quá thời hạn 72 giờ kể từ khi được tạo nên không thể xóa.",
+        "Hồ sơ đã quá thời hạn 72 giờ kể từ khi được tạo nên không thể xóa.",
         409,
         "ACCOUNT_DELETE_WINDOW_EXPIRED",
         {
@@ -358,7 +346,7 @@ export async function deleteWorkerAccount(request: Request, workerId: string) {
     const currentPreview = await getWorkerDeletePreview(currentWorker, verifiedToken);
     if (currentPreview.dependencies.length > 0) {
       return errorResponse(
-        "Không thể xóa vì NLĐ đang có nghiệp vụ liên quan tới tiền. Hãy xử lý các nghiệp vụ này trước hoặc vô hiệu hóa tài khoản.",
+        "Không thể xóa vì NLĐ đang có nghiệp vụ liên quan tới tiền. Hãy xử lý các nghiệp vụ này trước hoặc chuyển hồ sơ sang ngừng hoạt động.",
         409,
         "WORKER_HAS_DEPENDENCIES",
         { dependencies: currentPreview.dependencies },
@@ -377,7 +365,7 @@ export async function deleteWorkerAccount(request: Request, workerId: string) {
       deletedEmploymentHistoryCount: currentPreview.employmentHistoryCount,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Không thể xóa tài khoản NLĐ.";
+    const message = error instanceof Error ? error.message : "Không thể xóa hồ sơ NLĐ.";
     return errorResponse(message, 502, "WORKER_DELETE_FAILED");
   }
 }

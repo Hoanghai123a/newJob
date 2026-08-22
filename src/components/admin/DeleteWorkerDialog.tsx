@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import type { WorkerRecord } from "@/lib/workers";
 import { getUserErrorMessage } from "@/lib/toast";
 
 type DeleteDependency = {
@@ -43,7 +44,7 @@ type DeleteErrorPayload = {
 };
 
 type DeleteWorkerDialogProps = {
-  worker: UserRecord | null;
+  worker: WorkerRecord | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDeleted: (workerId: string) => void | Promise<void>;
@@ -184,25 +185,25 @@ export function DeleteWorkerDialog({
           setConfirmed(false);
           setPassword("");
         }
-        throw new Error(payload.message || "Không thể xóa tài khoản NLĐ.");
+        throw new Error(payload.message || "Không thể xóa hồ sơ NLĐ.");
       }
 
       await onDeleted(payload.workerId || worker.id);
       const historyCount = Number(payload.deletedEmploymentHistoryCount || 0);
       toast.success(
         historyCount > 0
-          ? `Đã xóa tài khoản, ${historyCount} lịch sử đi làm và lưu nhật ký`
-          : "Đã xóa tài khoản NLĐ và lưu nhật ký",
+          ? `Đã xóa hồ sơ, ${historyCount} lịch sử đi làm và lưu nhật ký`
+          : "Đã xóa hồ sơ NLĐ và lưu nhật ký",
       );
       onOpenChange(false);
     } catch (error) {
-      setErrorMessage(getUserErrorMessage(error, "Không thể xóa tài khoản NLĐ."));
+      setErrorMessage(getUserErrorMessage(error, "Không thể xóa hồ sơ NLĐ."));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const name = worker?.full_name || worker?.username || worker?.uid || "NLĐ này";
+  const name = worker?.full_name || worker?.uid || worker?.phone || "NLĐ này";
   const canContinue = Boolean(preview && confirmed && password && !expiredWindow);
 
   return (
@@ -214,10 +215,10 @@ export function DeleteWorkerDialog({
               <AlertTriangle className="h-5 w-5" />
             </span>
             <div className="min-w-0 space-y-1">
-              <AlertDialogTitle>Xóa tài khoản NLĐ?</AlertDialogTitle>
+              <AlertDialogTitle>Xóa hồ sơ NLĐ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Tài khoản chỉ được xóa trong vòng 72 giờ kể từ thời điểm tạo. Hãy đọc kỹ dữ liệu bị
-                ảnh hưởng trước khi xác nhận.
+                Hồ sơ chỉ được xóa trong vòng 72 giờ kể từ thời điểm tạo. Hãy đọc kỹ dữ liệu bị ảnh
+                hưởng trước khi xác nhận.
               </AlertDialogDescription>
             </div>
           </div>
@@ -227,8 +228,7 @@ export function DeleteWorkerDialog({
           <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm">
             <div className="font-semibold text-foreground">{name}</div>
             <div className="mt-1 text-xs text-muted-foreground">
-              @{worker?.username || "chưa có username"}
-              {worker?.uid ? ` · UID ${worker.uid}` : ""}
+              {worker?.uid ? `UID ${worker.uid}` : "Chưa có UID"}
               {worker?.phone ? ` · ${worker.phone}` : ""}
             </div>
             {preview && (
@@ -258,11 +258,11 @@ export function DeleteWorkerDialog({
 
           {expiredWindow && (
             <div className="space-y-1 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              <div className="font-semibold">Tài khoản đã quá thời hạn xóa</div>
+              <div className="font-semibold">Hồ sơ đã quá thời hạn xóa</div>
               <div>Thời điểm tạo: {formatDateTime(expiredWindow.createdAt)}</div>
               <div>Hạn xóa 72 giờ: {formatDateTime(expiredWindow.deleteWindowExpiresAt)}</div>
               <p className="pt-1 text-xs">
-                Không thể tiếp tục xác nhận hoặc nhập mật khẩu để xóa tài khoản này.
+                Không thể tiếp tục xác nhận hoặc nhập mật khẩu để xóa hồ sơ này.
               </p>
             </div>
           )}
@@ -304,7 +304,7 @@ export function DeleteWorkerDialog({
                   className="mt-0.5"
                 />
                 <span>
-                  Tôi đã đọc, hiểu và chấp nhận việc tài khoản cùng dữ liệu liên quan có thể bị xóa
+                  Tôi đã đọc, hiểu và chấp nhận việc hồ sơ cùng dữ liệu liên quan có thể bị xóa
                   không thể khôi phục.
                 </span>
               </label>
@@ -369,7 +369,7 @@ export function DeleteWorkerDialog({
 
           {dependencies.length > 0 && preview && (
             <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-950">
-              Hãy xử lý các nghiệp vụ tiền trước hoặc vô hiệu hóa tài khoản rồi thử lại.
+              Hãy xử lý các nghiệp vụ tiền trước hoặc chuyển hồ sơ sang ngừng hoạt động rồi thử lại.
             </div>
           )}
         </div>

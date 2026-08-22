@@ -28,7 +28,7 @@ PocketBase trực tiếp cho staff, collection `users` cần:
 - `createRule`: `@request.auth.role = "admin" || @request.auth.role = "staff"`
 - `updateRule`: `@request.auth.role = "admin" || @request.auth.role = "staff" || id = @request.auth.id`
 
-Popup **Báo đi làm mới** tìm trong toàn bộ tài khoản NLĐ, vì vậy `listRule` / `viewRule`
+Popup **Báo đi làm mới** tìm trong toàn bộ hồ sơ NLĐ, vì vậy `listRule` / `viewRule`
 của `users` cũng cần cho phép `admin` và `staff` đọc tài khoản có `role = "user"`.
 Ứng dụng chỉ lấy họ tên, số điện thoại và định danh ở bước tìm kiếm; hồ sơ đầy đủ chỉ được tải
 sau khi staff chọn một NLĐ.

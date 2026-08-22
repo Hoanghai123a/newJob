@@ -59,7 +59,7 @@ function phaseLabel(phase: ImportPhase) {
   if (phase === "references") return "Cần bổ sung dữ liệu";
   if (phase === "creatingReferences") return "Đang tạo dữ liệu còn thiếu...";
   if (phase === "validating") return "Đang kiểm tra dữ liệu...";
-  if (phase === "importing") return "Đang tạo tài khoản và lịch sử...";
+  if (phase === "importing") return "Đang tạo hồ sơ và lịch sử...";
   if (phase === "done") return "Đã hoàn tất nhập dữ liệu";
   if (phase === "error") return "Không thể nhập dữ liệu";
   return "Sẵn sàng nhập dữ liệu";

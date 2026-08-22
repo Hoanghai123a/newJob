@@ -546,14 +546,10 @@ export function QuickWorkerAccountDialog({
     if (!realName) errors.push("Nhập tên thật");
     if (!cccdRaw) errors.push("Nhập CCCD để lưu lịch sử đi làm");
     if (phoneForValidation && !hasRequiredDigits(phoneForValidation, 10)) {
-      errors.push(
-        "Số điện thoại phải có đúng 10 chữ số.",
-      );
+      errors.push("Số điện thoại phải có đúng 10 chữ số.");
     }
     if (cccdForValidation && !hasRequiredDigits(cccdForValidation, 12)) {
-      errors.push(
-        "CCCD phải có đúng 12 chữ số.",
-      );
+      errors.push("CCCD phải có đúng 12 chữ số.");
     }
     if (!form.date_of_birth.trim()) errors.push("Nhập ngày sinh");
     else if (!birthForPb) errors.push("Ngày sinh không hợp lệ");

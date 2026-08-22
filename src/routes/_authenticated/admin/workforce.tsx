@@ -449,7 +449,7 @@ function WorkforcePage() {
             type="button"
             onClick={() => setQuickCreateOpen(true)}
             className="flex h-9 items-center gap-1.5 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground shadow active:scale-[0.98]"
-            aria-label="Tạo nhanh tài khoản NLĐ"
+            aria-label="Tạo nhanh hồ sơ NLĐ"
           >
             <Plus className="h-4 w-4" />
             Tạo nhanh
@@ -583,7 +583,7 @@ function WorkforcePage() {
         staffUsers={users.filter((item) => item.role === "staff" || item.role === "admin")}
         onCreated={(results) => {
           void refreshWorkforce().then(() => {
-            if (results.length === 1) setSelectedUserId(results[0].user.id);
+            if (results.length === 1) setSelectedUserId(results[0].worker.id);
           });
         }}
       />

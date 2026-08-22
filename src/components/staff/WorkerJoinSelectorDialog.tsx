@@ -21,6 +21,7 @@ import {
 import { escapePb, relationInFilter } from "@/lib/delegations";
 import type { FactoryRecord } from "@/lib/factories";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import type { WorkerRecord } from "@/lib/workers";
 import { toast } from "@/lib/toast";
 
 const SOURCE_PAGE_SIZE = 50;
@@ -29,7 +30,7 @@ const MAX_SOURCE_PAGES_PER_LOAD = 3;
 const FILTER_BATCH_SIZE = 40;
 
 type WorkerJoinCandidate = {
-  user: UserRecord;
+  user: WorkerRecord;
   latest: EmploymentHistoryRecord;
 };
 
@@ -88,13 +89,13 @@ async function fetchLatestHistories(userIds: string[]) {
 
 async function fetchCandidateUsers(userIds: string[]) {
   const uniqueIds = [...new Set(userIds.filter(Boolean))];
-  const users: UserRecord[] = [];
+  const users: WorkerRecord[] = [];
   for (let index = 0; index < uniqueIds.length; index += FILTER_BATCH_SIZE) {
     const batch = uniqueIds.slice(index, index + FILTER_BATCH_SIZE);
-    const rows = await pb.collection("users").getFullList<UserRecord>({
-      filter: `role="user" && (${relationInFilter("id", batch)})`,
-      sort: "full_name,username",
-      fields: "id,username,full_name,phone",
+    const rows = await pb.collection("workers").getFullList<WorkerRecord>({
+      filter: relationInFilter("id", batch),
+      sort: "full_name",
+      fields: "id,full_name,phone,uid",
     });
     users.push(...rows);
   }
@@ -112,7 +113,7 @@ export function WorkerJoinSelectorDialog({
   onOpenChange: (open: boolean) => void;
   viewer: UserRecord | null;
   factories: FactoryRecord[];
-  onSelect: (candidate: { user: UserRecord; histories: EmploymentHistoryRecord[] }) => void;
+  onSelect: (candidate: { user: WorkerRecord; histories: EmploymentHistoryRecord[] }) => void;
 }) {
   const [employeeCode, setEmployeeCode] = useState("");
   const [fullName, setFullName] = useState("");
@@ -186,11 +187,11 @@ export function WorkerJoinSelectorDialog({
           candidateMap.size - initialCount < RESULT_PAGE_SIZE
         ) {
           const response = await pb
-            .collection("users")
-            .getList<UserRecord>(sourcePage, SOURCE_PAGE_SIZE, {
-              filter: `role="user" && full_name~"${escapePb(fullName.trim())}"`,
-              sort: "full_name,username",
-              fields: "id,username,full_name,phone",
+            .collection("workers")
+            .getList<WorkerRecord>(sourcePage, SOURCE_PAGE_SIZE, {
+              filter: `full_name~"${escapePb(fullName.trim())}"`,
+              sort: "full_name",
+              fields: "id,full_name,phone,uid",
             });
 
           sourceHasMore = sourcePage < response.totalPages;
@@ -218,8 +219,8 @@ export function WorkerJoinSelectorDialog({
 
         setItems(
           [...candidateMap.values()].sort((left, right) =>
-            (left.user.full_name || left.user.username || "").localeCompare(
-              right.user.full_name || right.user.username || "",
+            (left.user.full_name || left.user.uid || "").localeCompare(
+              right.user.full_name || right.user.uid || "",
               "vi",
             ),
           ),
@@ -286,8 +287,8 @@ export function WorkerJoinSelectorDialog({
       }
 
       const nextItems = [...candidateMap.values()].sort((left, right) =>
-        (left.user.full_name || left.user.username || "").localeCompare(
-          right.user.full_name || right.user.username || "",
+        (left.user.full_name || left.user.uid || "").localeCompare(
+          right.user.full_name || right.user.uid || "",
           "vi",
         ),
       );
@@ -308,7 +309,7 @@ export function WorkerJoinSelectorDialog({
     setSelectingId(item.user.id);
     try {
       const [user, histories] = await Promise.all([
-        pb.collection("users").getOne<UserRecord>(item.user.id),
+        pb.collection("workers").getOne<WorkerRecord>(item.user.id),
         fetchEmploymentHistories([item.user.id]),
       ]);
       onSelect({ user, histories });
@@ -452,7 +453,7 @@ export function WorkerJoinSelectorDialog({
                     <div className="flex min-w-0 items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="truncate text-sm font-semibold">
-                          {item.user.full_name || item.user.username || "Người lao động"}
+                          {item.user.full_name || item.user.uid || "Người lao động"}
                         </div>
                         <div className="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-3">
                           <span className="truncate">

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { fileUrl, pb } from "@/lib/pocketbase";
@@ -47,6 +47,9 @@ import { toast } from "@/lib/toast";
 import { getUserErrorMessage } from "@/lib/toast";
 
 export const Route = createFileRoute("/_authenticated/check-attendance")({
+  beforeLoad: () => {
+    throw redirect({ to: "/staff/workers" });
+  },
   component: CheckAttendancePage,
 });
 
@@ -435,7 +438,11 @@ function CheckAttendancePage() {
   return isAdmin ? <AdminCheckAttendance viewer={user} /> : <UserCheckAttendance />;
 }
 
-function AdminCheckAttendance({ viewer }: { viewer: import("@/lib/pocketbase").UserRecord | null }) {
+function AdminCheckAttendance({
+  viewer,
+}: {
+  viewer: import("@/lib/pocketbase").UserRecord | null;
+}) {
   const [month, setMonth] = useState(todayMonth());
   const [note, setNote] = useState("");
   const [salaryMonth, setSalaryMonth] = useState(todayMonth());
@@ -462,7 +469,10 @@ function AdminCheckAttendance({ viewer }: { viewer: import("@/lib/pocketbase").U
     try {
       const salaryBatchRes = await pb
         .collection("check_salary_batches")
-        .getList(1, 100, { filter: `${companyFilter(viewer)} && month="${salaryMonth}"`, sort: "-created" });
+        .getList(1, 100, {
+          filter: `${companyFilter(viewer)} && month="${salaryMonth}"`,
+          sort: "-created",
+        });
       setSalaryBatches(salaryBatchRes.items as unknown as BatchRecord[]);
     } catch {
       setSalaryBatches([]);
@@ -563,7 +573,9 @@ function AdminCheckAttendance({ viewer }: { viewer: import("@/lib/pocketbase").U
       }
 
       const [allUsers, allHistories] = await Promise.all([
-        pb.collection("users").getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
+        pb
+          .collection("users")
+          .getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -725,7 +737,9 @@ function AdminCheckAttendance({ viewer }: { viewer: import("@/lib/pocketbase").U
       }
 
       const [allUsers, allHistories] = await Promise.all([
-        pb.collection("users").getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
+        pb
+          .collection("users")
+          .getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -881,236 +895,236 @@ function AdminCheckAttendance({ viewer }: { viewer: import("@/lib/pocketbase").U
           </TabsTrigger>
         </TabsList>
 
-          <TabsContent value="attendance" className="mt-0 space-y-4">
-            <Card className="space-y-3 p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <FileSpreadsheet className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">Gửi check công</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Tháng {month} · lần gửi tiếp theo: {nextRound}
-                  </div>
+        <TabsContent value="attendance" className="mt-0 space-y-4">
+          <Card className="space-y-3 p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <FileSpreadsheet className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold">Gửi check công</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Tháng {month} · lần gửi tiếp theo: {nextRound}
                 </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Tháng</Label>
-                  <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Ghi chú</Label>
-                  <Input
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    placeholder="Tuỳ chọn"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-                <label className="block">
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    className="hidden"
-                    disabled={uploading}
-                    onChange={(event) => {
-                      onUpload(event.target.files?.[0]);
-                      event.currentTarget.value = "";
-                    }}
-                  />
-                  <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
-                    <Upload className="h-4 w-4" />
-                    {uploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
-                  </span>
-                </label>
-                <Button type="button" variant="outline" onClick={downloadTemplate}>
-                  <FileDown className="h-4 w-4" />
-                  Tải mẫu
-                </Button>
-              </div>
-            </Card>
-
-            <AdminBatchHistory
-              batches={batches}
-              icon={CalendarCheck}
-              title="Lịch sử gửi"
-              emptyTitle="Chưa có lần gửi check công"
-              emptyDescription="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
-            />
-          </TabsContent>
-
-          <TabsContent value="salary" className="mt-0 space-y-4">
-            <Card className="space-y-3 p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Wallet className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">Gửi check lương</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Tháng {salaryMonth} · lần gửi tiếp theo: {nextSalaryRound}
-                  </div>
-                  <div className="mt-1 text-[11px] text-muted-foreground">
-                    Cột động: <code>HC_&lt;hệ số&gt;</code> (số giờ), <code>PC_&lt;tên&gt;</code>{" "}
-                    (tiền phụ cấp), <code>KT_&lt;tên&gt;</code> (tiền khấu trừ). Thành tiền tự tính
-                    = Lương cơ bản / 26 / 8 × hệ số × số giờ.
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Tháng</Label>
-                  <Input
-                    type="month"
-                    value={salaryMonth}
-                    onChange={(e) => setSalaryMonth(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Ghi chú</Label>
-                  <Input
-                    value={salaryNote}
-                    onChange={(e) => setSalaryNote(e.target.value)}
-                    placeholder="Tuỳ chọn"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-                <label className="block">
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    className="hidden"
-                    disabled={salaryUploading}
-                    onChange={(event) => {
-                      onSalaryUpload(event.target.files?.[0]);
-                      event.currentTarget.value = "";
-                    }}
-                  />
-                  <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
-                    <Upload className="h-4 w-4" />
-                    {salaryUploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
-                  </span>
-                </label>
-                <Button type="button" variant="outline" onClick={downloadSalaryTemplate}>
-                  <FileDown className="h-4 w-4" />
-                  Tải mẫu
-                </Button>
-              </div>
-            </Card>
-
-            <div className="hidden">
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Lịch sử gửi
-              </div>
-              {batches.length === 0 ? (
-                <EmptyState
-                  icon={CalendarCheck}
-                  title="Chưa có lần gửi check công"
-                  description="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
-                />
-              ) : (
-                batches.map((batch) => (
-                  <Card key={batch.id} className="p-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
-                        <Send className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-sm font-semibold">
-                            {batch.month} · Lần {batch.round_no}
-                          </div>
-                          <span className="chip chip-info">{batch.total_users || 0} người</span>
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
-                          {batch.created && (
-                            <span className="chip chip-neutral">
-                              {new Date(batch.created).toLocaleDateString("vi-VN")}
-                            </span>
-                          )}
-                          {batch.source_file && (
-                            <a
-                              href={fileUrl(batch, batch.source_file)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="chip chip-info"
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              File Excel
-                            </a>
-                          )}
-                        </div>
-                        {batch.note && (
-                          <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))
-              )}
             </div>
 
-            <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Lịch sử gửi lương
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Tháng</Label>
+                <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
               </div>
-              {salaryBatches.length === 0 ? (
-                <EmptyState
-                  icon={Wallet}
-                  title="Chưa có lần gửi check lương"
-                  description="Sau khi admin nhập Excel lương, lịch sử gửi sẽ hiển thị tại đây."
+              <div className="space-y-1">
+                <Label className="text-xs">Ghi chú</Label>
+                <Input
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Tuỳ chọn"
                 />
-              ) : (
-                salaryBatches.map((batch) => (
-                  <Card key={batch.id} className="p-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
-                        <Send className="h-4 w-4" />
+              </div>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+              <label className="block">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={(event) => {
+                    onUpload(event.target.files?.[0]);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
+                  <Upload className="h-4 w-4" />
+                  {uploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
+                </span>
+              </label>
+              <Button type="button" variant="outline" onClick={downloadTemplate}>
+                <FileDown className="h-4 w-4" />
+                Tải mẫu
+              </Button>
+            </div>
+          </Card>
+
+          <AdminBatchHistory
+            batches={batches}
+            icon={CalendarCheck}
+            title="Lịch sử gửi"
+            emptyTitle="Chưa có lần gửi check công"
+            emptyDescription="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
+          />
+        </TabsContent>
+
+        <TabsContent value="salary" className="mt-0 space-y-4">
+          <Card className="space-y-3 p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Wallet className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold">Gửi check lương</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Tháng {salaryMonth} · lần gửi tiếp theo: {nextSalaryRound}
+                </div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  Cột động: <code>HC_&lt;hệ số&gt;</code> (số giờ), <code>PC_&lt;tên&gt;</code>{" "}
+                  (tiền phụ cấp), <code>KT_&lt;tên&gt;</code> (tiền khấu trừ). Thành tiền tự tính =
+                  Lương cơ bản / 26 / 8 × hệ số × số giờ.
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Tháng</Label>
+                <Input
+                  type="month"
+                  value={salaryMonth}
+                  onChange={(e) => setSalaryMonth(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Ghi chú</Label>
+                <Input
+                  value={salaryNote}
+                  onChange={(e) => setSalaryNote(e.target.value)}
+                  placeholder="Tuỳ chọn"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+              <label className="block">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  className="hidden"
+                  disabled={salaryUploading}
+                  onChange={(event) => {
+                    onSalaryUpload(event.target.files?.[0]);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
+                  <Upload className="h-4 w-4" />
+                  {salaryUploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
+                </span>
+              </label>
+              <Button type="button" variant="outline" onClick={downloadSalaryTemplate}>
+                <FileDown className="h-4 w-4" />
+                Tải mẫu
+              </Button>
+            </div>
+          </Card>
+
+          <div className="hidden">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Lịch sử gửi
+            </div>
+            {batches.length === 0 ? (
+              <EmptyState
+                icon={CalendarCheck}
+                title="Chưa có lần gửi check công"
+                description="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
+              />
+            ) : (
+              batches.map((batch) => (
+                <Card key={batch.id} className="p-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
+                      <Send className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold">
+                          {batch.month} · Lần {batch.round_no}
+                        </div>
+                        <span className="chip chip-info">{batch.total_users || 0} người</span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-sm font-semibold">
-                            {batch.month} · Lần {batch.round_no}
-                          </div>
-                          <span className="chip chip-info">{batch.total_users || 0} người</span>
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
-                          {batch.created && (
-                            <span className="chip chip-neutral">
-                              {new Date(batch.created).toLocaleDateString("vi-VN")}
-                            </span>
-                          )}
-                          {batch.source_file && (
-                            <a
-                              href={fileUrl(batch, batch.source_file)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="chip chip-info"
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              File Excel
-                            </a>
-                          )}
-                        </div>
-                        {batch.note && (
-                          <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
+                        {batch.created && (
+                          <span className="chip chip-neutral">
+                            {new Date(batch.created).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                        {batch.source_file && (
+                          <a
+                            href={fileUrl(batch, batch.source_file)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="chip chip-info"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            File Excel
+                          </a>
                         )}
                       </div>
+                      {batch.note && (
+                        <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
+                      )}
                     </div>
-                  </Card>
-                ))
-              )}
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Lịch sử gửi lương
             </div>
-          </TabsContent>
+            {salaryBatches.length === 0 ? (
+              <EmptyState
+                icon={Wallet}
+                title="Chưa có lần gửi check lương"
+                description="Sau khi admin nhập Excel lương, lịch sử gửi sẽ hiển thị tại đây."
+              />
+            ) : (
+              salaryBatches.map((batch) => (
+                <Card key={batch.id} className="p-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
+                      <Send className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold">
+                          {batch.month} · Lần {batch.round_no}
+                        </div>
+                        <span className="chip chip-info">{batch.total_users || 0} người</span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
+                        {batch.created && (
+                          <span className="chip chip-neutral">
+                            {new Date(batch.created).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                        {batch.source_file && (
+                          <a
+                            href={fileUrl(batch, batch.source_file)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="chip chip-info"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            File Excel
+                          </a>
+                        )}
+                      </div>
+                      {batch.note && (
+                        <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
       </Tabs>
     </PageContainer>
   );
@@ -1254,16 +1268,9 @@ function UserCheckAttendance() {
       ) : (
         <>
           {loading && (
-            <DataLoadingState
-              variant="inline"
-              label="Đang cập nhật bảng check công và lương..."
-            />
+            <DataLoadingState variant="inline" label="Đang cập nhật bảng check công và lương..." />
           )}
-          <WorkerPayrollView
-            attendanceItems={items}
-            salaryItems={salaryItems}
-            loading={loading}
-          />
+          <WorkerPayrollView attendanceItems={items} salaryItems={salaryItems} loading={loading} />
         </>
       )}
     </PageContainer>

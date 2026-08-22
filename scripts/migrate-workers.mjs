@@ -48,7 +48,16 @@ const WORKER_FIELDS = [
   { name: "status", type: "select", required: true, maxSelect: 1, values: ["active", "inactive"] },
   { name: "source_user_id", type: "text", max: 50 },
   ...(companiesCollection
-    ? [{ name: "company", type: "relation", required: true, maxSelect: 1, collectionId: companiesCollection.id, cascadeDelete: false }]
+    ? [
+        {
+          name: "tenant_company",
+          type: "relation",
+          required: true,
+          maxSelect: 1,
+          collectionId: companiesCollection.id,
+          cascadeDelete: false,
+        },
+      ]
     : []),
 ];
 
@@ -79,15 +88,23 @@ function isLegacyWorker(record) {
 }
 
 function isWorkerRelation(field) {
-  return field?.type === "relation" && WORKER_RELATION_NAMES.has(field.name) && !AUTH_RELATION_NAMES.has(field.name);
+  return (
+    field?.type === "relation" &&
+    WORKER_RELATION_NAMES.has(field.name) &&
+    !AUTH_RELATION_NAMES.has(field.name)
+  );
 }
 
 function removeSelfAuthClause(rule) {
   if (!rule) return rule;
-  return rule
-    .split(/\s+\|\|\s+/)
-    .filter((clause) => !/(?:^|[\s(])(?:user|worker|target_user)\s*=\s*@request\.auth\.id/.test(clause))
-    .join(" || ") || null;
+  return (
+    rule
+      .split(/\s+\|\|\s+/)
+      .filter(
+        (clause) => !/(?:^|[\s(])(?:user|worker|target_user)\s*=\s*@request\.auth\.id/.test(clause),
+      )
+      .join(" || ") || null
+  );
 }
 
 function workerPayload(user, workerCollection) {
@@ -109,8 +126,8 @@ function workerPayload(user, workerCollection) {
     status: user.status === "disabled" ? "inactive" : "active",
     source_user_id: user.id,
   };
-  if (workerCollection.fields?.some((field) => field.name === "company") && user.company) {
-    payload.company = user.company;
+  if (workerCollection.fields?.some((field) => field.name === "tenant_company")) {
+    payload.tenant_company = user.tenant_company || user.company || "";
   }
   return payload;
 }
@@ -122,15 +139,21 @@ async function ensureWorkersCollection() {
     collection = await pb.collections.create({
       name: "workers",
       type: "base",
-      listRule: '@request.auth.role = "admin" || @request.auth.role = "staff"',
-      viewRule: '@request.auth.role = "admin" || @request.auth.role = "staff"',
-      createRule: '@request.auth.role = "admin" || @request.auth.role = "staff"',
-      updateRule: '@request.auth.role = "admin" || @request.auth.role = "staff"',
-      deleteRule: '@request.auth.role = "admin"',
+      listRule:
+        '(tenant_company = @request.auth.tenant_company) && (@request.auth.role = "admin" || @request.auth.role = "staff")',
+      viewRule:
+        '(tenant_company = @request.auth.tenant_company) && (@request.auth.role = "admin" || @request.auth.role = "staff")',
+      createRule:
+        '(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = "admin" || @request.auth.role = "staff")',
+      updateRule:
+        '(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = "admin" || @request.auth.role = "staff")',
+      deleteRule: '(tenant_company = @request.auth.tenant_company) && @request.auth.role = "admin"',
       fields: WORKER_FIELDS,
       indexes: [
         "CREATE UNIQUE INDEX idx_workers_uid ON workers (uid) WHERE uid != ''",
-        ...(companiesCollection ? ["CREATE INDEX idx_workers_company ON workers (company)"] : []),
+        ...(companiesCollection
+          ? ["CREATE INDEX idx_workers_tenant_company ON workers (tenant_company)"]
+          : []),
       ],
     });
     return { action: "created workers", collection };
@@ -144,16 +167,25 @@ async function ensureWorkersCollection() {
     });
     collection = await pb.collections.getOne(collection.id);
   }
-  return { action: missing.length ? `add fields: ${missing.map((field) => field.name).join(", ")}` : "workers ready", collection };
+  return {
+    action: missing.length
+      ? `add fields: ${missing.map((field) => field.name).join(", ")}`
+      : "workers ready",
+    collection,
+  };
 }
 
 const workersResult = await ensureWorkersCollection();
-const workers = workersResult.collection || (await pb.collections.getOne("workers").catch(() => null));
-const legacyUsers = (await pb.collection("users").getFullList({
-  filter: 'role="user" || role=""',
-  fields: "id,username,full_name,phone,uid,cccd,cccd_issue_date,gender,date_of_birth,address,bank_name,bank_account_number,bank_account_name,bank_account_note,employee_code,status,company,role",
-  sort: "created",
-})).filter(isLegacyWorker);
+const workers =
+  workersResult.collection || (await pb.collections.getOne("workers").catch(() => null));
+const legacyUsers = (
+  await pb.collection("users").getFullList({
+    filter: 'role="user" || role=""',
+    fields:
+      "id,username,full_name,phone,uid,cccd,cccd_issue_date,gender,date_of_birth,address,bank_name,bank_account_number,bank_account_name,bank_account_note,employee_code,status,company,tenant_company,role",
+    sort: "created",
+  })
+).filter(isLegacyWorker);
 const report = {
   apply,
   allowDelete,
@@ -171,7 +203,10 @@ const report = {
 if (apply && workers) {
   for (const user of legacyUsers) {
     const payload = workerPayload(user, workers);
-    const existing = await pb.collection("workers").getOne(user.id).catch(() => null);
+    const existing = await pb
+      .collection("workers")
+      .getOne(user.id)
+      .catch(() => null);
     if (existing) {
       report.existingWorkers += 1;
       continue;
@@ -187,7 +222,8 @@ if (apply && workers) {
 
 const allCollections = await pb.collections.getFullList();
 for (const collection of allCollections) {
-  if (collection.system || collection.name.startsWith("_") || collection.name === "workers") continue;
+  if (collection.system || collection.name.startsWith("_") || collection.name === "workers")
+    continue;
   const workerFields = (collection.fields || []).filter(
     (field) => isWorkerRelation(field) && field.collectionId === "_pb_users_auth_",
   );
@@ -227,10 +263,15 @@ if (apply && allowDelete && report.unresolved.length === 0) {
     }
   }
   if (remainingAuthWorkerFields.length) {
-    report.unresolved.push({ reason: `Còn relation NLĐ trỏ users: ${remainingAuthWorkerFields.join(", ")}` });
+    report.unresolved.push({
+      reason: `Còn relation NLĐ trỏ users: ${remainingAuthWorkerFields.join(", ")}`,
+    });
   } else {
     for (const user of legacyUsers) {
-      const worker = await pb.collection("workers").getOne(user.id).catch(() => null);
+      const worker = await pb
+        .collection("workers")
+        .getOne(user.id)
+        .catch(() => null);
       if (!worker) {
         report.unresolved.push({ userId: user.id, reason: "Thiếu worker tương ứng" });
         continue;
@@ -243,9 +284,12 @@ if (apply && allowDelete && report.unresolved.length === 0) {
 
 console.log(JSON.stringify(report, null, 2));
 if (!apply) {
-  console.log("Dry-run hoàn tất. Hãy sao lưu PocketBase, rà soát báo cáo rồi chạy lại với --apply.");
+  console.log(
+    "Dry-run hoàn tất. Hãy sao lưu PocketBase, rà soát báo cáo rồi chạy lại với --apply.",
+  );
 } else if (!allowDelete) {
-  console.log("Đã chuyển dữ liệu nhưng chưa xóa users cũ. Chạy thêm --delete-legacy-users sau khi đối soát.");
+  console.log(
+    "Đã chuyển dữ liệu nhưng chưa xóa users cũ. Chạy thêm --delete-legacy-users sau khi đối soát.",
+  );
 }
 if (report.unresolved.length) process.exitCode = 2;
-

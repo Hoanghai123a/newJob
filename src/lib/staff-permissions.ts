@@ -311,7 +311,7 @@ function buildWorkspace(
       const user = workerMap.get(userId);
       if (!user) return null;
 
-      // Tài khoản NLĐ mới import chưa có lịch sử đi làm vẫn phải hiện cho quản trị viên.
+      // Hồ sơ NLĐ mới import chưa có lịch sử đi làm vẫn phải hiện cho quản trị viên.
       if (
         userHistories.length > 0 &&
         !isWorkerInStaffScope(viewer, userHistories, managedFactoryIds, bypassScope)
@@ -358,8 +358,8 @@ function buildWorkspace(
     })
     .filter(Boolean)
     .sort((a, b) => {
-      const nameA = (a!.user.full_name || a!.user.username || "").toLowerCase();
-      const nameB = (b!.user.full_name || b!.user.username || "").toLowerCase();
+      const nameA = (a!.user.full_name || a!.user.uid || "").toLowerCase();
+      const nameB = (b!.user.full_name || b!.user.uid || "").toLowerCase();
       return nameA.localeCompare(nameB, "vi");
     }) as StaffWorkerRecord[];
 

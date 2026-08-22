@@ -21,7 +21,7 @@ npm run pb:migrate-workers -- --apply
 ```
 
 5. Kiểm tra trên giao diện Admin/Staff: danh sách NLĐ, CCCD, lịch sử, công/lương, ứng lương và giữ lương.
-6. Khi đã xác nhận, xóa tài khoản NLĐ cũ:
+6. Khi đã xác nhận, xóa bản ghi NLĐ cũ:
 
 ```powershell
 npm run pb:migrate-workers -- --apply --delete-legacy-users
@@ -31,6 +31,6 @@ Script chỉ xóa khi mọi relation NLĐ đã không còn trỏ về collection
 
 ## Thay đổi PocketBase
 
-- Tạo `workers` với hồ sơ cá nhân, ngân hàng, UID, trạng thái và relation công ty nếu collection `companies` đang tồn tại.
+- Tạo `workers` với hồ sơ cá nhân, ngân hàng, UID, trạng thái và relation `tenant_company` nếu collection `companies` đang tồn tại.
 - Các relation tên `user`, `worker`, `target_user`, `challenger`, `opponent`, `winner` đang trỏ tới `users` được đổi sang `workers`; các relation người thao tác như `actor`, `staff`, `admin`, `recruiter_staff` vẫn trỏ `users`.
 - Rule của relation NLĐ được bỏ điều kiện tự truy cập theo `@request.auth.id`; Admin/Staff tiếp tục truy cập theo rule collection hiện hữu.

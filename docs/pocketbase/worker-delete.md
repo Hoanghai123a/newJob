@@ -1,4 +1,4 @@
-# Xóa tài khoản người lao động an toàn
+# Xóa hồ sơ người lao động an toàn
 
 ## Mục đích
 

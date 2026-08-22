@@ -1,7 +1,6 @@
 import * as XLSX from "xlsx";
 
-import { accountIdentityKey, normalizeAccountUsername } from "./account-identity";
-import { accountLoginName } from "./login-identity";
+import { accountIdentityKey } from "./account-identity";
 import { normalizeDate } from "./date-utils";
 import { deriveEmploymentStatus, type EmploymentStatus } from "./employment";
 import { allocateEmploymentHistoryUids, allocateUserUids } from "./uid-counter";
@@ -9,13 +8,12 @@ import { exportToExcel } from "./excel";
 import { fetchFactories, type FactoryRecord } from "./factories";
 import { fetchMainHouses, type MainHouseRecord } from "./main-houses";
 import { pb, type UserRecord } from "./pocketbase";
-import { companyFilter, companyIdOf, resolveTenantAccountIdentity } from "./tenant";
+import { companyFilter, companyIdOf } from "./tenant";
 import { resolveBankName } from "./vn-banks";
 
 export const MAX_BULK_WORKERS = 1_000;
 export const MAX_HISTORIES_PER_WORKER = 10;
 export const MAX_BATCH_REQUESTS = 40;
-export const DEFAULT_WORKER_PASSWORD = "12345678";
 
 type RawExcelRow = Record<string, unknown>;
 
@@ -27,7 +25,6 @@ export interface WorkerSheetRow {
   phoneBase: string;
   cccdRaw: string;
   cccdBase: string;
-  accountIdentity: string;
   gender: string;
   dateOfBirth: string;
   cccdIssueDate: string;
@@ -77,11 +74,10 @@ export interface PreparedCccdVersion {
 
 export interface PreparedWorkerImport {
   workerKey: string;
-  userId: string;
+  workerId: string;
   uid: string;
-  username: string;
   workerRow: WorkerSheetRow;
-  userPayload: Record<string, unknown>;
+  workerPayload: Record<string, unknown>;
   cccdVersions: PreparedCccdVersion[];
   histories: PreparedEmploymentHistory[];
 }
@@ -90,7 +86,6 @@ export type WorkerImportStage = "Đọc file" | "Kiểm tra dữ liệu" | "Pock
 
 export interface WorkerImportError {
   workerKey: string;
-  username?: string;
   phoneBase?: string;
   cccdBase?: string;
   stage: WorkerImportStage;
@@ -263,11 +258,6 @@ function parseWorkerRow(raw: RawExcelRow, rowNumber: number): WorkerSheetRow {
   const phone = phoneRaw
     ? parseIdentityWithSuffix(phoneRaw, 10, "Số điện thoại")
     : { identity: "", base: "" };
-  const accountIdentity = normalizeAccountUsername(phone.identity || cccd.identity);
-  if (!/^[a-z0-9_.]{4,30}$/.test(accountIdentity)) {
-    throw new Error("Tên đăng nhập sinh từ SĐT/CCCD không hợp lệ hoặc dài quá 30 ký tự.");
-  }
-
   return {
     rowNumber,
     workerKey,
@@ -276,7 +266,6 @@ function parseWorkerRow(raw: RawExcelRow, rowNumber: number): WorkerSheetRow {
     phoneBase: phone.base,
     cccdRaw,
     cccdBase: cccd.base,
-    accountIdentity,
     gender: pickValue(raw, ["Giới tính", "gender"]),
     dateOfBirth: parseRequiredDate(dateOfBirthRaw, "Ngày sinh"),
     cccdIssueDate: parseRequiredDate(cccdIssueDateRaw, "Ngày cấp CCCD"),
@@ -301,7 +290,6 @@ function makeFallbackWorkerRow(raw: RawExcelRow, rowNumber: number): WorkerSheet
     phoneBase: "",
     cccdRaw: pickValue(raw, ["CCCD", "cccd"]),
     cccdBase: "",
-    accountIdentity: "",
     gender: "",
     dateOfBirth: "",
     cccdIssueDate: "",
@@ -514,7 +502,7 @@ export async function inspectBulkWorkerImportReferences(
     users
       .filter((user) => user.role === "staff" || user.role === "admin")
       .filter((user) => user.username)
-      .map((user) => [accountIdentityKey(accountLoginName(user)), user]),
+      .map((user) => [accountIdentityKey(user.username || ""), user]),
   );
 
   const missingFactories = new Map<string, MissingFactoryReference>();
@@ -735,12 +723,9 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
 
   const invalidWorkerRows = new Set(errors.map((error) => error.workerRow?.rowNumber));
   const workersByKey = new Map<string, WorkerSheetRow[]>();
-  const workersByUsername = new Map<string, WorkerSheetRow[]>();
   for (const worker of parsedWorkers) {
     const key = accountIdentityKey(worker.workerKey);
     workersByKey.set(key, [...(workersByKey.get(key) || []), worker]);
-    const usernameKey = accountIdentityKey(worker.accountIdentity);
-    workersByUsername.set(usernameKey, [...(workersByUsername.get(usernameKey) || []), worker]);
   }
 
   const markDuplicates = (groups: Map<string, WorkerSheetRow[]>, label: string) => {
@@ -750,7 +735,6 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
         invalidWorkerRows.add(worker.rowNumber);
         addWorkerError(errors, {
           workerKey: worker.workerKey,
-          username: worker.accountIdentity,
           phoneBase: worker.phoneBase,
           cccdBase: worker.cccdBase,
           stage: "Kiểm tra dữ liệu",
@@ -761,25 +745,6 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
     }
   };
   markDuplicates(workersByKey, "Mã NLĐ trong file");
-  markDuplicates(workersByUsername, "Tên đăng nhập");
-
-  const existingUsernames = new Set(
-    refs.users.map((user) => accountIdentityKey(accountLoginName(user))).filter(Boolean),
-  );
-  for (const worker of parsedWorkers) {
-    if (!existingUsernames.has(accountIdentityKey(worker.accountIdentity))) continue;
-    invalidWorkerRows.add(worker.rowNumber);
-    addWorkerError(errors, {
-      workerKey: worker.workerKey,
-      username: worker.accountIdentity,
-      phoneBase: worker.phoneBase,
-      cccdBase: worker.cccdBase,
-      stage: "Kiểm tra dữ liệu",
-      reason: `Tên đăng nhập "${worker.accountIdentity}" đã tồn tại.`,
-      workerRow: worker,
-    });
-  }
-
   const validWorkerByKey = new Map(
     parsedWorkers
       .filter((worker) => !invalidWorkerRows.has(worker.rowNumber))
@@ -798,7 +763,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
     refs.users
       .filter((user) => user.role === "staff" || user.role === "admin")
       .filter((user) => user.username)
-      .map((user) => [accountIdentityKey(accountLoginName(user)), user]),
+      .map((user) => [accountIdentityKey(user.username || ""), user]),
   );
 
   const historiesByWorkerKey = new Map<string, ParsedHistoryEntry[]>();
@@ -900,7 +865,6 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
     if (reason) {
       addWorkerError(errors, {
         workerKey: worker.workerKey,
-        username: worker.accountIdentity,
         phoneBase: worker.phoneBase,
         cccdBase: worker.cccdBase,
         stage: "Kiểm tra dữ liệu",
@@ -912,7 +876,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
     }
 
     const uid = "";
-    const userId = createRecordId(usedRecordIds);
+    const workerId = createRecordId(usedRecordIds);
     const latestEntry = historyEntries[historyEntries.length - 1];
     const cccdVersionByNumber = new Map<string, PreparedCccdVersion>();
     let hasInvalidHistoryCccd = false;
@@ -921,7 +885,6 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
       if (![9, 12].includes(cccdNumber.length)) {
         errors.push({
           workerKey: worker.workerKey,
-          username: worker.accountIdentity,
           cccdBase: worker.cccdBase,
           stage: "Kiểm tra dữ liệu",
           reason: `Lịch sử dòng ${entry.row.rowNumber} có số CMND/CCCD không hợp lệ.`,
@@ -934,7 +897,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
       if (!cccdVersionByNumber.has(cccdNumber)) {
         cccdVersionByNumber.set(cccdNumber, {
           id: createRecordId(usedRecordIds),
-          user: userId,
+          user: workerId,
           cccd_number: cccdNumber,
           is_current: cccdNumber === worker.cccdBase.replace(/\D/g, ""),
         });
@@ -953,7 +916,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
         payload: {
           id: historyId,
           uid: historyUid,
-          user: userId,
+          user: workerId,
           factory: entry.factory.id,
           main_house: entry.mainHouse.id,
           employee_code: entry.row.employeeCode,
@@ -978,17 +941,12 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
 
     preparedWorkers.push({
       workerKey: worker.workerKey,
-      userId,
+      workerId,
       uid,
-      username: worker.accountIdentity,
       workerRow: worker,
-      userPayload: {
-        id: userId,
-        username: worker.accountIdentity,
+      workerPayload: {
+        id: workerId,
         uid,
-        emailVisibility: false,
-        password: DEFAULT_WORKER_PASSWORD,
-        passwordConfirm: DEFAULT_WORKER_PASSWORD,
         full_name: worker.fullName,
         phone: worker.phoneBase,
         cccd: worker.cccdBase,
@@ -1002,11 +960,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
         bank_account_note: worker.bankAccountNote,
         company: latestEntry.factory.name,
         employee_code: latestEntry.row.employeeCode,
-        role: "user",
-        approvalStatus: "approved",
-        approved: "true",
         status: "active",
-        must_change_password: true,
       },
       cccdVersions,
       histories,
@@ -1037,7 +991,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
     let historyIndex = 0;
     preparedWorkers.forEach((worker, workerIndex) => {
       worker.uid = userUids[workerIndex];
-      worker.userPayload.uid = worker.uid;
+      worker.workerPayload.uid = worker.uid;
       worker.histories.forEach((history) => {
         history.uid = historyUids[historyIndex++];
         history.payload.uid = history.uid;
@@ -1091,11 +1045,8 @@ async function sendWorkerBatch(workers: PreparedWorkerImport[]) {
   if (!tenantCompany) throw new Error("Tài khoản chưa được gán công ty hợp lệ.");
   const batch = pb.createBatch();
   for (const worker of workers) {
-    const identity = await resolveTenantAccountIdentity(currentUser, worker.username);
-    batch.collection("users").create({
-      ...worker.userPayload,
-      username: identity.username,
-      ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
+    batch.collection("workers").create({
+      ...worker.workerPayload,
       tenant_company: tenantCompany,
     });
     for (const version of worker.cccdVersions) batch.collection("cccd_versions").create(version);
@@ -1145,7 +1096,6 @@ export async function executePreparedBulkImport(
       processedWorkers += 1;
       addWorkerError(errors, {
         workerKey: worker.workerKey,
-        username: worker.username,
         phoneBase: worker.workerRow.phoneBase,
         cccdBase: worker.workerRow.cccdBase,
         stage: "PocketBase",
@@ -1225,7 +1175,6 @@ export function exportBulkWorkerErrors(errors: WorkerImportError[], filename = "
   const workerRows = errors.map((error) => ({
     Dòng: error.workerRow?.rowNumber || "",
     "Mã NLĐ trong file": error.workerKey,
-    "Tên đăng nhập dự kiến": error.username || error.workerRow?.accountIdentity || "",
     "SĐT đã chuẩn hóa": error.phoneBase || error.workerRow?.phoneBase || "",
     "CCCD đã chuẩn hóa": error.cccdBase || error.workerRow?.cccdBase || "",
     "Giai đoạn lỗi": error.stage,
@@ -1236,7 +1185,6 @@ export function exportBulkWorkerErrors(errors: WorkerImportError[], filename = "
     error.historyRows.map((history) => ({
       Dòng: history.rowNumber,
       "Mã NLĐ trong file": error.workerKey,
-      "Tên đăng nhập dự kiến": error.username || "",
       "Giai đoạn lỗi": error.stage,
       "Lý do lỗi": error.reason,
       ...history.raw,

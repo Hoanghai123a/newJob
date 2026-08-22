@@ -1,7 +1,8 @@
-import { pb } from "./pocketbase";
-
+import { pb, type Role, type UserRecord } from "./pocketbase";
 /** Non-authenticated worker profile stored in PocketBase collection `workers`. */
 export interface WorkerRecord {
+  username?: string;
+  role?: Role;
   id: string;
   full_name?: string;
   phone?: string;
@@ -18,14 +19,16 @@ export interface WorkerRecord {
   employee_code?: string;
   tenant_company?: string;
   company?: string;
-  status?: "active" | "inactive";
+  status?: "active" | "disabled" | "inactive";
   source_user_id?: string;
   created?: string;
   updated?: string;
 }
 
 export function workerDisplayName(worker: Pick<WorkerRecord, "full_name" | "phone" | "uid">) {
-  return worker.full_name?.trim() || worker.phone?.trim() || worker.uid?.trim() || "Thiếu thông tin";
+  return (
+    worker.full_name?.trim() || worker.phone?.trim() || worker.uid?.trim() || "Thiếu thông tin"
+  );
 }
 
 export async function getWorker(workerId: string) {

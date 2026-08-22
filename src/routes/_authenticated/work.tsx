@@ -1,10 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { BriefcaseBusiness, ClipboardList, History, Wallet } from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { MobileSection } from "@/components/layout/MobileSection";
 import { FeatureTile } from "@/components/dashboard/FeatureTile";
 
 export const Route = createFileRoute("/_authenticated/work")({
+  beforeLoad: () => {
+    throw redirect({ to: "/staff/workers" });
+  },
   component: WorkHubPage,
 });
 

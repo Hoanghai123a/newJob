@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { pb, fileUrl } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
@@ -61,6 +61,9 @@ import { cn } from "@/lib/utils";
 import { companyFilter, companyIdOf, joinTenantFilters } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/news")({
+  beforeLoad: () => {
+    throw redirect({ to: "/staff/workers" });
+  },
   component: NewsPage,
 });
 
