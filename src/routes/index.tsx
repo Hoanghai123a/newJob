@@ -64,7 +64,7 @@ import {
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") throw redirect({ to: "/login" });
     if (!pb.authStore.isValid) throw redirect({ to: "/login" });
     const user = pb.authStore.record as UserRecord | null;
     if (user?.role === "staff") throw redirect({ to: "/staff" });
@@ -108,10 +108,6 @@ function DashboardPage() {
   const desktopSection: DesktopDashboardSection =
     normalizedHash === "tai-chinh" ? "tai-chinh" : normalizedHash === "khac" ? "khac" : "nhan-luc";
 
-  useEffect(() => {
-    if (!user && guestSearch.login === "1") setGuestLoginOpen(true);
-  }, [guestSearch.login, user]);
-
   const handleReload = async () => {
     if (reloading) return;
     setReloading(true);
@@ -139,7 +135,7 @@ function DashboardPage() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      nav({ to: "/login", replace: true });
+      window.location.replace("/login");
       return;
     }
     if (user.role === "staff") {
@@ -337,17 +333,7 @@ function DashboardPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <GuestDashboard
-        settings={settings}
-        logoUrl={logoUrl}
-        loginOpen={guestLoginOpen}
-        onLoginOpenChange={setGuestLoginOpen}
-        redirectTo={guestSearch.redirect || "/"}
-      />
-    );
-  }
+  if (!user) return null;
 
   const hasEmployment = Boolean(currentEmployment);
   const workDisabled = !isAdmin && !hasEmployment;
