@@ -711,14 +711,12 @@ function AdminImportsPage() {
 
   const downloadAccountsTemplate = () => {
     exportToExcel(
-      "mau_import_tai_khoan",
+      "mau_import_ho_so_nld",
       {
-        "Tài khoản": [
+        "Người lao động": [
           {
             "Họ tên": "Nguyễn Văn A",
             "Số điện thoại": "0900000001",
-            "Tên đăng nhập": "nguyenvana",
-            "Mật khẩu": "12345678",
             "Mã tài khoản (UID)": "",
             "Giới tính": "Nam",
             CCCD: "001099012345",
@@ -731,7 +729,7 @@ function AdminImportsPage() {
           },
         ],
       },
-      { "Tài khoản": ["Ngày sinh"] },
+      { "Người lao động": ["Ngày sinh"] },
     );
   };
 
@@ -747,15 +745,17 @@ function AdminImportsPage() {
       const workbook = XLSX.read(buffer);
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
-      const existingUsers = await pb.collection("users").getFullList<UserRecord>({
-        fields: "id,username,uid",
-        filter: companyFilter(currentUser, "tenant_company"),
-      });
-      const usernameKeys = new Set(
-        existingUsers.map((user) => accountIdentityKey(accountLoginName(user))).filter(Boolean),
+      const existingWorkers = await pb
+        .collection("workers")
+        .getFullList<{ id: string; uid?: string; phone?: string; cccd?: string }>({
+          fields: "id,uid,phone,cccd",
+          filter: companyFilter(currentUser, "company"),
+        });
+      const cccdKeys = new Set(
+        existingWorkers.map((w) => accountIdentityKey(w.cccd)).filter(Boolean),
       );
       const uidKeys = new Set(
-        existingUsers.map((user) => accountIdentityKey(user.uid)).filter(Boolean),
+        existingWorkers.map((w) => accountIdentityKey(w.uid)).filter(Boolean),
       );
       const failedRows: Array<Record<string, unknown>> = [];
       let created = 0;
@@ -765,9 +765,7 @@ function AdminImportsPage() {
         const rowNumber = index + 2;
         const fullName = pickValue(row, ["Họ tên", "full_name"]);
         const phone = pickValue(row, ["Số điện thoại", "phone"]);
-        const rawUsername = pickValue(row, ["Tên đăng nhập", "username"]);
-        const username = normalizeAccountUsername(rawUsername);
-        const password = pickValue(row, ["Mật khẩu", "password"]);
+
         const manualUid = pickValue(row, ["Mã tài khoản (UID)", "Mã tài khoản", "Mã TK", "uid"]);
         const gender = pickValue(row, ["Giới tính", "gender"]);
         const cccd = pickValue(row, ["CCCD", "cccd"]);
@@ -788,54 +786,43 @@ function AdminImportsPage() {
           failedRows.push({ Dòng: rowNumber, "Lý do lỗi": reason, ...row });
         };
 
-        if (!fullName || !phone || !username || !password) {
-          addFailedRow("Thiếu thông tin bắt buộc: họ tên, SĐT, tên đăng nhập hoặc mật khẩu");
+        if (!fullName) {
+          addFailedRow("Thiếu họ tên người lao động");
           continue;
         }
         if (String(birthdayRaw).trim() && !dateOfBirth) {
           addFailedRow("Ngày sinh không hợp lệ");
           continue;
         }
-        if (usernameKeys.has(accountIdentityKey(username))) {
-          addFailedRow("Tên đăng nhập đã tồn tại");
+        if (cccd && cccdKeys.has(accountIdentityKey(cccd))) {
+          addFailedRow("Số CCCD đã tồn tại trong danh sách hồ sơ");
           continue;
         }
         if (manualUid && uidKeys.has(accountIdentityKey(manualUid))) {
           addFailedRow("Mã tài khoản đã tồn tại");
           continue;
         }
-        if (password.length < 8) {
-          addFailedRow("Mật khẩu phải có ít nhất 8 ký tự");
-          continue;
-        }
 
         try {
-          const identity = await resolveTenantAccountIdentity(currentUser, username);
           const uid = await generateUid(manualUid || undefined);
-          await pb.collection("users").create({
+          const tenantId = companyIdOf(currentUser);
+          await pb.collection("workers").create({
             full_name: fullName,
-            phone,
-            username: identity.username,
-            ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
-            tenant_company: companyIdOf(currentUser),
+            phone: phone || undefined,
             uid,
-            password,
-            passwordConfirm: password,
-            gender,
-            cccd,
-            date_of_birth: dateOfBirth,
-            address,
-            bank_name: bankName,
-            bank_account_number: bankAccountNumber,
-            bank_account_name: bankAccountName,
-            bank_account_note: bankAccountNote,
-            role: "user",
-            approvalStatus: "approved",
-            approved: "true",
+            gender: gender || undefined,
+            cccd: cccd || undefined,
+            date_of_birth: dateOfBirth || undefined,
+            address: address || undefined,
+            bank_name: bankName || undefined,
+            bank_account_number: bankAccountNumber || undefined,
+            bank_account_name: bankAccountName || undefined,
+            bank_account_note: bankAccountNote || undefined,
             status: "active",
-            must_change_password: password === "12345678",
+            company: tenantId,
+            tenant_company: tenantId,
           });
-          usernameKeys.add(accountIdentityKey(identity.loginName));
+          if (cccd) cccdKeys.add(accountIdentityKey(cccd));
           uidKeys.add(accountIdentityKey(uid));
           created++;
         } catch (error: unknown) {
@@ -843,12 +830,12 @@ function AdminImportsPage() {
         }
       }
 
-      const summary = `Import tài khoản: tạo ${created}, cập nhật 0, thất bại ${failed}`;
+      const summary = `Import hồ sơ NLĐ: tạo ${created}, cập nhật 0, thất bại ${failed}`;
       setAccountImportResult(summary);
       toast.success(summary);
       if (failedRows.length) {
         exportToExcel(
-          `import_tai_khoan_loi_${Date.now()}`,
+          `import_ho_so_nld_loi_${Date.now()}`,
           { "Dòng lỗi": failedRows },
           { "Dòng lỗi": ["Ngày sinh", "date_of_birth"] },
         );
@@ -856,13 +843,13 @@ function AdminImportsPage() {
       }
       await createStaffActionLog({
         actor: currentUser,
-        targetCollection: "users",
+        targetCollection: "workers",
         action: "import",
         after: { created, updated: 0, failed, file: file.name, exported_errors: failedRows.length },
-        note: "Admin import tài khoản NLĐ từ Excel",
+        note: "Admin import hồ sơ người lao động từ Excel",
       });
     } catch (error: unknown) {
-      toast.error(getUserErrorMessage(error, "Không đọc được file import tài khoản"));
+      toast.error(getUserErrorMessage(error, "Không đọc được file import hồ sơ người lao động"));
     } finally {
       setImportingAccounts(false);
     }
@@ -938,11 +925,11 @@ function AdminImportsPage() {
 
         <Card className="hidden space-y-3 rounded-2xl p-4 shadow-soft desktop:block">
           <div className="flex items-center gap-2 text-sm font-semibold">
-            <UsersRound className="h-4 w-4 text-primary" /> Import tài khoản NLĐ
+            <UsersRound className="h-4 w-4 text-primary" /> Import hồ sơ NLĐ
           </div>
           <div className="text-sm text-muted-foreground">
-            Tạo mới tài khoản NLĐ từ Excel. File lỗi sẽ được xuất lại, kèm số dòng và nguyên nhân cụ
-            thể.
+            Tạo mới hồ sơ người lao động từ Excel vào danh sách NLĐ. File lỗi sẽ được xuất lại, kèm
+            số dòng và nguyên nhân cụ thể.
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" className="rounded-full" onClick={downloadAccountsTemplate}>
@@ -952,7 +939,7 @@ function AdminImportsPage() {
               <input type="file" accept=".xlsx,.xls" className="hidden" onChange={importAccounts} />
               <span className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground">
                 <Upload className="h-4 w-4" />{" "}
-                {importingAccounts ? "Đang nhập..." : "Chọn file tài khoản"}
+                {importingAccounts ? "Đang nhập..." : "Chọn file hồ sơ NLĐ"}
               </span>
             </label>
           </div>

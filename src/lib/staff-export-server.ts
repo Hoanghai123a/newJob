@@ -4,7 +4,6 @@ import { relationInFilter } from "./delegations";
 import { isCurrentlyWorking, type EmploymentHistoryRecord } from "./employment";
 import { getPBUpstream } from "./pocketbase-config";
 import type { UserRecord } from "./pocketbase";
-import { getApprovalStatus } from "./user-approval";
 import { getRecruiterDisplay } from "./recruiters";
 import { resolveBankCode } from "./vn-banks";
 
@@ -40,44 +39,6 @@ class PocketBaseExportError extends Error {
     super(message);
     this.name = "PocketBaseExportError";
   }
-}
-
-const APPROVAL_STATUS_LABELS = {
-  pending: "Chờ duyệt",
-  approved: "Đã duyệt",
-  rejected: "Từ chối",
-} as const;
-
-function jsonError(message: string, status = 400) {
-  return Response.json({ message }, { status });
-}
-
-function bearerToken(request: Request) {
-  return /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "")?.[1] || "";
-}
-
-async function pbFetch(path: string, init: RequestInit = {}, token?: string) {
-  const headers = new Headers(init.headers);
-  headers.set("ngrok-skip-browser-warning", "true");
-  if (token) headers.set("Authorization", `Bearer ${token}`);
-  return fetch(`${getPBUpstream()}${path}`, { ...init, headers });
-}
-
-async function readJson(response: Response) {
-  return response.json().catch(() => null);
-}
-
-async function getAuthenticatedStaff(request: Request) {
-  const token = bearerToken(request);
-  if (!token) return null;
-
-  const response = await pbFetch("/api/collections/users/auth-refresh", { method: "POST" }, token);
-  if (!response.ok) return null;
-
-  const body = await readJson(response);
-  const user = body?.record as UserRecord | undefined;
-  if (!user?.id || (user.role !== "admin" && user.role !== "staff")) return null;
-  return { token, user };
 }
 
 function escapePb(value: string) {
@@ -305,7 +266,6 @@ function buildFullRows(histories: EmploymentHistoryRecord[]) {
       "Tên đăng nhập": user?.username || "",
       "Vai trò": user?.role || "",
       "Trạng thái tài khoản": user?.status || "",
-      "Trạng thái duyệt": user ? APPROVAL_STATUS_LABELS[getApprovalStatus(user)] : "",
     };
   });
 }

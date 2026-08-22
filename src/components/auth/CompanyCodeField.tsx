@@ -3,8 +3,9 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { rememberCompanyBrand } from "@/lib/company-brand";
 
-export type ValidCompany = { id: string; code: string; name: string };
+export type ValidCompany = { id: string; code: string; name: string; company_name?: string; slogan?: string; logo_url?: string; brand_updated?: string };
 const STORAGE_KEY = "jobconnect:last-company-code";
 
 export function useCompanyCodeLookup(code: string, enabled: boolean) {
@@ -31,6 +32,14 @@ export function useCompanyCodeLookup(code: string, enabled: boolean) {
         setCompany(payload);
         setMessage("");
         window.localStorage.setItem(STORAGE_KEY, code);
+        rememberCompanyBrand({
+          companyId: payload.id,
+          companyCode: payload.code,
+          companyName: payload.company_name || payload.name,
+          slogan: payload.slogan || "",
+          logoUrl: payload.logo_url || "",
+          updated: payload.brand_updated || "",
+        });
       } catch (error) {
         if (controller.signal.aborted) return;
         setCompany(null);

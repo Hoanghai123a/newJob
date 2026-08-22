@@ -102,6 +102,7 @@ import {
   isRecentRecruiter,
 } from "@/lib/staff-permissions";
 import { pb, fileUrl, type UserRecord } from "@/lib/pocketbase";
+import type { WorkerRecord } from "@/lib/workers";
 import { resolveBankName } from "@/lib/vn-banks";
 import { AdvancePayoutMethodPicker } from "@/components/advances/AdvancePayoutMethodPicker";
 import { AdvanceReadOnlyNotice } from "@/components/advances/AdvanceReadOnlyNotice";
@@ -163,7 +164,7 @@ function StaffWorkerDetailPage() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [workerUser, setWorkerUser] = useState<UserRecord | null>(null);
+  const [workerUser, setWorkerUser] = useState<WorkerRecord | null>(null);
   const [histories, setHistories] = useState<EmploymentHistoryRecord[]>([]);
   const [allWorkerHistories, setAllWorkerHistories] = useState<EmploymentHistoryRecord[]>([]);
   const [factories, setFactories] = useState<FactoryRecord[]>([]);
@@ -1124,8 +1125,8 @@ function StaffWorkerDetailPage() {
             readOnly
             onUpdated={async () => {
               const refreshed = await pb
-                .collection("users")
-                .getOne<UserRecord>(workerId)
+                .collection("workers")
+                .getOne<WorkerRecord>(workerId)
                 .catch(() => null);
               if (refreshed) setWorkerUser(refreshed);
             }}

@@ -1,5 +1,6 @@
 import type { UnsubscribeFunc } from "pocketbase";
 import { pb, type UserRecord } from "./pocketbase";
+import type { WorkerRecord } from "./workers";
 import type { EmploymentHistoryRecord } from "./employment";
 import type { CccdVersionRecord } from "./cccd-versions";
 import type { FactoryRecord } from "./factories";
@@ -106,8 +107,8 @@ async function handleHistoryEvent(
   let relatedUser = record.expand?.user;
   if (!relatedUser && record.user) {
     relatedUser = await pb
-      .collection("users")
-      .getOne<UserRecord>(record.user)
+      .collection("workers")
+      .getOne<WorkerRecord>(record.user)
       .catch(() => undefined);
   }
 
@@ -134,18 +135,16 @@ function syncAuthenticatedUser(record: UserRecord) {
   } as unknown as NonNullable<typeof pb.authStore.record>);
 }
 
-async function handleUserEvent(event: RealtimeEvent<UserRecord>) {
+async function handleWorkerEvent(event: RealtimeEvent<WorkerRecord>) {
   const { action, record } = event;
   if (!record?.id) return;
 
   if (action === "delete") {
     await deleteCachedUser(record.id);
-    if ((pb.authStore.record as UserRecord | null)?.id === record.id) pb.authStore.clear();
-    dispatchSignal({ collection: "users", action, id: record.id });
+    dispatchSignal({ collection: "workers", action, id: record.id });
     return;
   }
 
-  syncAuthenticatedUser(record);
   const userIds = await getCachedUserIds();
   if (!userIds.has(record.id)) {
     const cached = await readCachedUser(record.id);
@@ -154,12 +153,11 @@ async function handleUserEvent(event: RealtimeEvent<UserRecord>) {
 
   const changed = await upsertCachedUserIfNewer(record);
   if (!changed) {
-    console.debug("[realtime-sync] skip stale echo user", record.id);
+    console.debug("[realtime-sync] skip stale echo worker", record.id);
     return;
   }
-  dispatchSignal({ collection: "users", action, id: record.id });
+  dispatchSignal({ collection: "workers", action, id: record.id });
 }
-
 async function handleCccdVersionEvent(event: RealtimeEvent<CccdVersionRecord>) {
   const { action, record } = event;
   if (!record?.id) return;
@@ -293,14 +291,14 @@ async function runStartStaffRealtimeSync(
       return;
     }
 
-    const userUnsub = await pb
-      .collection("users")
+    const workerUnsub = await pb
+      .collection("workers")
       .subscribe("*", (e) =>
-        handleUserEvent(e as unknown as RealtimeEvent<UserRecord>).catch((err) =>
-          console.warn("[realtime-sync] user handler", err),
+        handleWorkerEvent(e as unknown as RealtimeEvent<WorkerRecord>).catch((err) =>
+          console.warn("[realtime-sync] worker handler", err),
         ),
       );
-    unsubs.push(userUnsub);
+    unsubs.push(workerUnsub);
     if (version !== requestedVersion) {
       await cleanupSubscriptions(unsubs);
       return;

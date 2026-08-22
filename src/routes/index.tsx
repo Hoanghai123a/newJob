@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
 import { useAppSettings } from "@/lib/app-settings";
-import { isUserApproved } from "@/lib/user-approval";
 import { getSeen } from "@/lib/seen";
 import { MobileSection } from "@/components/layout/MobileSection";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -66,9 +65,9 @@ import {
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => {
-    if (typeof window === "undefined" || !pb.authStore.isValid) return;
+    if (typeof window === "undefined") return;
+    if (!pb.authStore.isValid) throw redirect({ to: "/login" });
     const user = pb.authStore.record as UserRecord | null;
-    if (user && !isUserApproved(user)) throw redirect({ to: "/pending" });
     if (user?.role === "staff") throw redirect({ to: "/staff" });
   },
   component: DashboardPage,
@@ -146,9 +145,6 @@ function DashboardPage() {
     if (user.role === "staff") {
       nav({ to: "/staff" });
       return;
-    }
-    if (!isUserApproved(user)) {
-      nav({ to: "/pending" });
     }
   }, [loading, nav, user]);
 
@@ -351,14 +347,6 @@ function DashboardPage() {
         onLoginOpenChange={setGuestLoginOpen}
         redirectTo={guestSearch.redirect || "/"}
       />
-    );
-  }
-
-  if (!isUserApproved(user)) {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm text-muted-foreground">
-        Đang kiểm tra tài khoản...
-      </div>
     );
   }
 

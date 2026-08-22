@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff, Loader2, LogIn, ShieldCheck } from "lucide-react";
+import { Building2, Eye, EyeOff, Loader2, LogIn, ShieldCheck } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { PASSWORD_REAUTH_NOTICE_KEY, useAuth } from "@/lib/auth";
 import { normalizeAccountIdentity } from "@/lib/account-identity";
@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { getRememberedCompanyBrand } from "@/lib/company-brand";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
@@ -128,8 +129,8 @@ function LoginPage() {
   return (
     <main className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-background desktop:fixed desktop:inset-0 desktop:z-40 desktop:grid desktop:grid-cols-[minmax(0,1.2fr)_minmax(32rem,0.8fr)]">
       {loading ? <LoginLoadingOverlay /> : null}
-      <MobileBrandHeader />
-      <DesktopBrandPanel />
+      <MobileBrandHeader brand={companyLookup.company} />
+      <DesktopBrandPanel brand={companyLookup.company} />
       <section className="relative flex min-w-0 flex-1 desktop:items-center desktop:justify-center desktop:bg-muted/30 desktop:px-12">
         <LoginFormCard
           companyCode={companyCode}
@@ -165,33 +166,74 @@ function LoginLoadingOverlay() {
     </div>
   );
 }
-function MobileBrandHeader() {
+type LoginBrand = {
+  company_name?: string;
+  name?: string;
+  slogan?: string;
+  logo_url?: string;
+} | null;
+
+function useLoginBrand(brand: LoginBrand) {
+  const remembered = getRememberedCompanyBrand();
+  return {
+    name: brand?.company_name || brand?.name || remembered?.companyName || "Chấm công",
+    slogan: brand?.slogan || remembered?.slogan || "Kết nối người lao động và nhà tuyển dụng",
+    logoUrl: brand?.logo_url || remembered?.logoUrl || "",
+  };
+}
+
+function BrandMark({ name, logoUrl, inverse = false }: { name: string; logoUrl?: string; inverse?: boolean }) {
   return (
-    <header className="gradient-primary relative px-6 pb-16 pt-16 text-primary-foreground desktop:hidden">
+    <div
+      className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl ${
+        inverse ? "bg-white/95 text-primary shadow-soft" : "bg-primary text-primary-foreground"
+      }`}
+    >
+      {logoUrl ? (
+        <img src={logoUrl} alt={`Logo ${name}`} className="logo-fit bg-white p-1" />
+      ) : (
+        <Building2 className="h-6 w-6" aria-hidden="true" />
+      )}
+    </div>
+  );
+}
+
+function MobileBrandHeader({ brand }: { brand: LoginBrand }) {
+  const { name, slogan, logoUrl } = useLoginBrand(brand);
+  return (
+    <header className="gradient-primary relative px-6 pb-16 pt-12 text-primary-foreground desktop:hidden">
       <BackButton className="absolute left-4 top-4 text-primary-foreground active:bg-white/15" />
-      <h1 className="text-3xl font-bold tracking-tight">Hoàng Long DJC</h1>
-      <p className="mt-1 text-sm text-primary-foreground/80">
-        Kết nối người lao động và nhà tuyển dụng
-      </p>
+      <div className="mt-6 flex items-center gap-3">
+        <BrandMark name={name} logoUrl={logoUrl} inverse />
+        <div className="min-w-0">
+          <h1 className="truncate text-2xl font-bold tracking-tight">{name}</h1>
+          <p className="mt-1 line-clamp-2 text-sm text-primary-foreground/80">{slogan}</p>
+        </div>
+      </div>
     </header>
   );
 }
-function DesktopBrandPanel() {
+
+function DesktopBrandPanel({ brand }: { brand: LoginBrand }) {
+  const { name, slogan, logoUrl } = useLoginBrand(brand);
   return (
     <section className="relative hidden min-h-[100dvh] overflow-hidden border-r border-border bg-background desktop:flex desktop:flex-col">
       <header className="relative z-10 flex items-center gap-4 px-12 py-10 xl:px-16">
         <BackButton className="border border-border bg-card shadow-soft hover:bg-muted" />
-        <p className="text-xl font-bold tracking-tight text-foreground">Hoàng Long DJC</p>
+        <BrandMark name={name} logoUrl={logoUrl} />
+        <p className="min-w-0 truncate text-xl font-bold tracking-tight text-foreground">{name}</p>
       </header>
       <div className="relative z-10 flex flex-1 items-center px-16 pb-28 xl:px-24">
-        <h1 className="max-w-2xl text-5xl font-bold leading-[1.16] tracking-[-0.035em] text-foreground xl:text-6xl">
-          Kết nối người lao động và nhà tuyển dụng
-        </h1>
+        <div>
+          <h1 className="max-w-2xl text-5xl font-bold leading-[1.16] tracking-[-0.035em] text-foreground xl:text-6xl">
+            {name}
+          </h1>
+          <p className="mt-5 max-w-xl text-xl leading-8 text-muted-foreground">{slogan}</p>
+        </div>
       </div>
     </section>
   );
 }
-
 function LoginFormCard({
   companyCode,
   identity,

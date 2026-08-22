@@ -2,6 +2,7 @@ import { pb, type UserRecord } from "./pocketbase";
 import { updateCachedCccdVersion } from "./staff-cache";
 import { relationInFilter } from "./delegations";
 import { companyFilter, companyPayload, joinTenantFilters } from "./tenant";
+import { getWorker } from "./workers";
 
 export const VALID_CCCD_LENGTHS = new Set([9, 12]);
 
@@ -65,6 +66,16 @@ export async function getCccdVersionByNumber(
   } catch {
     return null;
   }
+}
+
+async function resolveCccdAuthUserId(workerId: string) {
+  if (!workerId) throw new Error("Thiếu hồ sơ NLĐ để tạo phiên bản CCCD.");
+  const worker = await getWorker(workerId).catch(() => null);
+  const authUserId = worker?.auth_user?.trim();
+  if (!authUserId) {
+    throw new Error("Hồ sơ NLĐ chưa liên kết tài khoản đăng nhập. Không thể lưu CCCD.");
+  }
+  return authUserId;
 }
 
 function isUniqueConflict(error: unknown) {

@@ -154,6 +154,8 @@ function CompanyTab() {
       if (settings.id) {
         await pb.collection("app_settings").update(settings.id, fd);
       } else {
+        const tenantCompany = companyIdOf(pb.authStore.record as UserRecord);
+        if (tenantCompany) fd.append("tenant_company", tenantCompany);
         await pb.collection("app_settings").create(fd);
       }
       toast.success("Đã lưu thông tin công ty");
@@ -372,8 +374,43 @@ function Field({
 
 /* ───────── FACTORIES ───────── */
 
+const FACTORY_FIELD_LABELS: Record<string, string> = {
+  name: "Tên nhà máy",
+  attendance_cutoff_day: "Ngày chốt công",
+  advance_limit: "Hạn mức ứng tiền",
+  status: "Trạng thái",
+  tenant_company: "Công ty",
+  company: "Công ty",
+};
+
+function tenantRecordPayload(user?: UserRecord | null) {
+  const tenant = companyPayload(user);
+  // Kept during the PocketBase transition because older collections still require company.
+  return { ...tenant, company: tenant.tenant_company };
+}
+
+function factorySaveErrorMessage(error: unknown) {
+  const response = (error as any)?.response;
+  const validation = response?.data;
+  if (validation && typeof validation === "object") {
+    const details = Object.entries(validation)
+      .map(([field, value]) => {
+        const message = (value as any)?.message;
+        if (!message || typeof message !== "string") return "";
+        return `${FACTORY_FIELD_LABELS[field] || field}: ${message}`;
+      })
+      .filter(Boolean);
+    if (details.length) return details.join("; ");
+  }
+  if (/tenant_company/i.test(response?.message || "")) {
+    return "PocketBase chưa cấu hình trường Công ty (tenant_company) cho Nhà máy.";
+  }
+  return response?.message || (error as any)?.message || "Không thể lưu nhà máy.";
+}
+
 interface Factory {
   id: string;
+  tenant_company?: string;
   name: string;
   address?: string;
   hotline?: string;
@@ -429,6 +466,7 @@ function FactoriesTab() {
   const [advanceSaving, setAdvanceSaving] = useState(false);
   const [allowAfterLeaveSaving, setAllowAfterLeaveSaving] = useState(false);
   const [allowAfterLeavePending, setAllowAfterLeavePending] = useState(false);
+  const [factorySaving, setFactorySaving] = useState(false);
 
   const filteredFactories = items.filter((f) => {
     if (!debouncedFactorySearch.trim()) return true;
@@ -459,7 +497,10 @@ function FactoriesTab() {
   const loadFactories = async () => {
     setLoading(true);
     try {
-      const res = await pb.collection("factories").getList(1, 300, { sort: "name" });
+      const res = await pb.collection("factories").getList(1, 300, {
+        filter: companyFilter(currentUser),
+        sort: "name",
+      });
       setItems(res.items as any);
     } catch (e: any) {
       toast.error(e?.message || "Lỗi tải nhà máy. Hãy tạo collection 'factories'.");
@@ -486,7 +527,10 @@ function FactoriesTab() {
   const loadMainHouses = async () => {
     setMainHousesLoading(true);
     try {
-      const res = await pb.collection("recruitment_entities").getList(1, 300, { sort: "name" });
+      const res = await pb.collection("recruitment_entities").getList(1, 300, {
+        filter: companyFilter(currentUser),
+        sort: "name",
+      });
       setMainHouses(res.items as any);
     } catch (e: any) {
       toast.error(
@@ -520,13 +564,23 @@ function FactoriesTab() {
       toast.error(`Nhà máy "${duplicate.name}" đã tồn tại`);
       return;
     }
+    const cutoffDay = Number(editing.attendance_cutoff_day) || 31;
+    if (cutoffDay < 1 || cutoffDay > 31) {
+      toast.error("Ngày chốt công phải từ 1 đến 31.");
+      return;
+    }
+    if (!editing.id && !companyIdOf(currentUser)) {
+      toast.error("Tài khoản Admin chưa được gán công ty. Vui lòng cấu hình trong PocketBase trước.");
+      return;
+    }
+    setFactorySaving(true);
     try {
       const payload = {
-        name: editing.name,
+        name: editing.name.trim(),
         address: editing.address || "",
         hotline: editing.hotline || "",
         note: editing.note || "",
-        attendance_cutoff_day: Number(editing.attendance_cutoff_day) || 31,
+        attendance_cutoff_day: cutoffDay,
         advance_limit: Math.max(0, Number(editing.advance_limit) || 0),
         status: editing.status || "active",
       };
@@ -545,7 +599,7 @@ function FactoriesTab() {
       } else {
         const created = await pb
           .collection("factories")
-          .create({ ...payload, tenant_company: companyIdOf(currentUser) });
+          .create({ ...payload, ...tenantRecordPayload(currentUser) });
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "factories",
@@ -559,7 +613,9 @@ function FactoriesTab() {
       setEditing(null);
       loadFactories();
     } catch (e: any) {
-      toast.error(e?.message || "Lỗi lưu");
+      toast.error(factorySaveErrorMessage(e));
+    } finally {
+      setFactorySaving(false);
     }
   };
 
@@ -795,7 +851,7 @@ function FactoriesTab() {
       } else {
         const created = await pb
           .collection("recruitment_entities")
-          .create({ ...payload, tenant_company: companyIdOf(currentUser) });
+          .create({ ...payload, ...tenantRecordPayload(currentUser) });
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "recruitment_entities",
@@ -1086,8 +1142,8 @@ function FactoriesTab() {
             <Button variant="outline" onClick={() => setEditing(null)} className="rounded-xl">
               Huỷ
             </Button>
-            <Button onClick={save} className="rounded-xl">
-              <Save className="h-4 w-4" /> Lưu
+            <Button onClick={save} disabled={factorySaving} className="rounded-xl">
+              <Save className="h-4 w-4" /> {factorySaving ? "Đang lưu..." : "Lưu"}
             </Button>
           </DialogFooter>
         </DialogContent>

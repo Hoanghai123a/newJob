@@ -21,8 +21,6 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { DataLoadingState } from "@/components/ui/data-loading-state";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -54,7 +52,6 @@ import { FactoryPicker, UserPicker } from "@/components/workforce/UserPicker";
 import { exportToExcel, formatDateOnly } from "@/lib/excel";
 import { normalizeDate } from "@/lib/date-utils";
 import { escapePb } from "@/lib/delegations";
-import { isUserApproved } from "@/lib/user-approval";
 import { StatusChip } from "@/components/ui/status-chip";
 import {
   fetchFactories,
@@ -73,15 +70,12 @@ import {
   ClipboardList,
   LogOut,
   Save,
-  ShieldCheck,
   User2,
   Search,
   FileDown,
   KeyRound,
   Trash2,
   UserCog,
-  Ban,
-  CheckCircle2,
   UserPlus,
   Upload,
   FileSpreadsheet,
@@ -570,7 +564,6 @@ function AdminUsersPanel() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [resetTarget, setResetTarget] = useState<any>(null);
   const [newPwd, setNewPwd] = useState("");
   const [roleTarget, setRoleTarget] = useState<any>(null);
@@ -578,11 +571,6 @@ function AdminUsersPanel() {
   const [createOpen, setCreateOpen] = useState(false);
   const [actionSheetOpen, setActionSheetOpen] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [requireApproval, setRequireApproval] = useState(true);
-  const [settingsId, setSettingsId] = useState<string | null>(null);
-  const [pendingApprovalValue, setPendingApprovalValue] = useState<boolean | null>(null);
-  const [adminPassword, setAdminPassword] = useState("");
-  const [confirmingApproval, setConfirmingApproval] = useState(false);
   const [detailUser, setDetailUser] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserRecord | null>(null);
   const [detailBankEditing, setDetailBankEditing] = useState(false);
@@ -626,16 +614,6 @@ function AdminUsersPanel() {
     } finally {
       setLoading(false);
     }
-
-    try {
-      const s = await pb.collection("app_settings").getList(1, 1);
-      if (s.items[0]) {
-        setSettingsId(s.items[0].id);
-        setRequireApproval(Boolean(s.items[0].requireApproval));
-      }
-    } catch {
-      // Collection settings có thể chưa được khởi tạo ở môi trường mới.
-    }
   };
   useEffect(() => {
     load();
@@ -643,20 +621,6 @@ function AdminUsersPanel() {
   }, [debouncedSearch, me?.id]);
 
   const filtered = users;
-
-  const allSelected = filtered.length > 0 && filtered.every((u) => selected.has(u.id));
-
-  const toggleAll = () => {
-    if (allSelected) setSelected(new Set());
-    else setSelected(new Set(filtered.map((u) => u.id)));
-  };
-
-  const toggle = (id: string) => {
-    const n = new Set(selected);
-    if (n.has(id)) n.delete(id);
-    else n.add(id);
-    setSelected(n);
-  };
 
   const formatUserRow = (u: any, i: number) => ({
     STT: i + 1,
@@ -674,7 +638,7 @@ function AdminUsersPanel() {
     "Ghi chú STK": u.bank_account_note || "",
     "Vai trò": ROLE_LABELS[(u.role || "user") as Role],
     "Ngày tạo": formatDateOnly(u.created),
-    "Trạng thái": isUserApproved(u) ? "Hoạt động" : "Vô hiệu hoá",
+    "Trạng thái": u.status === "disabled" ? "Đã khóa" : "Hoạt động",
   });
 
   const exportExcel = () => {
@@ -700,27 +664,6 @@ function AdminUsersPanel() {
       );
     } catch (e: any) {
       toast.error(e?.message || "Lỗi xuất dữ liệu");
-    }
-  };
-
-  const bulkDisable = async (disable: boolean) => {
-    if (!confirm((disable ? "Vô hiệu hoá" : "Kích hoạt") + " " + selected.size + " tài khoản?"))
-      return;
-    try {
-      for (const id of selected) {
-        const target = users.find((user) => user.id === id);
-        if (!requireManageableAccount(target)) return;
-        await pb.collection("users").update(id, {
-          approvalStatus: disable ? "pending" : "approved",
-          approved: disable ? "false" : "true",
-          status: disable ? "disabled" : "active",
-        });
-      }
-      toast.success("Đã cập nhật");
-      setSelected(new Set());
-      load();
-    } catch (e: any) {
-      toast.error(e?.message || "Lỗi");
     }
   };
 
@@ -853,68 +796,6 @@ function AdminUsersPanel() {
       toast.error(err?.message || "File không hợp lệ");
     } finally {
       setBulkStaffProcessing(false);
-    }
-  };
-
-  const toggleApprovalRequirement = async (val: boolean) => {
-    setRequireApproval(val);
-    try {
-      if (settingsId) {
-        await pb.collection("app_settings").update(settingsId, { requireApproval: val });
-      } else {
-        const r = await pb.collection("app_settings").create({ requireApproval: val });
-        setSettingsId(r.id);
-      }
-      toast.success("Đã cập nhật kiểm duyệt đăng ký");
-    } catch (e: any) {
-      setRequireApproval((prev) => !prev);
-      toast.error(e?.message || "Lỗi cập nhật kiểm duyệt đăng ký");
-    }
-  };
-
-  const requestToggleApprovalRequirement = (val: boolean) => {
-    setPendingApprovalValue(val);
-    setAdminPassword("");
-  };
-
-  const closeApprovalConfirm = () => {
-    if (confirmingApproval) return;
-    setPendingApprovalValue(null);
-    setAdminPassword("");
-  };
-
-  const confirmToggleApprovalRequirement = async () => {
-    if (pendingApprovalValue === null) return;
-    const admin = pb.authStore.record as UserRecord | null;
-    const identity = admin?.username || admin?.email;
-    if (!identity) {
-      toast.error("Không xác định được tài khoản admin");
-      return;
-    }
-    if (!adminPassword) {
-      toast.error("Nhập mật khẩu admin");
-      return;
-    }
-
-    setConfirmingApproval(true);
-    try {
-      const res = await fetch("/api/public/pocketbase-auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identity, password: adminPassword }),
-      });
-      const payload = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(payload?.message || "Mật khẩu admin không đúng");
-      if (payload?.record?.id !== admin?.id || payload?.record?.role !== "admin") {
-        throw new Error("Tài khoản xác thực không phải admin hiện tại");
-      }
-
-      await toggleApprovalRequirement(pendingApprovalValue);
-      closeApprovalConfirm();
-    } catch (e: any) {
-      toast.error(e?.message || "Không xác thực được mật khẩu admin");
-    } finally {
-      setConfirmingApproval(false);
     }
   };
 
@@ -1142,8 +1023,6 @@ function AdminUsersPanel() {
         passwordConfirm: password,
         role: "staff",
         tenant_company: tenantCompany,
-        approvalStatus: "approved",
-        approved: "true",
         status: "active",
         must_change_password: password === "12345678",
       });
@@ -1288,7 +1167,6 @@ function AdminUsersPanel() {
             bank_account_name,
             bank_account_note,
             role: "staff",
-            approvalStatus: "approved",
             status: "active",
             must_change_password: password === "12345678",
           });
@@ -1355,19 +1233,6 @@ function AdminUsersPanel() {
         </span>
       </Link>
 
-      <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 p-3">
-        <div className="rounded-xl bg-primary/10 p-2 text-primary">
-          <ShieldCheck className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <Label className="text-sm font-semibold">Yêu cầu duyệt khi đăng ký</Label>
-          <div className="text-[11px] text-muted-foreground">
-            Tắt để tài khoản mới được dùng ngay sau khi đăng ký.
-          </div>
-        </div>
-        <Switch checked={requireApproval} onCheckedChange={requestToggleApprovalRequirement} />
-      </div>
-
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -1401,22 +1266,6 @@ function AdminUsersPanel() {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-
-      {selected.size > 0 && (
-        <div className="flex items-center gap-2 rounded-xl bg-primary/10 p-2">
-          <span className="min-w-0 flex-1 text-xs font-medium text-primary">
-            {selected.size} đã chọn
-          </span>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setActionSheetOpen(true)}
-            className="rounded-full bg-background"
-          >
-            <MoreHorizontal className="h-3.5 w-3.5" /> Hàng loạt
-          </Button>
-        </div>
-      )}
 
       <Sheet open={actionSheetOpen} onOpenChange={setActionSheetOpen}>
         <SheetContent side="bottom" className="max-h-[88dvh] overflow-y-auto rounded-t-3xl p-4">
@@ -1553,57 +1402,9 @@ function AdminUsersPanel() {
                 <FileSpreadsheet className="h-4 w-4" /> Tải mẫu chuyển Staff
               </Button>
             </section>
-
-            <Separator />
-
-            <section className="space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Hàng loạt
-                </div>
-                <span className="text-xs text-muted-foreground">{selected.size} đã chọn</span>
-              </div>
-              {selected.size === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground">
-                  Chọn tài khoản trong danh sách để mở thao tác hàng loạt.
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setActionSheetOpen(false);
-                      bulkDisable(false);
-                    }}
-                    className="justify-start rounded-2xl"
-                  >
-                    <CheckCircle2 className="h-3.5 w-3.5" /> Kích hoạt
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setActionSheetOpen(false);
-                      bulkDisable(true);
-                    }}
-                    className="justify-start rounded-2xl"
-                  >
-                    <Ban className="h-3.5 w-3.5" /> Vô hiệu
-                  </Button>
-                </div>
-              )}
-            </section>
           </div>
         </SheetContent>
       </Sheet>
-
-      {filtered.length > 0 && (
-        <label className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
-          <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
-          Chọn tất cả ({filtered.length})
-        </label>
-      )}
 
       {loading && users.length > 0 && (
         <DataLoadingState variant="inline" label="Đang cập nhật danh sách tài khoản..." />
@@ -1617,9 +1418,8 @@ function AdminUsersPanel() {
       ) : (
         <div className="space-y-2">
           {filtered.map((u) => {
-            const isSel = selected.has(u.id);
-            const approved = isUserApproved(u);
-            const tone = approved
+            const isActive = u.status !== "disabled";
+            const tone = isActive
               ? "border-l-[color:var(--status-success)]"
               : "border-l-[color:var(--status-danger)]";
             const displayName = u.full_name || u.username || "—";
@@ -1639,13 +1439,6 @@ function AdminUsersPanel() {
                   " desktop:grid desktop:grid-cols-[auto_minmax(12rem,1.35fr)_minmax(8rem,.95fr)_minmax(10rem,1.15fr)_minmax(6rem,.7fr)_minmax(9rem,1fr)_minmax(6.5rem,.75fr)_auto] desktop:items-center desktop:gap-3 desktop:px-3 desktop:py-2"
                 }
               >
-                <Checkbox
-                  checked={isSel}
-                  onClick={(event) => event.stopPropagation()}
-                  onCheckedChange={() => toggle(u.id)}
-                  className="mt-1 desktop:mt-0"
-                />
-
                 <div className="min-w-0 flex-1 desktop:flex-none">
                   <div title={displayName} className="truncate text-sm font-semibold">
                     {displayName}
@@ -1666,8 +1459,8 @@ function AdminUsersPanel() {
                     {"Ngày tạo " + createdAt}
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1 desktop:hidden">
-                    <span className={"chip " + (approved ? "chip-success" : "chip-danger")}>
-                      {approved ? "Hoạt động" : "Vô hiệu hoá"}
+                    <span className={"chip " + (isActive ? "chip-success" : "chip-danger")}>
+                      {isActive ? "Hoạt động" : "Đã khóa"}
                     </span>
                     <span className="chip chip-info">
                       {ROLE_LABELS[(u.role || "user") as Role]}
@@ -1684,8 +1477,8 @@ function AdminUsersPanel() {
                     Trạng thái
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1">
-                    <span className={"chip " + (approved ? "chip-success" : "chip-danger")}>
-                      {approved ? "Hoạt động" : "Vô hiệu hoá"}
+                    <span className={"chip " + (isActive ? "chip-success" : "chip-danger")}>
+                      {isActive ? "Hoạt động" : "Đã khóa"}
                     </span>
                     <span className="chip chip-info">
                       {ROLE_LABELS[(u.role || "user") as Role]}
@@ -1807,46 +1600,6 @@ function AdminUsersPanel() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={pendingApprovalValue !== null}
-        onOpenChange={(open) => !open && closeApprovalConfirm()}
-      >
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Xác nhận mật khẩu admin</DialogTitle>
-            <DialogDescription>
-              Xác thực lại trước khi thay đổi cách duyệt tài khoản mới.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label className="text-xs">Mật khẩu admin</Label>
-            <Input
-              type="password"
-              className="rounded-xl"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") confirmToggleApprovalRequirement();
-              }}
-              autoComplete="current-password"
-              autoFocus
-            />
-            <div className="text-xs text-muted-foreground">
-              Sau khi xác thực, hệ thống sẽ {pendingApprovalValue ? "bật" : "tắt"} yêu cầu duyệt khi
-              đăng ký.
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={closeApprovalConfirm}>
-              Huỷ
-            </Button>
-            <Button onClick={confirmToggleApprovalRequirement} disabled={confirmingApproval}>
-              {confirmingApproval ? "Đang xác thực..." : "Xác nhận"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Create staff dialog */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="rounded-2xl">
@@ -1921,12 +1674,12 @@ function AdminUsersPanel() {
                   <Badge
                     variant="secondary"
                     className={
-                      isUserApproved(detailUser)
+                      detailUser.status !== "disabled"
                         ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
                         : "border border-rose-200 bg-rose-50 text-rose-700"
                     }
                   >
-                    {isUserApproved(detailUser) ? "Hoạt động" : "Vô hiệu hoá"}
+                    {detailUser.status !== "disabled" ? "Hoạt động" : "Đã khóa"}
                   </Badge>
                 </div>
               </DialogHeader>
@@ -2002,7 +1755,7 @@ function AdminUsersPanel() {
                         />
                         <DetailField
                           label="Trạng thái"
-                          value={isUserApproved(detailUser) ? "Hoạt động" : "Vô hiệu hoá"}
+                          value={detailUser.status !== "disabled" ? "Hoạt động" : "Đã khóa"}
                         />
                         <DetailField
                           label="Ngày tạo"
@@ -2487,8 +2240,6 @@ function StaffPanel() {
             passwordConfirm: password,
             role: "staff",
             tenant_company: tenantCompany,
-            approvalStatus: "approved",
-            approved: "true",
             status: "active",
             must_change_password: true,
             emailVisibility: false,
@@ -2596,8 +2347,6 @@ function StaffPanel() {
       passwordConfirm: password,
       role: "staff",
       tenant_company: tenantCompany,
-      approvalStatus: "approved",
-      approved: "true",
       status: "active",
       must_change_password: true,
       emailVisibility: false,

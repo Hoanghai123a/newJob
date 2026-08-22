@@ -91,8 +91,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#0e6b7a" },
-      { title: "Hoàng Long DJC" },
-      { name: "description", content: "Kết nối nhà tuyển dụng và người lao động khu công nghiệp." },
+      { title: "Chấm công" },
+      { name: "description", content: "Nền tảng quản lý và kết nối người lao động." },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

@@ -28,7 +28,7 @@ cho admin/staff và các field ảnh CCCD/ngân hàng/ngày sinh như hướng d
 ## Rule cần có trong PocketBase
 
 - `employment_histories`
-  - `listRule` / `viewRule`: admin, staff, hoặc chính user.
+  - `listRule` / `viewRule`: admin, staff, hoặc chính NLĐ thông qua relation `user` tới `workers`.
   - `createRule`: chỉ admin hoặc staff. User thường không được tự tạo lịch sử đi làm mới.
   - `updateRule`: admin, staff, hoặc chính user. App chỉ mở luồng user tự báo nghỉ; các quyền chi tiết hơn được kiểm tra ở frontend.
   - Field lịch sử đi làm cần có `worker_tax_code_snapshot` để lưu mã số thuế theo từng nhà máy/lịch sử, không lấy cứng từ hồ sơ user.
@@ -68,7 +68,7 @@ factories
 
 staff_action_logs
   -> actor (users)
-  -> target_user (users)
+  -> target_user (users; giữ liên kết tài khoản để tương thích nhật ký cũ)
 ```
 
 ## Quyền nghiệp vụ trong app
@@ -138,3 +138,9 @@ npm run pb:finalize-cccd-versions -- --report=cccd-finalize.json
 - Migration không ghi đè ảnh đã tồn tại trên CCCD Version; ảnh version là dữ liệu chính thức.
 - Finalize tự chạy migration trước khi đổi schema. Nếu còn history bị bỏ qua, `cccd_version` được giữ không bắt buộc; nếu không còn history bỏ qua, relation được đặt bắt buộc. Sau đó lệnh xóa `users.cccd_front/cccd_back`.
 - Trước khi chạy phải sao lưu cả database và thư mục file của PocketBase, đồng thời tạm dừng thao tác cập nhật ảnh.
+
+## Nâng cấp relation NLĐ
+
+Khi ứng dụng dùng collection `workers` làm hồ sơ NLĐ, `employment_histories.user` và `cccd_versions.user` vẫn giữ relation tới `users` để đảm bảo tương thích dữ liệu hiện hữu. Hai collection này xác thực và kiểm tra cùng công ty qua `users -> workers.auth_user`; API tạo lịch sử tự chuyển ID hồ sơ NLĐ thành ID tài khoản đăng nhập trước khi ghi.
+
+Chạy `npm run pb:upgrade-worker-relations` để kiểm tra và tạo/liên kết `workers.auth_user` cho các NLĐ cũ. Lệnh mặc định chỉ kiểm tra, ghi báo cáo tại `docs/migration-audit/worker-relation-upgrade-report.json`; chỉ chạy với `--apply` khi báo cáo không có bản ghi chưa ánh xạ an toàn.

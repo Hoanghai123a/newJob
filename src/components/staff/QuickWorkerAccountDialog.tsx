@@ -601,7 +601,10 @@ export function QuickWorkerAccountDialog({
     fd.append("bank_account_note", form.bank_account_note.trim());
 
     const currentActor = pb.authStore.record as UserRecord | null;
-    if (companyIdOf(currentActor)) fd.append("tenant_company", companyIdOf(currentActor));
+    const tenantCompany = companyIdOf(currentActor);
+    if (!tenantCompany) throw new Error("Tài khoản chưa được gán công ty.");
+    fd.append("company", tenantCompany);
+    fd.append("tenant_company", tenantCompany);
     const createdWorker = await pb.collection("workers").create<WorkerRecord>(fd);
     const secondaryWarnings: string[] = [];
     const cacheUser: WorkerRecord = {

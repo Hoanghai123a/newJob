@@ -20,9 +20,7 @@ export interface UserRecord {
   role?: Role;
   company?: string;
   tenant_company?: string;
-  approved?: boolean | string;
-  approvalStatus?: "pending" | "approved" | "rejected";
-  status?: "active" | "disabled" | "inactive";
+  status?: "active" | "disabled";
   bank_name?: string;
   bank_account_number?: string;
   bank_account_name?: string;

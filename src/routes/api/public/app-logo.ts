@@ -22,8 +22,9 @@ function fallback() {
 export const Route = createFileRoute("/api/public/app-logo")({
   server: {
     handlers: {
-      GET: async () => {
-        const app = await fetchAppSettingsRecord();
+      GET: async ({ request }) => {
+        const companyId = new URL(request.url).searchParams.get("company") || undefined;
+        const app = await fetchAppSettingsRecord(companyId);
         if (!app) return fallback();
 
         const fileUrl = getAppLogoFileUrl(app);

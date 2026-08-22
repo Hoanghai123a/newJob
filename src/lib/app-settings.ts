@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { pb, fileUrl } from "./pocketbase";
 import { useAuth } from "./auth";
 import { companyIdOf } from "./tenant";
+import { rememberCompanyBrand } from "./company-brand";
 
 export interface AppSettings {
   id?: string;
@@ -65,6 +66,7 @@ export function useAppSettings() {
   const q = useQuery({
     queryKey: ["app_settings", companyId],
     queryFn: () => fetchAppSettings(companyId),
+    enabled: Boolean(companyId),
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
     refetchOnMount: false,
@@ -72,6 +74,7 @@ export function useAppSettings() {
     refetchOnWindowFocus: false,
   });
   useEffect(() => {
+    if (!companyId) return;
     let active = true;
     let unsubscribe: (() => void) | undefined;
     pb.collection("app_settings")
@@ -89,5 +92,18 @@ export function useAppSettings() {
     };
   }, [companyId, queryClient]);
   const data = q.data || DEFAULTS;
-  return { ...q, data, logoUrl: data.logo ? fileUrl(data, data.logo) : "" };
+  const logoUrl = data.logo ? fileUrl(data, data.logo) : "";
+
+  useEffect(() => {
+    if (!companyId || !data.company_name) return;
+    rememberCompanyBrand({
+      companyId,
+      companyName: data.company_name,
+      slogan: data.slogan || "",
+      logoUrl,
+      updated: data.updated || data.id || "",
+    });
+  }, [companyId, data.company_name, data.id, data.slogan, data.updated, logoUrl]);
+
+  return { ...q, data, logoUrl };
 }

@@ -99,8 +99,6 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId/admi
               tenant_company: params.companyId,
               role: "admin",
               status: "active",
-              approved: true,
-              approvalStatus: "approved",
               must_change_password: true,
             }),
           },

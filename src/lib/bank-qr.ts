@@ -23,7 +23,10 @@ export type QrTransferData = {
 };
 
 export type QrImportError = { row: number; message: string };
-export type QrImportResult = { valid: Array<QrTransferData & { row: number }>; errors: QrImportError[] };
+export type QrImportResult = {
+  valid: Array<QrTransferData & { row: number }>;
+  errors: QrImportError[];
+};
 
 export function removeVietnameseTone(value: string) {
   return value
@@ -34,15 +37,25 @@ export function removeVietnameseTone(value: string) {
 }
 
 export function normalizeAccountNumber(value: unknown) {
-  return String(value ?? "").replace(/\s+/g, "").trim();
+  return String(value ?? "")
+    .replace(/\s+/g, "")
+    .trim();
 }
 
 export function normalizeAccountName(value: unknown) {
-  return removeVietnameseTone(String(value ?? "").replace(/\s+/g, " ").trim()).toUpperCase();
+  return removeVietnameseTone(
+    String(value ?? "")
+      .replace(/\s+/g, " ")
+      .trim(),
+  ).toUpperCase();
 }
 
 export function normalizeTransferDescription(value: unknown) {
-  return removeVietnameseTone(String(value ?? "").replace(/\s+/g, " ").trim());
+  return removeVietnameseTone(
+    String(value ?? "")
+      .replace(/\s+/g, " ")
+      .trim(),
+  );
 }
 
 export function parseQrAmount(value: unknown): { amount?: number; error?: string } {
@@ -51,7 +64,8 @@ export function parseQrAmount(value: unknown): { amount?: number; error?: string
   const digits = raw.replace(/[.,\s]/g, "");
   if (!/^\d+$/.test(digits)) return { error: "Số tiền không hợp lệ" };
   const amount = Number(digits);
-  if (!Number.isSafeInteger(amount) || amount <= 0) return { error: "Số tiền phải là số nguyên dương" };
+  if (!Number.isSafeInteger(amount) || amount <= 0)
+    return { error: "Số tiền phải là số nguyên dương" };
   return { amount };
 }
 
@@ -68,11 +82,14 @@ export function buildQrTransferData(input: {
   const accountNumber = normalizeAccountNumber(input.accountNumber);
   const parsedAmount = parseQrAmount(input.amount);
   const description = normalizeTransferDescription(input.description);
-  if (!bank) errors.push(bankCode ? `Mã ngân hàng “${bankCode}” không tồn tại` : "Thiếu mã ngân hàng");
+  if (!bank)
+    errors.push(bankCode ? `Mã ngân hàng “${bankCode}” không tồn tại` : "Thiếu mã ngân hàng");
   if (!accountNumber) errors.push("Thiếu số tài khoản");
   if (parsedAmount.error) errors.push(parsedAmount.error);
   if (new TextEncoder().encode(description).length > QR_DESCRIPTION_MAX_BYTES) {
-    errors.push(`Nội dung chuyển khoản tối đa ${QR_DESCRIPTION_MAX_BYTES} byte theo cấu trúc VietQR`);
+    errors.push(
+      `Nội dung chuyển khoản tối đa ${QR_DESCRIPTION_MAX_BYTES} byte theo cấu trúc VietQR`,
+    );
   }
   if (errors.length || !bank) return { errors };
   return {
@@ -88,18 +105,28 @@ export function buildQrTransferData(input: {
 }
 
 function cell(row: Record<string, unknown>, aliases: string[]) {
-  const key = Object.keys(row).find((candidate) => aliases.includes(candidate.trim().toLowerCase()));
+  const key = Object.keys(row).find((candidate) =>
+    aliases.includes(candidate.trim().toLowerCase()),
+  );
   return key ? row[key] : "";
 }
 
 export async function parseQrExcel(file: File): Promise<QrImportResult> {
-  const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellText: true, raw: false });
+  const workbook = XLSX.read(await file.arrayBuffer(), {
+    type: "array",
+    cellText: true,
+    raw: false,
+  });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   if (!sheet) throw new Error("File Excel không có sheet dữ liệu.");
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "", raw: false });
   const valid: QrImportResult["valid"] = [];
   const errors: QrImportError[] = [];
-  if (rows.length > QR_BULK_LIMIT) errors.push({ row: 0, message: `File có ${rows.length} dòng, chỉ xử lý tối đa ${QR_BULK_LIMIT} dòng đầu tiên.` });
+  if (rows.length > QR_BULK_LIMIT)
+    errors.push({
+      row: 0,
+      message: `File có ${rows.length} dòng, chỉ xử lý tối đa ${QR_BULK_LIMIT} dòng đầu tiên.`,
+    });
   rows.slice(0, QR_BULK_LIMIT).forEach((row, index) => {
     const excelRow = index + 2;
     const result = buildQrTransferData({
@@ -146,8 +173,14 @@ function crc16Ccitt(value: string) {
 
 export function buildVietQrPayload(data: QrTransferData) {
   const accountInfo = vietQrField("00", data.bank.bin) + vietQrField("01", data.accountNumber);
-  const merchantInfo = vietQrField("00", "A000000727") + vietQrField("01", accountInfo) + vietQrField("02", "QRIBFTTA");
-  let payload = vietQrField("00", "01") + vietQrField("01", data.amount ? "12" : "11") + vietQrField("38", merchantInfo);
+  const merchantInfo =
+    vietQrField("00", "A000000727") +
+    vietQrField("01", accountInfo) +
+    vietQrField("02", "QRIBFTTA");
+  let payload =
+    vietQrField("00", "01") +
+    vietQrField("01", data.amount ? "12" : "11") +
+    vietQrField("38", merchantInfo);
   payload += vietQrField("53", "704");
   if (data.amount) payload += vietQrField("54", String(data.amount));
   payload += vietQrField("58", "VN");
@@ -177,7 +210,14 @@ async function loadImage(url: string) {
   }
 }
 
-function drawWrappedText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+function drawWrappedText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+) {
   const words = text.split(" ");
   let line = "";
   let currentY = y;
@@ -211,12 +251,12 @@ export async function renderQrCard(data: QrTransferData): Promise<Blob> {
   ctx.fillStyle = "#0f766e";
   ctx.font = "700 42px sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("MÃ QR CHUYỂN KHOẢN", 450, 105);
+  ctx.fillText("MA QR CHUYEN KHOAN", 450, 105);
   ctx.drawImage(qr, 170, 135, 560, 560);
   ctx.textAlign = "left";
   ctx.fillStyle = "#64748b";
   ctx.font = "600 22px sans-serif";
-  ctx.fillText("NGÂN HÀNG", 100, 750);
+  ctx.fillText("NGAN HANG", 100, 750);
   ctx.fillStyle = "#0f172a";
   ctx.font = "700 27px sans-serif";
   let y = drawWrappedText(ctx, getQrBankLabel(data.bank), 100, 785, 700, 34) + 60;
@@ -234,7 +274,12 @@ export async function renderQrCard(data: QrTransferData): Promise<Blob> {
     ctx.font = "700 27px sans-serif";
     y = drawWrappedText(ctx, value, 100, y + 35, 700, 34) + 58;
   }
-  return await new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Không xuất được ảnh PNG.")), "image/png"));
+  return await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("Không xuất được ảnh PNG."))),
+      "image/png",
+    ),
+  );
 }
 
 export function qrPngFilename(data: QrTransferData, prefix = "QR") {
@@ -246,7 +291,10 @@ export async function downloadQrCard(data: QrTransferData) {
   saveAs(await renderQrCard(data), qrPngFilename(data));
 }
 
-export async function createQrZip(rows: Array<QrTransferData & { row: number }>, onProgress?: (done: number, total: number) => void) {
+export async function createQrZip(
+  rows: Array<QrTransferData & { row: number }>,
+  onProgress?: (done: number, total: number) => void,
+) {
   const zip = new JSZip();
   const failures: QrImportError[] = [];
   const names = new Map<string, number>();
@@ -259,11 +307,18 @@ export async function createQrZip(rows: Array<QrTransferData & { row: number }>,
       const filename = `${base}${count > 1 ? `_${count}` : ""}.png`;
       zip.file(filename, await renderQrCard(row));
     } catch (error) {
-      failures.push({ row: row.row, message: error instanceof Error ? error.message : "Không tạo được ảnh QR" });
+      failures.push({
+        row: row.row,
+        message: error instanceof Error ? error.message : "Không tạo được ảnh QR",
+      });
     }
     onProgress?.(index + 1, rows.length);
   }
-  if (rows.length === failures.length) throw new Error("Không tạo được ảnh QR nào. Vui lòng kiểm tra kết nối mạng.");
-  saveAs(await zip.generateAsync({ type: "blob" }), `Ma_QR_ngan_hang_${new Date().toISOString().slice(0, 10)}.zip`);
+  if (rows.length === failures.length)
+    throw new Error("Không tạo được ảnh QR nào. Vui lòng kiểm tra kết nối mạng.");
+  saveAs(
+    await zip.generateAsync({ type: "blob" }),
+    `Ma_QR_ngan_hang_${new Date().toISOString().slice(0, 10)}.zip`,
+  );
   return failures;
 }

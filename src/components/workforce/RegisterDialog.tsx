@@ -232,9 +232,9 @@ export function RegisterDialog({
           history.id,
           { status: "left" },
           {
-          actor,
-          source: "Đăng ký đi làm",
-          note: `${roleLabel} đăng ký đi làm mới: đồng bộ lịch sử đã có ngày nghỉ`,
+            actor,
+            source: "Đăng ký đi làm",
+            note: `${roleLabel} đăng ký đi làm mới: đồng bộ lịch sử đã có ngày nghỉ`,
             before: history,
           },
         );

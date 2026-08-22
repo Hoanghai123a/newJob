@@ -6,13 +6,15 @@ const FALLBACK_ICON = "/icons/app-icon.svg";
 export const Route = createFileRoute("/api/public/manifest/webmanifest")({
   server: {
     handlers: {
-      GET: async () => {
-        const app = await fetchAppSettingsRecord();
-        const name = app?.item.company_name?.trim() || "JobConnect";
-        const shortName = name.slice(0, 12) || "JobConnect";
+      GET: async ({ request }) => {
+        const companyId = new URL(request.url).searchParams.get("company") || undefined;
+        const app = await fetchAppSettingsRecord(companyId);
+        const name = app?.item.company_name?.trim() || "Chấm công";
+        const shortName = name.slice(0, 12) || "Chấm công";
         const iconVersion = app?.item.updated || app?.item.id || "";
+        const companyParam = companyId ? `&company=${encodeURIComponent(companyId)}` : "";
         const iconSrc = app?.item.logo
-          ? `/api/public/app-icon${iconVersion ? `?v=${encodeURIComponent(iconVersion)}` : ""}`
+          ? `/api/public/app-icon?v=${encodeURIComponent(iconVersion)}${companyParam}`
           : FALLBACK_ICON;
         const iconType = app?.item.logo ? undefined : "image/svg+xml";
 
@@ -30,25 +32,25 @@ export const Route = createFileRoute("/api/public/manifest/webmanifest")({
             orientation: "portrait-primary",
             icons: [
               {
-                src: "/icons/app-icon-192.png",
+                src: `/api/public/app-icon-192?v=${encodeURIComponent(iconVersion)}${companyParam}`,
                 sizes: "192x192",
                 type: "image/png",
                 purpose: "any",
               },
               {
-                src: "/icons/app-icon-512.png",
+                src: `/api/public/app-icon-512?v=${encodeURIComponent(iconVersion)}${companyParam}`,
                 sizes: "512x512",
                 type: "image/png",
                 purpose: "any",
               },
               {
-                src: "/icons/app-icon-192.png",
+                src: `/api/public/app-icon-192?v=${encodeURIComponent(iconVersion)}${companyParam}`,
                 sizes: "192x192",
                 type: "image/png",
                 purpose: "maskable",
               },
               {
-                src: "/icons/app-icon-512.png",
+                src: `/api/public/app-icon-512?v=${encodeURIComponent(iconVersion)}${companyParam}`,
                 sizes: "512x512",
                 type: "image/png",
                 purpose: "maskable",

@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as PendingRouteImport } from './routes/pending'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -92,11 +91,6 @@ import { Route as ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRouteImport } from
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PendingRoute = PendingRouteImport.update({
-  id: '/pending',
-  path: '/pending',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -528,7 +522,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pending': typeof PendingRoute
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
   '/advances': typeof AuthenticatedAdvancesRoute
@@ -608,7 +601,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pending': typeof PendingRoute
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
   '/advances': typeof AuthenticatedAdvancesRoute
@@ -686,7 +678,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pending': typeof PendingRoute
   '/register': typeof RegisterRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/advances': typeof AuthenticatedAdvancesRoute
@@ -768,7 +759,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/login'
-    | '/pending'
     | '/register'
     | '/account'
     | '/advances'
@@ -848,7 +838,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/login'
-    | '/pending'
     | '/register'
     | '/account'
     | '/advances'
@@ -925,7 +914,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/login'
-    | '/pending'
     | '/register'
     | '/_authenticated/account'
     | '/_authenticated/advances'
@@ -1007,7 +995,6 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
-  PendingRoute: typeof PendingRoute
   RegisterRoute: typeof RegisterRoute
   ApiEmploymentHistoriesRoute: typeof ApiEmploymentHistoriesRouteWithChildren
   ApiTenantCompanyRoute: typeof ApiTenantCompanyRoute
@@ -1040,13 +1027,6 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pending': {
-      id: '/pending'
-      path: '/pending'
-      fullPath: '/pending'
-      preLoaderRoute: typeof PendingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1823,7 +1803,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
-  PendingRoute: PendingRoute,
   RegisterRoute: RegisterRoute,
   ApiEmploymentHistoriesRoute: ApiEmploymentHistoriesRouteWithChildren,
   ApiTenantCompanyRoute: ApiTenantCompanyRoute,

@@ -9,6 +9,7 @@ import { normalizeDate } from "@/lib/date-utils";
 import { createStaffActionLog } from "@/lib/staff-log";
 import { updateUserAndCache } from "@/lib/employment";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import type { WorkerRecord } from "@/lib/workers";
 import { accountIdentityKey } from "@/lib/account-identity";
 import { toast } from "@/lib/toast";
 
@@ -215,13 +216,13 @@ export function BulkUserUpdateImportCard({ actor }: { actor: UserRecord }) {
         );
       }
 
-      const users = await pb.collection("users").getFullList<UserRecord>({
+      const workers = await pb.collection("workers").getFullList<WorkerRecord>({
         fields: ["id", "uid", ...FIELD_SPECS.map((spec) => spec.field)].join(","),
       });
-      const usersByUid = new Map<string, UserRecord[]>();
-      for (const user of users) {
-        const uid = normalizeUid(user.uid);
-        if (uid) usersByUid.set(uid, [...(usersByUid.get(uid) || []), user]);
+      const workersByUid = new Map<string, WorkerRecord[]>();
+      for (const worker of workers) {
+        const uid = normalizeUid(worker.uid);
+        if (uid) workersByUid.set(uid, [...(workersByUid.get(uid) || []), worker]);
       }
       const fileUidCounts = new Map<string, number>();
       for (const row of rawRows) {
@@ -252,7 +253,7 @@ export function BulkUserUpdateImportCard({ actor }: { actor: UserRecord }) {
           setProgress({ current: index + 1, total: rawRows.length });
           continue;
         }
-        const matches = usersByUid.get(uid) || [];
+        const matches = workersByUid.get(uid) || [];
         if (matches.length === 0) {
           fail("Kh\u00f4ng t\u00ecm th\u1ea5y user theo UID");
           setProgress({ current: index + 1, total: rawRows.length });
@@ -306,7 +307,7 @@ export function BulkUserUpdateImportCard({ actor }: { actor: UserRecord }) {
       toast[errors.length ? "warning" : "success"](summary);
       await createStaffActionLog({
         actor,
-        targetCollection: "users",
+        targetCollection: "workers",
         action: "import",
         after: { updated, skipped, failed, file: file.name, exported_errors: errors.length },
         note: "Admin c\u1eadp nh\u1eadt th\u00f4ng tin t\u00e0i kho\u1ea3n theo UID t\u1eeb Excel",

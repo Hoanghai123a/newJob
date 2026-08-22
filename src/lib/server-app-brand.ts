@@ -1,9 +1,10 @@
 import { getPBUpstream } from "@/lib/pocketbase-config";
 
-type AppSettingsRecord = {
+export type AppSettingsRecord = {
   id?: string;
   collectionId?: string;
   collectionName?: string;
+  tenant_company?: string;
   company_name?: string;
   slogan?: string;
   logo?: string;
@@ -18,45 +19,57 @@ type CachedAppSettingsRecord = { upstream: string; item: AppSettingsRecord } | n
 
 const CACHE_SUCCESS_MS = 60 * 1000;
 const CACHE_FAILURE_MS = 15 * 1000;
-
-let cachedRecord: { value: CachedAppSettingsRecord; expiresAt: number } | null = null;
-let pendingFetch: Promise<CachedAppSettingsRecord> | null = null;
+const cache = new Map<string, { value: CachedAppSettingsRecord; expiresAt: number }>();
+const pendingFetches = new Map<string, Promise<CachedAppSettingsRecord>>();
 
 function normalizeUpstream(url: string) {
   return url.replace(/\/+$/, "");
 }
 
-export async function fetchAppSettingsRecord() {
-  const now = Date.now();
-  if (cachedRecord && cachedRecord.expiresAt > now) return cachedRecord.value;
-  if (pendingFetch) return pendingFetch;
+function cacheKey(companyId?: string) {
+  return companyId?.trim() || "default";
+}
 
-  pendingFetch = fetchAppSettingsRecordUncached().then(
+function escapePb(value: string) {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+export async function fetchAppSettingsRecord(companyId?: string) {
+  const key = cacheKey(companyId);
+  const now = Date.now();
+  const cached = cache.get(key);
+  if (cached && cached.expiresAt > now) return cached.value;
+
+  const pending = pendingFetches.get(key);
+  if (pending) return pending;
+
+  const request = fetchAppSettingsRecordUncached(companyId).then(
     (value) => {
-      cachedRecord = {
+      cache.set(key, {
         value,
         expiresAt: Date.now() + (value ? CACHE_SUCCESS_MS : CACHE_FAILURE_MS),
-      };
-      pendingFetch = null;
+      });
+      pendingFetches.delete(key);
       return value;
     },
     (error) => {
-      cachedRecord = { value: null, expiresAt: Date.now() + CACHE_FAILURE_MS };
-      pendingFetch = null;
+      cache.set(key, { value: null, expiresAt: Date.now() + CACHE_FAILURE_MS });
+      pendingFetches.delete(key);
       throw error;
     },
   );
-
-  return pendingFetch;
+  pendingFetches.set(key, request);
+  return request;
 }
 
-async function fetchAppSettingsRecordUncached(): Promise<CachedAppSettingsRecord> {
+async function fetchAppSettingsRecordUncached(companyId?: string): Promise<CachedAppSettingsRecord> {
   const upstream = normalizeUpstream(getPBUpstream());
+  const filter = companyId?.trim()
+    ? `&filter=${encodeURIComponent(`tenant_company = "${escapePb(companyId)}"`)}`
+    : "";
   const res = await fetch(
-    `${upstream}/api/collections/app_settings/records?page=1&perPage=1&sort=-updated`,
-    {
-      headers: { "ngrok-skip-browser-warning": "true" },
-    },
+    `${upstream}/api/collections/app_settings/records?page=1&perPage=1&sort=-updated${filter}`,
+    { headers: { "ngrok-skip-browser-warning": "true" } },
   );
   if (!res.ok) return null;
 

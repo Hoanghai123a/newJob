@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { companyCodeKey } from "@/lib/login-identity";
-import { getPocketBaseAdminToken, pbServerFetch, readPbJson } from "@/lib/tenant-server";
+import {
+  escapePb,
+  getPocketBaseAdminToken,
+  pbServerFetch,
+  readPbJson,
+} from "@/lib/tenant-server";
 
 const QuerySchema = z.object({ code: z.string().min(1).max(40) });
 
@@ -43,7 +48,28 @@ export const Route = createFileRoute("/api/public/company-code")({
             { status: 404 },
           );
 
-        return Response.json({ id: company.id, code: company.code, name: company.name });
+        const brandFilter = encodeURIComponent(`tenant_company = "${escapePb(company.id)}"`);
+        const brandResponse = await pbServerFetch(
+          `/api/collections/app_settings/records?perPage=1&sort=-updated&filter=${brandFilter}&fields=id,company_name,slogan,logo,updated`,
+          {},
+          adminToken,
+        );
+        const brandBody = await readPbJson(brandResponse);
+        const brand = brandResponse.ok ? brandBody?.items?.[0] : null;
+        const brandVersion = brand?.updated || brand?.id || "";
+        const logoUrl = brand?.logo
+          ? `/api/public/app-icon?company=${encodeURIComponent(company.id)}${brandVersion ? `&v=${encodeURIComponent(brandVersion)}` : ""}`
+          : "";
+
+        return Response.json({
+          id: company.id,
+          code: company.code,
+          name: company.name,
+          company_name: brand?.company_name?.trim() || company.name,
+          slogan: brand?.slogan?.trim() || "",
+          logo_url: logoUrl,
+          brand_updated: brandVersion,
+        });
       },
     },
   },

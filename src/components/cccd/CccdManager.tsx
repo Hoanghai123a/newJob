@@ -4,6 +4,7 @@ import { toast } from "@/lib/toast";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fileUrl, type UserRecord } from "@/lib/pocketbase";
+import type { WorkerRecord } from "@/lib/workers";
 import { createStaffActionLog, type StaffActionType } from "@/lib/staff-log";
 import { compressImage } from "@/lib/image-compress";
 import {
@@ -16,7 +17,7 @@ import {
 } from "@/lib/cccd-versions";
 
 interface CccdManagerProps {
-  targetUser: UserRecord;
+  targetUser: WorkerRecord;
   actor: Partial<UserRecord> | null;
   onUpdated: () => void;
   readOnly?: boolean;

@@ -11,6 +11,7 @@ import {
   Banknote,
   BadgeDollarSign,
   BarChart3,
+  Building2,
   CalendarClock,
   ChevronDown,
   ChevronLeft,
@@ -31,6 +32,7 @@ import {
 
 import { ReloadButton } from "@/components/layout/ReloadButton";
 import { useAuth } from "@/lib/auth";
+import { useAppSettings } from "@/lib/app-settings";
 import { cn } from "@/lib/utils";
 import { useStaffExcelExport } from "@/components/staff/staff-excel-export-context";
 
@@ -147,7 +149,9 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const { data: settings, logoUrl } = useAppSettings();
   const [collapsed, setCollapsed] = useState(() => desktopSidebarCollapsed);
+  const [logoFailed, setLogoFailed] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const { openStaffExcelExport } = useStaffExcelExport();
   const immersive = pathname === "/force-change-password";
@@ -156,6 +160,10 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
   const shellStyle = {
     "--desktop-sidebar-width": collapsed ? "5.5rem" : "17.5rem",
   } as CSSProperties;
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoUrl]);
 
   useEffect(() => {
     if (immersive || typeof window === "undefined") return;
@@ -212,13 +220,24 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
         <>
           <aside className="desktop-sidebar fixed inset-y-0 left-0 z-50 hidden w-[var(--desktop-sidebar-width)] border-r border-border/70 bg-card/95 shadow-soft backdrop-blur desktop:flex desktop:flex-col">
             <div className="flex h-20 shrink-0 items-center gap-3 border-b border-border/60 px-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-lg font-bold text-primary-foreground">
-                H
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary text-primary-foreground">
+                {logoUrl && !logoFailed ? (
+                  <img
+                    src={logoUrl}
+                    alt={`Logo ${settings.company_name}`}
+                    className="logo-fit bg-white p-1"
+                    onError={() => setLogoFailed(true)}
+                  />
+                ) : (
+                  <Building2 className="h-5 w-5" aria-hidden="true" />
+                )}
               </div>
               {!collapsed && (
                 <div className="desktop-sidebar-label min-w-0">
-                  <p className="truncate text-sm font-bold">Hoàng Long DJC</p>
-                  <p className="truncate text-[11px] text-muted-foreground">Kết nối việc làm</p>
+                  <p className="truncate text-sm font-bold">{settings.company_name}</p>
+                  {settings.slogan ? (
+                    <p className="truncate text-[11px] text-muted-foreground">{settings.slogan}</p>
+                  ) : null}
                 </div>
               )}
             </div>

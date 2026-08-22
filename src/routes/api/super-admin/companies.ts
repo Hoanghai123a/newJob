@@ -149,8 +149,6 @@ export const Route = createFileRoute("/api/super-admin/companies")({
               email: text(body?.admin_email, 120),
               role: "admin",
               tenant_company: company.id,
-              approved: true,
-              approvalStatus: "approved",
               status: "active",
               must_change_password: true,
             }),

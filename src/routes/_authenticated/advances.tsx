@@ -214,7 +214,7 @@ async function loadAdvanceSummary(filter: string): Promise<AdvanceSummary> {
   );
 }
 
-export function AdvancesPage() {
+function AdvancesPage() {
   const { user, isAdmin, isStaff } = useAuth();
   const queryClient = useQueryClient();
   const { data: settings } = useAppSettings();

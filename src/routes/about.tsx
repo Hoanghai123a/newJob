@@ -5,15 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Building2, Mail, MapPin, Phone } from "lucide-react";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
-      { title: "Về chúng tôi — Hoàng Long DJC" },
-      {
-        name: "description",
-        content: "Giới thiệu về công ty và đội ngũ Hoàng Long.",
-      },
-    ],
-  }),
   component: AboutPage,
 });
 

@@ -460,7 +460,7 @@ function AdminCheckAttendance({
         filter: `${companyFilter(viewer)} && month="${month}"`,
         sort: "-created",
       }),
-      pb.collection("users").getList(1, 500, { filter: companyFilter(viewer), sort: "full_name" }),
+      pb.collection("workers").getList(1, 500, { filter: companyFilter(viewer, "company"), sort: "full_name" }),
       fetchEmploymentHistories(),
     ]);
     setBatches(batchRes.items as unknown as BatchRecord[]);
@@ -574,8 +574,8 @@ function AdminCheckAttendance({
 
       const [allUsers, allHistories] = await Promise.all([
         pb
-          .collection("users")
-          .getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
+          .collection("workers")
+          .getFullList<UserRecord>({ filter: companyFilter(viewer, "company"), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -738,8 +738,8 @@ function AdminCheckAttendance({
 
       const [allUsers, allHistories] = await Promise.all([
         pb
-          .collection("users")
-          .getFullList<UserRecord>({ filter: companyFilter(viewer), sort: "full_name" }),
+          .collection("workers")
+          .getFullList<UserRecord>({ filter: companyFilter(viewer, "company"), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));

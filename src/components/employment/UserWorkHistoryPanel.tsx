@@ -18,6 +18,7 @@ import { useAuth } from "@/lib/auth";
 import { fileUrl } from "@/lib/pocketbase";
 import type { CccdVersionRecord } from "@/lib/cccd-versions";
 import { getUserErrorMessage } from "@/lib/toast";
+import { findWorkerByAuthUser } from "@/lib/workers";
 import {
   fetchEmploymentHistories,
   isCurrentlyWorking,
