@@ -73,10 +73,10 @@ function compareHistories(a: EmploymentHistoryRecord, b: EmploymentHistoryRecord
 export function groupHistoriesByUser(histories: EmploymentHistoryRecord[]) {
   const grouped = new Map<string, EmploymentHistoryRecord[]>();
   for (const history of histories) {
-    if (!history.user) continue;
-    const rows = grouped.get(history.user) || [];
+    if (!history.worker) continue;
+    const rows = grouped.get(history.worker) || [];
     rows.push(history);
-    grouped.set(history.user, rows);
+    grouped.set(history.worker, rows);
   }
   for (const rows of grouped.values()) rows.sort(compareHistories);
   return grouped;

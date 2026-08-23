@@ -207,8 +207,8 @@ export function aggregateWorkforceDays(params: {
           employeeCode: row.employee_code || "—",
           workerName:
             row.worker_name_snapshot ||
-            row.expand?.user?.full_name ||
-            row.expand?.user?.username ||
+            row.expand?.worker?.full_name ||
+            row.expand?.worker?.username ||
             "—",
           factoryId: row.factory || "",
           factoryName: row.expand?.factory?.name || "—",

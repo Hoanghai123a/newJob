@@ -104,11 +104,11 @@ async function handleHistoryEvent(
     return;
   }
 
-  let relatedUser = record.expand?.user;
-  if (!relatedUser && record.user) {
+  let relatedUser = record.expand?.worker;
+  if (!relatedUser && record.worker) {
     relatedUser = await pb
       .collection("workers")
-      .getOne<WorkerRecord>(record.user)
+      .getOne<WorkerRecord>(record.worker)
       .catch(() => undefined);
   }
 
@@ -169,7 +169,7 @@ async function handleCccdVersionEvent(event: RealtimeEvent<CccdVersionRecord>) {
   }
 
   const userIds = await getCachedUserIds();
-  if (!userIds.has(record.user)) return;
+  if (!userIds.has(record.worker)) return;
 
   const changed = await upsertCachedCccdVersionIfNewer(record);
   if (!changed) return;
@@ -282,7 +282,7 @@ async function runStartStaffRealtimeSync(
           ).catch((err) => console.warn("[realtime-sync] history handler", err)),
         {
           filter: historyFilter || undefined,
-          expand: "user,factory,recruiter_staff,recruiter_partner,main_house",
+          expand: "worker,factory,recruiter_staff,recruiter_partner,main_house",
         },
       );
     unsubs.push(historyUnsub);

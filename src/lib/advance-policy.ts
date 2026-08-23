@@ -55,7 +55,7 @@ export async function loadAdvanceOutstanding(userId: string) {
   const rows = await pb.collection("advances").getFullList<{ amount?: number }>({
     filter: joinTenantFilters(
       pb.authStore.record as UserRecord | null,
-      `user="${escapePb(userId)}" && ${OUTSTANDING_FILTER}`,
+      `worker="${escapePb(userId)}" && ${OUTSTANDING_FILTER}`,
     ),
     fields: "amount",
   });

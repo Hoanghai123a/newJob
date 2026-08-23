@@ -460,7 +460,7 @@ function AdminCheckAttendance({
         filter: `${companyFilter(viewer)} && month="${month}"`,
         sort: "-created",
       }),
-      pb.collection("workers").getList(1, 500, { filter: companyFilter(viewer, "company"), sort: "full_name" }),
+      pb.collection("workers").getList(1, 500, { filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
       fetchEmploymentHistories(),
     ]);
     setBatches(batchRes.items as unknown as BatchRecord[]);
@@ -493,7 +493,7 @@ function AdminCheckAttendance({
   const downloadTemplate = () => {
     const sampleUser = users[0];
     const sampleHistory = sampleUser
-      ? histories.find((history) => history.user === sampleUser.id)
+      ? histories.find((history) => history.worker === sampleUser.id)
       : null;
     exportToExcel(
       `mau_check_cong_${month}`,
@@ -575,7 +575,7 @@ function AdminCheckAttendance({
       const [allUsers, allHistories] = await Promise.all([
         pb
           .collection("workers")
-          .getFullList<UserRecord>({ filter: companyFilter(viewer, "company"), sort: "full_name" }),
+          .getFullList<UserRecord>({ filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -585,7 +585,7 @@ function AdminCheckAttendance({
         if (user.uid) userIdMap.set(accountIdentityKey(user.uid), user);
       }
       for (const history of allHistories) {
-        const user = userById.get(history.user);
+        const user = userById.get(history.worker);
         const employeeKey = employeeCompanyKey(
           history.employee_code,
           history.expand?.factory?.name,
@@ -693,7 +693,7 @@ function AdminCheckAttendance({
   const downloadSalaryTemplate = () => {
     const sampleUser = users[0];
     const sampleHistory = sampleUser
-      ? histories.find((history) => history.user === sampleUser.id)
+      ? histories.find((history) => history.worker === sampleUser.id)
       : null;
     exportToExcel(
       `mau_check_luong_${salaryMonth}`,
@@ -739,7 +739,7 @@ function AdminCheckAttendance({
       const [allUsers, allHistories] = await Promise.all([
         pb
           .collection("workers")
-          .getFullList<UserRecord>({ filter: companyFilter(viewer, "company"), sort: "full_name" }),
+          .getFullList<UserRecord>({ filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -749,7 +749,7 @@ function AdminCheckAttendance({
         if (user.uid) userIdMap.set(accountIdentityKey(user.uid), user);
       }
       for (const history of allHistories) {
-        const user = userById.get(history.user);
+        const user = userById.get(history.worker);
         const employeeKey = employeeCompanyKey(
           history.employee_code,
           history.expand?.factory?.name,
@@ -842,7 +842,7 @@ function AdminCheckAttendance({
         });
         await pb.collection("check_salary_items").create({
           batch: batch.id,
-          user: item.user.id,
+          user: item.worker.id,
           month: salaryMonth,
           round_no: nextSalaryRound,
           personal: item.personal,
@@ -1218,14 +1218,14 @@ function UserCheckAttendance() {
     setLoading(true);
     try {
       const attendanceRes = await pb.collection("check_attendance_items").getList(1, 100, {
-        filter: `user="${escapePb(user.id)}"`,
+        filter: `worker="${escapePb(user.id)}"`,
         sort: "-created",
         expand: "batch",
       });
       const salaryRes = await pb
         .collection("check_salary_items")
         .getList(1, 100, {
-          filter: `user="${escapePb(user.id)}"`,
+          filter: `worker="${escapePb(user.id)}"`,
           sort: "-created",
           expand: "batch",
         })

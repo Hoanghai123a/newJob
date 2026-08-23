@@ -484,6 +484,20 @@ async function ensureTenantRules(collections) {
   return changes;
 }
 
+async function removeLegacyCompanyFields(collections) {
+  const changes = [];
+  for (const collection of collections) {
+    if (EXCLUDED.has(collection.name) || collection.system) continue;
+    const legacy = (collection.fields || []).find((field) => field.name === "company");
+    if (!legacy) continue;
+    const nextFields = (collection.fields || []).filter((field) => field.name !== "company");
+    const nextIndexes = (collection.indexes || []).filter((index) => !/\bcompany\b/.test(index) || /tenant_company/.test(index));
+    changes.push({ collection: collection.name, field: "company", action: "xóa field company cũ" });
+    if (apply) await pb.collections.update(collection.id, { fields: nextFields, indexes: nextIndexes });
+  }
+  return changes;
+}
+
 const report = {
   apply,
   repairOrphanChatMessages,
@@ -498,6 +512,7 @@ const report = {
   invalidRecords: [],
   orphanChatMessages: null,
   verification: null,
+  removedLegacyCompanyFields: [],
 };
 let allCollections = await pb.collections.getFullList();
 if (repairOrphanChatMessages && apply) {
@@ -540,6 +555,11 @@ if (report.invalidRecords.length) {
     }
     if (!report.unresolved.length) {
       report.tenantRuleChanges = await ensureTenantRules(allCollections);
+      if (apply) allCollections = await pb.collections.getFullList();
+    }
+    if (!report.unresolved.length) {
+      allCollections = await pb.collections.getFullList();
+      report.removedLegacyCompanyFields = await removeLegacyCompanyFields(allCollections);
       if (apply) allCollections = await pb.collections.getFullList();
     }
     report.verification = await buildVerification(allCollections);

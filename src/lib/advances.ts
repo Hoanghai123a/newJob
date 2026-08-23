@@ -19,7 +19,7 @@ export type AdminAdvanceSegment = "workers" | "staff";
 export type AdvanceRecord = {
   id: string;
   tenant_company: string;
-  user?: string;
+  worker?: string;
   requested_by?: string;
   recruiter_id?: string;
   target_admins?: string[];
@@ -149,7 +149,7 @@ export function buildAdvanceFilter(input: {
     const id = escapePb(input.userId);
     roleFilter = `(user="${id}" && requested_by="${id}" && recruiter_id="")`;
   } else if (!input.isAdmin && !input.isStaff && input.userId) {
-    roleFilter = `user="${escapePb(input.userId)}"`;
+    roleFilter = `worker="${escapePb(input.userId)}"`;
   } else if (input.isStaff && !input.isAdmin && input.userId) {
     const currentUserId = escapePb(input.userId);
     roleFilter = `(recruiter_id="${currentUserId}" || requested_by="${currentUserId}")`;

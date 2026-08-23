@@ -19,7 +19,6 @@ export interface WorkerRecord {
   bank_account_note?: string;
   employee_code?: string;
   tenant_company?: string;
-  company?: string;
   status?: "active" | "disabled" | "inactive";
   source_user_id?: string;
   created?: string;

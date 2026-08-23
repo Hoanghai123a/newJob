@@ -67,7 +67,7 @@ function getScopedUsers(
   histories: EmploymentHistoryRecord[],
   fetchedUsers: UserRecord[],
 ) {
-  const scopedWorkerIds = new Set(histories.map((history) => history.user));
+  const scopedWorkerIds = new Set(histories.map((history) => history.worker));
   const recruiterIds = new Set(
     histories.map((history) => history.recruiter_staff).filter((id): id is string => Boolean(id)),
   );

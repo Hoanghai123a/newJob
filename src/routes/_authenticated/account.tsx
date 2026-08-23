@@ -91,6 +91,7 @@ import {
   Users,
   CalendarRange,
   Pencil,
+  LockKeyhole,
   CircleX,
   ImagePlus,
   MoreHorizontal,
@@ -2100,6 +2101,8 @@ function StaffPanel() {
   const [createOpen, setCreateOpen] = useState(false);
   const [importingStaff, setImportingStaff] = useState(false);
   const [importResult, setImportResult] = useState("");
+  const [editingStaff, setEditingStaff] = useState<UserRecord | null>(null);
+  const [resettingStaff, setResettingStaff] = useState<UserRecord | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -2376,6 +2379,57 @@ function StaffPanel() {
     return true;
   };
 
+  const updateStaff = async (staff: UserRecord, form: StaffEditForm) => {
+    if (!isManageableAccount(staff) || !requireTenantCompany(currentUser)) return;
+    const before = {
+      full_name: staff.full_name,
+      phone: staff.phone,
+      date_of_birth: staff.date_of_birth,
+      address: staff.address,
+    };
+    const after = {
+      full_name: form.full_name.trim(),
+      phone: form.phone.trim(),
+      date_of_birth: form.date_of_birth || "",
+      address: form.address.trim(),
+    };
+    if (!after.full_name) throw new Error("Nhập họ và tên");
+    const updated = await pb.collection("users").update<UserRecord>(staff.id, after);
+    await createStaffActionLog({
+      actor: currentUser,
+      targetUserId: staff.id,
+      targetCollection: "users",
+      targetRecord: staff.id,
+      action: "update",
+      before,
+      after,
+      note: "Admin chỉnh sửa thông tin tài khoản staff",
+    });
+    setStaffUsers((items) => items.map((item) => (item.id === staff.id ? updated : item)));
+    setEditingStaff(null);
+    toast.success("Đã cập nhật thông tin staff");
+  };
+
+  const resetStaffPassword = async (staff: UserRecord) => {
+    if (!isManageableAccount(staff) || !requireTenantCompany(currentUser)) return;
+    await pb.collection("users").update(staff.id, {
+      password: STAFF_DEFAULT_PASSWORD,
+      passwordConfirm: STAFF_DEFAULT_PASSWORD,
+      must_change_password: true,
+    });
+    await createStaffActionLog({
+      actor: currentUser,
+      targetUserId: staff.id,
+      targetCollection: "users",
+      targetRecord: staff.id,
+      action: "update",
+      after: { must_change_password: true },
+      note: "Admin đặt lại mật khẩu tài khoản staff",
+    });
+    setResettingStaff(null);
+    toast.success(`Đã đặt lại mật khẩu staff về "${STAFF_DEFAULT_PASSWORD}"`);
+  };
+
   return (
     <Card className="space-y-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2453,13 +2507,35 @@ function StaffPanel() {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <StatusChip tone={staff.role === "admin" ? "info" : "success"}>
-                    {staff.role === "admin" ? "Admin" : "Staff"}
-                  </StatusChip>
-                  <StatusChip tone={factoryCount ? "info" : "neutral"}>
-                    {factoryCount ? `${factoryCount} NM` : "Chưa gán"}
-                  </StatusChip>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <div className="flex items-center gap-1">
+                    <StatusChip tone={staff.role === "admin" ? "info" : "success"}>
+                      {staff.role === "admin" ? "Admin" : "Staff"}
+                    </StatusChip>
+                    <button
+                      type="button"
+                      onClick={() => setEditingStaff(staff)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-primary transition hover:bg-primary/10"
+                      aria-label={`Chỉnh sửa thông tin ${staff.full_name || "staff"}`}
+                      title="Chỉnh sửa thông tin"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <StatusChip tone={factoryCount ? "info" : "neutral"}>
+                      {factoryCount ? `${factoryCount} NM` : "Chưa gán"}
+                    </StatusChip>
+                    <button
+                      type="button"
+                      onClick={() => setResettingStaff(staff)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-amber-600 transition hover:bg-amber-50"
+                      aria-label={`Đặt lại mật khẩu ${staff.full_name || "staff"} về mật khẩu mặc định`}
+                      title={`Đặt lại về ${STAFF_DEFAULT_PASSWORD}`}
+                    >
+                      <LockKeyhole className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -2472,7 +2548,169 @@ function StaffPanel() {
         onClose={() => setCreateOpen(false)}
         onSubmit={submitCreateStaff}
       />
+      <EditStaffDialog
+        staff={editingStaff}
+        onClose={() => setEditingStaff(null)}
+        onSubmit={updateStaff}
+      />
+      <ResetStaffPasswordDialog
+        staff={resettingStaff}
+        onClose={() => setResettingStaff(null)}
+        onSubmit={resetStaffPassword}
+      />
     </Card>
+  );
+}
+
+type StaffEditForm = { full_name: string; phone: string; date_of_birth: string; address: string };
+
+function EditStaffDialog({
+  staff,
+  onClose,
+  onSubmit,
+}: {
+  staff: UserRecord | null;
+  onClose: () => void;
+  onSubmit: (staff: UserRecord, form: StaffEditForm) => Promise<void>;
+}) {
+  const [form, setForm] = useState<StaffEditForm>({
+    full_name: "",
+    phone: "",
+    date_of_birth: "",
+    address: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  useEffect(() => {
+    if (staff)
+      setForm({
+        full_name: staff.full_name || "",
+        phone: staff.phone || "",
+        date_of_birth: staff.date_of_birth || "",
+        address: staff.address || "",
+      });
+  }, [staff]);
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!staff) return;
+    setSubmitting(true);
+    try {
+      await onSubmit(staff, form);
+    } catch (error: any) {
+      toast.error(error?.message || "Không thể cập nhật thông tin staff");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  return (
+    <Dialog open={!!staff} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl">
+        <DialogHeader>
+          <DialogTitle>Chỉnh sửa thông tin Staff</DialogTitle>
+          <DialogDescription>
+            Tài khoản: @{staff ? accountLoginName(staff) : "—"}. Tên đăng nhập và UID không thay
+            đổi.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={submit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label>Họ và tên</Label>
+            <Input
+              value={form.full_name}
+              onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+              className="rounded-xl"
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-3 desktop:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label>Số điện thoại</Label>
+              <Input
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Ngày sinh</Label>
+              <DateInput
+                value={form.date_of_birth}
+                onChange={(value) => setForm({ ...form, date_of_birth: value })}
+                className="rounded-xl"
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Địa chỉ</Label>
+            <Input
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              className="rounded-xl"
+            />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">
+              Đóng
+            </Button>
+            <Button type="submit" disabled={submitting} className="rounded-xl">
+              <Save className="h-4 w-4" />
+              {submitting ? "Đang lưu..." : "Lưu thay đổi"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ResetStaffPasswordDialog({
+  staff,
+  onClose,
+  onSubmit,
+}: {
+  staff: UserRecord | null;
+  onClose: () => void;
+  onSubmit: (staff: UserRecord) => Promise<void>;
+}) {
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!staff) return;
+    setSubmitting(true);
+    try {
+      await onSubmit(staff);
+    } catch (error: any) {
+      toast.error(error?.message || "Không thể đặt lại mật khẩu staff");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={!!staff} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="rounded-2xl">
+        <DialogHeader>
+          <DialogTitle>Đặt lại mật khẩu Staff</DialogTitle>
+          <DialogDescription>
+            Mật khẩu của @{staff ? accountLoginName(staff) : "—"} sẽ được đặt lại về
+            <strong> {STAFF_DEFAULT_PASSWORD}</strong> và staff phải đổi mật khẩu khi đăng nhập.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={submit} className="space-y-4">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            Chỉ tiếp tục khi bạn muốn đặt lại mật khẩu mặc định cho staff này.
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose} className="rounded-xl">
+              Hủy
+            </Button>
+            <Button type="submit" disabled={submitting} className="rounded-xl">
+              <LockKeyhole className="h-4 w-4" />
+              {submitting ? "Đang đặt lại..." : "Xác nhận đặt lại"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

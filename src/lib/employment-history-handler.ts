@@ -33,13 +33,12 @@ export async function handleCreateEmploymentHistory(
   if (!companyId) return error("Tài khoản chưa được gán công ty hợp lệ.", 403);
 
   const body = await request.json().catch(() => null);
-  const ensureWorkerAccount = body?.action === "ensure_worker_account";
   const payload =
     body?.payload && typeof body.payload === "object" && !Array.isArray(body.payload)
       ? ({ ...body.payload } as Record<string, unknown>)
       : null;
-  const workerId = String(ensureWorkerAccount ? body?.worker : payload?.worker || payload?.user || "").trim();
-  if (!workerId || (!ensureWorkerAccount && !payload)) {
+  const workerId = String(payload?.worker || "").trim();
+  if (!workerId || !payload) {
     return error("Dữ liệu lịch sử lao động không hợp lệ.");
   }
 
@@ -80,10 +79,6 @@ export async function handleCreateEmploymentHistory(
     );
   }
 
-  if (ensureWorkerAccount) {
-    return Response.json({ worker: workerId });
-  }
-
   const limit = Math.max(0, Math.trunc(Number(company?.max_employment_histories || 0)));
   const current = Number(histories?.totalItems || 0);
   if (limit > 0 && current >= limit) {
@@ -93,7 +88,6 @@ export async function handleCreateEmploymentHistory(
   delete payload!.company;
   delete payload!.tenant_company;
   payload!.worker = workerId;
-  delete payload!.user;
   payload!.tenant_company = companyId;
 
   const response = await deps.pbFetch(

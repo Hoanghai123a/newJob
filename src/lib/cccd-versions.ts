@@ -25,8 +25,9 @@ export function requireValidCccdNumber(value?: string | null) {
 export interface CccdVersionRecord {
   id: string;
   tenant_company: string;
-  user?: string;
   worker: string;
+  /** @deprecated */
+  user?: string;
   cccd_number: string;
   front_image?: string;
   back_image?: string;
@@ -41,7 +42,7 @@ export interface CccdVersionRecord {
 export async function getCurrentCccdVersion(workerId: string): Promise<CccdVersionRecord | null> {
   try {
     const record = (await pb.collection("cccd_versions").getFirstListItem(joinTenantFilters(tenantUser(), `worker="${workerId}" && is_current=true`))) as unknown as CccdVersionRecord;
-    return { ...record, user: record.worker } as CccdVersionRecord;
+    return { ...record, user: record.worker };
   } catch {
     return null;
   }
@@ -59,7 +60,7 @@ export async function getCccdVersionByNumber(
       sort: "-updated,-created",
     })) as unknown as CccdVersionRecord[];
     const found = records.find((version) => normalizeCccdNumber(version.cccd_number) === normalized) || null;
-    return found ? ({ ...found, user: found.worker } as CccdVersionRecord) : null;
+    return found ? { ...found, user: found.worker } : null;
   } catch {
     return null;
   }
@@ -105,10 +106,10 @@ export async function ensureCccdVersion(
   try {
     const created = ({ ...(await pb.collection("cccd_versions").create({
       ...companyPayload(tenantUser()),
-      worker: userId,
+      worker: workerId,
       cccd_number: normalized,
       is_current: true,
-    })) as unknown as CccdVersionRecord, user: workerId });
+    })) as unknown as CccdVersionRecord, worker: workerId });
     await updateCachedCccdVersion(created);
     return created;
   } catch (error) {
@@ -205,7 +206,7 @@ export async function fetchCccdVersionsByUsers(
     signal?.throwIfAborted();
     const batch = uniqueIds.slice(i, i + 50);
     const records = (await pb.collection("cccd_versions").getFullList({
-      filter: joinTenantFilters(tenantUser(), relationInFilter("user", batch)),
+      filter: joinTenantFilters(tenantUser(), relationInFilter("worker", batch)),
       sort: "-updated,-created",
       signal,
     })) as unknown as CccdVersionRecord[];

@@ -18,7 +18,6 @@ export interface UserRecord {
   cccd_issue_date?: string;
   uid?: string;
   role?: Role;
-  company?: string;
   tenant_company?: string;
   status?: "active" | "disabled";
   bank_name?: string;

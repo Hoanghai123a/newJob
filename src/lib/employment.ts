@@ -93,8 +93,9 @@ function historyDate(value?: string | null) {
 export interface EmploymentHistoryRecord {
   id: string;
   uid?: string;
-  user: string;
-  worker?: string;
+  worker: string;
+  /** @deprecated UI compatibility while older cached records refresh. */
+  user?: string;
   factory: string;
   main_house?: string;
   employee_code?: string;
@@ -115,7 +116,6 @@ export interface EmploymentHistoryRecord {
   created?: string;
   updated?: string;
   expand?: {
-    user?: WorkerRecord;
     worker?: WorkerRecord;
     factory?: FactoryRecord;
     main_house?: RecruitmentEntityRecord;
@@ -148,8 +148,9 @@ export function getHistoryCccdImageProgress(
 }
 
 export interface EmploymentDraft {
+  worker: string;
+  /** @deprecated callers should pass worker. */
   user?: string;
-  worker?: string;
   factory: string;
   main_house?: string;
   employee_code?: string;
@@ -211,7 +212,7 @@ function historyAuditSnapshot(history: Partial<EmploymentHistoryRecord> | null |
   const snapshot: Record<string, unknown> = {
     id: history.id,
     uid: history.uid,
-    user: history.user || history.worker,
+    worker: history.worker,
   };
   for (const field of AUDITED_HISTORY_FIELDS) snapshot[field] = history[field];
   return snapshot;
@@ -317,6 +318,7 @@ export function getMissingEmploymentEditFields(snapshot: Partial<EmploymentPerso
 function normalizeEmploymentPayload<T extends Partial<EmploymentDraft>>(payload: T): T {
   const normalized = { ...payload } as T & Partial<EmploymentDraft>;
   normalized.worker = normalized.worker || normalized.user;
+  if (!normalized.worker) throw new Error("Thiếu hồ sơ NLĐ.");
 
   if ("worker_name_snapshot" in payload) {
     normalized.worker_name_snapshot = cleanSnapshotText(payload.worker_name_snapshot);
@@ -396,9 +398,8 @@ export async function fetchEmploymentHistories(
     sort: "-join_date,-created",
     expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
   })) as unknown as EmploymentHistoryRecord[];
-  return records.map((record) => ({ ...record, user: record.worker || record.user, expand: { ...record.expand, user: record.expand?.worker } }));
-}
 
+}
 export function isHistoryWithinLast90Days(
   history: EmploymentHistoryRecord,
   referenceDate = new Date(),
@@ -490,7 +491,7 @@ export function hasActiveEmployment(histories: EmploymentHistoryRecord[]) {
 
 export async function findActiveEmploymentByUser(userId: string) {
   const histories = (await pb.collection("employment_histories").getFullList({
-    filter: `user="${userId}"`,
+    filter: `worker="${userId}"`,
     sort: "-join_date,-created",
     expand: "worker,factory,recruiter_staff,recruiter_partner,main_house",
   })) as unknown as EmploymentHistoryRecord[];
@@ -548,7 +549,7 @@ export async function createEmploymentHistory(draft: EmploymentDraft, opts?: { u
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) throw new Error(body?.message || "Không tạo được lịch sử lao động.");
-  const record = { ...body, user: body.worker || body.user, expand: { ...body.expand, user: body.expand?.worker } } as EmploymentHistoryRecord;
+  const record = { ...body, worker: body.worker } as EmploymentHistoryRecord;
   await updateCachedHistory(record);
   return record;
 }
@@ -576,7 +577,7 @@ export async function updateEmploymentHistory(
   }
 
   const normalizedPayload = normalizeEmploymentPayload(payload);
-  const historyWorker = normalizedPayload.worker || normalizedPayload.user || before.worker || before.user;
+  const historyWorker = normalizedPayload.worker || before.worker;
   const historyCccd = normalizedPayload.worker_cccd_snapshot ?? before.worker_cccd_snapshot;
   normalizedPayload.worker_cccd_snapshot = requireValidCccdNumber(historyCccd);
   const cccdChanged =

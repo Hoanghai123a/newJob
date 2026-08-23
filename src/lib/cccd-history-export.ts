@@ -375,7 +375,7 @@ export async function prepareCccdHistoryExport(
   signal?: AbortSignal,
 ): Promise<CccdHistoryPreparation> {
   throwIfAborted(signal);
-  const userIds = [...new Set(histories.map((history) => history.user).filter(Boolean))];
+  const userIds = [...new Set(histories.map((history) => history.worker).filter(Boolean))];
   const versions = await fetchCccdVersionsByUsers(userIds, signal);
   throwIfAborted(signal);
   const groupedVersions = versionsByUserId(versions);
@@ -384,7 +384,7 @@ export async function prepareCccdHistoryExport(
   const factoryById = new Map(factories.map((factory) => [factory.id, factory]));
 
   const records = histories.map((history) => {
-    const userVersions = groupedVersions.get(history.user) || [];
+    const userVersions = groupedVersions.get(history.worker) || [];
     return {
       historyId: history.id,
       factoryId: history.factory,

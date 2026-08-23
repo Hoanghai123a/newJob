@@ -71,11 +71,11 @@ async function listCompanies(adminToken: string) {
           "users",
           `tenant_company = "${escapePb(company.id)}" && role = "user"`,
         ),
-        factories: await count(adminToken, "factories", `company = "${escapePb(company.id)}"`),
+        factories: await count(adminToken, "factories", `tenant_company = "${escapePb(company.id)}"`),
         employment_histories: await count(
           adminToken,
           "employment_histories",
-          `company = "${escapePb(company.id)}"`,
+          `tenant_company = "${escapePb(company.id)}"`,
         ),
       },
     })),

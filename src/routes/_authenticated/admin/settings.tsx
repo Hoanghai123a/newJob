@@ -386,7 +386,7 @@ const FACTORY_FIELD_LABELS: Record<string, string> = {
 function tenantRecordPayload(user?: UserRecord | null) {
   const tenant = companyPayload(user);
   // Kept during the PocketBase transition because older collections still require company.
-  return { ...tenant, company: tenant.tenant_company };
+  return tenant;
 }
 
 function factorySaveErrorMessage(error: unknown) {

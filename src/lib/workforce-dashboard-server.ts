@@ -136,7 +136,7 @@ async function firstHistoryIds(
   if (!userIds.length) return new Set<string>();
   const all: WorkforceHistoryInput[] = [];
   for (let index = 0; index < userIds.length; index += 40) {
-    const users = relationInFilter("user", userIds.slice(index, index + 40));
+    const users = relationInFilter("worker", userIds.slice(index, index + 40));
     all.push(
       ...(await fullList<WorkforceHistoryInput>(
         "employment_histories",

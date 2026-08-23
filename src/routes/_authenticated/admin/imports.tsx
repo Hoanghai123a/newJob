@@ -320,7 +320,7 @@ function AdminImportsPage() {
         if (isCurrentlyWorking({ leave_date: finalLeaveDate || undefined })) {
           const anotherWorkingHistory = allHistories.find(
             (history) =>
-              history.user === target!.user &&
+              history.worker === target!.user &&
               history.id !== target!.id &&
               isCurrentlyWorking(history),
           );
@@ -610,11 +610,11 @@ function AdminImportsPage() {
 
         const sameHistory = existingHistories.find(
           (item) =>
-            item.user === user.id && item.factory === factory.id && item.join_date === joinDate,
+            item.worker === user.id && item.factory === factory.id && item.join_date === joinDate,
         );
         const activeHistory = existingHistories.find(
           (item) =>
-            item.user === user.id && isCurrentlyWorking(item) && item.id !== sameHistory?.id,
+            item.worker === user.id && isCurrentlyWorking(item) && item.id !== sameHistory?.id,
         );
 
         if (isWorking && activeHistory) {
@@ -749,7 +749,7 @@ function AdminImportsPage() {
         .collection("workers")
         .getFullList<{ id: string; uid?: string; phone?: string; cccd?: string }>({
           fields: "id,uid,phone,cccd",
-          filter: companyFilter(currentUser, "company"),
+          filter: companyFilter(currentUser, "tenant_company"),
         });
       const cccdKeys = new Set(
         existingWorkers.map((w) => accountIdentityKey(w.cccd)).filter(Boolean),
@@ -819,7 +819,6 @@ function AdminImportsPage() {
             bank_account_name: bankAccountName || undefined,
             bank_account_note: bankAccountNote || undefined,
             status: "active",
-            company: tenantId,
             tenant_company: tenantId,
           });
           if (cccd) cccdKeys.add(accountIdentityKey(cccd));
@@ -1008,7 +1007,7 @@ function ImportResult({ children }: { children: ReactNode }) {
 async function syncWorkersFromLatestHistories(userIds: Iterable<string>) {
   for (const userId of userIds) {
     const histories = (await fetchEmploymentHistories([userId])).filter(
-      (history) => history.user === userId,
+      (history) => history.worker === userId,
     );
     const latest = getLatestEmploymentHistory(histories);
     await updateUserAndCache(userId, {

@@ -104,7 +104,7 @@ export function SalaryHoldCreateDialog({
         );
         if (
           history &&
-          history.user === worker.id &&
+          history.worker === worker.id &&
           history.recruiter_staff === viewer.id &&
           !selectableRows.some((row) => row.id === history.id)
         ) {
@@ -120,7 +120,7 @@ export function SalaryHoldCreateDialog({
       .catch((error: any) => {
         if (!active) return;
         const fallback =
-          history && history.user === worker.id && history.recruiter_staff === viewer.id
+          history && history.worker === worker.id && history.recruiter_staff === viewer.id
             ? [history]
             : [];
         setHistories(fallback);

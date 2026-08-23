@@ -28,7 +28,7 @@ async function context(request: Request) {
 
 async function historyCount(adminToken: string, companyId: string) {
   const response = await pbServerFetch(
-    `/api/collections/employment_histories/records?page=1&perPage=1&skipTotal=0&filter=${encodeURIComponent(`company = "${escapePb(companyId)}"`)}&fields=id`,
+    `/api/collections/employment_histories/records?page=1&perPage=1&skipTotal=0&filter=${encodeURIComponent(`tenant_company = "${escapePb(companyId)}"`)}&fields=id`,
     {},
     adminToken,
   );

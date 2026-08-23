@@ -141,7 +141,7 @@ async function fetchAllHistories(filter: string, token: string) {
       perPage: "500",
       filter,
       sort: "-join_date,-created",
-      expand: "user,factory,recruiter_staff,recruiter_partner,main_house",
+      expand: "worker,factory,recruiter_staff,recruiter_partner,main_house",
     });
     const response = await pbFetch(
       `/api/collections/employment_histories/records?${query}`,
@@ -196,9 +196,9 @@ function computeTenureDays(histories: EmploymentHistoryRecord[], referenceDate =
 function tenureByUserId(histories: EmploymentHistoryRecord[]) {
   const grouped = new Map<string, EmploymentHistoryRecord[]>();
   for (const history of histories) {
-    const rows = grouped.get(history.user) || [];
+    const rows = grouped.get(history.worker) || [];
     rows.push(history);
-    grouped.set(history.user, rows);
+    grouped.set(history.worker, rows);
   }
   return new Map([...grouped].map(([userId, rows]) => [userId, computeTenureDays(rows)]));
 }
@@ -225,9 +225,9 @@ function buildBasicRows(histories: EmploymentHistoryRecord[]) {
       "Ngày vào": formatDateOnly(history.join_date),
       "Ngày nghỉ": formatDateOnly(history.leave_date),
       "Trạng thái": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
-      "Thâm niên tích luỹ (ngày)": tenure.get(history.user) ?? 0,
-      "Tài khoản gốc": history.expand?.user?.full_name || history.expand?.user?.username || "",
-      "Số điện thoại": history.expand?.user?.phone || "",
+      "Thâm niên tích luỹ (ngày)": tenure.get(history.worker) ?? 0,
+      "Tài khoản gốc": history.expand?.worker?.full_name || history.expand?.worker?.username || "",
+      "Số điện thoại": history.expand?.worker?.phone || "",
     };
   });
 }
@@ -235,7 +235,7 @@ function buildBasicRows(histories: EmploymentHistoryRecord[]) {
 function buildFullRows(histories: EmploymentHistoryRecord[]) {
   const tenure = tenureByUserId(histories);
   return histories.map((history, index) => {
-    const user = history.expand?.user;
+    const user = history.expand?.worker;
     const recruiter = getRecruiterDisplay(history);
     return {
       STT: index + 1,
@@ -255,7 +255,7 @@ function buildFullRows(histories: EmploymentHistoryRecord[]) {
       "Người tuyển": recruiter?.name || "",
       "Loại người tuyển": recruiter?.label || "",
       "Ngày cấp CCCD tại thời điểm đi làm": formatDateOnly(history.cccd_issue_date),
-      "Thâm niên tích luỹ (ngày)": tenure.get(history.user) ?? 0,
+      "Thâm niên tích luỹ (ngày)": tenure.get(history.worker) ?? 0,
       "Mã số thuế": history.worker_tax_code_snapshot || "",
       "Trạng thái lịch sử": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
       "Ghi chú": history.note || "",

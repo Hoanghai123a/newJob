@@ -81,9 +81,9 @@ async function fetchRecordsByIds<T>(collection: string, ids: string[], fields: s
 function latestItemsByWorker<T extends { user: string; round_no?: number }>(items: T[]) {
   const latest = new Map<string, T>();
   for (const item of items) {
-    const current = latest.get(item.user);
-    if (item.user && (!current || Number(item.round_no || 0) > Number(current.round_no || 0))) {
-      latest.set(item.user, item);
+    const current = latest.get(item.worker);
+    if (item.worker && (!current || Number(item.round_no || 0) > Number(current.round_no || 0))) {
+      latest.set(item.worker, item);
     }
   }
   return [...latest.values()];
@@ -96,7 +96,7 @@ async function fetchHourHistoriesForRecruiter(recruiterId: string) {
   return (await pb.collection("employment_histories").getFullList({
     filter: `recruiter_staff="${escapePb(recruiterId)}"`,
     sort: "-join_date,-created",
-    expand: "user,factory,recruiter_staff,recruiter_partner",
+    expand: "worker,factory,recruiter_staff,recruiter_partner",
     fields: HOUR_HISTORY_FIELDS,
   })) as unknown as EmploymentHistoryRecord[];
 }
@@ -113,7 +113,7 @@ async function fetchHourHistories(userIds: string[]) {
       ...((await pb.collection("employment_histories").getFullList({
         filter: `(${userFilter})`,
         sort: "-join_date,-created",
-        expand: "user,factory,recruiter_staff,recruiter_partner",
+        expand: "worker,factory,recruiter_staff,recruiter_partner",
         fields: HOUR_HISTORY_FIELDS,
       })) as unknown as EmploymentHistoryRecord[]),
     );
@@ -156,7 +156,7 @@ export function HourStatsDashboard({ presentation = "embedded" }: HourStatsDashb
         ? ""
         : `(${relationInFilter(
             "user",
-            staffHistories.map((history) => history.user),
+            staffHistories.map((history) => history.worker),
           )})`;
       const filter = [`month="${escapePb(month)}"`, staffWorkerFilter].filter(Boolean).join(" && ");
       const [attendanceRows, salaryRows] = await Promise.all([
@@ -171,7 +171,7 @@ export function HourStatsDashboard({ presentation = "embedded" }: HourStatsDashb
       ]);
       let attendance = latestItemsByWorker(attendanceRows);
       let salary = latestItemsByWorker(salaryRows);
-      const attendanceIds = new Set(attendance.map((item) => item.user));
+      const attendanceIds = new Set(attendance.map((item) => item.worker));
       const [attendanceDetails, salaryDetails] = await Promise.all([
         fetchRecordsByIds<Pick<AttendanceHourItem, "id" | "rows">>(
           "check_attendance_items",
@@ -182,7 +182,7 @@ export function HourStatsDashboard({ presentation = "embedded" }: HourStatsDashb
         ),
         fetchRecordsByIds<Pick<SalaryHourItem, "id" | "wage_lines">>(
           "check_salary_items",
-          salary.filter((item) => !attendanceIds.has(item.user)).map((item) => item.id),
+          salary.filter((item) => !attendanceIds.has(item.worker)).map((item) => item.id),
           "id,wage_lines",
         ),
       ]);
@@ -190,11 +190,11 @@ export function HourStatsDashboard({ presentation = "embedded" }: HourStatsDashb
       const salaryDetailsById = new Map(salaryDetails.map((item) => [item.id, item]));
       attendance = attendance.map((item) => ({ ...item, ...attendanceDetailsById.get(item.id) }));
       salary = salary.map((item) => ({ ...item, ...salaryDetailsById.get(item.id) }));
-      const workerIds = [...new Set([...attendance, ...salary].map((item) => item.user))];
+      const workerIds = [...new Set([...attendance, ...salary].map((item) => item.worker))];
       const workerIdSet = new Set(workerIds);
       const historyRows = isAdmin
         ? await fetchHourHistories(workerIds)
-        : staffHistories.filter((history) => workerIdSet.has(history.user));
+        : staffHistories.filter((history) => workerIdSet.has(history.worker));
       const payload = { attendance, salary, histories: historyRows };
       hourStatsCache.set(cacheKey, { expiresAt: Date.now() + HOUR_STATS_CACHE_TTL, payload });
       setAttendanceItems(attendance);

@@ -68,14 +68,14 @@ async function fetchLatestHistories(userIds: string[]) {
     const histories = await pb
       .collection("employment_histories")
       .getFullList<EmploymentHistoryRecord>({
-        filter: relationInFilter("user", batch),
+        filter: relationInFilter("worker", batch),
         sort: "-join_date,-created",
         fields: "id,user,factory,employee_code,join_date,leave_date,status,created,updated",
       });
     histories.forEach((history) => {
-      const group = historiesByUser.get(history.user) || [];
+      const group = historiesByUser.get(history.worker) || [];
       group.push(history);
-      historiesByUser.set(history.user, group);
+      historiesByUser.set(history.worker, group);
     });
   }
 
@@ -263,7 +263,7 @@ export function WorkerJoinSelectorDialog({
         const candidateUserIds = [
           ...new Set(
             response.items
-              .map((history) => history.user)
+              .map((history) => history.worker)
               .filter((userId) => userId && !candidateMap.has(userId)),
           ),
         ];
@@ -278,7 +278,7 @@ export function WorkerJoinSelectorDialog({
         });
         if (!validLatest.length) continue;
 
-        const latestByUserId = new Map(validLatest.map((history) => [history.user, history]));
+        const latestByUserId = new Map(validLatest.map((history) => [history.worker, history]));
         const users = await fetchCandidateUsers([...latestByUserId.keys()]);
         users.forEach((user) => {
           const latest = latestByUserId.get(user.id);

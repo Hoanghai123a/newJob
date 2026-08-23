@@ -4,11 +4,10 @@ import { companyIdOf } from "./tenant";
 
 export type FactoryStatus = "active" | "inactive";
 
-// PocketBase cũ vẫn yêu cầu relation company; tenant_company là field chuẩn mới.
 export function factoryManagerTenantPayload(user?: Pick<UserRecord, "tenant_company"> | null) {
   const tenant_company = companyIdOf(user || (pb.authStore.record as UserRecord | null));
   if (!tenant_company) throw new Error("Tài khoản chưa được gán công ty.");
-  return { tenant_company, company: tenant_company };
+  return { tenant_company };
 }
 
 export interface FactoryRecord {
@@ -40,6 +39,13 @@ export interface FactoryManagerRecord {
   };
 }
 
+const FACTORY_MANAGER_CACHE_TIME = 15_000;
+const factoryManagerInFlight = new Map<string, Promise<FactoryManagerRecord[]>>();
+const factoryManagerCache = new Map<
+  string,
+  { expiresAt: number; records: FactoryManagerRecord[] }
+>();
+
 export async function fetchFactories(user?: Pick<UserRecord, "tenant_company"> | null) {
   const tenant = companyIdOf(user || (pb.authStore.record as UserRecord | null));
   if (!tenant) throw new Error("Tài khoản chưa được gán công ty.");
@@ -56,14 +62,35 @@ export async function fetchFactoryManagers(
 ) {
   const tenant = companyIdOf(user || (pb.authStore.record as UserRecord | null));
   if (!tenant) throw new Error("Tài khoản chưa được gán công ty.");
+  const cacheKey = `${tenant}:${staffId || "all"}`;
+  const cached = factoryManagerCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) return cached.records;
+  const pending = factoryManagerInFlight.get(cacheKey);
+  if (pending) return pending;
+
   const filters = [`tenant_company = "${escapePb(tenant)}"`];
   if (staffId) filters.push(`staff = "${escapePb(staffId)}"`);
   const filter = filters.join(" && ");
-  return (await pb.collection("factory_managers").getFullList({
-    filter,
-    sort: "-created",
-    expand: "factory",
-  })) as unknown as FactoryManagerRecord[];
+  const request = pb
+    .collection("factory_managers")
+    .getFullList({
+      filter,
+      sort: "-created",
+      expand: "factory",
+    })
+    .then((records) => {
+      const typedRecords = records as unknown as FactoryManagerRecord[];
+      factoryManagerCache.set(cacheKey, {
+        expiresAt: Date.now() + FACTORY_MANAGER_CACHE_TIME,
+        records: typedRecords,
+      });
+      return typedRecords;
+    })
+    .finally(() => {
+      factoryManagerInFlight.delete(cacheKey);
+    });
+  factoryManagerInFlight.set(cacheKey, request);
+  return request;
 }
 
 export function isFactoryAssignmentActive(

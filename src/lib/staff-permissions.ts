@@ -39,6 +39,7 @@ export interface StaffWorkerRecord {
 }
 
 const RECENT_RECRUITER_HISTORY_LIMIT = 3;
+const staffWorkspaceInFlight = new Map<string, Promise<StaffWorkspaceResult>>();
 
 export function canAccessStaffWorkspace(user?: Partial<UserRecord> | null) {
   return user?.role === "staff" || user?.role === "admin";
@@ -295,9 +296,9 @@ function buildWorkspace(
   const bypassScope = opts?.bypassScope ?? false;
   const grouped = new Map<string, EmploymentHistoryRecord[]>();
   for (const history of histories) {
-    const bucket = grouped.get(history.user) || [];
+    const bucket = grouped.get(history.worker) || [];
     bucket.push(history);
-    grouped.set(history.user, bucket);
+    grouped.set(history.worker, bucket);
   }
 
   const workerMap = new Map(users.map((item) => [item.id, item]));
@@ -431,7 +432,7 @@ export async function fetchFreshStaffWorkspace(
     hydrateCache: opts?.hydrateCache,
   });
 
-  const userIds = [...new Set(synced.histories.map((h) => h.user).filter(Boolean))];
+  const userIds = [...new Set(synced.histories.map((h) => h.worker).filter(Boolean))];
   const cachedUserIds = new Set(synced.users.map((u) => u.id));
   const missingIds = userIds.filter((id) => !cachedUserIds.has(id));
   if (missingIds.length) {
@@ -457,7 +458,7 @@ export async function fetchFreshStaffWorkspace(
   );
 }
 
-export async function fetchStaffWorkspace(
+async function fetchStaffWorkspaceUncached(
   viewer: UserRecord,
   opts?: { onCacheReady?: (result: StaffWorkspaceResult) => void },
 ) {
@@ -497,7 +498,7 @@ export async function fetchStaffWorkspace(
     );
   }
 
-  const userIds = [...new Set(synced.histories.map((h) => h.user).filter(Boolean))];
+  const userIds = [...new Set(synced.histories.map((h) => h.worker).filter(Boolean))];
   const cachedUserIds = new Set(synced.users.map((u) => u.id));
   const missingIds = userIds.filter((id) => !cachedUserIds.has(id));
   if (missingIds.length) {
@@ -512,6 +513,21 @@ export async function fetchStaffWorkspace(
     mergeUsers(synced.users, adminWorkerAccounts),
     managedFactoryIds,
   );
+}
+
+export function fetchStaffWorkspace(
+  viewer: UserRecord,
+  opts?: { onCacheReady?: (result: StaffWorkspaceResult) => void },
+) {
+  const key = `${viewer.id}:${viewer.role || ""}:${companyIdOf(viewer)}`;
+  const pending = staffWorkspaceInFlight.get(key);
+  if (pending) return pending;
+
+  const request = fetchStaffWorkspaceUncached(viewer, opts).finally(() => {
+    staffWorkspaceInFlight.delete(key);
+  });
+  staffWorkspaceInFlight.set(key, request);
+  return request;
 }
 
 export async function fetchStaffWorkerWorkspace(viewer: UserRecord, workerId: string) {

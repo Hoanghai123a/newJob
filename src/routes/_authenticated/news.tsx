@@ -998,7 +998,7 @@ function EditDialog({
       const mapUrl = factoryMapUrl(currentFactory) || form.map_url || "";
       const fd = new FormData();
       fd.append("tenant_company", companyIdOf(user));
-      fd.append("company", form.company);
+      
       fd.append("area", normalizeArea(form.area));
       fd.append("map_url", mapUrl);
       fd.append("introduction", form.introduction || "");

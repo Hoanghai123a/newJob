@@ -1,4 +1,4 @@
-﻿import { getPBUpstream } from "@/lib/pocketbase-config";
+import { getPBUpstream } from "@/lib/pocketbase-config";
 
 type AuthUser = {
   id: string;

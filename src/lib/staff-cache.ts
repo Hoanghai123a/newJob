@@ -17,6 +17,16 @@ const STORE_STAFF_USERS = "staff_users";
 const STORE_META = "_meta";
 const BATCH_SIZE = 50;
 
+const STAFF_SYNC_DEDUPE_TIME = 15_000;
+const staffSyncInFlight = new Map<
+  string,
+  Promise<{ histories: EmploymentHistoryRecord[]; users: WorkerRecord[] }>
+>();
+const staffSyncRecent = new Map<
+  string,
+  { completedAt: number; result: { histories: EmploymentHistoryRecord[]; users: WorkerRecord[] } }
+>();
+
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -139,7 +149,7 @@ function idbDelete(db: IDBDatabase, store: string, key: IDBValidKey): Promise<vo
 function usersFromExpandedHistories(histories: EmploymentHistoryRecord[]): WorkerRecord[] {
   const map = new Map<string, WorkerRecord>();
   for (const history of histories) {
-    const user = history.expand?.user;
+    const user = history.expand?.worker;
     if (user?.id) map.set(user.id, user);
   }
   return [...map.values()];
@@ -154,10 +164,23 @@ function idbClear(db: IDBDatabase, store: string): Promise<void> {
   });
 }
 
-export async function fetchUsersBatched(userIds: string[]): Promise<WorkerRecord[]> {
-  const unique = [...new Set(userIds.filter(Boolean))];
-  if (!unique.length) return [];
+const usersBatchInFlight = new Map<string, Promise<WorkerRecord[]>>();
 
+export function fetchUsersBatched(userIds: string[]): Promise<WorkerRecord[]> {
+  const unique = [...new Set(userIds.filter(Boolean))];
+  if (!unique.length) return Promise.resolve([]);
+  const key = unique.slice().sort().join(",");
+  const pending = usersBatchInFlight.get(key);
+  if (pending) return pending;
+
+  const request = fetchUsersBatchedUncached(unique).finally(() => {
+    usersBatchInFlight.delete(key);
+  });
+  usersBatchInFlight.set(key, request);
+  return request;
+}
+
+async function fetchUsersBatchedUncached(unique: string[]): Promise<WorkerRecord[]> {
   const results: WorkerRecord[] = [];
   for (let i = 0; i < unique.length; i += BATCH_SIZE) {
     const batch = unique.slice(i, i + BATCH_SIZE);
@@ -204,7 +227,7 @@ export async function readCachedStaffData(): Promise<{
   }
 }
 
-export async function syncStaffData(opts?: {
+async function syncStaffDataUncached(opts?: {
   historyFilter?: string;
   useCache?: boolean;
   includeCccdVersions?: boolean;
@@ -223,12 +246,12 @@ export async function syncStaffData(opts?: {
   const freshHistories = (await pb.collection("employment_histories").getFullList({
     filter: historyFilter,
     sort: "-join_date,-created",
-    expand: "user,factory,recruiter_staff,recruiter_partner,main_house",
+    expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
   })) as unknown as EmploymentHistoryRecord[];
   const expandedUsers = usersFromExpandedHistories(freshHistories);
 
   if (!useCache) {
-    const userIds = [...new Set(freshHistories.map((h) => h.user).filter(Boolean))];
+    const userIds = [...new Set(freshHistories.map((h) => h.worker).filter(Boolean))];
     const expandedUserIds = new Set(expandedUsers.map((u) => u.id));
     const missingIds = userIds.filter((id) => !expandedUserIds.has(id));
     const fetched = await fetchUsersBatched(missingIds).catch(() => []);
@@ -259,7 +282,7 @@ export async function syncStaffData(opts?: {
 
   const allHistories = await idbGetAll<EmploymentHistoryRecord>(db, STORE_HISTORIES);
 
-  const userIds = [...new Set(allHistories.map((h) => h.user).filter(Boolean))];
+  const userIds = [...new Set(allHistories.map((h) => h.worker).filter(Boolean))];
 
   // A user profile can change without touching employment_histories. Refresh every
   // worker already present in the permitted history scope so a page reload cannot
@@ -298,6 +321,37 @@ export async function syncStaffData(opts?: {
   return { histories: allHistories, users: allUsers };
 }
 
+export function syncStaffData(opts?: {
+  historyFilter?: string;
+  useCache?: boolean;
+  includeCccdVersions?: boolean;
+  hydrateCache?: boolean;
+}) {
+  const key = JSON.stringify({
+    historyFilter: opts?.historyFilter || "",
+    useCache: opts?.useCache ?? true,
+    includeCccdVersions: opts?.includeCccdVersions ?? true,
+    hydrateCache: opts?.hydrateCache ?? false,
+  });
+  const recent = staffSyncRecent.get(key);
+  if (recent && Date.now() - recent.completedAt < STAFF_SYNC_DEDUPE_TIME) {
+    return Promise.resolve(recent.result);
+  }
+  const pending = staffSyncInFlight.get(key);
+  if (pending) return pending;
+
+  const request = syncStaffDataUncached(opts)
+    .then((result) => {
+      staffSyncRecent.set(key, { completedAt: Date.now(), result });
+      return result;
+    })
+    .finally(() => {
+      staffSyncInFlight.delete(key);
+    });
+  staffSyncInFlight.set(key, request);
+  return request;
+}
+
 export async function reconcileStaffData(opts: {
   historyFilter?: string;
   includeCccdVersions?: boolean;
@@ -307,17 +361,19 @@ export async function reconcileStaffData(opts: {
   const scopedHistories = (await pb.collection("employment_histories").getFullList({
     filter: historyFilter,
     sort: "-join_date,-created",
-    expand: "user,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
+    expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
   })) as unknown as EmploymentHistoryRecord[];
 
-  const scopeUserIds = [...new Set(scopedHistories.map((history) => history.user).filter(Boolean))];
+  const scopeUserIds = [
+    ...new Set(scopedHistories.map((history) => history.worker).filter(Boolean)),
+  ];
   const allHistories: EmploymentHistoryRecord[] = [];
   for (let i = 0; i < scopeUserIds.length; i += 30) {
     const batch = scopeUserIds.slice(i, i + 30);
     const items = (await pb.collection("employment_histories").getFullList({
-      filter: relationInFilter("user", batch),
+      filter: relationInFilter("worker", batch),
       sort: "-join_date,-created",
-      expand: "user,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
+      expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
     })) as unknown as EmploymentHistoryRecord[];
     allHistories.push(...items);
   }
@@ -362,7 +418,7 @@ export async function reconcileStaffData(opts: {
       const items = (await pb
         .collection("cccd_versions")
         .getFullList({
-          filter: relationInFilter("user", batch),
+          filter: relationInFilter("worker", batch),
           sort: "-created",
         })
         .catch(() => [])) as unknown as CccdVersionRecord[];
@@ -561,7 +617,7 @@ export async function getCachedUserIds(): Promise<Set<string>> {
     const histories = await idbGetAll<EmploymentHistoryRecord>(db, STORE_HISTORIES);
     const users = await idbGetAll<WorkerRecord>(db, STORE_USERS);
     const ids = new Set<string>();
-    for (const h of histories) if (h.user) ids.add(h.user);
+    for (const h of histories) if (h.worker) ids.add(h.worker);
     for (const u of users) if (u.id) ids.add(u.id);
     return ids;
   } catch {

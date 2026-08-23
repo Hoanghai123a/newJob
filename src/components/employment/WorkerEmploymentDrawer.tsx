@@ -712,7 +712,7 @@ export function WorkerEmploymentDrawer({
     try {
       await updateEmploymentHistory(
         active.id,
-        { leave_date: leaveDate, note: leaveNote.trim() },
+        { worker: user.id, leave_date: leaveDate, note: leaveNote.trim() },
         { actor, action: "report_leave", source: "Hồ sơ lao động", note: "Báo nghỉ" },
       );
       toast.success("Đã cập nhật ngày nghỉ");
@@ -760,7 +760,7 @@ export function WorkerEmploymentDrawer({
       for (const history of staleWorkingHistories) {
         await updateEmploymentHistory(
           history.id,
-          { status: "left" },
+          { worker: user.id, status: "left" },
           {
             actor,
             source: "Hồ sơ lao động",
@@ -861,7 +861,7 @@ export function WorkerEmploymentDrawer({
       }
       await updateEmploymentHistory(
         latest.id,
-        { employee_code: code },
+        { worker: user.id, employee_code: code },
         { actor, source: "Hồ sơ lao động", note: `Cập nhật mã NV: ${code}`, before: latest },
       );
       toast.success("Đã cập nhật mã nhân viên");
@@ -1055,6 +1055,7 @@ export function WorkerEmploymentDrawer({
 
       const normalizedAddress = form.worker_address_snapshot.trim();
       const historyPayload = {
+        worker: user.id,
         factory: form.factory,
         employee_code: form.employee_code.trim(),
         worker_name_snapshot: form.worker_name_snapshot.trim(),

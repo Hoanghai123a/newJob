@@ -9,6 +9,8 @@ export function StaffRealtimeSyncGate() {
   useEffect(() => {
     let cancelled = false;
     let syncing = false;
+    let lastSyncAt = 0;
+    const MIN_SYNC_INTERVAL = 15_000;
 
     const sync = async () => {
       if (
@@ -20,8 +22,10 @@ export function StaffRealtimeSyncGate() {
         await stopStaffRealtimeSync();
         return;
       }
-      if (syncing) return;
+      const now = Date.now();
+      if (syncing || now - lastSyncAt < MIN_SYNC_INTERVAL) return;
       syncing = true;
+      lastSyncAt = now;
       try {
         const managers = await fetchFactoryManagers(user.id);
         const managedFactoryIds = new Set(

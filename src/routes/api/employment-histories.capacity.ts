@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/employment-histories/capacity")({
             token,
           ),
           pbServerFetch(
-            `/api/collections/employment_histories/records?page=1&perPage=1&skipTotal=0&filter=${encodeURIComponent(`company = "${companyId}"`)}&fields=id`,
+            `/api/collections/employment_histories/records?page=1&perPage=1&skipTotal=0&filter=${encodeURIComponent(`tenant_company = "${companyId}"`)}&fields=id`,
             {},
             token,
           ),

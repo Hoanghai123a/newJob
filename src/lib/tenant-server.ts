@@ -4,7 +4,6 @@ import type { CompanyStatus } from "@/lib/tenant";
 export type ServerAuthUser = {
   id: string;
   role?: string;
-  company?: string;
   tenant_company?: string;
   status?: string;
   username?: string;

@@ -49,7 +49,7 @@ function normalizeAttendance(item: Partial<WorkerAttendanceCheckItem>): WorkerAt
   return {
     ...(item as WorkerAttendanceCheckItem),
     id: String(item.id || ""),
-    user: String(item.user || ""),
+    user: String(item.worker || ""),
     batch: String(item.batch || ""),
     month: String(item.month || ""),
     round_no: Number(item.round_no || 0),
@@ -62,7 +62,7 @@ function normalizeSalary(item: Partial<WorkerSalaryCheckItem>): WorkerSalaryChec
   return {
     ...(item as WorkerSalaryCheckItem),
     id: String(item.id || ""),
-    user: String(item.user || ""),
+    user: String(item.worker || ""),
     batch: String(item.batch || ""),
     month: String(item.month || ""),
     round_no: Number(item.round_no || 0),

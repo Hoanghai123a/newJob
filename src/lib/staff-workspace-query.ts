@@ -6,7 +6,7 @@ import { readCachedAuxData, writeCachedAuxData } from "./staff-cache";
 import { fetchStaffWorkspace, type StaffWorkspaceResult } from "./staff-permissions";
 import { companyIdOf } from "./tenant";
 
-const WORKSPACE_STALE_TIME = 15_000;
+const WORKSPACE_STALE_TIME = 60_000;
 const AUX_STALE_TIME = 5 * 60_000;
 const CACHE_GC_TIME = 30 * 60_000;
 
@@ -20,9 +20,7 @@ export interface StaffDirectoryAuxData {
   staffUsers: UserRecord[];
 }
 
-export function staffWorkspaceQueryKey(
-  viewer: Pick<UserRecord, "id" | "role" | "tenant_company">,
-) {
+export function staffWorkspaceQueryKey(viewer: Pick<UserRecord, "id" | "role" | "tenant_company">) {
   return [
     ...STAFF_WORKSPACE_QUERY_ROOT,
     viewer.id,
@@ -62,7 +60,7 @@ export function useStaffWorkspaceQuery(viewer: UserRecord | null) {
     },
     staleTime: WORKSPACE_STALE_TIME,
     gcTime: CACHE_GC_TIME,
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchOnReconnect: true,
     refetchOnWindowFocus: false,
     retry: 1,
@@ -119,7 +117,7 @@ export function useStaffDirectoryAuxQuery(viewer: UserRecord | null) {
     },
     staleTime: AUX_STALE_TIME,
     gcTime: CACHE_GC_TIME,
-    refetchOnMount: true,
+    refetchOnMount: false,
     refetchOnReconnect: true,
     refetchOnWindowFocus: false,
     retry: 1,

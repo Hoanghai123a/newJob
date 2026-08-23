@@ -897,7 +897,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
       if (!cccdVersionByNumber.has(cccdNumber)) {
         cccdVersionByNumber.set(cccdNumber, {
           id: createRecordId(usedRecordIds),
-          user: workerId,
+          worker: workerId,
           cccd_number: cccdNumber,
           is_current: cccdNumber === worker.cccdBase.replace(/\D/g, ""),
         });
@@ -916,7 +916,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
         payload: {
           id: historyId,
           uid: historyUid,
-          user: workerId,
+          worker: workerId,
           factory: entry.factory.id,
           main_house: entry.mainHouse.id,
           employee_code: entry.row.employeeCode,

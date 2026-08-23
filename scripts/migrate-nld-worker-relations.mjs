@@ -92,7 +92,12 @@ for (const target of RELATIONS) {
   if (!oldField || oldField.collectionId !== usersCollection.id) continue;
   let newField = fieldByName(collection, target.newField);
   if (!newField && APPLY) {
-    await pb.collections.update(collection.id, { fields: [...collection.fields, relationField(target.newField, workersCollection.id, false)] });
+    const nextRules = {};
+    for (const ruleName of ["listRule", "viewRule", "createRule", "updateRule", "deleteRule"]) {
+      const rule = collection[ruleName];
+      if (typeof rule === "string") nextRules[ruleName] = rule.replaceAll(target.oldField, target.newField);
+    }
+    await pb.collections.update(collection.id, { fields: [...collection.fields, relationField(target.newField, workersCollection.id, false)], ...nextRules });
     newField = fieldByName(await pb.collections.getOne(collection.id), target.newField);
     report.addedFields.push(`${target.collection}.${target.newField}`);
   }

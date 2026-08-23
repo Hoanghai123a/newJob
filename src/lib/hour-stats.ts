@@ -132,10 +132,10 @@ function selectHistory(
 function latestByWorker<T extends { user: string; round_no?: number }>(items: T[]) {
   const result = new Map<string, T>();
   for (const item of items) {
-    if (!item.user) continue;
-    const current = result.get(item.user);
+    if (!item.worker) continue;
+    const current = result.get(item.worker);
     if (!current || Number(item.round_no || 0) > Number(current.round_no || 0)) {
-      result.set(item.user, item);
+      result.set(item.worker, item);
     }
   }
   return result;
@@ -156,9 +156,9 @@ export function buildWorkerHourStats({
   const salaryByWorker = latestByWorker(salaryItems);
   const historiesByWorker = new Map<string, EmploymentHistoryRecord[]>();
   for (const history of histories) {
-    const rows = historiesByWorker.get(history.user) || [];
+    const rows = historiesByWorker.get(history.worker) || [];
     rows.push(history);
-    historiesByWorker.set(history.user, rows);
+    historiesByWorker.set(history.worker, rows);
   }
 
   const workerIds = new Set([...attendanceByWorker.keys(), ...salaryByWorker.keys()]);
@@ -172,7 +172,7 @@ export function buildWorkerHourStats({
     if (!sourceItem) continue;
 
     const history = selectHistory(historiesByWorker.get(userId) || [], month, salaryItem);
-    const user = history?.expand?.user;
+    const user = history?.expand?.worker;
     const partner = history?.expand?.recruiter_partner;
     const recruiter = history?.expand?.recruiter_staff;
     const recruiterType = history?.recruiter_partner

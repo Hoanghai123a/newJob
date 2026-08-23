@@ -274,7 +274,7 @@ function StaffWorkerDetailPage() {
       pb
         .collection("advances")
         .getList(1, 50, {
-          filter: `user="${workerId}"`,
+          filter: `worker="${workerId}"`,
           sort: "-created",
         })
         .then((res) => res.items)
@@ -946,6 +946,7 @@ function StaffWorkerDetailPage() {
       cccdVersionId = version.id;
     }
     await updateEmploymentHistory(editingHistory.id, {
+      worker: workerUser.id,
       employee_code: historyForm.employee_code.trim(),
       worker_name_snapshot: historyForm.worker_name_snapshot.trim(),
       worker_cccd_snapshot: historyForm.worker_cccd_snapshot.trim(),
@@ -2257,7 +2258,7 @@ function HistoryCccdUpload({
         e.target.value = "";
         return;
       }
-      const userId = history.user;
+      const userId = history.worker;
       const cccdNumber = history.worker_cccd_snapshot;
       if (!cccdNumber) {
         toast.error("Không có số CCCD để tạo phiên bản");

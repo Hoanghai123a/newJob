@@ -56,7 +56,7 @@ export function AccountActivityStats() {
         ]);
         if (!alive) return;
         setUsers(userList);
-        setWorkerUserIds(new Set(histList.map((h) => h.user)));
+        setWorkerUserIds(new Set(histList.map((h) => h.worker)));
       } catch (e: any) {
         if (alive) toast.error(e?.message || "Không tải được thống kê tài khoản");
       } finally {

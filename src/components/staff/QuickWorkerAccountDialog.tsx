@@ -603,7 +603,6 @@ export function QuickWorkerAccountDialog({
     const currentActor = pb.authStore.record as UserRecord | null;
     const tenantCompany = companyIdOf(currentActor);
     if (!tenantCompany) throw new Error("Tài khoản chưa được gán công ty.");
-    fd.append("company", tenantCompany);
     fd.append("tenant_company", tenantCompany);
     const createdWorker = await pb.collection("workers").create<WorkerRecord>(fd);
     const secondaryWarnings: string[] = [];

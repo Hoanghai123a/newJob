@@ -1,4 +1,4 @@
-﻿import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
@@ -311,9 +311,9 @@ function WorkforcePage() {
   const historiesByUser = useMemo(() => {
     const map = new Map<string, EmploymentHistoryRecord[]>();
     for (const h of histories) {
-      const arr = map.get(h.user) || [];
+      const arr = map.get(h.worker) || [];
       arr.push(h);
-      map.set(h.user, arr);
+      map.set(h.worker, arr);
     }
     return map;
   }, [histories]);
@@ -371,9 +371,9 @@ function WorkforcePage() {
       ) {
         continue;
       }
-      const arr = map.get(h.user) || [];
+      const arr = map.get(h.worker) || [];
       arr.push(h);
-      map.set(h.user, arr);
+      map.set(h.worker, arr);
     }
     const latest = new Map<string, EmploymentHistoryRecord>();
     for (const [userId, arr] of map.entries()) {
@@ -629,7 +629,7 @@ function WorkforcePage() {
       <WorkerEmploymentDrawer
         user={selectedUserId ? userById.get(selectedUserId) || null : null}
         actor={currentUser}
-        histories={selectedUserId ? histories.filter((h) => h.user === selectedUserId) : []}
+        histories={selectedUserId ? histories.filter((h) => h.worker === selectedUserId) : []}
         factories={factories}
         mainHouses={mainHouses}
         users={users}
@@ -841,7 +841,7 @@ function collectWorkersForFactory(
     if (isWorkingAtEndDate(h, to)) {
       seen.set(`${userId}:working`, {
         userId,
-        fullName: getWorkerDisplayName(userById.get(h.user)),
+        fullName: getWorkerDisplayName(userById.get(h.worker)),
         factoryName: h.expand?.factory?.name || "",
         state: "working",
         date: h.join_date,
@@ -851,18 +851,18 @@ function collectWorkersForFactory(
   for (const h of histories) {
     if (h.factory !== factoryId) continue;
     if (inDateRange(h.join_date, from, to)) {
-      seen.set(`${h.user}:joined:${h.id}`, {
-        userId: h.user,
-        fullName: getWorkerDisplayName(userById.get(h.user)),
+      seen.set(`${h.worker}:joined:${h.id}`, {
+        userId: h.worker,
+        fullName: getWorkerDisplayName(userById.get(h.worker)),
         factoryName: h.expand?.factory?.name || "",
         state: "joined",
         date: h.join_date,
       });
     }
     if (hasLeftInDateRange(h, from, to)) {
-      seen.set(`${h.user}:left:${h.id}`, {
-        userId: h.user,
-        fullName: getWorkerDisplayName(userById.get(h.user)),
+      seen.set(`${h.worker}:left:${h.id}`, {
+        userId: h.worker,
+        fullName: getWorkerDisplayName(userById.get(h.worker)),
         factoryName: h.expand?.factory?.name || "",
         state: "left",
         date: h.leave_date || "",
@@ -886,7 +886,7 @@ function collectWorkersForRecruiter(
     if (isWorkingAtEndDate(h, to)) {
       seen.set(`${userId}:working`, {
         userId,
-        fullName: getWorkerDisplayName(userById.get(h.user)),
+        fullName: getWorkerDisplayName(userById.get(h.worker)),
         factoryName: h.expand?.factory?.name || "",
         state: "working",
         date: h.join_date,
@@ -896,18 +896,18 @@ function collectWorkersForRecruiter(
   for (const h of histories) {
     if (h.recruiter_staff !== staffId) continue;
     if (inDateRange(h.join_date, from, to)) {
-      seen.set(`${h.user}:joined:${h.id}`, {
-        userId: h.user,
-        fullName: getWorkerDisplayName(userById.get(h.user)),
+      seen.set(`${h.worker}:joined:${h.id}`, {
+        userId: h.worker,
+        fullName: getWorkerDisplayName(userById.get(h.worker)),
         factoryName: h.expand?.factory?.name || "",
         state: "joined",
         date: h.join_date,
       });
     }
     if (hasLeftInDateRange(h, from, to)) {
-      seen.set(`${h.user}:left:${h.id}`, {
-        userId: h.user,
-        fullName: getWorkerDisplayName(userById.get(h.user)),
+      seen.set(`${h.worker}:left:${h.id}`, {
+        userId: h.worker,
+        fullName: getWorkerDisplayName(userById.get(h.worker)),
         factoryName: h.expand?.factory?.name || "",
         state: "left",
         date: h.leave_date || "",
@@ -1074,7 +1074,7 @@ function WorkerList({
 
   const rows = useMemo(() => {
     const userIds = new Set<string>();
-    for (const h of histories) userIds.add(h.user);
+    for (const h of histories) userIds.add(h.worker);
     return [...userIds].map((id) => ({
       user: userById.get(id),
       latest: latestByUser.get(id) || null,
@@ -1196,7 +1196,7 @@ function WorkerList({
               const snapshotCccd = latest?.worker_cccd_snapshot || "";
               const cccdImageProgress = getHistoryCccdImageProgress(
                 latest,
-                histories.filter((history) => history.user === user.id),
+                histories.filter((history) => history.worker === user.id),
               );
 
               return (
