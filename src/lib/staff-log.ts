@@ -2,6 +2,7 @@ import { pb, type UserRecord } from "./pocketbase";
 import type { AdvanceRecord } from "./advances";
 import { companyPayload, joinTenantFilters } from "./tenant";
 import { getWorker } from "./workers";
+import { relationInFilter } from "./delegations";
 
 export type StaffActionType =
   | "create"
@@ -44,12 +45,30 @@ export interface StaffActionLogRecord {
   expand?: {
     actor?: UserRecord;
     target_user?: UserRecord;
+    target_worker?: UserRecord;
   };
 }
 
 export type WorkerActionHistoryRecord = StaffActionLogRecord & {
   source?: "staff_log" | "advance_snapshot";
 };
+
+const ACTION_ACTOR_ROLE_LABELS: Record<string, string> = {
+  admin: "Quản trị viên",
+  staff: "Nhân sự",
+  user: "Người lao động",
+};
+
+export function getStaffActionActorName(log: Pick<StaffActionLogRecord, "actor" | "actor_role_snapshot" | "expand">) {
+  return (
+    log.expand?.actor?.full_name?.trim() ||
+    log.expand?.actor?.username?.trim() ||
+    log.expand?.actor?.phone?.trim() ||
+    ACTION_ACTOR_ROLE_LABELS[log.actor_role_snapshot] ||
+    log.actor ||
+    "Không rõ"
+  );
+}
 
 export type WorkerActionKind =
   | "advance_report"
@@ -435,23 +454,79 @@ function syntheticAdvanceLog(advance: AdvanceRecord): WorkerActionHistoryRecord 
 
 async function fetchVisibleStaffActionLogs(userId: string, limit: number) {
   const visible: StaffActionLogRecord[] = [];
+  const seenIds = new Set<string>();
+  const historyIds = new Set<string>();
+
+  // Include both relation names and legacy history-record references.
+  try {
+    const histories = await pb.collection("employment_histories").getFullList<{ id: string }>({
+      filter: joinTenantFilters(
+        pb.authStore.record as UserRecord | null,
+        `worker="${userId}" || user="${userId}"`,
+      ),
+      fields: "id",
+    });
+    histories.forEach((history) => history.id && historyIds.add(history.id));
+  } catch (error) {
+    console.warn("[staff-log] Không tải được mã lịch sử đi làm để đối chiếu nhật ký", error);
+  }
+
+  const targetFilters = [`target_user="${userId}"`, `target_worker="${userId}"`];
+  if (historyIds.size > 0) {
+    targetFilters.push(
+      `(${[...historyIds].map((id) => `target_record="${id}"`).join(" || ")})`,
+    );
+  }
+  const filter = `(${targetFilters.join(" || ")})`;
+
   for (let page = 1; page <= MAX_LOG_PAGES && visible.length < limit; page += 1) {
     const result = await pb
       .collection("staff_action_logs")
       .getList<StaffActionLogRecord>(page, LOG_PAGE_SIZE, {
+        filter: joinTenantFilters(pb.authStore.record as UserRecord | null, filter),
+        sort: "-created",
+        expand: "actor,target_user,target_worker",
+      });
+    for (const log of result.items) {
+      if (!seenIds.has(log.id) && shouldDisplayWorkerActionLog(log)) {
+        seenIds.add(log.id);
+        visible.push(log);
+      }
+    }
+    if (page >= result.totalPages) break;
+  }
+  const missingActorIds = visible.filter((log) => log.actor && !log.expand?.actor).map((log) => log.actor);
+  if (missingActorIds.length > 0) {
+    try {
+      const actors = await pb.collection("users").getFullList<UserRecord>({
         filter: joinTenantFilters(
           pb.authStore.record as UserRecord | null,
-          `target_user="${userId}"`,
+          relationInFilter("id", missingActorIds),
         ),
-        sort: "-created",
-        expand: "actor",
+        fields: "id,full_name,username,phone,role,tenant_company",
       });
-    visible.push(...result.items.filter(shouldDisplayWorkerActionLog));
-    if (page >= result.totalPages) break;
+      const actorsById = new Map(actors.map((actor) => [actor.id, actor]));
+      for (const actorId of missingActorIds) {
+        if (actorsById.has(actorId)) continue;
+        try {
+          const actor = await pb.collection("users").getOne<UserRecord>(actorId, {
+            fields: "id,full_name,username,phone,role,tenant_company",
+          });
+          actorsById.set(actor.id, actor);
+        } catch {
+          // Keep the role/ID fallback when PocketBase hides a historical actor.
+        }
+      }
+      for (const log of visible) {
+        const actor = actorsById.get(log.actor);
+        if (actor) log.expand = { ...log.expand, actor };
+      }
+    } catch (error) {
+      console.warn("[staff-log] Không tải được tên tài khoản người thao tác", error);
+    }
   }
   return visible.slice(0, limit);
 }
-
 export async function fetchStaffActionLogsForUser(userId: string, limit = 50) {
   if (!userId) return [] as StaffActionLogRecord[];
   return fetchVisibleStaffActionLogs(userId, limit);
@@ -511,3 +586,7 @@ export async function createStaffActionLog(input: StaffActionLogInput) {
     note: input.note || "",
   });
 }
+
+
+
+

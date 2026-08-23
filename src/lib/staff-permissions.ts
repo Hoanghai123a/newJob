@@ -39,7 +39,14 @@ export interface StaffWorkerRecord {
 }
 
 const RECENT_RECRUITER_HISTORY_LIMIT = 3;
+const STAFF_WORKSPACE_CACHE_TIME = 15_000;
 const staffWorkspaceInFlight = new Map<string, Promise<StaffWorkspaceResult>>();
+const staffWorkspaceRecent = new Map<
+  string,
+  { completedAt: number; result: StaffWorkspaceResult }
+>();
+const adminWorkerInFlight = new Map<string, Promise<WorkerRecord[]>>();
+const adminWorkerRecent = new Map<string, { completedAt: number; records: WorkerRecord[] }>();
 
 export function canAccessStaffWorkspace(user?: Partial<UserRecord> | null) {
   return user?.role === "staff" || user?.role === "admin";
@@ -374,16 +381,33 @@ async function getManagedFactoryIds(viewer: UserRecord) {
   );
 }
 
-async function fetchAdminWorkerAccounts(viewer: UserRecord): Promise<WorkerRecord[]> {
-  if (viewer.role !== "admin") return [];
+function fetchAdminWorkerAccounts(viewer: UserRecord): Promise<WorkerRecord[]> {
+  if (viewer.role !== "admin") return Promise.resolve([]);
 
-  return pb
+  const key = companyIdOf(viewer);
+  const recent = adminWorkerRecent.get(key);
+  if (recent && Date.now() - recent.completedAt < STAFF_WORKSPACE_CACHE_TIME) {
+    return Promise.resolve(recent.records);
+  }
+  const pending = adminWorkerInFlight.get(key);
+  if (pending) return pending;
+
+  const request = pb
     .collection("workers")
     .getFullList<WorkerRecord>({
       filter: companyFilter(viewer),
       sort: "full_name",
     })
-    .catch(() => [] as WorkerRecord[]);
+    .catch(() => [] as WorkerRecord[])
+    .then((records) => {
+      adminWorkerRecent.set(key, { completedAt: Date.now(), records });
+      return records;
+    })
+    .finally(() => {
+      adminWorkerInFlight.delete(key);
+    });
+  adminWorkerInFlight.set(key, request);
+  return request;
 }
 
 function mergeUsers(...groups: WorkerRecord[][]): WorkerRecord[] {
@@ -520,12 +544,21 @@ export function fetchStaffWorkspace(
   opts?: { onCacheReady?: (result: StaffWorkspaceResult) => void },
 ) {
   const key = `${viewer.id}:${viewer.role || ""}:${companyIdOf(viewer)}`;
+  const recent = staffWorkspaceRecent.get(key);
+  if (recent && Date.now() - recent.completedAt < STAFF_WORKSPACE_CACHE_TIME) {
+    return Promise.resolve(recent.result);
+  }
   const pending = staffWorkspaceInFlight.get(key);
   if (pending) return pending;
 
-  const request = fetchStaffWorkspaceUncached(viewer, opts).finally(() => {
-    staffWorkspaceInFlight.delete(key);
-  });
+  const request = fetchStaffWorkspaceUncached(viewer, opts)
+    .then((result) => {
+      staffWorkspaceRecent.set(key, { completedAt: Date.now(), result });
+      return result;
+    })
+    .finally(() => {
+      staffWorkspaceInFlight.delete(key);
+    });
   staffWorkspaceInFlight.set(key, request);
   return request;
 }

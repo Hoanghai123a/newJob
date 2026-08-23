@@ -22,9 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatusChip } from "@/components/ui/status-chip";
-import { escapePb } from "@/lib/delegations";
+import { escapePb, relationInFilter } from "@/lib/delegations";
 import { pb, type UserRecord } from "@/lib/pocketbase";
-import { formatStaffActionDateTime, getWorkerActionSummary, type StaffActionLogRecord } from "@/lib/staff-log";
+import {
+  formatStaffActionDateTime,
+  getStaffActionActorName,
+  getWorkerActionSummary,
+  type StaffActionLogRecord,
+} from "@/lib/staff-log";
 
 export const Route = createFileRoute("/_authenticated/admin/logs")({
   beforeLoad: () => {
@@ -92,6 +97,7 @@ function buildLogFilter(actionFilter: string, search: string) {
     ? `(${[
         "actor.full_name",
         "actor.username",
+        "actor",
         "target_user.full_name",
         "target_user.username",
         "target_collection",
@@ -132,9 +138,39 @@ function SystemActionLogsPage() {
       .getList<StaffActionLogRecord>(page, 50, {
         filter,
         sort: "-created",
-        expand: "actor,target_user",
+        expand: "actor,target_user,target_worker",
       })
-      .then((res) => {
+      .then(async (res) => {
+        if (!alive) return;
+        const missingActorIds = res.items
+          .filter((item) => item.actor && !item.expand?.actor)
+          .map((item) => item.actor);
+        if (missingActorIds.length > 0) {
+          try {
+            const actors = await pb.collection("users").getFullList<UserRecord>({
+              filter: relationInFilter("id", missingActorIds),
+              fields: "id,full_name,username,phone,role,tenant_company",
+            });
+            const actorsById = new Map(actors.map((actor) => [actor.id, actor]));
+            for (const actorId of missingActorIds) {
+              if (actorsById.has(actorId)) continue;
+              try {
+                const actor = await pb.collection("users").getOne<UserRecord>(actorId, {
+                  fields: "id,full_name,username,phone,role,tenant_company",
+                });
+                actorsById.set(actor.id, actor);
+              } catch {
+                // Keep the ID fallback for deleted or inaccessible historical actors.
+              }
+            }
+            for (const item of res.items) {
+              const actor = actorsById.get(item.actor);
+              if (actor) item.expand = { ...item.expand, actor };
+            }
+          } catch (error) {
+            console.warn("[admin-logs] Không tải được tên tài khoản người thao tác", error);
+          }
+        }
         if (!alive) return;
         setLogs((current) => (page === 1 ? res.items : [...current, ...res.items]));
         setTotalPages(res.totalPages || 1);
@@ -214,8 +250,7 @@ function SystemActionLogsPage() {
       ) : (
         <>
           {logs.map((item) => {
-            const actorName =
-              item.expand?.actor?.full_name || item.expand?.actor?.username || item.actor;
+            const actorName = getStaffActionActorName(item);
             const actorUsername = item.expand?.actor?.username;
             const targetName = getTargetName(item);
             const roleLabel = item.actor_role_snapshot || "user";
@@ -282,7 +317,7 @@ function LogDetailDialog({
   log: StaffActionLogRecord | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const actorName = log?.expand?.actor?.full_name || log?.expand?.actor?.username || log?.actor;
+  const actorName = log ? getStaffActionActorName(log) : "Không rõ";
   const targetName = getTargetName(log);
   const collectionLabel = log
     ? COLLECTION_LABELS[log.target_collection] || log.target_collection

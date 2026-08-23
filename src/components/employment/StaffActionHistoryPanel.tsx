@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import {
   formatStaffActionDateTime,
+  getStaffActionActorName,
   getStaffActionCollectionLabel,
   getStaffActionLogChanges,
   getWorkerActionKind,
@@ -30,13 +31,8 @@ import {
 import { cn } from "@/lib/utils";
 
 function actorName(log: WorkerActionHistoryRecord) {
-  return (
-    log.expand?.actor?.full_name ||
-    log.expand?.actor?.username ||
-    (log.actor_role_snapshot === "user" ? "Người lao động" : "Không xác định")
-  );
+  return getStaffActionActorName(log);
 }
-
 type ActionVisualMeta = {
   icon: ComponentType<{ className?: string }>;
   iconClassName: string;
