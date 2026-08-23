@@ -804,7 +804,7 @@ export function WorkerEmploymentDrawer({
         }
       }
       const created = await createEmploymentHistory({
-        user: user.id,
+        worker: user.id,
         factory: joinForm.factory,
         main_house: joinForm.main_house,
         employee_code: joinForm.employee_code.trim(),
@@ -952,7 +952,7 @@ export function WorkerEmploymentDrawer({
       }
 
       const created = await createEmploymentHistory({
-        user: user.id,
+        worker: user.id,
         factory: oldHistoryForm.factory,
         main_house: oldHistoryForm.main_house,
         employee_code: oldHistoryForm.employee_code.trim(),
@@ -1168,7 +1168,7 @@ export function WorkerEmploymentDrawer({
 
       const created = await pb.collection("advances").create({
         ...companyPayload(pb.authStore.record as UserRecord),
-        user: user.id,
+        worker: user.id,
         requested_by: actor.id,
         recruiter_id: employment.recruiter_staff || "",
         employee_code: employment.employee_code || "",

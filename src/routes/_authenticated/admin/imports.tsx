@@ -627,7 +627,7 @@ function AdminImportsPage() {
         }
 
         const payload = {
-          user: user.id,
+          worker: user.id,
           factory: factory.id,
           main_house: mainHouse?.id || "",
           employee_code: employeeCode,

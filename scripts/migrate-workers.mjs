@@ -207,15 +207,20 @@ if (apply && workers) {
       .collection("workers")
       .getOne(user.id)
       .catch(() => null);
-    if (existing) {
+    const linked = await pb
+      .collection("workers")
+      .getFirstListItem(`auth_user="${user.id}"`)
+      .catch(() => null);
+    if (existing || linked) {
       report.existingWorkers += 1;
       continue;
     }
     try {
+      // Legacy accounts that already have a worker are handled by auth_user above.
       await pb.collection("workers").create(payload);
       report.createdWorkers += 1;
     } catch (error) {
-      report.unresolved.push({ userId: user.id, reason: error?.message || String(error) });
+      report.unresolved.push({ userId: user.id, reason: error?.response?.message || error?.message || String(error) });
     }
   }
 }

@@ -1,6 +1,7 @@
 import { pb, type UserRecord } from "./pocketbase";
 import type { AdvanceRecord } from "./advances";
 import { companyPayload, joinTenantFilters } from "./tenant";
+import { getWorker } from "./workers";
 
 export type StaffActionType =
   | "create"
@@ -31,6 +32,7 @@ export interface StaffActionLogRecord {
   actor: string;
   actor_role_snapshot: string;
   target_user?: string;
+  target_worker?: string;
   target_collection: string;
   target_record?: string;
   action: StaffActionType;
@@ -490,11 +492,17 @@ export async function fetchWorkerActionHistory(userId: string, limit = 50) {
 export async function createStaffActionLog(input: StaffActionLogInput) {
   if (!input.actor?.id) return;
 
+  let targetUserId = input.targetUserId || "";
+  if (targetUserId) {
+    const worker = await getWorker(targetUserId).catch(() => null);
+    if (worker) targetUserId = worker.id;
+  }
+
   await pb.collection("staff_action_logs").create({
     ...companyPayload(input.actor as UserRecord),
     actor: input.actor.id,
     actor_role_snapshot: input.actor.role || "user",
-    target_user: input.targetUserId || "",
+    target_worker: targetUserId,
     target_collection: input.targetCollection,
     target_record: input.targetRecord || "",
     action: input.action,

@@ -21,6 +21,7 @@ import {
   fetchFactoryManagers,
   isFactoryAssignmentActive,
   type FactoryManagerRecord,
+  factoryManagerTenantPayload,
 } from "@/lib/factories";
 
 export function FactoryManagersDialog({
@@ -93,9 +94,10 @@ export function FactoryManagersDialog({
         status: "active",
         note: "",
       };
-      const created = await pb
-        .collection("factory_managers")
-        .create({ ...payload, ...companyPayload(pb.authStore.record as UserRecord | null) });
+      const created = await pb.collection("factory_managers").create({
+        ...payload,
+        ...factoryManagerTenantPayload(pb.authStore.record as UserRecord | null),
+      });
       await createStaffActionLog({
         actor: pb.authStore.record as any,
         targetUserId: selectedStaff,

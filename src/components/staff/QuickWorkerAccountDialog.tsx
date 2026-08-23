@@ -644,7 +644,7 @@ export function QuickWorkerAccountDialog({
     try {
       history = await createEmploymentHistory(
         {
-          user: createdWorker.id,
+          worker: createdWorker.id,
           factory: form.factory,
           main_house: form.main_house,
           employee_code: form.employee_code.trim(),

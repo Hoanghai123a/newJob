@@ -94,6 +94,7 @@ export interface EmploymentHistoryRecord {
   id: string;
   uid?: string;
   user: string;
+  worker?: string;
   factory: string;
   main_house?: string;
   employee_code?: string;
@@ -115,6 +116,7 @@ export interface EmploymentHistoryRecord {
   updated?: string;
   expand?: {
     user?: WorkerRecord;
+    worker?: WorkerRecord;
     factory?: FactoryRecord;
     main_house?: RecruitmentEntityRecord;
     recruiter_staff?: UserRecord;
@@ -146,7 +148,8 @@ export function getHistoryCccdImageProgress(
 }
 
 export interface EmploymentDraft {
-  user: string;
+  user?: string;
+  worker?: string;
   factory: string;
   main_house?: string;
   employee_code?: string;
@@ -208,7 +211,7 @@ function historyAuditSnapshot(history: Partial<EmploymentHistoryRecord> | null |
   const snapshot: Record<string, unknown> = {
     id: history.id,
     uid: history.uid,
-    user: history.user,
+    user: history.user || history.worker,
   };
   for (const field of AUDITED_HISTORY_FIELDS) snapshot[field] = history[field];
   return snapshot;
@@ -313,6 +316,7 @@ export function getMissingEmploymentEditFields(snapshot: Partial<EmploymentPerso
 
 function normalizeEmploymentPayload<T extends Partial<EmploymentDraft>>(payload: T): T {
   const normalized = { ...payload } as T & Partial<EmploymentDraft>;
+  normalized.worker = normalized.worker || normalized.user;
 
   if ("worker_name_snapshot" in payload) {
     normalized.worker_name_snapshot = cleanSnapshotText(payload.worker_name_snapshot);
@@ -385,13 +389,14 @@ export async function fetchEmploymentHistories(
 ) {
   const currentUser = user || (pb.authStore.record as UserRecord | null);
   const parts = [companyFilter(currentUser)];
-  if (userIds?.length) parts.push(relationInFilter("user", userIds));
+  if (userIds?.length) parts.push(relationInFilter("worker", userIds));
   const filter = parts.join(" && ");
   return (await pb.collection("employment_histories").getFullList({
     filter,
     sort: "-join_date,-created",
-    expand: "user,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
+    expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
   })) as unknown as EmploymentHistoryRecord[];
+  return records.map((record) => ({ ...record, user: record.worker || record.user, expand: { ...record.expand, user: record.expand?.worker } }));
 }
 
 export function isHistoryWithinLast90Days(
@@ -487,7 +492,7 @@ export async function findActiveEmploymentByUser(userId: string) {
   const histories = (await pb.collection("employment_histories").getFullList({
     filter: `user="${userId}"`,
     sort: "-join_date,-created",
-    expand: "user,factory,recruiter_staff,recruiter_partner,main_house",
+    expand: "worker,factory,recruiter_staff,recruiter_partner,main_house",
   })) as unknown as EmploymentHistoryRecord[];
 
   return getCurrentEmploymentHistory(histories);
@@ -520,6 +525,7 @@ async function assertEmploymentHistoryCapacity(adding = 1) {
 export async function createEmploymentHistory(draft: EmploymentDraft, opts?: { uid?: string }) {
   await assertEmploymentHistoryCapacity();
   const normalizedDraft = normalizeEmploymentPayload(draft);
+  if (!normalizedDraft.worker) throw new Error("Thiếu hồ sơ NLĐ.");
   normalizedDraft.status = deriveEmploymentStatus(normalizedDraft);
   const missingFields = getMissingEmploymentSnapshotFields(normalizedDraft);
   if (missingFields.length) {
@@ -529,7 +535,7 @@ export async function createEmploymentHistory(draft: EmploymentDraft, opts?: { u
     normalizedDraft.worker_cccd_snapshot,
   );
   normalizedDraft.cccd_version = await resolveHistoryCccdVersion(
-    normalizedDraft.user,
+    normalizedDraft.worker,
     normalizedDraft.worker_cccd_snapshot,
     normalizedDraft.cccd_version,
   );
@@ -542,7 +548,7 @@ export async function createEmploymentHistory(draft: EmploymentDraft, opts?: { u
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) throw new Error(body?.message || "Không tạo được lịch sử lao động.");
-  const record = body as EmploymentHistoryRecord;
+  const record = { ...body, user: body.worker || body.user, expand: { ...body.expand, user: body.expand?.worker } } as EmploymentHistoryRecord;
   await updateCachedHistory(record);
   return record;
 }
@@ -570,14 +576,14 @@ export async function updateEmploymentHistory(
   }
 
   const normalizedPayload = normalizeEmploymentPayload(payload);
-  const historyUser = normalizedPayload.user || before.user;
+  const historyWorker = normalizedPayload.worker || normalizedPayload.user || before.worker || before.user;
   const historyCccd = normalizedPayload.worker_cccd_snapshot ?? before.worker_cccd_snapshot;
   normalizedPayload.worker_cccd_snapshot = requireValidCccdNumber(historyCccd);
   const cccdChanged =
     normalizeCccdNumber(before.worker_cccd_snapshot) !== normalizedPayload.worker_cccd_snapshot;
   const requestedVersionId = cccdChanged ? undefined : normalizedPayload.cccd_version;
   normalizedPayload.cccd_version = await resolveHistoryCccdVersion(
-    historyUser,
+    historyWorker,
     normalizedPayload.worker_cccd_snapshot,
     requestedVersionId,
   );
@@ -586,7 +592,7 @@ export async function updateEmploymentHistory(
     normalizedPayload.status = deriveEmploymentStatus(normalizedPayload);
   }
   const record = (await pb.collection("employment_histories").update(id, normalizedPayload, {
-    expand: "user,factory,recruiter_staff,recruiter_partner,cccd_version",
+    expand: "worker,factory,recruiter_staff,recruiter_partner,cccd_version",
   })) as unknown as EmploymentHistoryRecord;
   await updateCachedHistory(record);
 
@@ -603,7 +609,7 @@ export async function updateEmploymentHistory(
     try {
       await createStaffActionLog({
         actor: audit.actor,
-        targetUserId: record.user,
+        targetUserId: record.worker,
         targetCollection: "employment_histories",
         targetRecord: record.id,
         action: audit.action || "update",
@@ -647,7 +653,7 @@ export function maskCccd(cccd?: string | null) {
 }
 
 export interface RegisterableUserHistory {
-  user: string;
+  worker: string;
   leave_date?: string;
 }
 
@@ -665,7 +671,7 @@ export async function fetchRegisterableUsers(
     }),
     pb.collection("employment_histories").getFullList<RegisterableUserHistory>({
       filter: companyFilter(currentUser),
-      fields: "user,leave_date",
+      fields: "worker,leave_date",
     }),
   ]);
 
@@ -674,7 +680,7 @@ export async function fetchRegisterableUsers(
   const cutoff90 = new Date(today);
   cutoff90.setDate(cutoff90.getDate() - 90);
 
-  const activeUserIds = new Set(histories.filter((h) => isCurrentlyWorking(h)).map((h) => h.user));
+  const activeUserIds = new Set(histories.filter((h) => isCurrentlyWorking(h)).map((h) => h.worker));
   const recentUserIds = new Set(
     histories
       .filter((h) => {
@@ -683,9 +689,9 @@ export async function fetchRegisterableUsers(
         const d = new Date(h.leave_date);
         return !Number.isNaN(d.getTime()) && d >= cutoff90;
       })
-      .map((h) => h.user),
+      .map((h) => h.worker),
   );
-  const hasHistoryUserIds = new Set(histories.map((h) => h.user));
+  const hasHistoryUserIds = new Set(histories.map((h) => h.worker));
 
   return users.filter((u) => {
     if (activeUserIds.has(u.id)) return false;

@@ -261,7 +261,7 @@ export function RegisterDialog({
       }
 
       const created = await createEmploymentHistory({
-        user: userId,
+        worker: userId,
         factory: factoryId,
         main_house: mainHouseId,
         employee_code: employeeCode.trim() || undefined,
@@ -318,7 +318,7 @@ export function RegisterDialog({
         <DialogHeader>
           <DialogTitle>Đăng ký đi làm</DialogTitle>
           <DialogDescription>
-            Tạo bản ghi lịch sử đi làm cho người lao động đã có tài khoản.
+            Tạo bản ghi lịch sử đi làm; nếu hồ sơ chưa có tài khoản, hệ thống sẽ tự liên kết tài khoản kỹ thuật.
           </DialogDescription>
         </DialogHeader>
 

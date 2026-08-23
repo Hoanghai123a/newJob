@@ -60,14 +60,21 @@ import {
   type FactoryManagerRecord,
   type FactoryRecord,
   type FactoryStatus,
+  factoryManagerTenantPayload,
 } from "@/lib/factories";
 import { createStaffActionLog } from "@/lib/staff-log";
-import { companyFilter, companyIdOf, resolveTenantAccountIdentity } from "@/lib/tenant";
+import {
+  companyFilter,
+  companyIdOf,
+  companyPayload,
+  resolveTenantAccountIdentity,
+} from "@/lib/tenant";
 import { accountLoginName } from "@/lib/login-identity";
 import * as XLSX from "xlsx";
 import { toast } from "@/lib/toast";
 import {
   ClipboardList,
+  ShieldCheck,
   LogOut,
   Save,
   User2,
@@ -752,6 +759,7 @@ function AdminUsersPanel() {
           await pb.collection("users").update(user.id, { role: "staff" });
           if (factoryId) {
             await pb.collection("factory_managers").create({
+              ...factoryManagerTenantPayload(me as UserRecord),
               staff: user.id,
               factory: factoryId,
               status: "active",
@@ -2254,6 +2262,7 @@ function StaffPanel() {
             const factory = factoryByName.get(factoryName.toLowerCase());
             if (factory) {
               await pb.collection("factory_managers").create({
+                ...factoryManagerTenantPayload(currentUser),
                 staff: newUser.id,
                 factory: factory.id,
                 status: "active",
@@ -2717,7 +2726,9 @@ function FactoryAssignmentsPanel() {
           note: "Admin cập nhật phân công nhà máy cho staff",
         });
       } else {
-        const created = await pb.collection("factory_managers").create(payload);
+        const created = await pb
+          .collection("factory_managers")
+          .create({ ...payload, ...factoryManagerTenantPayload(currentUser as UserRecord) });
         await createStaffActionLog({
           actor: currentUser as UserRecord,
           targetUserId: payload.staff,

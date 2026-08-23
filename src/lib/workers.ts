@@ -22,7 +22,6 @@ export interface WorkerRecord {
   company?: string;
   status?: "active" | "disabled" | "inactive";
   source_user_id?: string;
-  auth_user?: string;
   created?: string;
   updated?: string;
 }

@@ -4,6 +4,13 @@ import { companyIdOf } from "./tenant";
 
 export type FactoryStatus = "active" | "inactive";
 
+// PocketBase cũ vẫn yêu cầu relation company; tenant_company là field chuẩn mới.
+export function factoryManagerTenantPayload(user?: Pick<UserRecord, "tenant_company"> | null) {
+  const tenant_company = companyIdOf(user || (pb.authStore.record as UserRecord | null));
+  if (!tenant_company) throw new Error("Tài khoản chưa được gán công ty.");
+  return { tenant_company, company: tenant_company };
+}
+
 export interface FactoryRecord {
   id: string;
   tenant_company?: string;

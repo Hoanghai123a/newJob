@@ -46,6 +46,7 @@ import {
   type FactoryManagerRecord,
   type FactoryRecord,
   type FactoryStatus,
+  factoryManagerTenantPayload,
 } from "@/lib/factories";
 import { createStaffActionLog } from "@/lib/staff-log";
 import { escapePb } from "@/lib/delegations";
@@ -176,6 +177,18 @@ function AccountStaffFactoriesPage() {
       note: editingAssignment.note || "",
     };
 
+    const duplicate = assignments.find(
+      (assignment) =>
+        assignment.id !== editingAssignment.id &&
+        assignment.staff === payload.staff &&
+        assignment.factory === payload.factory &&
+        (assignment.active_from || null) === payload.active_from,
+    );
+    if (duplicate) {
+      toast.warning("Staff này đã được gán nhà máy với cùng thời điểm hiệu lực.");
+      return;
+    }
+
     try {
       if (editingAssignment.id) {
         await pb.collection("factory_managers").update(editingAssignment.id, payload);
@@ -190,7 +203,7 @@ function AccountStaffFactoriesPage() {
       } else {
         const created = await pb
           .collection("factory_managers")
-          .create({ ...payload, tenant_company: companyIdOf(currentUser) });
+          .create({ ...payload, ...factoryManagerTenantPayload(currentUser) });
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "factory_managers",
@@ -205,7 +218,22 @@ function AccountStaffFactoriesPage() {
       closePicker();
       await load();
     } catch (error: any) {
-      toast.error(error?.message || "Không lưu được phân công");
+      const validation = error?.response?.data;
+      const details =
+        validation && typeof validation === "object"
+          ? Object.entries(validation)
+              .map(([field, value]: [string, any]) =>
+                value?.message ? `${field}: ${value.message}` : "",
+              )
+              .filter(Boolean)
+              .join("; ")
+          : "";
+      toast.error(
+        details ||
+          (error?.response?.message && error.response.message !== "Failed to create record."
+            ? error.response.message
+            : "Không lưu được phân công. Vui lòng kiểm tra staff, nhà máy và thời điểm hiệu lực."),
+      );
     }
   };
 

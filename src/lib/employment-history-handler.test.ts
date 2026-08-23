@@ -50,7 +50,7 @@ function request(payload: unknown) {
 test("từ chối khi thiếu phiên đăng nhập", async () => {
   const { deps } = makeDeps({ getAuth: async () => null });
   const response = await handleCreateEmploymentHistory(
-    request({ payload: { user: "worker-1" } }),
+    request({ payload: { worker: "worker-1" } }),
     deps,
   );
   assert.equal(response.status, 401);
@@ -61,7 +61,7 @@ test("từ chối khi tài khoản chưa thuộc công ty", async () => {
     getAuth: async () => ({ token: "token", user: { id: "staff-1", role: "staff" } }),
   });
   const response = await handleCreateEmploymentHistory(
-    request({ payload: { user: "worker-1" } }),
+    request({ payload: { worker: "worker-1" } }),
     deps,
   );
   assert.equal(response.status, 403);
@@ -80,7 +80,7 @@ test("từ chối NLĐ thuộc công ty khác", async () => {
     },
   });
   const response = await handleCreateEmploymentHistory(
-    request({ payload: { user: "worker-1" } }),
+    request({ payload: { worker: "worker-1" } }),
     deps,
   );
   assert.equal(response.status, 403);
@@ -105,23 +105,27 @@ test("bỏ tenant giả mạo và luôn gán tenant từ phiên đăng nhập", 
   );
   assert.ok(create?.init?.body);
   assert.deepEqual(JSON.parse(String(create.init.body)), {
-    user: "auth-worker-1",
+    worker: "worker-1",
     factory: "factory-1",
     tenant_company: "company-1",
   });
 });
 
-test("từ chối NLĐ chưa liên kết tài khoản", async () => {
-  const { deps } = makeDeps({
-    pbFetch: async (path: string) => {
-      if (path.includes("/workers/records/"))
-        return jsonResponse({ id: "worker-1", tenant_company: "company-1" });
-      return jsonResponse({});
+test("tự tạo và liên kết tài khoản khi NLĐ chưa có tài khoản", async () => {
+  const { deps, calls } = makeDeps({
+    pbFetch: async (path: string, init?: RequestInit) => {
+      calls.push({ path, init, token: "admin-token" });
+      if (path.includes("/workers/records/") && !init?.method)
+        return jsonResponse({ id: "worker-1", uid: "NL001", phone: "0900000000", full_name: "Nguyễn Văn A", tenant_company: "company-1" });
+      if (path.includes("/companies/records/")) return jsonResponse({ id: "company-1", code: "HRP", max_employment_histories: 0 });
+      if (path.includes("employment_histories/records?page=")) return jsonResponse({ totalItems: 0 });
+      if (path === "/api/collections/users/records") return jsonResponse({ id: "auth-worker-1" }, 201);
+      if (init?.method === "PATCH") return jsonResponse({ id: "worker-1" });
+      return jsonResponse({ id: "history-1" }, 201);
     },
   });
-  const response = await handleCreateEmploymentHistory(
-    request({ payload: { user: "worker-1" } }),
-    deps,
-  );
-  assert.equal(response.status, 409);
+  const response = await handleCreateEmploymentHistory(request({ payload: { worker: "worker-1" } }), deps);
+  assert.equal(response.status, 201);
+  const create = calls.find((call) => call.path === "/api/collections/employment_histories/records");
+  assert.equal(JSON.parse(String(create?.init?.body)).worker, "worker-1");
 });
