@@ -11,6 +11,7 @@ Animation continuity: keep apparent pet scale and baseline stable within the row
 State action: Dragging-left loop: show directional movement to the left through body and limb poses only.
 
 State requirements:
+
 - Show directional drag movement to the left through body, limb, and prop movement only.
 - The row must unmistakably face and travel left.
 - The movement cadence must alternate visibly across the 8 frames instead of repeating one nearly static stride.

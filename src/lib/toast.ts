@@ -37,7 +37,10 @@ export function getUserErrorMessage(error: unknown, fallback = "Đã xảy ra l�
 
 function logTechnicalError(error: unknown) {
   const message = getErrorText(error);
-  if (import.meta.env.DEV && (!message || !VIETNAMESE_PATTERN.test(message) || TECHNICAL_ERROR_PATTERN.test(message))) {
+  if (
+    import.meta.env.DEV &&
+    (!message || !VIETNAMESE_PATTERN.test(message) || TECHNICAL_ERROR_PATTERN.test(message))
+  ) {
     console.error("[JobConnect] Lỗi gốc:", error);
   }
 }

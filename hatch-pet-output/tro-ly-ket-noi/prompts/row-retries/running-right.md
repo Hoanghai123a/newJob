@@ -7,6 +7,7 @@ Keep apparent pet scale and baseline stable within the row unless the state itse
 Action: Dragging-right loop: show directional movement to the right through body and limb poses only.
 
 State requirements:
+
 - Show directional drag movement to the right through body, limb, and prop movement only.
 - The row must unmistakably face and travel right.
 - The movement cadence must alternate visibly across the 8 frames instead of repeating one nearly static stride.

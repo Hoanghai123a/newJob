@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 
 import { ReloadButton } from "@/components/layout/ReloadButton";
+import { getPendingApprovalCount } from "@/lib/approval-requests";
 import { useAuth } from "@/lib/auth";
 import { useAppSettings } from "@/lib/app-settings";
 import { cn } from "@/lib/utils";
@@ -153,6 +154,7 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(() => desktopSidebarCollapsed);
   const [logoFailed, setLogoFailed] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [pendingApprovalCount, setPendingApprovalCount] = useState(0);
   const { openStaffExcelExport } = useStaffExcelExport();
   const immersive = pathname === "/force-change-password";
   const sections = navigationForRole(user?.role);
@@ -164,6 +166,24 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setLogoFailed(false);
   }, [logoUrl]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setPendingApprovalCount(0);
+      return;
+    }
+    let alive = true;
+    getPendingApprovalCount(user.id)
+      .then((count) => {
+        if (alive) setPendingApprovalCount(count);
+      })
+      .catch(() => {
+        if (alive) setPendingApprovalCount(0);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (immersive || typeof window === "undefined") return;
@@ -209,6 +229,12 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
 
   const accountActive = pathname === "/account" || pathname.startsWith("/account/");
   const settingsActive = pathname === "/admin/settings" || pathname.startsWith("/admin/settings/");
+  const approvalBadge =
+    pendingApprovalCount > 0
+      ? pendingApprovalCount > 9
+        ? "9+"
+        : String(pendingApprovalCount)
+      : undefined;
 
   return (
     <div
@@ -235,9 +261,6 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
               {!collapsed && (
                 <div className="desktop-sidebar-label min-w-0">
                   <p className="truncate text-sm font-bold">{settings.company_name}</p>
-                  {settings.slogan ? (
-                    <p className="truncate text-[11px] text-muted-foreground">{settings.slogan}</p>
-                  ) : null}
                 </div>
               )}
             </div>
@@ -280,6 +303,8 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
                         {section.items.map((item) => {
                           const Icon = item.icon;
                           const isActive = isNavigationItemActive(pathname, hash, item);
+                          const itemBadge =
+                            item.to === "/staff/approvals" ? approvalBadge : undefined;
                           const itemClassName = cn(
                             "desktop-sidebar-link flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors",
                             collapsed && "justify-center px-0",
@@ -311,13 +336,21 @@ export function DesktopAppShell({ children }: { children: ReactNode }) {
                                   hash={item.hash as never}
                                   title={collapsed ? item.label : undefined}
                                   aria-label={item.label}
-                                  className={itemClassName}
+                                  className={cn(itemClassName, "relative")}
                                 >
                                   <Icon className="h-5 w-5 shrink-0" />
                                   {!collapsed && (
                                     <span className="desktop-sidebar-label truncate">
                                       {item.label}
                                     </span>
+                                  )}
+                                  {!collapsed && itemBadge && (
+                                    <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] font-semibold leading-4 text-white">
+                                      {itemBadge}
+                                    </span>
+                                  )}
+                                  {collapsed && itemBadge && (
+                                    <span className="absolute right-2 top-1.5 h-2 w-2 rounded-full bg-red-600" />
                                   )}
                                 </Link>
                               )}

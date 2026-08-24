@@ -117,9 +117,8 @@ export function FeatureTile({
               <DialogHeader>
                 <DialogTitle>{label}</DialogTitle>
                 <DialogDescription>
-                {disabledReason ||
-                  "Tính năng này dành cho nhân sự đã được admin xác nhận. Vui lòng liên hệ admin để được cập nhật hồ sơ."}
-
+                  {disabledReason ||
+                    "Tính năng này dành cho nhân sự đã được admin xác nhận. Vui lòng liên hệ admin để được cập nhật hồ sơ."}
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>

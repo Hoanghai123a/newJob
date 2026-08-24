@@ -71,7 +71,11 @@ async function listCompanies(adminToken: string) {
           "users",
           `tenant_company = "${escapePb(company.id)}" && role = "user"`,
         ),
-        factories: await count(adminToken, "factories", `tenant_company = "${escapePb(company.id)}"`),
+        factories: await count(
+          adminToken,
+          "factories",
+          `tenant_company = "${escapePb(company.id)}"`,
+        ),
         employment_histories: await count(
           adminToken,
           "employment_histories",
@@ -167,15 +171,37 @@ export const Route = createFileRoute("/api/super-admin/companies")({
             adminResponse.status,
           );
         }
-        await pbServerFetch(
+        const settingsResponse = await pbServerFetch(
           "/api/collections/app_settings/records",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ company: company.id, company_name: name }),
+            body: JSON.stringify({
+              tenant_company: company.id,
+              company_name: name,
+              account_code_prefix: code,
+            }),
           },
           ctx.adminToken,
-        ).catch(() => undefined);
+        );
+        if (!settingsResponse.ok) {
+          // Rollback company và admin nếu tạo app_settings thất bại
+          await pbServerFetch(
+            `/api/collections/users/records/${admin.id}`,
+            { method: "DELETE" },
+            ctx.adminToken,
+          ).catch(() => undefined);
+          await pbServerFetch(
+            `/api/collections/companies/records/${company.id}`,
+            { method: "DELETE" },
+            ctx.adminToken,
+          ).catch(() => undefined);
+          const settingsBody = await readPbJson(settingsResponse);
+          return error(
+            settingsBody?.message || "Không tạo được cấu hình công ty.",
+            settingsResponse.status,
+          );
+        }
         return Response.json({ company, admin }, { status: 201 });
       },
     },

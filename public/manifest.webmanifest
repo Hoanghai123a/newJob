@@ -1,7 +1,7 @@
 {
-  "name": "Chấm công",
-  "short_name": "Chấm công",
-  "description": "Chấm công, bảng tin và hỗ trợ người lao động.",
+  "name": "Tuyển dụng 4.0",
+  "short_name": "Tuyển dụng",
+  "description": "Tuyển dụng 4.0, bảng tin và hỗ trợ người lao động.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

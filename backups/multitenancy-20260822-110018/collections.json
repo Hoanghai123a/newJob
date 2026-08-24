@@ -556,9 +556,7 @@
     },
     "passwordAuth": {
       "enabled": true,
-      "identityFields": [
-        "email"
-      ]
+      "identityFields": ["email"]
     },
     "mfa": {
       "enabled": false,
@@ -709,13 +707,7 @@
         "id": "file376926767",
         "maxSelect": 1,
         "maxSize": 0,
-        "mimeTypes": [
-          "image/jpeg",
-          "image/png",
-          "image/svg+xml",
-          "image/gif",
-          "image/webp"
-        ],
+        "mimeTypes": ["image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"],
         "name": "avatar",
         "presentable": false,
         "protected": false,
@@ -734,12 +726,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "admin",
-          "user",
-          "staff",
-          "super_admin"
-        ]
+        "values": ["admin", "user", "staff", "super_admin"]
       },
       {
         "autogeneratePattern": "",
@@ -826,10 +813,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "disabled"
-        ]
+        "values": ["active", "disabled"]
       },
       {
         "autogeneratePattern": "",
@@ -897,11 +881,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "approved",
-          "rejected"
-        ]
+        "values": ["pending", "approved", "rejected"]
       },
       {
         "help": "",
@@ -925,11 +905,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "approved",
-          "rejected"
-        ]
+        "values": ["pending", "approved", "rejected"]
       },
       {
         "autogeneratePattern": "",
@@ -1018,11 +994,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "Nam",
-          "Nữ",
-          "Khác"
-        ]
+        "values": ["Nam", "Nữ", "Khác"]
       },
       {
         "help": "",
@@ -1165,9 +1137,7 @@
     },
     "passwordAuth": {
       "enabled": true,
-      "identityFields": [
-        "username"
-      ]
+      "identityFields": ["username"]
     },
     "mfa": {
       "enabled": false,
@@ -1537,12 +1507,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "accepted",
-          "rejected",
-          "recruiter_approved"
-        ]
+        "values": ["pending", "accepted", "rejected", "recruiter_approved"]
       },
       {
         "autogeneratePattern": "",
@@ -1643,11 +1608,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "none",
-          "recovered",
-          "unrecoverable"
-        ]
+        "values": ["none", "recovered", "unrecoverable"]
       },
       {
         "autogeneratePattern": "",
@@ -1835,10 +1796,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "bank_transfer",
-          "cash"
-        ]
+        "values": ["bank_transfer", "cash"]
       },
       {
         "hidden": false,
@@ -1988,10 +1946,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "inactive"
-        ]
+        "values": ["active", "inactive"]
       },
       {
         "autogeneratePattern": "",
@@ -2156,10 +2111,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "male",
-          "female"
-        ]
+        "values": ["male", "female"]
       },
       {
         "autogeneratePattern": "",
@@ -2291,11 +2243,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "both",
-          "production",
-          "qc"
-        ]
+        "values": ["both", "production", "qc"]
       },
       {
         "help": "",
@@ -2307,11 +2255,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "both",
-          "sitting",
-          "standing"
-        ]
+        "values": ["both", "sitting", "standing"]
       },
       {
         "help": "",
@@ -2323,11 +2267,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "both",
-          "clean_room",
-          "normal_room"
-        ]
+        "values": ["both", "clean_room", "normal_room"]
       },
       {
         "autogeneratePattern": "",
@@ -2369,10 +2309,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "official",
-          "temporary"
-        ]
+        "values": ["official", "temporary"]
       },
       {
         "help": "",
@@ -3335,10 +3272,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "inactive"
-        ]
+        "values": ["active", "inactive"]
       },
       {
         "autogeneratePattern": "",
@@ -3545,10 +3479,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "working",
-          "left"
-        ]
+        "values": ["working", "left"]
       },
       {
         "autogeneratePattern": "",
@@ -4078,10 +4009,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "inactive"
-        ]
+        "values": ["active", "inactive"]
       },
       {
         "autogeneratePattern": "",
@@ -4413,11 +4341,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "approved",
-          "rejected"
-        ]
+        "values": ["pending", "approved", "rejected"]
       },
       {
         "cascadeDelete": false,
@@ -4547,19 +4471,13 @@
         "id": "file2164390294",
         "maxSelect": 1,
         "maxSize": 5242880,
-        "mimeTypes": [
-          "image/jpeg",
-          "image/png",
-          "image/webp"
-        ],
+        "mimeTypes": ["image/jpeg", "image/png", "image/webp"],
         "name": "front_image",
         "presentable": false,
         "protected": false,
         "required": false,
         "system": false,
-        "thumbs": [
-          "300x200"
-        ],
+        "thumbs": ["300x200"],
         "type": "file"
       },
       {
@@ -4568,19 +4486,13 @@
         "id": "file1418911739",
         "maxSelect": 1,
         "maxSize": 5242880,
-        "mimeTypes": [
-          "image/jpeg",
-          "image/png",
-          "image/webp"
-        ],
+        "mimeTypes": ["image/jpeg", "image/png", "image/webp"],
         "name": "back_image",
         "presentable": false,
         "protected": false,
         "required": false,
         "system": false,
-        "thumbs": [
-          "300x200"
-        ],
+        "thumbs": ["300x200"],
         "type": "file"
       },
       {
@@ -4863,12 +4775,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "done",
-          "cancelled",
-          "other"
-        ]
+        "values": ["pending", "done", "cancelled", "other"]
       },
       {
         "cascadeDelete": false,
@@ -4989,20 +4896,13 @@
         "id": "file2497359498",
         "maxSelect": 5,
         "maxSize": 10485760,
-        "mimeTypes": [
-          "image/jpeg",
-          "image/png",
-          "image/webp",
-          "image/gif"
-        ],
+        "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"],
         "name": "images",
         "presentable": false,
         "protected": false,
         "required": false,
         "system": false,
-        "thumbs": [
-          "200x200"
-        ],
+        "thumbs": ["200x200"],
         "type": "file"
       },
       {
@@ -5061,12 +4961,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "approved",
-          "rejected",
-          "completed"
-        ]
+        "values": ["pending", "approved", "rejected", "completed"]
       },
       {
         "help": "",
@@ -5196,11 +5091,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "approved",
-          "rejected"
-        ]
+        "values": ["pending", "approved", "rejected"]
       },
       {
         "autogeneratePattern": "",
@@ -5440,9 +5331,7 @@
         "type": "relation"
       }
     ],
-    "indexes": [
-      "CREATE UNIQUE INDEX `idx_oop66f6ko2` ON `push_subscriptions` (`endpoint`)"
-    ],
+    "indexes": ["CREATE UNIQUE INDEX `idx_oop66f6ko2` ON `push_subscriptions` (`endpoint`)"],
     "created": "2026-07-08 12:39:31.400Z",
     "updated": "2026-08-21 02:00:05.850Z",
     "system": false
@@ -5656,13 +5545,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "received",
-          "approved",
-          "rejected",
-          "disbursed",
-          "cancelled"
-        ]
+        "values": ["received", "approved", "rejected", "disbursed", "cancelled"]
       },
       {
         "cascadeDelete": false,
@@ -6235,10 +6118,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "user",
-          "employment_history"
-        ]
+        "values": ["user", "employment_history"]
       },
       {
         "autogeneratePattern": "",
@@ -6333,9 +6213,7 @@
         "type": "autodate"
       }
     ],
-    "indexes": [
-      "CREATE UNIQUE INDEX `idx_uid_counters_key` ON `uid_counters` (`counter_key`)"
-    ],
+    "indexes": ["CREATE UNIQUE INDEX `idx_uid_counters_key` ON `uid_counters` (`counter_key`)"],
     "created": "2026-08-13 01:22:51.524Z",
     "updated": "2026-08-13 01:28:28.963Z",
     "system": false
@@ -6405,11 +6283,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "suspended",
-          "closed"
-        ]
+        "values": ["active", "suspended", "closed"]
       },
       {
         "autogeneratePattern": "",
@@ -6519,9 +6393,7 @@
         "type": "number"
       }
     ],
-    "indexes": [
-      "CREATE UNIQUE INDEX idx_companies_code ON companies (code)"
-    ],
+    "indexes": ["CREATE UNIQUE INDEX idx_companies_code ON companies (code)"],
     "created": "2026-08-21 02:00:05.242Z",
     "updated": "2026-08-21 07:05:44.286Z",
     "system": false
@@ -6750,10 +6622,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "inactive"
-        ]
+        "values": ["active", "inactive"]
       },
       {
         "autogeneratePattern": "",
@@ -6918,11 +6787,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "running",
-          "completed",
-          "failed"
-        ]
+        "values": ["running", "completed", "failed"]
       },
       {
         "help": "",
@@ -7107,11 +6972,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "running",
-          "completed",
-          "failed"
-        ]
+        "values": ["running", "completed", "failed"]
       },
       {
         "help": "",

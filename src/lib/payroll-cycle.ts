@@ -1,4 +1,5 @@
-import { pb } from "./pocketbase";
+import { pb, type UserRecord } from "./pocketbase";
+import { companyFilter, companyIdOf } from "./tenant";
 
 export type PayrollPeriod = {
   start: string;
@@ -114,7 +115,11 @@ export async function fetchFactoryAttendanceCutoffDay(company?: string) {
 
   const request = (async () => {
     try {
-      const factoryRes = await pb.collection("factories").getList(1, 300, { sort: "name" });
+      const user = pb.authStore.record as UserRecord | null;
+      const factoryRes = await pb.collection("factories").getList(1, 300, {
+        sort: "name",
+        ...(companyIdOf(user) ? { filter: companyFilter(user) } : {}),
+      });
       const factories = factoryRes.items as unknown as FactoryPayrollSettings[];
       const factory = factories.find((item) => normalizeText(item.name) === currentCompany);
       const cutoff = normalizeCutoffDay(

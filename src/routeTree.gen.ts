@@ -36,9 +36,6 @@ import { Route as ApiWorkforceLookupsRouteImport } from './routes/api/workforce/
 import { Route as ApiWorkforceDashboardRouteImport } from './routes/api/workforce/dashboard'
 import { Route as ApiSuperAdminCompaniesRouteImport } from './routes/api/super-admin/companies'
 import { Route as ApiStaffExportRouteImport } from './routes/api/staff/export'
-import { Route as ApiPushSubscriptionRouteImport } from './routes/api/push/subscription'
-import { Route as ApiPushPublicKeyRouteImport } from './routes/api/push/public-key'
-import { Route as ApiPushApprovalRouteImport } from './routes/api/push/approval'
 import { Route as ApiPublicTenantStatusRouteImport } from './routes/api/public/tenant-status'
 import { Route as ApiPublicPocketbaseAuthRouteImport } from './routes/api/public/pocketbase-auth'
 import { Route as ApiPublicForceChangePasswordRouteImport } from './routes/api/public/force-change-password'
@@ -224,21 +221,6 @@ const ApiSuperAdminCompaniesRoute = ApiSuperAdminCompaniesRouteImport.update({
 const ApiStaffExportRoute = ApiStaffExportRouteImport.update({
   id: '/api/staff/export',
   path: '/api/staff/export',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPushSubscriptionRoute = ApiPushSubscriptionRouteImport.update({
-  id: '/api/push/subscription',
-  path: '/api/push/subscription',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPushPublicKeyRoute = ApiPushPublicKeyRouteImport.update({
-  id: '/api/push/public-key',
-  path: '/api/push/public-key',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPushApprovalRoute = ApiPushApprovalRouteImport.update({
-  id: '/api/push/approval',
-  path: '/api/push/approval',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicTenantStatusRoute = ApiPublicTenantStatusRouteImport.update({
@@ -568,9 +550,6 @@ export interface FileRoutesByFullPath {
   '/api/public/force-change-password': typeof ApiPublicForceChangePasswordRoute
   '/api/public/pocketbase-auth': typeof ApiPublicPocketbaseAuthRoute
   '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
-  '/api/push/approval': typeof ApiPushApprovalRoute
-  '/api/push/public-key': typeof ApiPushPublicKeyRoute
-  '/api/push/subscription': typeof ApiPushSubscriptionRoute
   '/api/staff/export': typeof ApiStaffExportRoute
   '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
   '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
@@ -643,9 +622,6 @@ export interface FileRoutesByTo {
   '/api/public/force-change-password': typeof ApiPublicForceChangePasswordRoute
   '/api/public/pocketbase-auth': typeof ApiPublicPocketbaseAuthRoute
   '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
-  '/api/push/approval': typeof ApiPushApprovalRoute
-  '/api/push/public-key': typeof ApiPushPublicKeyRoute
-  '/api/push/subscription': typeof ApiPushSubscriptionRoute
   '/api/staff/export': typeof ApiStaffExportRoute
   '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
   '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
@@ -724,9 +700,6 @@ export interface FileRoutesById {
   '/api/public/force-change-password': typeof ApiPublicForceChangePasswordRoute
   '/api/public/pocketbase-auth': typeof ApiPublicPocketbaseAuthRoute
   '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
-  '/api/push/approval': typeof ApiPushApprovalRoute
-  '/api/push/public-key': typeof ApiPushPublicKeyRoute
-  '/api/push/subscription': typeof ApiPushSubscriptionRoute
   '/api/staff/export': typeof ApiStaffExportRoute
   '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
   '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
@@ -805,9 +778,6 @@ export interface FileRouteTypes {
     | '/api/public/force-change-password'
     | '/api/public/pocketbase-auth'
     | '/api/public/tenant-status'
-    | '/api/push/approval'
-    | '/api/push/public-key'
-    | '/api/push/subscription'
     | '/api/staff/export'
     | '/api/super-admin/companies'
     | '/api/workforce/dashboard'
@@ -880,9 +850,6 @@ export interface FileRouteTypes {
     | '/api/public/force-change-password'
     | '/api/public/pocketbase-auth'
     | '/api/public/tenant-status'
-    | '/api/push/approval'
-    | '/api/push/public-key'
-    | '/api/push/subscription'
     | '/api/staff/export'
     | '/api/super-admin/companies'
     | '/api/workforce/dashboard'
@@ -960,9 +927,6 @@ export interface FileRouteTypes {
     | '/api/public/force-change-password'
     | '/api/public/pocketbase-auth'
     | '/api/public/tenant-status'
-    | '/api/push/approval'
-    | '/api/push/public-key'
-    | '/api/push/subscription'
     | '/api/staff/export'
     | '/api/super-admin/companies'
     | '/api/workforce/dashboard'
@@ -1008,9 +972,6 @@ export interface RootRouteChildren {
   ApiPublicForceChangePasswordRoute: typeof ApiPublicForceChangePasswordRoute
   ApiPublicPocketbaseAuthRoute: typeof ApiPublicPocketbaseAuthRoute
   ApiPublicTenantStatusRoute: typeof ApiPublicTenantStatusRoute
-  ApiPushApprovalRoute: typeof ApiPushApprovalRoute
-  ApiPushPublicKeyRoute: typeof ApiPushPublicKeyRoute
-  ApiPushSubscriptionRoute: typeof ApiPushSubscriptionRoute
   ApiStaffExportRoute: typeof ApiStaffExportRoute
   ApiSuperAdminCompaniesRoute: typeof ApiSuperAdminCompaniesRouteWithChildren
   ApiWorkforceDashboardRoute: typeof ApiWorkforceDashboardRoute
@@ -1209,27 +1170,6 @@ declare module '@tanstack/react-router' {
       path: '/api/staff/export'
       fullPath: '/api/staff/export'
       preLoaderRoute: typeof ApiStaffExportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/push/subscription': {
-      id: '/api/push/subscription'
-      path: '/api/push/subscription'
-      fullPath: '/api/push/subscription'
-      preLoaderRoute: typeof ApiPushSubscriptionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/push/public-key': {
-      id: '/api/push/public-key'
-      path: '/api/push/public-key'
-      fullPath: '/api/push/public-key'
-      preLoaderRoute: typeof ApiPushPublicKeyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/push/approval': {
-      id: '/api/push/approval'
-      path: '/api/push/approval'
-      fullPath: '/api/push/approval'
-      preLoaderRoute: typeof ApiPushApprovalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/tenant-status': {
@@ -1816,9 +1756,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicForceChangePasswordRoute: ApiPublicForceChangePasswordRoute,
   ApiPublicPocketbaseAuthRoute: ApiPublicPocketbaseAuthRoute,
   ApiPublicTenantStatusRoute: ApiPublicTenantStatusRoute,
-  ApiPushApprovalRoute: ApiPushApprovalRoute,
-  ApiPushPublicKeyRoute: ApiPushPublicKeyRoute,
-  ApiPushSubscriptionRoute: ApiPushSubscriptionRoute,
   ApiStaffExportRoute: ApiStaffExportRoute,
   ApiSuperAdminCompaniesRoute: ApiSuperAdminCompaniesRouteWithChildren,
   ApiWorkforceDashboardRoute: ApiWorkforceDashboardRoute,

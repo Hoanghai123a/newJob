@@ -5,7 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { rememberCompanyBrand } from "@/lib/company-brand";
 
-export type ValidCompany = { id: string; code: string; name: string; company_name?: string; slogan?: string; logo_url?: string; brand_updated?: string };
+export type ValidCompany = {
+  id: string;
+  code: string;
+  name: string;
+  company_name?: string;
+  slogan?: string;
+  logo_url?: string;
+  brand_updated?: string;
+};
 const STORAGE_KEY = "jobconnect:last-company-code";
 
 export function useCompanyCodeLookup(code: string, enabled: boolean) {

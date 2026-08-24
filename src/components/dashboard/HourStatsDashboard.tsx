@@ -37,6 +37,7 @@ import {
   type SalaryHourItem,
 } from "@/lib/hour-stats";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import { joinTenantFilters } from "@/lib/tenant";
 import { toast } from "@/lib/toast";
 
 export type HourStatsDashboardProps = {
@@ -92,16 +93,16 @@ function latestItemsByWorker<T extends { user: string; round_no?: number }>(item
 const HOUR_HISTORY_FIELDS =
   "id,user,factory,employee_code,recruiter_staff,recruiter_partner,join_date,leave_date,created,expand.user.id,expand.user.full_name,expand.user.username,expand.factory.id,expand.factory.name,expand.recruiter_staff.id,expand.recruiter_staff.full_name,expand.recruiter_staff.username,expand.recruiter_partner.id,expand.recruiter_partner.name";
 
-async function fetchHourHistoriesForRecruiter(recruiterId: string) {
+async function fetchHourHistoriesForRecruiter(viewer: UserRecord, recruiterId: string) {
   return (await pb.collection("employment_histories").getFullList({
-    filter: `recruiter_staff="${escapePb(recruiterId)}"`,
+    filter: joinTenantFilters(viewer, `recruiter_staff="${escapePb(recruiterId)}"`),
     sort: "-join_date,-created",
     expand: "worker,factory,recruiter_staff,recruiter_partner",
     fields: HOUR_HISTORY_FIELDS,
   })) as unknown as EmploymentHistoryRecord[];
 }
 
-async function fetchHourHistories(userIds: string[]) {
+async function fetchHourHistories(viewer: UserRecord, userIds: string[]) {
   if (!userIds.length) return [];
   const histories: EmploymentHistoryRecord[] = [];
   for (let index = 0; index < userIds.length; index += HOUR_STATS_QUERY_CHUNK) {
@@ -111,7 +112,7 @@ async function fetchHourHistories(userIds: string[]) {
     );
     histories.push(
       ...((await pb.collection("employment_histories").getFullList({
-        filter: `(${userFilter})`,
+        filter: joinTenantFilters(viewer, `(${userFilter})`),
         sort: "-join_date,-created",
         expand: "worker,factory,recruiter_staff,recruiter_partner",
         fields: HOUR_HISTORY_FIELDS,
@@ -151,14 +152,14 @@ export function HourStatsDashboard({ presentation = "embedded" }: HourStatsDashb
         return;
       }
 
-      const staffHistories = isAdmin ? [] : await fetchHourHistoriesForRecruiter(viewer.id);
+      const staffHistories = isAdmin ? [] : await fetchHourHistoriesForRecruiter(viewer, viewer.id);
       const staffWorkerFilter = isAdmin
         ? ""
         : `(${relationInFilter(
             "user",
             staffHistories.map((history) => history.worker),
           )})`;
-      const filter = [`month="${escapePb(month)}"`, staffWorkerFilter].filter(Boolean).join(" && ");
+      const filter = joinTenantFilters(viewer, `month="${escapePb(month)}"`, staffWorkerFilter);
       const [attendanceRows, salaryRows] = await Promise.all([
         pb.collection("check_attendance_items").getFullList<AttendanceHourItem>({
           filter,
@@ -193,7 +194,7 @@ export function HourStatsDashboard({ presentation = "embedded" }: HourStatsDashb
       const workerIds = [...new Set([...attendance, ...salary].map((item) => item.worker))];
       const workerIdSet = new Set(workerIds);
       const historyRows = isAdmin
-        ? await fetchHourHistories(workerIds)
+        ? await fetchHourHistories(viewer, workerIds)
         : staffHistories.filter((history) => workerIdSet.has(history.worker));
       const payload = { attendance, salary, histories: historyRows };
       hourStatsCache.set(cacheKey, { expiresAt: Date.now() + HOUR_STATS_CACHE_TTL, payload });

@@ -41,7 +41,11 @@ export interface CccdVersionRecord {
 
 export async function getCurrentCccdVersion(workerId: string): Promise<CccdVersionRecord | null> {
   try {
-    const record = (await pb.collection("cccd_versions").getFirstListItem(joinTenantFilters(tenantUser(), `worker="${workerId}" && is_current=true`))) as unknown as CccdVersionRecord;
+    const record = (await pb
+      .collection("cccd_versions")
+      .getFirstListItem(
+        joinTenantFilters(tenantUser(), `worker="${workerId}" && is_current=true`),
+      )) as unknown as CccdVersionRecord;
     return { ...record, user: record.worker };
   } catch {
     return null;
@@ -59,7 +63,8 @@ export async function getCccdVersionByNumber(
       filter: joinTenantFilters(tenantUser(), `worker="${userId}"`),
       sort: "-updated,-created",
     })) as unknown as CccdVersionRecord[];
-    const found = records.find((version) => normalizeCccdNumber(version.cccd_number) === normalized) || null;
+    const found =
+      records.find((version) => normalizeCccdNumber(version.cccd_number) === normalized) || null;
     return found ? { ...found, user: found.worker } : null;
   } catch {
     return null;
@@ -104,12 +109,15 @@ export async function ensureCccdVersion(
   }
 
   try {
-    const created = ({ ...(await pb.collection("cccd_versions").create({
-      ...companyPayload(tenantUser()),
+    const created = {
+      ...((await pb.collection("cccd_versions").create({
+        ...companyPayload(tenantUser()),
+        worker: workerId,
+        cccd_number: normalized,
+        is_current: true,
+      })) as unknown as CccdVersionRecord),
       worker: workerId,
-      cccd_number: normalized,
-      is_current: true,
-    })) as unknown as CccdVersionRecord, worker: workerId });
+    };
     await updateCachedCccdVersion(created);
     return created;
   } catch (error) {

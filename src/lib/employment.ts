@@ -9,10 +9,10 @@ import {
   requireValidCccdNumber,
   type CccdVersionRecord,
 } from "./cccd-versions";
-import { relationInFilter } from "./delegations";
+import { escapePb, relationInFilter } from "./delegations";
 import { updateCachedHistory, updateCachedUser } from "./staff-cache";
 import { allocateEmploymentHistoryUids } from "./uid-counter";
-import { companyFilter } from "./tenant";
+import { companyFilter, joinTenantFilters } from "./tenant";
 import { normalizeDate } from "./date-utils";
 import { createStaffActionLog, type StaffActionType } from "./staff-log";
 
@@ -380,9 +380,22 @@ export function computeMaxHistoryUidSeq(
 }
 
 export async function generateEmploymentHistoryUid(referenceDate = new Date()): Promise<string> {
-  const [uid] = await allocateEmploymentHistoryUids(1, referenceDate);
-  if (!uid) throw new Error("Không cấp được UID lịch sử đi làm.");
-  return uid;
+  try {
+    const [uid] = await allocateEmploymentHistoryUids(1, referenceDate);
+    if (!uid) throw new Error("API trả về mảng UID rỗng.");
+    return uid;
+  } catch (error) {
+    const user = pb.authStore.record as { tenant_company?: string } | null;
+    console.error("[uid-allocation] Lỗi cấp UID lịch sử đi làm:", {
+      tenant_company: user?.tenant_company,
+      referenceDate: referenceDate.toISOString(),
+      error,
+    });
+    throw new Error(
+      `Không cấp được UID lịch sử đi làm. ` +
+        `Chi tiết: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }
 
 export async function fetchEmploymentHistories(
@@ -398,7 +411,6 @@ export async function fetchEmploymentHistories(
     sort: "-join_date,-created",
     expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
   })) as unknown as EmploymentHistoryRecord[];
-
 }
 export function isHistoryWithinLast90Days(
   history: EmploymentHistoryRecord,
@@ -681,7 +693,9 @@ export async function fetchRegisterableUsers(
   const cutoff90 = new Date(today);
   cutoff90.setDate(cutoff90.getDate() - 90);
 
-  const activeUserIds = new Set(histories.filter((h) => isCurrentlyWorking(h)).map((h) => h.worker));
+  const activeUserIds = new Set(
+    histories.filter((h) => isCurrentlyWorking(h)).map((h) => h.worker),
+  );
   const recentUserIds = new Set(
     histories
       .filter((h) => {

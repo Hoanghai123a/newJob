@@ -385,9 +385,6 @@ function DashboardPage() {
               <div className="truncate text-base font-semibold leading-6">
                 {settings.company_name}
               </div>
-              {settings.slogan && (
-                <div className="truncate text-xs leading-5 text-white/80">{settings.slogan}</div>
-              )}
             </div>
             <button
               type="button"

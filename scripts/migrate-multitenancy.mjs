@@ -417,12 +417,12 @@ function appendRule(existingRule, constraint) {
   return `(${trimmed}) && (${constraint})`;
 }
 function usersAccessRules() {
-  const tenant = 'tenant_company = @request.auth.tenant_company';
+  const tenant = "tenant_company = @request.auth.tenant_company";
   const manageableRole = '(role = "user" || role = "staff" || role = "")';
   const requestedManageableRole =
     '(@request.body.role:isset = false || @request.body.role = "user" || @request.body.role = "staff" || @request.body.role = "")';
   const unchangedTenant =
-    '(@request.body.tenant_company:isset = false || @request.body.tenant_company = @request.auth.tenant_company)';
+    "(@request.body.tenant_company:isset = false || @request.body.tenant_company = @request.auth.tenant_company)";
   const selfAdminUpdate =
     `(@request.auth.id = id && ${tenant} && ${unchangedTenant} && ` +
     '(@request.body.role:isset = false || @request.body.role = "admin"))';
@@ -451,8 +451,10 @@ async function ensureTenantRules(collections) {
     const next = {
       listRule: accessRules?.listRule || appendRule(collection.listRule, recordConstraint),
       viewRule: accessRules?.viewRule || appendRule(collection.viewRule, recordConstraint),
-      createRule: accessRules?.createRule || appendRule(collection.createRule, createBodyConstraint),
-      updateRule: accessRules?.updateRule || appendRule(collection.updateRule, updateBodyConstraint),
+      createRule:
+        accessRules?.createRule || appendRule(collection.createRule, createBodyConstraint),
+      updateRule:
+        accessRules?.updateRule || appendRule(collection.updateRule, updateBodyConstraint),
       deleteRule: accessRules?.deleteRule || appendRule(collection.deleteRule, deleteConstraint),
       fields: (collection.fields || []).map((item) =>
         item.name === "tenant_company" ? { ...item, required: true } : item,
@@ -491,9 +493,12 @@ async function removeLegacyCompanyFields(collections) {
     const legacy = (collection.fields || []).find((field) => field.name === "company");
     if (!legacy) continue;
     const nextFields = (collection.fields || []).filter((field) => field.name !== "company");
-    const nextIndexes = (collection.indexes || []).filter((index) => !/\bcompany\b/.test(index) || /tenant_company/.test(index));
+    const nextIndexes = (collection.indexes || []).filter(
+      (index) => !/\bcompany\b/.test(index) || /tenant_company/.test(index),
+    );
     changes.push({ collection: collection.name, field: "company", action: "xóa field company cũ" });
-    if (apply) await pb.collections.update(collection.id, { fields: nextFields, indexes: nextIndexes });
+    if (apply)
+      await pb.collections.update(collection.id, { fields: nextFields, indexes: nextIndexes });
   }
   return changes;
 }

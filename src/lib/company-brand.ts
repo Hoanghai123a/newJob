@@ -2,7 +2,6 @@ export type RememberedCompanyBrand = {
   companyId: string;
   companyCode?: string;
   companyName: string;
-  slogan?: string;
   logoUrl?: string;
   updated?: string;
 };

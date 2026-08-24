@@ -60,10 +60,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "user",
-          "employment_history"
-        ]
+        "values": ["user", "employment_history"]
       },
       {
         "autogeneratePattern": "",
@@ -104,7 +101,7 @@
         "name": "current_value",
         "onlyInt": true,
         "presentable": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "number"
       },

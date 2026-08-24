@@ -176,13 +176,21 @@ type LoginBrand = {
 function useLoginBrand(brand: LoginBrand) {
   const remembered = getRememberedCompanyBrand();
   return {
-    name: brand?.company_name || brand?.name || remembered?.companyName || "Chấm công",
+    name: brand?.company_name || brand?.name || remembered?.companyName || "Tuyển dụng 4.0",
     slogan: brand?.slogan || remembered?.slogan || "Kết nối người lao động và nhà tuyển dụng",
     logoUrl: brand?.logo_url || remembered?.logoUrl || "",
   };
 }
 
-function BrandMark({ name, logoUrl, inverse = false }: { name: string; logoUrl?: string; inverse?: boolean }) {
+function BrandMark({
+  name,
+  logoUrl,
+  inverse = false,
+}: {
+  name: string;
+  logoUrl?: string;
+  inverse?: boolean;
+}) {
   return (
     <div
       className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl ${

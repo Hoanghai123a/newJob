@@ -9,8 +9,8 @@ export const Route = createFileRoute("/api/public/manifest/webmanifest")({
       GET: async ({ request }) => {
         const companyId = new URL(request.url).searchParams.get("company") || undefined;
         const app = await fetchAppSettingsRecord(companyId);
-        const name = app?.item.company_name?.trim() || "Chấm công";
-        const shortName = name.slice(0, 12) || "Chấm công";
+        const name = app?.item.company_name?.trim() || "Tuyển dụng 4.0";
+        const shortName = name.slice(0, 12) || "Tuyển dụng";
         const iconVersion = app?.item.updated || app?.item.id || "";
         const companyParam = companyId ? `&company=${encodeURIComponent(companyId)}` : "";
         const iconSrc = app?.item.logo
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/public/manifest/webmanifest")({
           {
             name,
             short_name: shortName,
-            description: "Chấm công, bảng tin và hỗ trợ người lao động.",
+            description: "Tuyển dụng 4.0, bảng tin và hỗ trợ người lao động.",
             start_url: "/",
             scope: "/",
             display: "standalone",

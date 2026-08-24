@@ -209,12 +209,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "pending",
-          "done",
-          "cancelled",
-          "other"
-        ]
+        "values": ["pending", "done", "cancelled", "other"]
       },
       {
         "cascadeDelete": false,

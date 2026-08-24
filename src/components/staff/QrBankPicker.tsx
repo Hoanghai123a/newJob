@@ -2,14 +2,23 @@
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { getQrBankLabel, VN_BANKS } from "@/lib/vn-banks";
 
-export function QrBankPicker({ value, onChange, disabled = false }: { value: string; onChange: (value: string) => void; disabled?: boolean }) {
+export function QrBankPicker({
+  value,
+  onChange,
+  disabled = false,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}) {
   const options = useMemo(
-    () => VN_BANKS.map((bank) => ({
-      value: bank.code,
-      label: getQrBankLabel(bank),
-      description: `BIN ${bank.bin}`,
-      keywords: `${bank.code} ${bank.name} ${bank.bin}`,
-    })),
+    () =>
+      VN_BANKS.map((bank) => ({
+        value: bank.code,
+        label: getQrBankLabel(bank),
+        description: `BIN ${bank.bin}`,
+        keywords: `${bank.code} ${bank.name} ${bank.bin}`,
+      })),
     [],
   );
 

@@ -11,6 +11,7 @@ Animation continuity: keep apparent pet scale and baseline stable within the row
 State action: Calm low-distraction resting loop: subtle breathing, tiny blink, slight head/body bob, and only quiet persona-preserving motion.
 
 State requirements:
+
 - CRITICAL: idle is the low-distraction baseline state and the first frame is also used as the reduced-motion static pet.
 - Use only subtle idle motion: gentle breathing, a tiny blink, a slight head or body bob, a very small material sway, or another quiet motion that fits the pet persona.
 - Keep the pet essentially in the same pose, facing direction, silhouette, markings, palette, and prop state across all 6 frames.

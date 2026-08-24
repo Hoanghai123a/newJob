@@ -220,7 +220,10 @@ if (apply && workers) {
       await pb.collection("workers").create(payload);
       report.createdWorkers += 1;
     } catch (error) {
-      report.unresolved.push({ userId: user.id, reason: error?.response?.message || error?.message || String(error) });
+      report.unresolved.push({
+        userId: user.id,
+        reason: error?.response?.message || error?.message || String(error),
+      });
     }
   }
 }

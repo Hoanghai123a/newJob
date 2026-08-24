@@ -193,10 +193,7 @@
   "finalize": {
     "historyCccdVersionRequired": false,
     "skippedHistoryCount": 4,
-    "removedUserFields": [
-      "cccd_front",
-      "cccd_back"
-    ]
+    "removedUserFields": ["cccd_front", "cccd_back"]
   },
   "after": {
     "totals": {

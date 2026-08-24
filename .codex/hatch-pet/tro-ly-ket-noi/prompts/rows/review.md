@@ -11,6 +11,7 @@ Animation continuity: keep apparent pet scale and baseline stable within the row
 State action: Ready-review loop: focused inspection of completed output with lean, blink, narrowed eyes, head tilt, or paw pose.
 
 State requirements:
+
 - Show review through lean, blink, narrowed eyes, head tilt, or paw/hand position.
 - Do not add magnifying glasses, papers, code, UI, punctuation, symbols, or other new props unless they already exist in the base pet identity.
 

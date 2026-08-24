@@ -7,6 +7,7 @@ Keep apparent pet scale and baseline stable within the row unless the state itse
 Action: Needs-input loop: expectant asking pose for approval, help, or user input.
 
 State requirements:
+
 - Show that Codex needs approval, help, or user input through an expectant asking pose.
 - Keep the motion patient and readable, without turning it into ordinary idle or review.
 

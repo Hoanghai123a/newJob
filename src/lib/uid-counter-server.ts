@@ -2,7 +2,7 @@
 
 export type UidCounterType = "user" | "employment_history";
 
-type AuthUser = { id: string; role?: string };
+type AuthUser = { id: string; role?: string; tenant_company?: string };
 type CounterRecord = {
   id: string;
   counter_key: string;
@@ -10,6 +10,7 @@ type CounterRecord = {
   prefix: string;
   period?: string;
   current_value: number;
+  tenant_company?: string;
 };
 
 type AllocateBody = {
@@ -23,6 +24,7 @@ type AllocateBody = {
 
 const locks = new Map<string, Promise<void>>();
 let cachedAdminToken = "";
+let cachedAdminTokenExpiry = 0;
 
 type AdminAuthResult =
   | { ok: true; token: string }
@@ -35,6 +37,30 @@ function env(name: string) {
 
 function escapePb(value: string) {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+// PocketBase JWT tokens hết hạn (mặc định 24h). Đọc exp để chủ động cấp lại
+// trước khi hết hạn, tránh lỗi 500 do dùng token quản trị đã hết hạn từ cache.
+function jwtExpiry(token: string): number {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return 0;
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(
+      typeof atob === "function"
+        ? atob(normalized)
+        : Buffer.from(normalized, "base64").toString("utf-8"),
+    );
+    return typeof decoded?.exp === "number" ? decoded.exp * 1000 : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function cachedAdminTokenValid() {
+  if (!cachedAdminToken) return false;
+  // Cấp lại nếu còn dưới 60s hoặc không đọc được exp (0 -> coi như cần làm mới).
+  return cachedAdminTokenExpiry > Date.now() + 60_000;
 }
 
 async function pbFetch(path: string, init: RequestInit = {}, token?: string) {
@@ -59,17 +85,27 @@ function bearerToken(request: Request) {
 async function getAuthUser(request: Request): Promise<AuthUser | null> {
   const token = bearerToken(request);
   if (!token) return null;
-  const response = await pbFetch("/api/collections/users/auth-refresh", { method: "POST" }, token);
-  if (!response.ok) return null;
-  const body = await readJson(response);
-  return body?.record?.id ? (body.record as AuthUser) : null;
+  try {
+    const response = await pbFetch(
+      "/api/collections/users/auth-refresh",
+      { method: "POST" },
+      token,
+    );
+    if (!response.ok) return null;
+    const body = await readJson(response);
+    return body?.record?.id ? (body.record as AuthUser) : null;
+  } catch (error) {
+    console.error("[uid-counter] getAuthUser failed:", error);
+    return null;
+  }
 }
 
 async function getAdminToken(): Promise<AdminAuthResult> {
-  if (cachedAdminToken) return { ok: true, token: cachedAdminToken };
+  if (cachedAdminTokenValid()) return { ok: true, token: cachedAdminToken };
   const direct = env("PB_ADMIN_TOKEN");
   if (direct) {
     cachedAdminToken = direct;
+    cachedAdminTokenExpiry = jwtExpiry(direct);
     return { ok: true, token: cachedAdminToken };
   }
 
@@ -90,6 +126,7 @@ async function getAdminToken(): Promise<AdminAuthResult> {
       const body = await readJson(response);
       if (response.ok && body?.token) {
         cachedAdminToken = body.token;
+        cachedAdminTokenExpiry = jwtExpiry(body.token);
         return { ok: true, token: cachedAdminToken };
       }
     } catch {
@@ -125,27 +162,61 @@ async function withCounterLock<T>(key: string, task: () => Promise<T>): Promise<
   }
 }
 
-async function getPrefix(token: string) {
-  const response = await pbFetch(
-    "/api/collections/app_settings/records?page=1&perPage=1&fields=account_code_prefix",
-    {},
-    token,
-  );
-  if (!response.ok) throw new Error("Không đọc được tiền tố UID từ PocketBase.");
-  const body = await readJson(response);
-  return String(body?.items?.[0]?.account_code_prefix || "")
-    .trim()
-    .toUpperCase();
+async function getPrefix(companyId: string, token: string) {
+  try {
+    const params = new URLSearchParams({
+      page: "1",
+      perPage: "20",
+      filter: `tenant_company="${escapePb(companyId)}"`,
+      fields: "account_code_prefix",
+    });
+    const response = await pbFetch(`/api/collections/app_settings/records?${params}`, {}, token);
+    if (!response.ok) {
+      throw new Error(
+        `Không đọc được tiền tố UID từ PocketBase. ` +
+          `Kiểm tra collection app_settings có bản ghi với tenant_company="${companyId}".`,
+      );
+    }
+    const body = await readJson(response);
+    const rows: Array<{ account_code_prefix?: string }> = body?.items || [];
+
+    // Nếu không tìm thấy app_settings nào
+    if (rows.length === 0) {
+      console.error(
+        `[uid-counter] Công ty ${companyId} chưa có app_settings với tenant_company. ` +
+          `Dùng prefix mặc định "TEMP".`,
+      );
+      return "TEMP";
+    }
+
+    // A company may have more than one app_settings row; prefer the one that
+    // actually defines a prefix, else fall back to the first row.
+    const withPrefix = rows.find((r) => String(r.account_code_prefix || "").trim() !== "");
+    return String((withPrefix ?? rows[0])?.account_code_prefix || "")
+      .trim()
+      .toUpperCase();
+  } catch (error) {
+    console.error(`[uid-counter] getPrefix failed for company ${companyId}:`, error);
+    throw new Error(
+      `Không kết nối được PocketBase để lấy tiền tố UID. ` +
+        `Chi tiết: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }
 
-function counterMeta(type: UidCounterType, prefix: string, referenceDate?: string) {
-  if (type === "user") return { key: `user:${prefix}`, period: "", limit: 999_999 };
+function counterMeta(
+  type: UidCounterType,
+  companyId: string,
+  prefix: string,
+  referenceDate?: string,
+) {
+  if (type === "user") return { key: `${companyId}:user:${prefix}`, period: "", limit: 999_999 };
   const date = referenceDate ? new Date(referenceDate) : new Date();
   if (Number.isNaN(date.getTime())) throw new Error("Ngày tham chiếu cấp UID không hợp lệ.");
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   return {
-    key: `employment_history:${prefix}:${year}${String(month).padStart(2, "0")}`,
+    key: `${companyId}:employment_history:${prefix}:${year}${String(month).padStart(2, "0")}`,
     period: `${year}${String(month).padStart(2, "0")}`,
     limit: 9_999,
   };
@@ -168,13 +239,24 @@ async function getCounter(key: string, token: string): Promise<CounterRecord | n
   return ((await readJson(response))?.items?.[0] as CounterRecord | undefined) || null;
 }
 
-async function scanMaximum(type: UidCounterType, prefix: string, period: string, token: string) {
+async function scanMaximum(
+  type: UidCounterType,
+  companyId: string,
+  prefix: string,
+  period: string,
+  token: string,
+) {
   const collection = type === "user" ? "users" : "employment_histories";
-  const response = await pbFetch(
-    `/api/collections/${collection}/records?page=1&perPage=500&fields=uid`,
-    {},
-    token,
-  );
+  const buildUrl = (page: number) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      perPage: "500",
+      fields: "uid",
+      filter: `tenant_company="${escapePb(companyId)}"`,
+    });
+    return `/api/collections/${collection}/records?${params}`;
+  };
+  const response = await pbFetch(buildUrl(1), {}, token);
   if (!response.ok) throw new Error("Không thể khởi tạo bộ đếm từ dữ liệu UID hiện tại.");
   const body = await readJson(response);
   const totalPages = Math.max(1, Number(body?.totalPages || 1));
@@ -193,11 +275,7 @@ async function scanMaximum(type: UidCounterType, prefix: string, period: string,
   };
   inspect(body?.items || []);
   for (let page = 2; page <= totalPages; page += 1) {
-    const next = await pbFetch(
-      `/api/collections/${collection}/records?page=${page}&perPage=500&fields=uid`,
-      {},
-      token,
-    );
+    const next = await pbFetch(buildUrl(page), {}, token);
     if (!next.ok) throw new Error("Không thể quét đầy đủ UID hiện tại.");
     inspect((await readJson(next))?.items || []);
   }
@@ -233,16 +311,16 @@ async function allocate(body: AllocateBody, actor: AuthUser | null, adminToken: 
   if (type !== "user" && type !== "employment_history") return jsonError("Loại UID không hợp lệ.");
   const count = Math.trunc(Number(body.count || 1));
   if (count < 1 || count > 1_000) return jsonError("Số lượng UID phải từ 1 đến 1000.");
-  if (type === "employment_history" && !actor)
-    return jsonError("Cần đăng nhập để cấp UID lịch sử.", 401);
-  if (count > 1 && !actor) return jsonError("Cần đăng nhập để cấp nhiều UID.", 401);
+  if (!actor) return jsonError("Cần đăng nhập để cấp UID.", 401);
+  const companyId = String(actor.tenant_company || "").trim();
+  if (!companyId) return jsonError("Tài khoản chưa gắn với công ty nào.", 403);
 
-  const prefix = await getPrefix(adminToken);
-  const meta = counterMeta(type, prefix, body.referenceDate);
+  const prefix = await getPrefix(companyId, adminToken);
+  const meta = counterMeta(type, companyId, prefix, body.referenceDate);
   return withCounterLock(meta.key, async () => {
     let counter = await getCounter(meta.key, adminToken);
     if (!counter) {
-      const current = await scanMaximum(type, prefix, meta.period, adminToken);
+      const current = await scanMaximum(type, companyId, prefix, meta.period, adminToken);
       counter = await saveCounter(
         {
           counter_key: meta.key,
@@ -252,6 +330,7 @@ async function allocate(body: AllocateBody, actor: AuthUser | null, adminToken: 
           current_value: current,
           updated_by: actor?.id || body.actorId || "",
           note: "Khởi tạo tự động từ dữ liệu hiện có",
+          tenant_company: companyId,
         },
         undefined,
         adminToken,
@@ -275,6 +354,7 @@ async function allocate(body: AllocateBody, actor: AuthUser | null, adminToken: 
         current_value: endValue,
         updated_by: actor?.id || body.actorId || "",
         note: counter.note || "",
+        tenant_company: companyId,
       },
       counter.id,
       adminToken,
@@ -289,14 +369,16 @@ async function allocate(body: AllocateBody, actor: AuthUser | null, adminToken: 
 async function observe(body: AllocateBody, actor: AuthUser | null, adminToken: string) {
   if (!actor || (actor.role !== "admin" && actor.role !== "staff"))
     return jsonError("Bạn không có quyền cập nhật bộ đếm UID.", 403);
+  const companyId = String(actor.tenant_company || "").trim();
+  if (!companyId) return jsonError("Tài khoản chưa gắn với công ty nào.", 403);
   const type = body.type;
   const uid = String(body.uid || "")
     .trim()
     .toUpperCase();
   if ((type !== "user" && type !== "employment_history") || !uid)
     return jsonError("UID quan sát không hợp lệ.");
-  const prefix = await getPrefix(adminToken);
-  const meta = counterMeta(type, prefix, body.referenceDate);
+  const prefix = await getPrefix(companyId, adminToken);
+  const meta = counterMeta(type, companyId, prefix, body.referenceDate);
   const pattern =
     type === "user"
       ? new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\d{6})$`)
@@ -319,6 +401,7 @@ async function observe(body: AllocateBody, actor: AuthUser | null, adminToken: s
         current_value: observed,
         updated_by: actor.id,
         note: "Nâng bộ đếm theo UID nhập thủ công",
+        tenant_company: companyId,
       },
       counter?.id,
       adminToken,

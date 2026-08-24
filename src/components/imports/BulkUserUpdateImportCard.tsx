@@ -9,6 +9,7 @@ import { normalizeDate } from "@/lib/date-utils";
 import { createStaffActionLog } from "@/lib/staff-log";
 import { updateUserAndCache } from "@/lib/employment";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import { companyFilter } from "@/lib/tenant";
 import type { WorkerRecord } from "@/lib/workers";
 import { accountIdentityKey } from "@/lib/account-identity";
 import { toast } from "@/lib/toast";
@@ -217,6 +218,7 @@ export function BulkUserUpdateImportCard({ actor }: { actor: UserRecord }) {
       }
 
       const workers = await pb.collection("workers").getFullList<WorkerRecord>({
+        filter: companyFilter(actor),
         fields: ["id", "uid", ...FIELD_SPECS.map((spec) => spec.field)].join(","),
       });
       const workersByUid = new Map<string, WorkerRecord[]>();

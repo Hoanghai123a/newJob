@@ -100,10 +100,7 @@
         "required": false,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "inactive"
-        ]
+        "values": ["active", "inactive"]
       },
       {
         "autogeneratePattern": "",

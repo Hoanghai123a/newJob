@@ -10,7 +10,6 @@ import { createStaffActionLog } from "@/lib/staff-log";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/money";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppHeader } from "@/components/layout/BottomNav";
-import { PushNotificationSettingsCard } from "@/components/layout/PushNotificationSettingsCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { DataLoadingState } from "@/components/ui/data-loading-state";
@@ -68,7 +67,6 @@ function AdminSettingsPage() {
     <div>
       <AppHeader title="Cài đặt hệ thống" back />
       <div className="p-4">
-        <PushNotificationSettingsCard />
         <Tabs defaultValue="company" className="w-full">
           <TabsList className="grid w-full grid-cols-2 rounded-2xl">
             <TabsTrigger value="company" className="rounded-xl text-xs">
@@ -98,21 +96,13 @@ function CompanyTab() {
   const [form, setForm] = useState<any>({});
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [installGuideFiles, setInstallGuideFiles] = useState<File[]>([]);
-  const [removedInstallGuideImages, setRemovedInstallGuideImages] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const installGuideImages = Array.isArray(settings.install_guide_images)
-    ? settings.install_guide_images
-    : [];
 
   useEffect(() => {
     setForm({
       company_name: settings.company_name || "",
-      slogan: settings.slogan || "",
       address: settings.address || "",
       hotline: settings.hotline || "",
-      email: settings.email || "",
-      about: settings.about || "",
       advance_rules: settings.advance_rules || "",
       account_code_prefix: settings.account_code_prefix || "",
       staff_employment_factory_scope: settings.staff_employment_factory_scope || "assigned",
@@ -132,37 +122,33 @@ function CompanyTab() {
     r.readAsDataURL(f);
   };
 
-  const onPickInstallGuideImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setInstallGuideFiles((prev) => [...prev, ...files]);
-    e.target.value = "";
-  };
-
   const save = async () => {
     setSaving(true);
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
-        if (k === "install_guide_images") return;
-        if (k === "advance_limit") fd.append(k, String(parseMoneyInput(v as string)));
-        else fd.append(k, (v as any) ?? "");
+        fd.append(k, (v as any) ?? "");
       });
       if (logoFile) fd.append("logo", logoFile);
-      for (const rm of removedInstallGuideImages) fd.append("install_guide_images-", rm);
-      for (const f of installGuideFiles) fd.append("install_guide_images", f);
-      if (settings.id) {
-        await pb.collection("app_settings").update(settings.id, fd);
-      } else {
+      const createSettings = async () => {
         const tenantCompany = companyIdOf(pb.authStore.record as UserRecord);
         if (tenantCompany) fd.append("tenant_company", tenantCompany);
         await pb.collection("app_settings").create(fd);
+      };
+      if (settings.id) {
+        try {
+          await pb.collection("app_settings").update(settings.id, fd);
+        } catch (err: any) {
+          // Record đã bị xoá phía server (vd. sau migration) nhưng cache còn id cũ → tạo mới.
+          if (err?.status === 404) await createSettings();
+          else throw err;
+        }
+      } else {
+        await createSettings();
       }
       toast.success("Đã lưu thông tin công ty");
       qc.invalidateQueries({ queryKey: ["app_settings"] });
       refetch();
-      setInstallGuideFiles([]);
-      setRemovedInstallGuideImages([]);
     } catch (e: any) {
       toast.error(e?.message || "Lỗi lưu");
     } finally {
@@ -188,165 +174,88 @@ function CompanyTab() {
         </label>
       </div>
 
-      <Field
-        label="Tên công ty"
-        value={form.company_name}
-        onChange={(v) => setForm({ ...form, company_name: v })}
-      />
-      <Field label="Slogan" value={form.slogan} onChange={(v) => setForm({ ...form, slogan: v })} />
-      <Field
-        label="Địa chỉ"
-        value={form.address}
-        onChange={(v) => setForm({ ...form, address: v })}
-      />
-      <Field
-        label="Hotline"
-        value={form.hotline}
-        onChange={(v) => setForm({ ...form, hotline: v })}
-      />
-      <Field label="Email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
-      <div>
-        <Label className="text-xs">Tiền tố UID</Label>
-        <Input
-          className="mt-1 rounded-xl uppercase"
-          placeholder="VD: HL"
-          maxLength={6}
-          value={form.account_code_prefix || ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              account_code_prefix: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""),
-            })
-          }
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Thông tin công ty</h3>
+
+        <Field
+          label="Tên công ty"
+          value={form.company_name}
+          onChange={(v) => setForm({ ...form, company_name: v })}
         />
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          UID sẽ có dạng{" "}
-          <span className="font-mono font-semibold">
-            {(form.account_code_prefix || "HL") + "000001"}
-          </span>{" "}
-          và tăng dần. Đổi tiền tố chỉ áp dụng cho UID cấp mới.
-        </p>
-      </div>
-      <div>
-        <Label className="text-xs">Hạn mức Ứng lương</Label>
-        <Input
-          className="mt-1 rounded-xl"
-          inputMode="numeric"
-          placeholder="0"
-          value={form.advance_limit || ""}
-          onChange={(e) => setForm({ ...form, advance_limit: formatMoneyInput(e.target.value) })}
+        <Field
+          label="Địa chỉ"
+          value={form.address}
+          onChange={(v) => setForm({ ...form, address: v })}
         />
-      </div>
-      <div>
-        <Label className="text-xs">Nội quy Ứng lương</Label>
-        <Textarea
-          className="mt-1 rounded-xl"
-          rows={5}
-          placeholder="Nhập nội quy, điều kiện và lưu ý khi Ứng lương..."
-          value={form.advance_rules || ""}
-          onChange={(e) => setForm({ ...form, advance_rules: e.target.value })}
+        <Field
+          label="Hotline"
+          value={form.hotline}
+          onChange={(v) => setForm({ ...form, hotline: v })}
         />
-      </div>
-      <div>
-        <Label className="text-xs">Phạm vi nhà máy khi tạo/báo đi làm</Label>
-        <Select
-          value={form.staff_employment_factory_scope || "assigned"}
-          onValueChange={(value) => setForm({ ...form, staff_employment_factory_scope: value })}
-        >
-          <SelectTrigger className="mt-1 rounded-xl">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="assigned">Chỉ nhà máy được phân công</SelectItem>
-            <SelectItem value="all">Toàn bộ nhà máy</SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="mt-1 text-[11px] text-muted-foreground">
-          Áp dụng cho staff trong Tạo nhanh và Báo đi làm mới.
-        </p>
-      </div>
-      <div>
-        <Label className="text-xs">Giới thiệu</Label>
-        <Textarea
-          className="mt-1 rounded-xl"
-          rows={5}
-          value={form.about || ""}
-          onChange={(e) => setForm({ ...form, about: e.target.value })}
-        />
+        <div>
+          <Label className="text-xs">Tiền tố UID</Label>
+          <Input
+            className="mt-1 rounded-xl uppercase"
+            placeholder="VD: HL"
+            maxLength={6}
+            value={form.account_code_prefix || ""}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                account_code_prefix: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""),
+              })
+            }
+          />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            UID sẽ có dạng{" "}
+            <span className="font-mono font-semibold">
+              {(form.account_code_prefix || "HL") + "000001"}
+            </span>{" "}
+            và tăng dần. Đổi tiền tố chỉ áp dụng cho UID cấp mới.
+          </p>
+        </div>
       </div>
 
-      <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/30 p-3">
-        <div className="flex items-center gap-2">
-          <Smartphone className="h-4 w-4 text-primary" />
-          <div>
-            <div className="text-xs font-semibold">Hướng dẫn cài app cho iOS</div>
-            <div className="text-[11px] text-muted-foreground">
-              Tải ảnh step-by-step để hiển thị trong nút "Hướng dẫn".
-            </div>
-          </div>
+      <div className="space-y-3">
+        <h3 className="text-sm font-semibold text-foreground">Chính sách & Quy định</h3>
+
+        <div>
+          <Label className="text-xs">Phạm vi nhà máy khi tạo/báo đi làm</Label>
+          <Select
+            value={form.staff_employment_factory_scope || "assigned"}
+            onValueChange={(value) => setForm({ ...form, staff_employment_factory_scope: value })}
+          >
+            <SelectTrigger className="mt-1 rounded-xl">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="assigned">Chỉ nhà máy được phân công</SelectItem>
+              <SelectItem value="all">Toàn bộ nhà máy</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Áp dụng cho staff trong Tạo nhanh và Báo đi làm mới.
+          </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {installGuideImages
-            .filter((f) => !removedInstallGuideImages.includes(f))
-            .map((f) => (
-              <div key={f} className="relative">
-                <img
-                  src={fileUrl(settings, f)}
-                  alt=""
-                  className="h-20 w-20 rounded-xl object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => setRemovedInstallGuideImages((prev) => [...prev, f])}
-                  className="absolute -right-1 -top-1 rounded-full bg-destructive p-0.5 text-destructive-foreground"
-                  aria-label="Xoá ảnh hướng dẫn"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          {installGuideFiles.map((f, i) => (
-            <div key={`${f.name}-${i}`} className="relative">
-              <img
-                src={URL.createObjectURL(f)}
-                alt=""
-                className="h-20 w-20 rounded-xl object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => setInstallGuideFiles((prev) => prev.filter((_, j) => j !== i))}
-                className="absolute -right-1 -top-1 rounded-full bg-destructive p-0.5 text-destructive-foreground"
-                aria-label="Xoá ảnh mới"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-          <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed bg-white text-muted-foreground">
-            <ImagePlus className="h-5 w-5" />
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={onPickInstallGuideImages}
-            />
-          </label>
+        <div>
+          <Label className="text-xs">Nội quy Ứng lương</Label>
+          <Textarea
+            className="mt-1 rounded-xl"
+            rows={5}
+            placeholder="Nhập nội quy, điều kiện và lưu ý chung khi Ứng lương..."
+            value={form.advance_rules || ""}
+            onChange={(e) => setForm({ ...form, advance_rules: e.target.value })}
+          />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Hạn mức ứng cụ thể được cài đặt ở từng nhà máy bên tab Nhà máy.
+          </p>
         </div>
       </div>
 
       <Button onClick={save} disabled={saving} className="w-full rounded-xl">
         <Save className="h-4 w-4" /> {saving ? "Đang lưu..." : "Lưu thay đổi"}
       </Button>
-
-      <p className="text-[11px] text-muted-foreground">
-        Yêu cầu collection PocketBase tên <code>app_settings</code> với các field: company_name,
-        slogan, address, hotline, email, about (text), advance_limit (number), advance_rules (text),
-        logo (file), install_guide_images (multiple files), staff_employment_factory_scope (select:
-        assigned/all). Collection <code>factories</code> cần thêm field attendance_cutoff_day
-        (number).
-      </p>
     </Card>
   );
 }
@@ -570,7 +479,9 @@ function FactoriesTab() {
       return;
     }
     if (!editing.id && !companyIdOf(currentUser)) {
-      toast.error("Tài khoản Admin chưa được gán công ty. Vui lòng cấu hình trong PocketBase trước.");
+      toast.error(
+        "Tài khoản Admin chưa được gán công ty. Vui lòng cấu hình trong PocketBase trước.",
+      );
       return;
     }
     setFactorySaving(true);
@@ -1126,6 +1037,22 @@ function FactoriesTab() {
               <div className="mt-1 text-[11px] text-muted-foreground">
                 Ví dụ: chốt ngày 25 thì kỳ công bắt đầu từ ngày 26 tháng trước đến ngày 25 tháng
                 này.
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Hạn mức ứng</Label>
+              <Input
+                className="mt-1 rounded-xl"
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={formatMoneyInput(String(editing?.advance_limit || 0))}
+                onChange={(e) =>
+                  setEditing({ ...editing, advance_limit: parseMoneyInput(e.target.value) })
+                }
+              />
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                Hạn mức ứng tiền tối đa cho mỗi người lao động tại nhà máy này (đồng).
               </div>
             </div>
             <div>

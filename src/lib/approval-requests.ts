@@ -1,6 +1,5 @@
 import { pb, type UserRecord } from "./pocketbase";
 import { escapePb } from "./delegations";
-import { notifyApprovalCreated, notifyApprovalResolved } from "./push-notifications";
 import { companyFilter, companyPayload, joinTenantFilters } from "./tenant";
 
 export type ApprovalStatus = "pending" | "approved" | "rejected" | "completed";
@@ -84,8 +83,6 @@ export async function createApprovalRequest(data: {
     ),
   );
 
-  notifyApprovalCreated(request.id).catch(() => undefined);
-
   return request;
 }
 
@@ -122,10 +119,6 @@ export async function respondToApproval(
       .catch(() => null);
 
     await pb.collection("approval_requests").update(response.request, { status: overall });
-
-    if (!previousRequest || previousRequest.status === "pending") {
-      notifyApprovalResolved(response.request).catch(() => undefined);
-    }
   }
 }
 

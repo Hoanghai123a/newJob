@@ -80,13 +80,6 @@ staff_action_logs
 - Tạo nhanh NLĐ ghi đồng thời `users`, `employment_histories`, `cccd_versions`
   (nếu có ảnh/số CCCD) và `staff_action_logs`.
 
-## Thông báo PWA
-
-- Import thêm `pb_collections_push_notifications.json` để có collection `push_subscriptions`.
-- Rule của `push_subscriptions`: user chỉ xem/sửa/xóa thiết bị của chính mình; API server dùng quyền admin để đọc danh sách thiết bị khi cần gửi Web Push.
-- Cần cấu hình biến môi trường trên server app: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`.
-- API gửi thông báo cần quyền đọc `push_subscriptions` phía server qua `PB_ADMIN_TOKEN` hoặc `PB_ADMIN_EMAIL` + `PB_ADMIN_PASSWORD`.
-
 ## Batch API cho import NLĐ và lịch sử
 
 Chức năng **Nhập dữ liệu -> Tạo hàng loạt NLĐ và lịch sử đi làm** dùng PocketBase Batch API để tạo một tài khoản cùng toàn bộ lịch sử của NLĐ trong một giao dịch. Không cần thêm collection hoặc field mới.

@@ -1,6 +1,5 @@
 import { CheckCircle2, Smartphone } from "lucide-react";
 import { useAppSettings } from "@/lib/app-settings";
-import { fileUrl } from "@/lib/pocketbase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const IOS_GUIDE_STEPS = [
@@ -33,16 +32,7 @@ interface IosInstallGuideDialogProps {
 
 export function IosInstallGuideDialog({ open, onOpenChange }: IosInstallGuideDialogProps) {
   const { data: settings, logoUrl } = useAppSettings();
-  const guideImages = Array.isArray(settings.install_guide_images)
-    ? settings.install_guide_images
-    : [];
-  const uploadedGuideImageUrls = guideImages
-    .map((image) => fileUrl(settings, image))
-    .filter(Boolean);
-  const guideSteps = IOS_GUIDE_STEPS.map((step, index) => ({
-    ...step,
-    imageUrl: uploadedGuideImageUrls[index] || step.imageUrl,
-  }));
+  const guideSteps = IOS_GUIDE_STEPS;
   const appName = settings.company_name?.trim() || "app";
   const appIconUrl = logoUrl || "/pwa-icon.svg";
 

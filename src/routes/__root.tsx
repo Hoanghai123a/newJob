@@ -15,7 +15,6 @@ import { getUserErrorMessage } from "@/lib/toast";
 import { Toaster } from "@/components/ui/sonner";
 import { installPwaPromptListeners } from "@/lib/pwa-install";
 import { BrandHeadLinks } from "@/components/layout/BrandHeadLinks";
-import { PushPermissionPrompt } from "@/components/layout/PushPermissionPrompt";
 import { DEVICE_PROFILE_BOOTSTRAP } from "@/lib/device-profile";
 
 const CHUNK_RELOAD_KEY = "jobconnect.chunk-reload-path";
@@ -91,8 +90,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#0e6b7a" },
-      { title: "Chấm công" },
-      { name: "description", content: "Nền tảng quản lý và kết nối người lao động." },
+      { title: "Tuyển dụng 4.0" },
+      { name: "description", content: "Nền tảng tuyển dụng 4.0 và kết nối người lao động." },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -147,7 +146,6 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrandHeadLinks />
-        <PushPermissionPrompt />
         <div className="app-shell">
           <Outlet />
           <Toaster richColors position="top-center" />

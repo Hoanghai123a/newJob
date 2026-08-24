@@ -1,12 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { companyCodeKey } from "@/lib/login-identity";
-import {
-  escapePb,
-  getPocketBaseAdminToken,
-  pbServerFetch,
-  readPbJson,
-} from "@/lib/tenant-server";
+import { escapePb, getPocketBaseAdminToken, pbServerFetch, readPbJson } from "@/lib/tenant-server";
 
 const QuerySchema = z.object({ code: z.string().min(1).max(40) });
 

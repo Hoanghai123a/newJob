@@ -12,7 +12,6 @@ import {
   normalizeAccountUsername,
 } from "@/lib/account-identity";
 import { AppHeader } from "@/components/layout/BottomNav";
-import { PushNotificationSettingsCard } from "@/components/layout/PushNotificationSettingsCard";
 import { DeleteWorkerDialog } from "@/components/admin/DeleteWorkerDialog";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
@@ -223,10 +222,6 @@ function AccountPage() {
           </div>
         </Card>
 
-        <div className="desktop:hidden">
-          <PushNotificationSettingsCard />
-        </div>
-
         {isAdmin ? (
           <Tabs defaultValue="staff" className="space-y-3">
             <TabsList className="grid h-10 w-full grid-cols-3 rounded-2xl">
@@ -386,9 +381,6 @@ function UserProfileForm() {
         </Card>
       )}
       <Section title={isAdmin ? "Thông tin admin" : "Thông tin chung"}>
-        <div className="hidden justify-end desktop:flex">
-          <PushNotificationSettingsCard buttonOnly />
-        </div>
         <div className="flex flex-col items-center gap-2">
           <div className="relative h-20 w-20">
             {avatarPreview ? (
@@ -694,7 +686,10 @@ function AdminUsersPanel() {
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<any>(ws, { defval: "" });
 
-      const factories = await pb.collection("factories").getFullList({ sort: "name" });
+      const factories = await pb.collection("factories").getFullList({
+        sort: "name",
+        filter: companyFilter(me, "tenant_company"),
+      });
       const factoryMap = new Map(factories.map((f: any) => [f.name.toLowerCase(), f.id]));
       const allUsers = await pb.collection("users").getFullList<UserRecord>({
         fields: "id,username,uid,role",
@@ -1223,10 +1218,6 @@ function AdminUsersPanel() {
 
   return (
     <Card className="space-y-3 p-4">
-      <div className="hidden justify-end desktop:flex">
-        <PushNotificationSettingsCard buttonOnly />
-      </div>
-
       <Link
         to="/admin/logs"
         className="flex items-center gap-3 rounded-2xl border border-border/60 bg-muted/30 p-3 transition hover:bg-muted/50 desktop:hidden"

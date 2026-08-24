@@ -460,19 +460,19 @@ function AdminCheckAttendance({
         filter: `${companyFilter(viewer)} && month="${month}"`,
         sort: "-created",
       }),
-      pb.collection("workers").getList(1, 500, { filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
+      pb
+        .collection("workers")
+        .getList(1, 500, { filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
       fetchEmploymentHistories(),
     ]);
     setBatches(batchRes.items as unknown as BatchRecord[]);
     setUsers(userRes.items as unknown as UserRecord[]);
     setHistories(historyRows);
     try {
-      const salaryBatchRes = await pb
-        .collection("check_salary_batches")
-        .getList(1, 100, {
-          filter: `${companyFilter(viewer)} && month="${salaryMonth}"`,
-          sort: "-created",
-        });
+      const salaryBatchRes = await pb.collection("check_salary_batches").getList(1, 100, {
+        filter: `${companyFilter(viewer)} && month="${salaryMonth}"`,
+        sort: "-created",
+      });
       setSalaryBatches(salaryBatchRes.items as unknown as BatchRecord[]);
     } catch {
       setSalaryBatches([]);
@@ -573,9 +573,10 @@ function AdminCheckAttendance({
       }
 
       const [allUsers, allHistories] = await Promise.all([
-        pb
-          .collection("workers")
-          .getFullList<UserRecord>({ filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
+        pb.collection("workers").getFullList<UserRecord>({
+          filter: companyFilter(viewer, "tenant_company"),
+          sort: "full_name",
+        }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));
@@ -737,9 +738,10 @@ function AdminCheckAttendance({
       }
 
       const [allUsers, allHistories] = await Promise.all([
-        pb
-          .collection("workers")
-          .getFullList<UserRecord>({ filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
+        pb.collection("workers").getFullList<UserRecord>({
+          filter: companyFilter(viewer, "tenant_company"),
+          sort: "full_name",
+        }),
         fetchEmploymentHistories(),
       ]);
       const userById = new Map(allUsers.map((user) => [user.id, user]));

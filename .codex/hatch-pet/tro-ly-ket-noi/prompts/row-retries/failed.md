@@ -7,6 +7,7 @@ Keep apparent pet scale and baseline stable within the row unless the state itse
 Action: Blocked/failed loop: slumped or deflated reaction with sad or closed eyes.
 
 State requirements:
+
 - Show failure through slumped pose, drooping ears/limbs, closed or sad eyes, and lower body position.
 - Tears, small smoke puffs, or tiny stars are allowed only if attached to or overlapping the pet silhouette and kept inside the same frame slot.
 - Do not draw red X marks, floating symbols, detached stars, separated smoke clouds, falling tear drops, dust, or other loose effects.

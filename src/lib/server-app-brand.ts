@@ -62,7 +62,9 @@ export async function fetchAppSettingsRecord(companyId?: string) {
   return request;
 }
 
-async function fetchAppSettingsRecordUncached(companyId?: string): Promise<CachedAppSettingsRecord> {
+async function fetchAppSettingsRecordUncached(
+  companyId?: string,
+): Promise<CachedAppSettingsRecord> {
   const upstream = normalizeUpstream(getPBUpstream());
   const filter = companyId?.trim()
     ? `&filter=${encodeURIComponent(`tenant_company = "${escapePb(companyId)}"`)}`

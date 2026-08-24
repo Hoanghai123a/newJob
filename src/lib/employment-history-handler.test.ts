@@ -33,7 +33,7 @@ function makeDeps(overrides: Partial<Parameters<typeof handleCreateEmploymentHis
       return jsonResponse({ id: "history-1" }, 201);
     },
     readJson: async (response: Response) => response.json(),
-    escapeFilterValue: (value: string) => value.replace(/"/g, '\"'),
+    escapeFilterValue: (value: string) => value.replace(/"/g, '\\"'),
     ...overrides,
   };
   return { deps, calls };
@@ -110,4 +110,3 @@ test("bỏ tenant giả mạo và luôn gán tenant từ phiên đăng nhập", 
     tenant_company: "company-1",
   });
 });
-

@@ -80,6 +80,7 @@ import { BankNameInput } from "@/components/staff/BankNameInput";
 import { FactoryPicker, MainHousePicker } from "@/components/workforce/UserPicker";
 import { SalaryHoldCreateDialog } from "@/components/staff/SalaryHoldCreateDialog";
 import { canCreateSalaryHold } from "@/lib/salary-holds";
+import { joinTenantFilters } from "@/lib/tenant";
 import {
   getCccdVersionByNumber,
   getCurrentCccdVersion,
@@ -266,7 +267,7 @@ function StaffWorkerDetailPage() {
       pb
         .collection("users")
         .getList(1, 200, {
-          filter: `role="staff" || role="admin"`,
+          filter: joinTenantFilters(viewer as UserRecord, `(role="staff" || role="admin")`),
           sort: "full_name,username",
         })
         .then((res) => res.items)
@@ -274,7 +275,7 @@ function StaffWorkerDetailPage() {
       pb
         .collection("advances")
         .getList(1, 50, {
-          filter: `worker="${workerId}"`,
+          filter: joinTenantFilters(viewer as UserRecord, `worker="${workerId}"`),
           sort: "-created",
         })
         .then((res) => res.items)
@@ -438,9 +439,7 @@ function StaffWorkerDetailPage() {
       .catch((error: unknown) => {
         if (!active) return;
         setAdvancePolicy(null);
-        setAdvancePolicyError(
-          getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"),
-        );
+        setAdvancePolicyError(getUserErrorMessage(error, "Không thể kiểm tra hạn mức ứng tiền"));
       })
       .finally(() => active && setAdvancePolicyLoading(false));
     return () => {
@@ -640,14 +639,15 @@ function StaffWorkerDetailPage() {
 
     for (const history of getStaleWorkingEmploymentHistories(latestHistories)) {
       await updateEmploymentHistory(
-          history.id,
-          { status: "left" },
-          {
-        actor: viewer,
-        source: "Trang chi tiết người lao động",
-        note: "Báo đi làm mới: đồng bộ lịch sử đã có ngày nghỉ",
-        before: history,
-      });
+        history.id,
+        { status: "left" },
+        {
+          actor: viewer,
+          source: "Trang chi tiết người lao động",
+          note: "Báo đi làm mới: đồng bộ lịch sử đã có ngày nghỉ",
+          before: history,
+        },
+      );
     }
 
     if (latestLeaveDate && joinForm.join_date < latestLeaveDate) {
@@ -945,31 +945,35 @@ function StaffWorkerDetailPage() {
       );
       cccdVersionId = version.id;
     }
-    await updateEmploymentHistory(editingHistory.id, {
-      worker: workerUser.id,
-      employee_code: historyForm.employee_code.trim(),
-      worker_name_snapshot: historyForm.worker_name_snapshot.trim(),
-      worker_cccd_snapshot: historyForm.worker_cccd_snapshot.trim(),
-      worker_date_of_birth_snapshot: historyForm.worker_date_of_birth_snapshot,
-      worker_address_snapshot: historyForm.worker_address_snapshot.trim(),
-      hometown_snapshot: historyForm.worker_address_snapshot.trim(),
-      cccd_issue_date: historyForm.cccd_issue_date,
-      worker_tax_code_snapshot: historyForm.worker_tax_code_snapshot.trim(),
-      cccd_version: cccdVersionId,
-      ...buildRecruiterPayload(historyForm.recruiter_staff),
-      main_house: historyForm.main_house || undefined,
-      join_date: historyForm.join_date,
-      leave_date: isOldHistory ? originalLeaveDate : historyForm.leave_date,
-      note: historyForm.note.trim(),
-    }, {
-      actor: viewer,
-      source: "Biểu mẫu sửa lịch sử tại trang chi tiết",
-      note:
-        viewer.role === "admin"
-          ? "Admin chỉnh sửa trực tiếp lịch sử đi làm"
-          : "Staff chỉnh sửa lịch sử đi làm gần nhất",
-      before,
-    });
+    await updateEmploymentHistory(
+      editingHistory.id,
+      {
+        worker: workerUser.id,
+        employee_code: historyForm.employee_code.trim(),
+        worker_name_snapshot: historyForm.worker_name_snapshot.trim(),
+        worker_cccd_snapshot: historyForm.worker_cccd_snapshot.trim(),
+        worker_date_of_birth_snapshot: historyForm.worker_date_of_birth_snapshot,
+        worker_address_snapshot: historyForm.worker_address_snapshot.trim(),
+        hometown_snapshot: historyForm.worker_address_snapshot.trim(),
+        cccd_issue_date: historyForm.cccd_issue_date,
+        worker_tax_code_snapshot: historyForm.worker_tax_code_snapshot.trim(),
+        cccd_version: cccdVersionId,
+        ...buildRecruiterPayload(historyForm.recruiter_staff),
+        main_house: historyForm.main_house || undefined,
+        join_date: historyForm.join_date,
+        leave_date: isOldHistory ? originalLeaveDate : historyForm.leave_date,
+        note: historyForm.note.trim(),
+      },
+      {
+        actor: viewer,
+        source: "Biểu mẫu sửa lịch sử tại trang chi tiết",
+        note:
+          viewer.role === "admin"
+            ? "Admin chỉnh sửa trực tiếp lịch sử đi làm"
+            : "Staff chỉnh sửa lịch sử đi làm gần nhất",
+        before,
+      },
+    );
 
     await reloadHistories();
 

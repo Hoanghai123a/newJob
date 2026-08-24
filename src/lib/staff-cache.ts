@@ -16,6 +16,15 @@ const STORE_RECRUITMENT_ENTITIES = "recruitment_entities";
 const STORE_STAFF_USERS = "staff_users";
 const STORE_META = "_meta";
 const BATCH_SIZE = 50;
+// Sau khoảng thời gian này, catch-up chạy full reconcile để dọn record bị xóa khi offline.
+const FULL_RECONCILE_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+function combineFilters(...parts: (string | undefined)[]): string {
+  return parts
+    .filter((part): part is string => Boolean(part))
+    .map((part) => `(${part})`)
+    .join(" && ");
+}
 
 const STAFF_SYNC_DEDUPE_TIME = 15_000;
 const staffSyncInFlight = new Map<
@@ -202,6 +211,15 @@ async function setLastSyncAt(db: IDBDatabase, timestamp: string): Promise<void> 
   await idbPut(db, STORE_META, timestamp, "lastSyncAt");
 }
 
+async function getLastFullReconcileAt(db: IDBDatabase): Promise<number> {
+  const val = await idbGet<number>(db, STORE_META, "lastFullReconcileAt");
+  return val || 0;
+}
+
+async function setLastFullReconcileAt(db: IDBDatabase, timestamp: number): Promise<void> {
+  await idbPut(db, STORE_META, timestamp, "lastFullReconcileAt");
+}
+
 function getLatestUpdatedAt(records: Array<{ updated?: string }>, fallback = ""): string {
   return records.reduce((latest, record) => {
     const updated = record.updated || "";
@@ -241,10 +259,15 @@ async function syncStaffDataUncached(opts?: {
   const includeCccdVersions = opts?.includeCccdVersions ?? true;
   const lastSync = useCache ? await getLastSyncAt(db) : "";
 
-  // Luon tai day du pham vi lich su de phuc hoi cache thieu record.
   const historyFilter = opts?.historyFilter || "";
+
+  // Với cache: lấy incremental delta nếu có lastSync, fallback full nếu không.
+  const deltaFilter = lastSync
+    ? combineFilters(historyFilter, `updated>"${lastSync}"`)
+    : historyFilter;
+
   const freshHistories = (await pb.collection("employment_histories").getFullList({
-    filter: historyFilter,
+    filter: deltaFilter,
     sort: "-join_date,-created",
     expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
   })) as unknown as EmploymentHistoryRecord[];
@@ -273,6 +296,7 @@ async function syncStaffDataUncached(opts?: {
     return { histories: freshHistories, users };
   }
 
+  // Upsert delta vào cache (không xóa record cũ)
   if (freshHistories.length) {
     await idbPutMany(db, STORE_HISTORIES, freshHistories);
   }
@@ -282,16 +306,18 @@ async function syncStaffDataUncached(opts?: {
 
   const allHistories = await idbGetAll<EmploymentHistoryRecord>(db, STORE_HISTORIES);
 
-  const userIds = [...new Set(allHistories.map((h) => h.worker).filter(Boolean))];
+  // Delta: chỉ refresh worker của history vừa đổi. Full (lần đầu): refresh toàn scope.
+  // Thay đổi profile worker khi không đụng history được realtime + full reconcile định kỳ lo.
+  const userIdsToRefresh = lastSync
+    ? [...new Set(freshHistories.map((h) => h.worker).filter(Boolean))]
+    : [...new Set(allHistories.map((h) => h.worker).filter(Boolean))];
 
-  // A user profile can change without touching employment_histories. Refresh every
-  // worker already present in the permitted history scope so a page reload cannot
-  // keep serving a stale IndexedDB user record. The query remains limited to the
-  // scoped user ids instead of listing every recently updated account.
-  const refreshedUsers = await fetchUsersBatched(userIds).catch((error) => {
-    console.warn("[staff-cache] scoped user refresh failed", error);
-    return [] as WorkerRecord[];
-  });
+  const refreshedUsers = userIdsToRefresh.length
+    ? await fetchUsersBatched(userIdsToRefresh).catch((error) => {
+        console.warn("[staff-cache] scoped user refresh failed", error);
+        return [] as WorkerRecord[];
+      })
+    : [];
 
   if (refreshedUsers.length) {
     await idbPutMany(db, STORE_USERS, refreshedUsers);
@@ -353,6 +379,99 @@ export function syncStaffData(opts?: {
 }
 
 export async function reconcileStaffData(opts: {
+  historyFilter?: string;
+  includeCccdVersions?: boolean;
+}): Promise<void> {
+  const db = await openDB();
+  const lastFullReconcile = await getLastFullReconcileAt(db);
+  const now = Date.now();
+  const needsFullReconcile = now - lastFullReconcile > FULL_RECONCILE_INTERVAL_MS;
+
+  // Full reconcile định kỳ để dọn tombstone (record bị xóa khi offline).
+  // Delta path nhanh hơn nhưng không phát hiện được xóa cứng.
+  if (needsFullReconcile) {
+    console.debug("[staff-cache] running full reconcile (scheduled housekeeping)");
+    await reconcileStaffDataFull(opts);
+    await setLastFullReconcileAt(db, now);
+    return;
+  }
+
+  // Delta reconcile: chỉ fetch history có updated > lastSync.
+  const historyFilter = opts.historyFilter || "";
+  const lastSync = await getLastSyncAt(db);
+  const deltaFilter = lastSync
+    ? combineFilters(historyFilter, `updated>"${lastSync}"`)
+    : historyFilter;
+
+  const freshHistories = (await pb.collection("employment_histories").getFullList({
+    filter: deltaFilter,
+    sort: "-join_date,-created",
+    expand: "worker,factory,recruiter_staff,recruiter_partner,main_house,cccd_version",
+  })) as unknown as EmploymentHistoryRecord[];
+
+  if (freshHistories.length) {
+    await idbPutMany(db, STORE_HISTORIES, freshHistories);
+  }
+
+  const expandedUsers = usersFromExpandedHistories(freshHistories);
+  const scopeUserIds = [...new Set(freshHistories.map((h) => h.worker).filter(Boolean))];
+  const expandedUserIds = new Set(expandedUsers.map((u) => u.id));
+  const fetchedUsers = await fetchUsersBatched(
+    scopeUserIds.filter((id) => !expandedUserIds.has(id)),
+  ).catch(() => [] as WorkerRecord[]);
+  const users = [...expandedUsers, ...fetchedUsers];
+
+  if (users.length) {
+    await idbPutMany(db, STORE_USERS, users);
+  }
+
+  // Factories/houses từ expand
+  const factories = [
+    ...new Map(
+      freshHistories
+        .map((history) => history.expand?.factory)
+        .filter((factory): factory is FactoryRecord => !!factory?.id)
+        .map((factory) => [factory.id, factory]),
+    ).values(),
+  ];
+  const recruitmentEntities = [
+    ...new Map(
+      freshHistories
+        .map((history) => history.expand?.main_house)
+        .filter((mainHouse): mainHouse is RecruitmentEntityRecord => !!mainHouse?.id)
+        .map((mainHouse) => [mainHouse.id, mainHouse]),
+    ).values(),
+  ];
+  if (factories.length) await idbPutMany(db, STORE_FACTORIES, factories);
+  if (recruitmentEntities.length)
+    await idbPutMany(db, STORE_RECRUITMENT_ENTITIES, recruitmentEntities);
+
+  if (opts.includeCccdVersions !== false && scopeUserIds.length) {
+    const cccdVersions: CccdVersionRecord[] = [];
+    for (let i = 0; i < scopeUserIds.length; i += 30) {
+      const batch = scopeUserIds.slice(i, i + 30);
+      const cccdFilter = lastSync
+        ? combineFilters(relationInFilter("worker", batch), `updated>"${lastSync}"`)
+        : relationInFilter("worker", batch);
+      const items = (await pb
+        .collection("cccd_versions")
+        .getFullList({
+          filter: cccdFilter,
+          sort: "-created",
+        })
+        .catch(() => [])) as unknown as CccdVersionRecord[];
+      cccdVersions.push(...items);
+    }
+    if (cccdVersions.length) {
+      await idbPutMany(db, STORE_CCCD_VERSIONS, cccdVersions);
+    }
+  }
+
+  const allHistories = await idbGetAll<EmploymentHistoryRecord>(db, STORE_HISTORIES);
+  await setLastSyncAt(db, getLatestUpdatedAt(allHistories, "1970-01-01 00:00:00.000Z"));
+}
+
+async function reconcileStaffDataFull(opts: {
   historyFilter?: string;
   includeCccdVersions?: boolean;
 }): Promise<void> {

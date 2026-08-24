@@ -48,7 +48,6 @@ export const VN_BANKS: VnBank[] = [
   { code: "VRB", name: "Vietnam-Russia Joint Venture Bank (VRB)", bin: "970421" },
 ];
 
-
 const QR_BANK_NAMES: Record<string, string> = {
   ABB: "Ngân hàng TMCP An Bình",
   ACB: "Ngân hàng TMCP Á Châu",

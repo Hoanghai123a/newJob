@@ -8,12 +8,8 @@ import { rememberCompanyBrand } from "./company-brand";
 export interface AppSettings {
   id?: string;
   company_name?: string;
-  slogan?: string;
   address?: string;
   hotline?: string;
-  email?: string;
-  about?: string;
-  advance_limit?: number;
   advance_rules?: string;
   allow_advance_after_leave?: boolean;
   advance_reporting_enabled?: boolean;
@@ -21,25 +17,19 @@ export interface AppSettings {
   account_code_prefix?: string;
   logo?: string;
   updated?: string;
-  install_guide_images?: string[];
   collectionId?: string;
   collectionName?: string;
   tenant_company?: string;
 }
 
 const DEFAULTS: AppSettings = {
-  company_name: "Chấm công",
-  slogan: "Kết nối nhà tuyển dụng & người lao động",
+  company_name: "Tuyển dụng 4.0",
   address: "",
   hotline: "",
-  email: "",
-  about: "",
-  advance_limit: 0,
   advance_rules: "",
   allow_advance_after_leave: false,
   advance_reporting_enabled: true,
   staff_employment_factory_scope: "assigned",
-  install_guide_images: [],
 };
 function escapePb(value: string) {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
@@ -99,11 +89,10 @@ export function useAppSettings() {
     rememberCompanyBrand({
       companyId,
       companyName: data.company_name,
-      slogan: data.slogan || "",
       logoUrl,
       updated: data.updated || data.id || "",
     });
-  }, [companyId, data.company_name, data.id, data.slogan, data.updated, logoUrl]);
+  }, [companyId, data.company_name, data.id, data.updated, logoUrl]);
 
   return { ...q, data, logoUrl };
 }

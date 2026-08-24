@@ -42,13 +42,15 @@ export function BrandHeadLinks() {
       ? settings.company_name?.trim()
       : remembered?.companyName?.trim() || settings.company_name?.trim();
     const brandLogo = hasCurrentCompany ? Boolean(settings.logo) : Boolean(remembered?.logoUrl);
-    const brandVersion = hasCurrentCompany
-      ? settings.updated || settings.id
-      : remembered?.updated;
+    const brandVersion = hasCurrentCompany ? settings.updated || settings.id : remembered?.updated;
     const brandCompanyId = hasCurrentCompany ? companyId : remembered?.companyId;
     const version = versionParam(brandVersion);
-    const companyParam = brandCompanyId ? `${version ? "&" : "?"}company=${encodeURIComponent(brandCompanyId)}` : "";
-    const iconHref = brandLogo ? `/api/public/app-icon${version}${companyParam}` : "/icons/app-icon.svg";
+    const companyParam = brandCompanyId
+      ? `${version ? "&" : "?"}company=${encodeURIComponent(brandCompanyId)}`
+      : "";
+    const iconHref = brandLogo
+      ? `/api/public/app-icon${version}${companyParam}`
+      : "/icons/app-icon.svg";
     const manifestHref = brandCompanyId
       ? `/api/public/manifest/webmanifest?company=${encodeURIComponent(brandCompanyId)}${version ? `&v=${encodeURIComponent(brandVersion || "")}` : ""}`
       : "/manifest.webmanifest";
@@ -56,8 +58,15 @@ export function BrandHeadLinks() {
     upsertHeadLink("icon", iconHref);
     upsertHeadLink("apple-touch-icon", iconHref);
     upsertHeadLink("manifest", manifestHref);
-    document.title = brandName || "Chấm công";
-  }, [companyId, rememberedBrand, settings.company_name, settings.id, settings.logo, settings.updated]);
+    document.title = brandName || "Tuyển dụng 4.0";
+  }, [
+    companyId,
+    rememberedBrand,
+    settings.company_name,
+    settings.id,
+    settings.logo,
+    settings.updated,
+  ]);
 
   return null;
 }

@@ -131,12 +131,10 @@ try {
   const collections = await pb.collections.getFullList();
   const workersCollection = collections.find((collection) => collection.name === "workers");
   if (!workersCollection) throw new Error("Không tìm thấy collection workers.");
-  const users = await pb
-    .collection("users")
-    .getFullList({
-      fields:
-        "id,role,tenant_company,full_name,username,phone,uid,cccd,cccd_issue_date,address,status",
-    });
+  const users = await pb.collection("users").getFullList({
+    fields:
+      "id,role,tenant_company,full_name,username,phone,uid,cccd,cccd_issue_date,address,status",
+  });
   const usersById = new Map(users.map((user) => [user.id, user]));
   const workers = await pb
     .collection("workers")

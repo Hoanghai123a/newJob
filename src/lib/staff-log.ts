@@ -59,7 +59,9 @@ const ACTION_ACTOR_ROLE_LABELS: Record<string, string> = {
   user: "Người lao động",
 };
 
-export function getStaffActionActorName(log: Pick<StaffActionLogRecord, "actor" | "actor_role_snapshot" | "expand">) {
+export function getStaffActionActorName(
+  log: Pick<StaffActionLogRecord, "actor" | "actor_role_snapshot" | "expand">,
+) {
   return (
     log.expand?.actor?.full_name?.trim() ||
     log.expand?.actor?.username?.trim() ||
@@ -473,9 +475,7 @@ async function fetchVisibleStaffActionLogs(userId: string, limit: number) {
 
   const targetFilters = [`target_user="${userId}"`, `target_worker="${userId}"`];
   if (historyIds.size > 0) {
-    targetFilters.push(
-      `(${[...historyIds].map((id) => `target_record="${id}"`).join(" || ")})`,
-    );
+    targetFilters.push(`(${[...historyIds].map((id) => `target_record="${id}"`).join(" || ")})`);
   }
   const filter = `(${targetFilters.join(" || ")})`;
 
@@ -495,7 +495,9 @@ async function fetchVisibleStaffActionLogs(userId: string, limit: number) {
     }
     if (page >= result.totalPages) break;
   }
-  const missingActorIds = visible.filter((log) => log.actor && !log.expand?.actor).map((log) => log.actor);
+  const missingActorIds = visible
+    .filter((log) => log.actor && !log.expand?.actor)
+    .map((log) => log.actor);
   if (missingActorIds.length > 0) {
     try {
       const actors = await pb.collection("users").getFullList<UserRecord>({
@@ -586,7 +588,3 @@ export async function createStaffActionLog(input: StaffActionLogInput) {
     note: input.note || "",
   });
 }
-
-
-
-

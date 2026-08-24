@@ -318,7 +318,8 @@ export function RegisterDialog({
         <DialogHeader>
           <DialogTitle>Đăng ký đi làm</DialogTitle>
           <DialogDescription>
-            Tạo bản ghi lịch sử đi làm; nếu hồ sơ chưa có tài khoản, hệ thống sẽ tự liên kết tài khoản kỹ thuật.
+            Tạo bản ghi lịch sử đi làm; nếu hồ sơ chưa có tài khoản, hệ thống sẽ tự liên kết tài
+            khoản kỹ thuật.
           </DialogDescription>
         </DialogHeader>
 
