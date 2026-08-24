@@ -56,7 +56,53 @@ async function authWithPassword(identity: string, password: string) {
     body: JSON.stringify({ identity, password }),
   });
 
-  return { response, body: await readPocketBaseAuthResponse(response) };
+  const body = await readPocketBaseAuthResponse(response);
+
+  // Nếu auth thất bại, thử tra cứu case-insensitive để tìm username thật trong DB
+  if (!response.ok && response.status === 400) {
+    const realUsername = await findUsernameCaseInsensitive(identity);
+    if (realUsername && realUsername !== identity) {
+      // Thử auth lại với username đúng case trong DB
+      const retryResponse = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+        body: JSON.stringify({ identity: realUsername, password }),
+      });
+      return { response: retryResponse, body: await readPocketBaseAuthResponse(retryResponse) };
+    }
+  }
+
+  return { response, body };
+}
+
+async function findUsernameCaseInsensitive(identity: string): Promise<string | null> {
+  // Tra cứu username không phân biệt hoa thường trong collection users
+  const adminToken = await getPocketBaseAdminToken();
+  if (!adminToken) return null;
+
+  const normalizedIdentity = normalizeLoginName(identity);
+  if (!normalizedIdentity) return null;
+
+  try {
+    // `~` là so khớp chứa chuỗi (case-insensitive) của PocketBase — dùng để thu hẹp tập ứng viên,
+    // sau đó đối chiếu chính xác bằng normalizeLoginName ở phía server.
+    const filter = encodeURIComponent(`username ~ "${escapePb(normalizedIdentity)}"`);
+    const response = await pbServerFetch(
+      `/api/collections/users/records?perPage=50&fields=username&filter=${filter}`,
+      {},
+      adminToken,
+    );
+    const data = await readPbJson(response);
+    if (!response.ok || !data?.items) return null;
+
+    const match = (data.items as Array<{ username?: string }>).find(
+      (record) => normalizeLoginName(record.username) === normalizedIdentity,
+    );
+
+    return match?.username || null;
+  } catch {
+    return null;
+  }
 }
 
 function updateLastLogin(token: string, recordId: string) {
