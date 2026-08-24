@@ -45,10 +45,10 @@ async function findActiveCompany(code: string) {
   return { company };
 }
 
-async function authWithPassword(identity: string, password: string, isSuperAdmin = false) {
-  const endpoint = isSuperAdmin
-    ? `${getPBUpstream()}/api/collections/_superusers/auth-with-password`
-    : `${getPBUpstream()}/api/collections/users/auth-with-password`;
+async function authWithPassword(identity: string, password: string) {
+  // Superadmin của ứng dụng nằm trong collection users với role="super_admin"
+  // Không dùng _superusers endpoint
+  const endpoint = `${getPBUpstream()}/api/collections/users/auth-with-password`;
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -56,23 +56,10 @@ async function authWithPassword(identity: string, password: string, isSuperAdmin
     body: JSON.stringify({ identity, password }),
   });
 
-  // Nếu superadmin không tồn tại trong _superusers, thử với endpoint admins
-  if (isSuperAdmin && !response.ok && response.status === 404) {
-    const adminResponse = await fetch(`${getPBUpstream()}/api/admins/auth-with-password`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
-      body: JSON.stringify({ identity, password }),
-    });
-    return { response: adminResponse, body: await readPocketBaseAuthResponse(adminResponse) };
-  }
-
   return { response, body: await readPocketBaseAuthResponse(response) };
 }
 
-function updateLastLogin(token: string, recordId: string, isSuperAdmin = false) {
-  // Super admin không cập nhật last_login vì nằm trong collection khác
-  if (isSuperAdmin) return;
-
+function updateLastLogin(token: string, recordId: string) {
   fetch(`${getPBUpstream()}/api/collections/users/records/${recordId}`, {
     method: "PATCH",
     headers: {
@@ -106,7 +93,10 @@ export const Route = createFileRoute("/api/public/pocketbase-auth")({
             const companyCode = parsed.data.companyCode;
             if (!companyCode) return deny("Vui lòng nhập mã công ty.", 400);
             const result = await findActiveCompany(companyCode);
-            if ("error" in result) return deny(result.error.message, result.error.status);
+            if ("error" in result && result.error)
+              return deny(result.error.message, result.error.status);
+            if (!("company" in result))
+              return deny("Không tìm thấy công ty.", 500);
             companyId = result.company.id;
             authIdentity = buildTechnicalUsername(
               result.company.code,
@@ -114,7 +104,7 @@ export const Route = createFileRoute("/api/public/pocketbase-auth")({
             );
           }
 
-          const result = await authWithPassword(authIdentity, password, superAdmin);
+          const result = await authWithPassword(authIdentity, password);
           if (!result.response.ok)
             return Response.json(result.body, { status: result.response.status });
           const record = result.body?.record;
@@ -130,7 +120,7 @@ export const Route = createFileRoute("/api/public/pocketbase-auth")({
             return deny("Tài khoản không thuộc công ty đã chọn.");
           if (record?.status === "disabled")
             return deny("Tài khoản đã bị khóa và không thể đăng nhập.");
-          if (result.body?.token && record?.id) updateLastLogin(result.body.token, record.id, superAdmin);
+          if (result.body?.token && record?.id) updateLastLogin(result.body.token, record.id);
           return Response.json(result.body);
         } catch (error) {
           const message =
