@@ -80,7 +80,7 @@ PORT=3200
 ## 5. Cấu hình PM2 (đã có sẵn)
 
 File `ecosystem.config.cjs` đã được cấu hình:
-- **App name**: jobconnect-frontend
+- **App name**: newapp-frontend
 - **Port**: 3200
 - **PocketBase**: 8290
 - **Working directory**: /var/www/newApp
@@ -115,13 +115,13 @@ pm2 list
 ### Xem logs:
 ```bash
 # Tất cả logs
-pm2 logs jobconnect-frontend
+pm2 logs newapp-frontend
 
 # Chỉ error logs
-pm2 logs jobconnect-frontend --err
+pm2 logs newapp-frontend --err
 
 # Logs realtime
-pm2 logs jobconnect-frontend --lines 100
+pm2 logs newapp-frontend --lines 100
 ```
 
 ### Monitor realtime:
@@ -132,13 +132,13 @@ pm2 monit
 ### Restart/Stop/Delete:
 ```bash
 # Restart
-pm2 restart jobconnect-frontend
+pm2 restart newapp-frontend
 
 # Stop
-pm2 stop jobconnect-frontend
+pm2 stop newapp-frontend
 
 # Delete
-pm2 delete jobconnect-frontend
+pm2 delete newapp-frontend
 ```
 
 ### Lưu cấu hình PM2:
@@ -235,7 +235,7 @@ git pull
 ### App không chạy:
 ```bash
 # Xem logs
-pm2 logs jobconnect-frontend --err
+pm2 logs newapp-frontend --err
 
 # Kiểm tra port
 netstat -tulpn | grep 3200
@@ -313,10 +313,10 @@ Internet → Nginx (80/443) → JobConnect (3200) → PocketBase (8290)
 ./deploy.sh
 
 # Logs
-pm2 logs jobconnect-frontend
+pm2 logs newapp-frontend
 
 # Restart
-pm2 restart jobconnect-frontend
+pm2 restart newapp-frontend
 
 # Status
 pm2 status

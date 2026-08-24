@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "jobconnect-frontend",
+      name: "newapp-frontend",
       cwd: "/var/www/newApp",
       script: ".output/server/index.mjs",
       interpreter: "node",

@@ -41,7 +41,7 @@ fi
 
 # Deploy với PM2
 echo "🚀 Deploy với PM2..."
-if pm2 list | grep -q "jobconnect-frontend"; then
+if pm2 list | grep -q "newapp-frontend"; then
     echo "♻️  Reload ứng dụng..."
     pm2 reload ecosystem.config.cjs --env production --update-env
 else
@@ -57,7 +57,7 @@ echo ""
 echo "📊 Trạng thái PM2:"
 pm2 list
 echo ""
-echo "📝 Xem logs: pm2 logs jobconnect-frontend"
+echo "📝 Xem logs: pm2 logs newapp-frontend"
 echo "📊 Monitor: pm2 monit"
-echo "🔄 Restart: pm2 restart jobconnect-frontend"
-echo "🛑 Stop: pm2 stop jobconnect-frontend"
+echo "🔄 Restart: pm2 restart newapp-frontend"
+echo "🛑 Stop: pm2 stop newapp-frontend"
