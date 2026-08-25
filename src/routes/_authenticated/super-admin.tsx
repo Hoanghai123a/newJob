@@ -1,7 +1,8 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Building2, Gauge, Pencil, Plus, RefreshCw, ShieldCheck, UserRoundCog } from "lucide-react";
+import { Building2, Gauge, LogOut, Pencil, Plus, RefreshCw, ShieldCheck, UserRoundCog } from "lucide-react";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import { useAuth } from "@/lib/auth";
 import { type CompanyRecord, type CompanyStatus } from "@/lib/tenant";
 import { toast } from "@/lib/toast";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -64,6 +65,8 @@ const empty = {
 };
 
 function SuperAdminPage() {
+  const nav = useNavigate();
+  const { logout } = useAuth();
   const [items, setItems] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
@@ -360,6 +363,17 @@ function SuperAdminPage() {
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
             Mở công ty
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              logout();
+              nav({ to: "/login" });
+            }}
+          >
+            <LogOut className="h-4 w-4" />
+            Đăng xuất
           </Button>
         </div>
       }
