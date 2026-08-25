@@ -83,7 +83,73 @@ function SuperAdminPage() {
     password: "",
   });
   const [editing, setEditing] = useState<Admin | null>(null);
+  const [systemLogoOpen, setSystemLogoOpen] = useState(false);
+  const [logoCompany, setLogoCompany] = useState<Company | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoSaving, setLogoSaving] = useState(false);
+  const [logoBust, setLogoBust] = useState(() => Date.now());
   const headers = { Authorization: `Bearer ${pb.authStore.token}` };
+
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 512;
+          const MAX_HEIGHT = 512;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = (height * MAX_WIDTH) / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = (width * MAX_HEIGHT) / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            reject(new Error("Không tạo được canvas context"));
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error("Không nén được ảnh"));
+                return;
+              }
+              const compressedFile = new File(
+                [blob],
+                file.name.replace(/\.[^.]+$/, ".jpg"),
+                { type: "image/jpeg" },
+              );
+              console.log(
+                `Compressed: ${file.size} bytes → ${compressedFile.size} bytes (${Math.round((compressedFile.size / file.size) * 100)}%)`,
+              );
+              resolve(compressedFile);
+            },
+            "image/jpeg",
+            0.85,
+          );
+        };
+        img.onerror = () => reject(new Error("Không load được ảnh"));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error("Không đọc được file"));
+      reader.readAsDataURL(file);
+    });
+  };
   const load = async () => {
     setLoading(true);
     try {
@@ -195,6 +261,89 @@ function SuperAdminPage() {
       toast.error(e.message);
     }
   };
+  const uploadSystemLogo = async () => {
+    if (!logoFile) return;
+    setLogoSaving(true);
+    try {
+      const compressed = await compressImage(logoFile);
+      const formData = new FormData();
+      formData.append("logo", compressed);
+      console.log("Uploading system logo:", compressed.name, compressed.type, compressed.size);
+      const r = await fetch("/api/super-admin/system-logo", {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+      const b = await r.json();
+      console.log("Upload response:", r.status, b);
+      if (!r.ok) throw new Error(b?.message || "Không upload được logo hệ thống.");
+      toast.success("Đã cập nhật logo hệ thống.");
+      setSystemLogoOpen(false);
+      setLogoFile(null);
+      setLogoBust(Date.now());
+    } catch (e: any) {
+      console.error("Upload error:", e);
+      toast.error(e.message);
+    } finally {
+      setLogoSaving(false);
+    }
+  };
+  const deleteSystemLogo = async () => {
+    setLogoSaving(true);
+    try {
+      const r = await fetch("/api/super-admin/system-logo", {
+        method: "DELETE",
+        headers,
+      });
+      const b = await r.json();
+      if (!r.ok) throw new Error(b?.message || "Không xóa được logo hệ thống.");
+      toast.success("Đã xóa logo hệ thống.");
+      setSystemLogoOpen(false);
+      setLogoBust(Date.now());
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setLogoSaving(false);
+    }
+  };
+  const uploadCompanyLogo = async () => {
+    if (!logoCompany || !logoFile) return;
+    setLogoSaving(true);
+    try {
+      const compressed = await compressImage(logoFile);
+      const formData = new FormData();
+      formData.append("logo", compressed);
+      const r = await fetch(`/api/super-admin/companies/${logoCompany.id}/logo`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+      const b = await r.json();
+      if (!r.ok) throw new Error(b?.message || "Không upload được logo công ty.");
+      toast.success("Đã cập nhật logo công ty.");
+      setLogoCompany(null);
+      setLogoFile(null);
+      setLogoBust(Date.now());
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setLogoSaving(false);
+    }
+  };
+  const deleteCompanyLogo = async (company: Company) => {
+    try {
+      const r = await fetch(`/api/super-admin/companies/${company.id}/logo`, {
+        method: "DELETE",
+        headers,
+      });
+      const b = await r.json();
+      if (!r.ok) throw new Error(b?.message || "Không xóa được logo công ty.");
+      toast.success("Đã xóa logo công ty.");
+      setLogoBust(Date.now());
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
   return (
     <PageContainer
       title="Quản trị tối cao"
@@ -204,6 +353,10 @@ function SuperAdminPage() {
       right={
         <div className="flex gap-2">
           <CompanyRestoreButton onChanged={load} />
+          <Button variant="outline" size="sm" onClick={() => setSystemLogoOpen(true)}>
+            <ShieldCheck className="h-4 w-4" />
+            Logo hệ thống
+          </Button>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
             Mở công ty
@@ -219,7 +372,7 @@ function SuperAdminPage() {
         </Button>
       </div>
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {items.map((company) => {
+        {Array.isArray(items) && items.map((company) => {
           const used = company.usage?.employment_histories || 0;
           const max = company.max_employment_histories || 0;
           return (
@@ -278,7 +431,7 @@ function SuperAdminPage() {
                   {max === 0 ? "Không giới hạn" : used >= max ? "Đã đạt giới hạn" : "Còn chỗ"}
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-4 gap-1.5">
                 <Button
                   className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
                   variant="outline"
@@ -303,17 +456,33 @@ function SuperAdminPage() {
                 </Button>
                 <Button
                   className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
+                  variant="outline"
+                  onClick={() => {
+                    setLogoCompany(company);
+                    setLogoFile(null);
+                  }}
+                >
+                  <Building2 className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">Logo</span>
+                </Button>
+                <Button
+                  className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
                   onClick={() => void loadAdmins(company)}
                 >
                   <UserRoundCog className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">Quản trị Admin</span>
+                  <span className="truncate">Admin</span>
                 </Button>
               </div>
               <CompanyTransferActions company={company} onChanged={load} />
             </Card>
           );
         })}
-        {!loading && !items.length && (
+        {loading && (
+          <Card className="col-span-full p-8 text-center text-sm text-muted-foreground">
+            Đang tải...
+          </Card>
+        )}
+        {!loading && (!items || items.length === 0) && (
           <Card className="col-span-full p-8 text-center text-sm text-muted-foreground">
             Chưa có công ty nào.
           </Card>
@@ -542,6 +711,76 @@ function SuperAdminPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setAdminCompany(null)}>
               Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={systemLogoOpen} onOpenChange={(o) => !o && setSystemLogoOpen(false)}>
+        <DialogContent className="max-w-md" bodyClassName="space-y-4 px-5 py-4">
+          <DialogHeader>
+            <DialogTitle>Logo hệ thống</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Logo mặc định dùng cho favicon, biểu tượng cài đặt (PWA) và các công ty chưa có logo
+            riêng.
+          </p>
+          <div className="flex justify-center">
+            <img
+              src={`/api/public/app-icon?t=${logoBust}`}
+              alt="Logo hệ thống hiện tại"
+              className="h-20 w-20 rounded-xl border object-contain"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="system-logo-file">Chọn ảnh logo mới</Label>
+            <Input
+              id="system-logo-file"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => void deleteSystemLogo()}
+              disabled={logoSaving}
+            >
+              Về mặc định
+            </Button>
+            <Button onClick={() => void uploadSystemLogo()} disabled={logoSaving || !logoFile}>
+              {logoSaving ? "Đang lưu..." : "Lưu logo"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!logoCompany} onOpenChange={(o) => !o && setLogoCompany(null)}>
+        <DialogContent className="max-w-md" bodyClassName="space-y-4 px-5 py-4">
+          <DialogHeader>
+            <DialogTitle>Logo công ty - {logoCompany?.name}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Logo riêng của công ty này. Nếu không đặt, công ty sẽ dùng logo hệ thống.
+          </p>
+          <div className="space-y-1.5">
+            <Label htmlFor="company-logo-file">Chọn ảnh logo</Label>
+            <Input
+              id="company-logo-file"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => logoCompany && void deleteCompanyLogo(logoCompany)}
+              disabled={logoSaving}
+            >
+              Xóa logo
+            </Button>
+            <Button onClick={() => void uploadCompanyLogo()} disabled={logoSaving || !logoFile}>
+              {logoSaving ? "Đang lưu..." : "Lưu logo"}
             </Button>
           </DialogFooter>
         </DialogContent>

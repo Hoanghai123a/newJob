@@ -34,6 +34,7 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedStaffIndexRouteImport } from './routes/_authenticated/staff.index'
 import { Route as ApiWorkforceLookupsRouteImport } from './routes/api/workforce/lookups'
 import { Route as ApiWorkforceDashboardRouteImport } from './routes/api/workforce/dashboard'
+import { Route as ApiSuperAdminSystemLogoRouteImport } from './routes/api/super-admin/system-logo'
 import { Route as ApiSuperAdminCompaniesRouteImport } from './routes/api/super-admin/companies'
 import { Route as ApiStaffExportRouteImport } from './routes/api/staff/export'
 import { Route as ApiPublicTenantStatusRouteImport } from './routes/api/public/tenant-status'
@@ -79,6 +80,7 @@ import { Route as AuthenticatedAdminAccountsLogsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminAccountsFactoriesRouteImport } from './routes/_authenticated/admin/accounts.factories'
 import { Route as ApiSuperAdminCompaniesImportPreviewRouteImport } from './routes/api/super-admin/companies.import.preview'
 import { Route as ApiSuperAdminCompaniesCompanyIdPurgeRouteImport } from './routes/api/super-admin/companies.$companyId.purge'
+import { Route as ApiSuperAdminCompaniesCompanyIdLogoRouteImport } from './routes/api/super-admin/companies.$companyId.logo'
 import { Route as ApiSuperAdminCompaniesCompanyIdExportRouteImport } from './routes/api/super-admin/companies.$companyId.export'
 import { Route as ApiSuperAdminCompaniesCompanyIdAdminsRouteImport } from './routes/api/super-admin/companies.$companyId.admins'
 import { Route as ApiAdminWorkersWorkerIdDeleteRouteImport } from './routes/api/admin/workers.$workerId.delete'
@@ -211,6 +213,11 @@ const ApiWorkforceLookupsRoute = ApiWorkforceLookupsRouteImport.update({
 const ApiWorkforceDashboardRoute = ApiWorkforceDashboardRouteImport.update({
   id: '/api/workforce/dashboard',
   path: '/api/workforce/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSuperAdminSystemLogoRoute = ApiSuperAdminSystemLogoRouteImport.update({
+  id: '/api/super-admin/system-logo',
+  path: '/api/super-admin/system-logo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSuperAdminCompaniesRoute = ApiSuperAdminCompaniesRouteImport.update({
@@ -469,6 +476,12 @@ const ApiSuperAdminCompaniesCompanyIdPurgeRoute =
     path: '/purge',
     getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
   } as any)
+const ApiSuperAdminCompaniesCompanyIdLogoRoute =
+  ApiSuperAdminCompaniesCompanyIdLogoRouteImport.update({
+    id: '/logo',
+    path: '/logo',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
+  } as any)
 const ApiSuperAdminCompaniesCompanyIdExportRoute =
   ApiSuperAdminCompaniesCompanyIdExportRouteImport.update({
     id: '/export',
@@ -552,6 +565,7 @@ export interface FileRoutesByFullPath {
   '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
   '/api/staff/export': typeof ApiStaffExportRoute
   '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
+  '/api/super-admin/system-logo': typeof ApiSuperAdminSystemLogoRoute
   '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
   '/api/workforce/lookups': typeof ApiWorkforceLookupsRoute
   '/staff/': typeof AuthenticatedStaffIndexRoute
@@ -572,6 +586,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
   '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/logo': typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
   '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
   '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
   '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
@@ -624,6 +639,7 @@ export interface FileRoutesByTo {
   '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
   '/api/staff/export': typeof ApiStaffExportRoute
   '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
+  '/api/super-admin/system-logo': typeof ApiSuperAdminSystemLogoRoute
   '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
   '/api/workforce/lookups': typeof ApiWorkforceLookupsRoute
   '/staff': typeof AuthenticatedStaffIndexRoute
@@ -644,6 +660,7 @@ export interface FileRoutesByTo {
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
   '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/logo': typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
   '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
   '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
   '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
@@ -702,6 +719,7 @@ export interface FileRoutesById {
   '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
   '/api/staff/export': typeof ApiStaffExportRoute
   '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
+  '/api/super-admin/system-logo': typeof ApiSuperAdminSystemLogoRoute
   '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
   '/api/workforce/lookups': typeof ApiWorkforceLookupsRoute
   '/_authenticated/staff/': typeof AuthenticatedStaffIndexRoute
@@ -722,6 +740,7 @@ export interface FileRoutesById {
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
   '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/logo': typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
   '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
   '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
   '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
@@ -780,6 +799,7 @@ export interface FileRouteTypes {
     | '/api/public/tenant-status'
     | '/api/staff/export'
     | '/api/super-admin/companies'
+    | '/api/super-admin/system-logo'
     | '/api/workforce/dashboard'
     | '/api/workforce/lookups'
     | '/staff/'
@@ -800,6 +820,7 @@ export interface FileRouteTypes {
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
     | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/logo'
     | '/api/super-admin/companies/$companyId/purge'
     | '/api/super-admin/companies/import/preview'
     | '/api/super-admin/companies/$companyId/admins/$adminId'
@@ -852,6 +873,7 @@ export interface FileRouteTypes {
     | '/api/public/tenant-status'
     | '/api/staff/export'
     | '/api/super-admin/companies'
+    | '/api/super-admin/system-logo'
     | '/api/workforce/dashboard'
     | '/api/workforce/lookups'
     | '/staff'
@@ -872,6 +894,7 @@ export interface FileRouteTypes {
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
     | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/logo'
     | '/api/super-admin/companies/$companyId/purge'
     | '/api/super-admin/companies/import/preview'
     | '/api/super-admin/companies/$companyId/admins/$adminId'
@@ -929,6 +952,7 @@ export interface FileRouteTypes {
     | '/api/public/tenant-status'
     | '/api/staff/export'
     | '/api/super-admin/companies'
+    | '/api/super-admin/system-logo'
     | '/api/workforce/dashboard'
     | '/api/workforce/lookups'
     | '/_authenticated/staff/'
@@ -949,6 +973,7 @@ export interface FileRouteTypes {
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
     | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/logo'
     | '/api/super-admin/companies/$companyId/purge'
     | '/api/super-admin/companies/import/preview'
     | '/api/super-admin/companies/$companyId/admins/$adminId'
@@ -974,6 +999,7 @@ export interface RootRouteChildren {
   ApiPublicTenantStatusRoute: typeof ApiPublicTenantStatusRoute
   ApiStaffExportRoute: typeof ApiStaffExportRoute
   ApiSuperAdminCompaniesRoute: typeof ApiSuperAdminCompaniesRouteWithChildren
+  ApiSuperAdminSystemLogoRoute: typeof ApiSuperAdminSystemLogoRoute
   ApiWorkforceDashboardRoute: typeof ApiWorkforceDashboardRoute
   ApiWorkforceLookupsRoute: typeof ApiWorkforceLookupsRoute
   ApiPublicManifestWebmanifestRoute: typeof ApiPublicManifestWebmanifestRoute
@@ -1156,6 +1182,13 @@ declare module '@tanstack/react-router' {
       path: '/api/workforce/dashboard'
       fullPath: '/api/workforce/dashboard'
       preLoaderRoute: typeof ApiWorkforceDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/super-admin/system-logo': {
+      id: '/api/super-admin/system-logo'
+      path: '/api/super-admin/system-logo'
+      fullPath: '/api/super-admin/system-logo'
+      preLoaderRoute: typeof ApiSuperAdminSystemLogoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/super-admin/companies': {
@@ -1473,6 +1506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdPurgeRouteImport
       parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
     }
+    '/api/super-admin/companies/$companyId/logo': {
+      id: '/api/super-admin/companies/$companyId/logo'
+      path: '/logo'
+      fullPath: '/api/super-admin/companies/$companyId/logo'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdLogoRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
+    }
     '/api/super-admin/companies/$companyId/export': {
       id: '/api/super-admin/companies/$companyId/export'
       path: '/export'
@@ -1687,6 +1727,7 @@ const ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren =
 interface ApiSuperAdminCompaniesCompanyIdRouteChildren {
   ApiSuperAdminCompaniesCompanyIdAdminsRoute: typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
   ApiSuperAdminCompaniesCompanyIdExportRoute: typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  ApiSuperAdminCompaniesCompanyIdLogoRoute: typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
   ApiSuperAdminCompaniesCompanyIdPurgeRoute: typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
 }
 
@@ -1696,6 +1737,8 @@ const ApiSuperAdminCompaniesCompanyIdRouteChildren: ApiSuperAdminCompaniesCompan
       ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren,
     ApiSuperAdminCompaniesCompanyIdExportRoute:
       ApiSuperAdminCompaniesCompanyIdExportRoute,
+    ApiSuperAdminCompaniesCompanyIdLogoRoute:
+      ApiSuperAdminCompaniesCompanyIdLogoRoute,
     ApiSuperAdminCompaniesCompanyIdPurgeRoute:
       ApiSuperAdminCompaniesCompanyIdPurgeRoute,
   }
@@ -1758,6 +1801,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicTenantStatusRoute: ApiPublicTenantStatusRoute,
   ApiStaffExportRoute: ApiStaffExportRoute,
   ApiSuperAdminCompaniesRoute: ApiSuperAdminCompaniesRouteWithChildren,
+  ApiSuperAdminSystemLogoRoute: ApiSuperAdminSystemLogoRoute,
   ApiWorkforceDashboardRoute: ApiWorkforceDashboardRoute,
   ApiWorkforceLookupsRoute: ApiWorkforceLookupsRoute,
   ApiPublicManifestWebmanifestRoute: ApiPublicManifestWebmanifestRoute,
