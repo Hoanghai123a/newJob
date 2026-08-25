@@ -545,7 +545,8 @@ export function QuickWorkerAccountDialog({
 
     if (!realName) errors.push("Nhập tên thật");
     if (!cccdRaw) errors.push("Nhập CCCD để lưu lịch sử đi làm");
-    if (phoneForValidation && !hasRequiredDigits(phoneForValidation, 10)) {
+    if (!phoneForValidation) errors.push("Nhập số điện thoại");
+    else if (!hasRequiredDigits(phoneForValidation, 10)) {
       errors.push("Số điện thoại phải có đúng 10 chữ số.");
     }
     if (cccdForValidation && !hasRequiredDigits(cccdForValidation, 12)) {

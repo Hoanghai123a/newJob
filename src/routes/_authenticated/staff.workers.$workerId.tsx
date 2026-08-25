@@ -620,6 +620,9 @@ function StaffWorkerDetailPage() {
     if (!joinForm.join_date) return toast.warning("Nhập ngày vào làm");
     if (!joinForm.recruiter_staff) return toast.warning("Chọn người tuyển");
     if (!joinForm.main_house) return toast.warning("Chọn nhà chính");
+    if (!workerUser.phone || !workerUser.phone.trim()) {
+      return toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
+    }
     const missingSnapshotFields = getMissingEmploymentSnapshotFields(joinForm);
     if (missingSnapshotFields.length) {
       toast.warning(`Thiếu thông tin cá nhân: ${missingSnapshotFields.join(", ")}`);
@@ -816,6 +819,9 @@ function StaffWorkerDetailPage() {
     if (!oldHistoryForm.recruiter_staff) return toast.warning("Chọn người tuyển");
     if (!oldHistoryForm.join_date) return toast.warning("Chọn ngày vào");
     if (!oldHistoryForm.leave_date) return toast.warning("Chọn ngày nghỉ");
+    if (!workerUser.phone || !workerUser.phone.trim()) {
+      return toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
+    }
     const missingSnapshotFields = getMissingEmploymentSnapshotFields(oldHistoryForm);
     if (missingSnapshotFields.length) {
       toast.warning(`Thiếu thông tin cá nhân: ${missingSnapshotFields.join(", ")}`);

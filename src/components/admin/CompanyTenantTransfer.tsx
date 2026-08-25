@@ -283,8 +283,8 @@ export function CompanyRestoreButton({ onChanged }: { onChanged: () => void | Pr
 
   return (
     <>
-      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-        <Upload className="h-4 w-4" /> Khôi phục
+      <Button size="sm" variant="outline" aria-label="Khôi phục" onClick={() => setOpen(true)}>
+        <Upload className="h-4 w-4" /> <span className="mobile:hidden">Khôi phục</span>
       </Button>
       <Dialog open={open} onOpenChange={(value) => !busy && setOpen(value)}>
         <DialogContent className="max-w-xl" bodyClassName="space-y-4 px-5 py-4">

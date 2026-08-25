@@ -306,6 +306,10 @@ export function WorkerQuickDrawer({
       toast.warning("Chọn nhà chính");
       return;
     }
+    if (!worker.user.phone || !worker.user.phone.trim()) {
+      toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
+      return;
+    }
     const missingSnapshotFields = getMissingEmploymentSnapshotFields(joinForm);
     if (missingSnapshotFields.length) {
       toast.warning(`Thiếu thông tin cá nhân: ${missingSnapshotFields.join(", ")}`);

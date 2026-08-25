@@ -354,26 +354,32 @@ function SuperAdminPage() {
       back={false}
       desktopWidth="wide"
       right={
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
           <CompanyRestoreButton onChanged={load} />
-          <Button variant="outline" size="sm" onClick={() => setSystemLogoOpen(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label="Logo hệ thống"
+            onClick={() => setSystemLogoOpen(true)}
+          >
             <ShieldCheck className="h-4 w-4" />
-            Logo hệ thống
+            <span className="mobile:hidden">Logo hệ thống</span>
           </Button>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
+          <Button size="sm" aria-label="Mở công ty" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4" />
-            Mở công ty
+            <span className="mobile:hidden">Mở công ty</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
+            aria-label="Đăng xuất"
             onClick={() => {
               logout();
               nav({ to: "/login" });
             }}
           >
             <LogOut className="h-4 w-4" />
-            Đăng xuất
+            <span className="mobile:hidden">Đăng xuất</span>
           </Button>
         </div>
       }

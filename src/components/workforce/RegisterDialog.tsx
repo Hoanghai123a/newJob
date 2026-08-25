@@ -198,6 +198,10 @@ export function RegisterDialog({
     if (!mainHouseId) return toast.error("Chọn nhà chính");
     if (!selectedUser) return;
 
+    if (!selectedUser.phone || !selectedUser.phone.trim()) {
+      return toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
+    }
+
     const personalSnapshot = {
       worker_name_snapshot: workerName.trim(),
       worker_cccd_snapshot: workerCccd.trim(),
