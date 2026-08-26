@@ -78,6 +78,27 @@ function formatDateRange(record: FactoryManagerRecord) {
   return `${from} -> ${to}`;
 }
 
+function buildAssignmentErrorMessage(error: any): string {
+  const data = error?.response?.data;
+  const fieldDetails =
+    data && typeof data === "object"
+      ? Object.entries(data)
+          .map(([field, value]: [string, any]) =>
+            value?.message ? `${field}: ${value.message}` : "",
+          )
+          .filter(Boolean)
+          .join("; ")
+      : "";
+  if (fieldDetails) return fieldDetails;
+
+  const rawMessage = error?.response?.message || error?.message || "";
+  if (/unique|Failed to create record|Failed to update record/i.test(rawMessage)) {
+    return "Nhà máy này đã được gán cho staff (trùng thời điểm hiệu lực). Hãy chỉnh 'Từ ngày' hoặc gỡ phân công cũ.";
+  }
+  if (rawMessage && rawMessage !== "Failed to create record.") return rawMessage;
+  return "Không lưu được phân công. Vui lòng kiểm tra staff, nhà máy và thời điểm hiệu lực.";
+}
+
 function AccountStaffFactoriesPage() {
   const currentUser = pb.authStore.record as UserRecord;
   const [loading, setLoading] = useState(true);
@@ -171,8 +192,8 @@ function AccountStaffFactoriesPage() {
     const payload = {
       staff: editingAssignment.staff,
       factory: editingAssignment.factory,
-      active_from: editingAssignment.active_from || null,
-      active_to: editingAssignment.active_to || null,
+      active_from: editingAssignment.active_from || "",
+      active_to: editingAssignment.active_to || "",
       status: (editingAssignment.status as FactoryStatus) || "active",
       note: editingAssignment.note || "",
     };
@@ -182,7 +203,7 @@ function AccountStaffFactoriesPage() {
         assignment.id !== editingAssignment.id &&
         assignment.staff === payload.staff &&
         assignment.factory === payload.factory &&
-        (assignment.active_from || null) === payload.active_from,
+        (assignment.active_from || "") === payload.active_from,
     );
     if (duplicate) {
       toast.warning("Staff này đã được gán nhà máy với cùng thời điểm hiệu lực.");
@@ -190,50 +211,33 @@ function AccountStaffFactoriesPage() {
     }
 
     try {
-      if (editingAssignment.id) {
-        await pb.collection("factory_managers").update(editingAssignment.id, payload);
-        await createStaffActionLog({
-          actor: currentUser,
-          targetCollection: "factory_managers",
-          targetRecord: editingAssignment.id,
-          action: "update",
-          after: payload,
-          note: "Admin cập nhật phân công nhà máy cho staff",
-        });
+      let recordId = editingAssignment.id;
+      if (recordId) {
+        await pb.collection("factory_managers").update(recordId, payload);
       } else {
         const created = await pb
           .collection("factory_managers")
           .create({ ...payload, ...factoryManagerTenantPayload(currentUser) });
-        await createStaffActionLog({
-          actor: currentUser,
-          targetCollection: "factory_managers",
-          targetRecord: created.id,
-          action: "create",
-          after: payload,
-          note: "Admin gán nhà máy cho staff",
-        });
+        recordId = created.id;
       }
 
       toast.success(editingAssignment.id ? "Đã cập nhật phân công" : "Đã gán nhà máy cho staff");
       closePicker();
-      await load();
+      void load();
+
+      createStaffActionLog({
+        actor: currentUser,
+        targetCollection: "factory_managers",
+        targetRecord: recordId,
+        action: editingAssignment.id ? "update" : "create",
+        after: payload,
+        note: editingAssignment.id
+          ? "Admin cập nhật phân công nhà máy cho staff"
+          : "Admin gán nhà máy cho staff",
+      }).catch((logError) => console.warn("[factory-managers] audit log failed", logError));
     } catch (error: any) {
-      const validation = error?.response?.data;
-      const details =
-        validation && typeof validation === "object"
-          ? Object.entries(validation)
-              .map(([field, value]: [string, any]) =>
-                value?.message ? `${field}: ${value.message}` : "",
-              )
-              .filter(Boolean)
-              .join("; ")
-          : "";
-      toast.error(
-        details ||
-          (error?.response?.message && error.response.message !== "Failed to create record."
-            ? error.response.message
-            : "Không lưu được phân công. Vui lòng kiểm tra staff, nhà máy và thời điểm hiệu lực."),
-      );
+      console.error("[factory-managers] save assignment failed", error);
+      toast.error(buildAssignmentErrorMessage(error));
     }
   };
 

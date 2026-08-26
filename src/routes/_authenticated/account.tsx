@@ -2936,44 +2936,63 @@ function FactoryAssignmentsPanel() {
     const payload = {
       staff: editingAssignment.staff,
       factory: editingAssignment.factory,
-      active_from: editingAssignment.active_from || null,
-      active_to: editingAssignment.active_to || null,
+      active_from: editingAssignment.active_from || "",
+      active_to: editingAssignment.active_to || "",
       status: (editingAssignment.status as FactoryStatus) || "active",
       note: editingAssignment.note || "",
     };
 
     try {
-      if (editingAssignment.id) {
-        await pb.collection("factory_managers").update(editingAssignment.id, payload);
-        await createStaffActionLog({
-          actor: currentUser as UserRecord,
-          targetUserId: payload.staff,
-          targetCollection: "factory_managers",
-          targetRecord: editingAssignment.id,
-          action: "update",
-          after: payload,
-          note: "Admin cập nhật phân công nhà máy cho staff",
-        });
+      let recordId = editingAssignment.id;
+      if (recordId) {
+        await pb.collection("factory_managers").update(recordId, payload);
       } else {
         const created = await pb
           .collection("factory_managers")
           .create({ ...payload, ...factoryManagerTenantPayload(currentUser as UserRecord) });
-        await createStaffActionLog({
-          actor: currentUser as UserRecord,
-          targetUserId: payload.staff,
-          targetCollection: "factory_managers",
-          targetRecord: created.id,
-          action: "create",
-          after: payload,
-          note: "Admin gán nhà máy cho staff",
-        });
+        recordId = created.id;
       }
 
       toast.success(editingAssignment.id ? "Đã cập nhật phân công" : "Đã gán nhà máy cho staff");
       closePicker();
-      await load();
+      void load();
+
+      createStaffActionLog({
+        actor: currentUser as UserRecord,
+        targetUserId: payload.staff,
+        targetCollection: "factory_managers",
+        targetRecord: recordId,
+        action: editingAssignment.id ? "update" : "create",
+        after: payload,
+        note: editingAssignment.id
+          ? "Admin cập nhật phân công nhà máy cho staff"
+          : "Admin gán nhà máy cho staff",
+      }).catch((logError) => console.warn("[factory-managers] audit log failed", logError));
     } catch (error: any) {
-      toast.error(error?.message || "Không lưu được phân công");
+      console.error("[factory-managers] save assignment failed", error);
+      const data = error?.response?.data;
+      const fieldDetails =
+        data && typeof data === "object"
+          ? Object.entries(data)
+              .map(([field, value]: [string, any]) =>
+                value?.message ? `${field}: ${value.message}` : "",
+              )
+              .filter(Boolean)
+              .join("; ")
+          : "";
+      if (fieldDetails) {
+        toast.error(fieldDetails);
+      } else if (
+        /unique|Failed to create record|Failed to update record/i.test(
+          error?.response?.message || error?.message || "",
+        )
+      ) {
+        toast.error(
+          "Nhà máy này đã được gán cho staff (trùng thời điểm hiệu lực). Hãy chỉnh 'Từ ngày' hoặc gỡ phân công cũ.",
+        );
+      } else {
+        toast.error(error?.response?.message || error?.message || "Không lưu được phân công");
+      }
     }
   };
 

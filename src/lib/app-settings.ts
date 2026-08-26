@@ -36,9 +36,11 @@ function escapePb(value: string) {
 }
 
 export async function fetchAppSettingsStrict(companyId?: string): Promise<AppSettings> {
-  const res = await pb
-    .collection("app_settings")
-    .getList(1, 1, { filter: companyId ? `tenant_company = "${escapePb(companyId)}"` : "" });
+  const res = await pb.collection("app_settings").getList(1, 1, {
+    filter: companyId ? `tenant_company = "${escapePb(companyId)}"` : "",
+    // Chốt về bản ghi gốc (tạo sớm nhất) để đọc/ghi nhất quán nếu tenant lỡ có nhiều bản ghi.
+    sort: "created",
+  });
   return { ...DEFAULTS, ...((res.items[0] as AppSettings | undefined) || {}) };
 }
 export async function fetchAppSettings(companyId?: string): Promise<AppSettings> {

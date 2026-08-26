@@ -29,6 +29,7 @@
     "pb:repair-duplicate-user-uids": "node --env-file=.env scripts/repair-duplicate-user-uids.mjs",
     "test:uid-tools": "node --test scripts/uid-duplicate-tools.test.mjs",
     "pb:workforce-indexes": "node scripts/ensure-workforce-dashboard-indexes.mjs",
+    "pb:app-settings-factory-scope": "node scripts/ensure-app-settings-factory-scope.mjs",
     "test:workforce-dashboard": "node --test --experimental-strip-types src/lib/workforce-dashboard.test.mjs",
     "pb:audit-cccd-versions": "node scripts/migrate-user-cccd-images.mjs",
     "pb:migrate-cccd-versions": "node scripts/migrate-user-cccd-images.mjs --apply",
