@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 
 import { relationInFilter } from "./delegations";
 import { isCurrentlyWorking, type EmploymentHistoryRecord } from "./employment";
+import { buildExcelWorkbook } from "./excel";
 import { getPBUpstream } from "./pocketbase-config";
 import type { UserRecord } from "./pocketbase";
 import { getRecruiterDisplay } from "./recruiters";
@@ -39,6 +40,38 @@ class PocketBaseExportError extends Error {
     super(message);
     this.name = "PocketBaseExportError";
   }
+}
+
+function jsonError(message: string, status = 400) {
+  return Response.json({ message }, { status });
+}
+
+function bearerToken(request: Request) {
+  return /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "")?.[1] || "";
+}
+
+async function pbFetch(path: string, init: RequestInit = {}, token?: string) {
+  const headers = new Headers(init.headers);
+  headers.set("ngrok-skip-browser-warning", "true");
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  return fetch(`${getPBUpstream()}${path}`, { ...init, headers });
+}
+
+async function readJson(response: Response) {
+  return response.json().catch(() => null);
+}
+
+async function getAuthenticatedStaff(request: Request) {
+  const token = bearerToken(request);
+  if (!token) return null;
+
+  const response = await pbFetch("/api/collections/users/auth-refresh", { method: "POST" }, token);
+  if (!response.ok) return null;
+
+  const body = await readJson(response);
+  const user = body?.record as UserRecord | undefined;
+  if (!user?.id || (user.role !== "admin" && user.role !== "staff")) return null;
+  return { token, user };
 }
 
 function escapePb(value: string) {
@@ -271,10 +304,8 @@ function buildFullRows(histories: EmploymentHistoryRecord[]) {
 }
 
 function createWorkbook(rows: Record<string, unknown>[], mode: ExportMode) {
-  const workbook = XLSX.utils.book_new();
   const sheetName = mode === "basic" ? "Lao động cơ bản" : "Lao động đầy đủ";
-  const worksheet = XLSX.utils.json_to_sheet(rows);
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  const workbook = buildExcelWorkbook({ [sheetName]: rows });
   return XLSX.write(workbook, { bookType: "xlsx", type: "buffer" }) as Uint8Array;
 }
 

@@ -36,6 +36,7 @@
     "pb:finalize-cccd-versions": "node scripts/migrate-user-cccd-images.mjs --finalize",
     "test:cccd-migration": "node --test scripts/migrate-user-cccd-images.test.mjs",
     "test:employment-history": "node --test --experimental-strip-types src/lib/employment-history-handler.test.ts",
+    "test:excel": "node --test --experimental-strip-types src/lib/excel.test.ts",
     "pb:upgrade-worker-relations": "node scripts/upgrade-worker-relations.mjs",
     "test:employment-history-live": "node scripts/test-employment-history-live.mjs"
   },

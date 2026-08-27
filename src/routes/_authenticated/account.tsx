@@ -23,6 +23,10 @@ import { DataLoadingState } from "@/components/ui/data-loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useStaffWorkspaceQuery } from "@/lib/staff-workspace-query";
+import { maskCccd, updateUserAndCache } from "@/lib/employment";
+import type { StaffWorkerRecord } from "@/lib/staff-permissions";
+import type { WorkerRecord } from "@/lib/workers";
 import {
   Dialog,
   DialogContent,
@@ -224,8 +228,11 @@ function AccountPage() {
         </Card>
 
         {isAdmin ? (
-          <Tabs defaultValue="staff" className="space-y-3">
-            <TabsList className="grid h-10 w-full grid-cols-3 rounded-2xl">
+          <Tabs defaultValue="workers" className="space-y-3">
+            <TabsList className="grid h-10 w-full grid-cols-4 rounded-2xl">
+              <TabsTrigger value="workers" className="rounded-xl text-xs">
+                TK NLĐ
+              </TabsTrigger>
               <TabsTrigger value="staff" className="rounded-xl text-xs">
                 Staff
               </TabsTrigger>
@@ -236,6 +243,9 @@ function AccountPage() {
                 Thông tin
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="workers" className="mt-0">
+              <WorkerAccountsPanel />
+            </TabsContent>
             <TabsContent value="staff" className="mt-0">
               <StaffPanel />
             </TabsContent>
@@ -248,10 +258,23 @@ function AccountPage() {
             </TabsContent>
           </Tabs>
         ) : (
-          <div className="space-y-4">
-            <UserProfileForm />
-            <AccountAppLinks />
-          </div>
+          <Tabs defaultValue="workers" className="space-y-3">
+            <TabsList className="grid h-10 w-full grid-cols-2 rounded-2xl">
+              <TabsTrigger value="workers" className="rounded-xl text-xs">
+                TK NLĐ
+              </TabsTrigger>
+              <TabsTrigger value="profile" className="rounded-xl text-xs">
+                Thông tin
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="workers" className="mt-0">
+              <WorkerAccountsPanel />
+            </TabsContent>
+            <TabsContent value="profile" className="mt-0 space-y-3">
+              <UserProfileForm />
+              <AccountAppLinks />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </div>
@@ -557,6 +580,336 @@ function ChangePasswordSection() {
   );
 }
 
+/* ───────── WORKER ACCOUNTS PANEL ───────── */
+
+type WorkerEditForm = {
+  full_name: string;
+  phone: string;
+  gender: string;
+  cccd: string;
+  date_of_birth: string;
+  address: string;
+  bank_name: string;
+  bank_account_number: string;
+  bank_account_name: string;
+  bank_account_note: string;
+};
+
+const WORKER_PAGE_SIZE = 30;
+
+function emptyWorkerEditForm(): WorkerEditForm {
+  return {
+    full_name: "",
+    phone: "",
+    gender: "",
+    cccd: "",
+    date_of_birth: "",
+    address: "",
+    bank_name: "",
+    bank_account_number: "",
+    bank_account_name: "",
+    bank_account_note: "",
+  };
+}
+
+function workerEditFormFrom(worker: WorkerRecord): WorkerEditForm {
+  return {
+    full_name: worker.full_name || "",
+    phone: worker.phone || "",
+    gender: worker.gender || "",
+    cccd: worker.cccd || "",
+    date_of_birth: worker.date_of_birth ? worker.date_of_birth.slice(0, 10) : "",
+    address: worker.address || "",
+    bank_name: worker.bank_name || "",
+    bank_account_number: worker.bank_account_number || "",
+    bank_account_name: worker.bank_account_name || "",
+    bank_account_note: worker.bank_account_note || "",
+  };
+}
+
+function WorkerAccountsPanel() {
+  const { user } = useAuth();
+  const viewer = (user as UserRecord | null) ?? null;
+  const workspaceQuery = useStaffWorkspaceQuery(viewer);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
+  const [visibleCount, setVisibleCount] = useState(WORKER_PAGE_SIZE);
+  const [editing, setEditing] = useState<StaffWorkerRecord | null>(null);
+  const [form, setForm] = useState<WorkerEditForm>(emptyWorkerEditForm);
+  const [saving, setSaving] = useState(false);
+
+  const workspace = workspaceQuery.data;
+  const loading = !workspace && workspaceQuery.isPending;
+
+  const filtered = useMemo(() => {
+    const workerList = workspace?.workers ?? [];
+    const query = debouncedSearch.trim().toLocaleLowerCase("vi-VN");
+    const rows = query
+      ? workerList.filter((worker) =>
+          [worker.user.full_name, worker.user.phone, worker.user.uid, worker.user.cccd]
+            .filter(Boolean)
+            .join(" ")
+            .toLocaleLowerCase("vi-VN")
+            .includes(query),
+        )
+      : workerList;
+    return [...rows].sort((a, b) =>
+      (a.user.full_name || a.user.uid || "").localeCompare(
+        b.user.full_name || b.user.uid || "",
+        "vi",
+        {
+          sensitivity: "base",
+        },
+      ),
+    );
+  }, [debouncedSearch, workspace?.workers]);
+
+  const openEditor = (worker: StaffWorkerRecord) => {
+    if (!worker.canUpdateBank) {
+      toast.error("Bạn không có quyền sửa hồ sơ người lao động này");
+      return;
+    }
+    setEditing(worker);
+    setForm(workerEditFormFrom(worker.user));
+  };
+
+  const saveWorker = async () => {
+    if (!editing || !viewer) return;
+    const payload = {
+      full_name: form.full_name.trim(),
+      phone: form.phone.trim(),
+      gender: form.gender.trim(),
+      cccd: form.cccd.trim(),
+      date_of_birth: form.date_of_birth,
+      address: form.address.trim(),
+      bank_name: resolveBankName(form.bank_name.trim()),
+      bank_account_number: form.bank_account_number.trim(),
+      bank_account_name: form.bank_account_name.trim(),
+      bank_account_note: form.bank_account_note.trim(),
+    };
+    if (!payload.full_name) {
+      toast.warning("Vui lòng nhập họ tên");
+      return;
+    }
+    setSaving(true);
+    try {
+      await updateUserAndCache(editing.user.id, payload);
+      await createStaffActionLog({
+        actor: viewer,
+        targetUserId: editing.user.id,
+        targetCollection: "workers",
+        targetRecord: editing.user.id,
+        action: "update",
+        before: workerEditFormFrom(editing.user),
+        after: payload,
+        note: "Cập nhật hồ sơ NLĐ từ trang tài khoản",
+      });
+      await workspaceQuery.refetch();
+      setEditing(null);
+      toast.success("Đã cập nhật thông tin người lao động");
+    } catch (error: any) {
+      toast.error(error?.message || "Không cập nhật được thông tin");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="space-y-1">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Tài khoản người lao động ({filtered.length})
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Bấm vào một hồ sơ để chỉnh sửa thông tin cá nhân và tài khoản ngân hàng.
+        </p>
+      </div>
+
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setVisibleCount(WORKER_PAGE_SIZE);
+          }}
+          placeholder="Tìm theo họ tên, SĐT, mã tài khoản, CCCD..."
+          className="rounded-full pl-9"
+        />
+      </div>
+
+      {loading ? (
+        <DataLoadingState variant="list" label="Đang tải danh sách người lao động..." rows={4} />
+      ) : filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card/50 py-10 text-center text-sm text-muted-foreground">
+          Không có hồ sơ người lao động trong phạm vi quyền.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.slice(0, visibleCount).map((record) => (
+            <button
+              key={record.user.id}
+              type="button"
+              onClick={() => openEditor(record)}
+              className="list-card block w-full overflow-hidden border-l-primary text-left"
+            >
+              <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold">
+                    {record.user.full_name?.trim() || record.user.uid || "Thiếu thông tin"}
+                  </div>
+                  <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                    Mã TK: {record.user.uid || "—"} · SĐT: {record.user.phone || "—"}
+                  </div>
+                  <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                    CCCD: {maskCccd(record.user.cccd)} · Ngân hàng:{" "}
+                    {record.user.bank_name || "chưa có"}
+                  </div>
+                </div>
+                {record.canUpdateBank ? (
+                  <Pencil className="mt-1 h-4 w-4 shrink-0 text-primary" />
+                ) : (
+                  <StatusChip tone="neutral">Chỉ xem</StatusChip>
+                )}
+              </div>
+            </button>
+          ))}
+
+          {visibleCount < filtered.length && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full rounded-full"
+              onClick={() => setVisibleCount((count) => count + WORKER_PAGE_SIZE)}
+            >
+              Tải thêm người lao động
+            </Button>
+          )}
+        </div>
+      )}
+
+      <Dialog open={!!editing} onOpenChange={(open) => !open && !saving && setEditing(null)}>
+        <DialogContent className="max-h-[90dvh] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl desktop:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Sửa thông tin người lao động</DialogTitle>
+            <DialogDescription>
+              Mã tài khoản @{editing?.user.uid || "—"}. Thông tin lưu vào hồ sơ NLĐ.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-3 desktop:grid-cols-2">
+            <DetailEditorField label="Họ và tên">
+              <Input
+                value={form.full_name}
+                onChange={(e) => setForm((s) => ({ ...s, full_name: e.target.value }))}
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Số điện thoại">
+              <Input
+                value={form.phone}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, phone: e.target.value.replace(/\D/g, "") }))
+                }
+                inputMode="tel"
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Giới tính">
+              <Select
+                value={form.gender}
+                onValueChange={(value) => setForm((s) => ({ ...s, gender: value }))}
+              >
+                <SelectTrigger className={DETAIL_EDITOR_CONTROL_CLASS}>
+                  <SelectValue placeholder="Chọn giới tính" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Nam">Nam</SelectItem>
+                  <SelectItem value="Nữ">Nữ</SelectItem>
+                  <SelectItem value="Khác">Khác</SelectItem>
+                </SelectContent>
+              </Select>
+            </DetailEditorField>
+            <DetailEditorField label="CCCD">
+              <Input
+                value={form.cccd}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, cccd: e.target.value.replace(/\D/g, "") }))
+                }
+                inputMode="numeric"
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Ngày sinh">
+              <DateInput
+                value={form.date_of_birth}
+                onChange={(value) => setForm((s) => ({ ...s, date_of_birth: value }))}
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Địa chỉ" className="desktop:col-span-2">
+              <Input
+                value={form.address}
+                onChange={(e) => setForm((s) => ({ ...s, address: e.target.value }))}
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Ngân hàng">
+              <BankPicker
+                value={form.bank_name}
+                onChange={(value) => setForm((s) => ({ ...s, bank_name: value }))}
+                triggerClassName={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Số tài khoản">
+              <Input
+                value={form.bank_account_number}
+                onChange={(e) =>
+                  setForm((s) => ({
+                    ...s,
+                    bank_account_number: e.target.value.replace(/\D/g, ""),
+                  }))
+                }
+                inputMode="numeric"
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Tên chủ tài khoản">
+              <Input
+                value={form.bank_account_name}
+                onChange={(e) => setForm((s) => ({ ...s, bank_account_name: e.target.value }))}
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+            <DetailEditorField label="Ghi chú STK">
+              <Textarea
+                value={form.bank_account_note}
+                onChange={(e) => setForm((s) => ({ ...s, bank_account_note: e.target.value }))}
+                rows={2}
+                className={DETAIL_EDITOR_CONTROL_CLASS}
+              />
+            </DetailEditorField>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="rounded-xl"
+              disabled={saving}
+              onClick={() => setEditing(null)}
+            >
+              Hủy
+            </Button>
+            <Button className="rounded-xl" disabled={saving} onClick={saveWorker}>
+              <Save className="h-4 w-4" /> {saving ? "Đang lưu..." : "Lưu thay đổi"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
+
 /* ───────── ADMIN: USERS MANAGEMENT ───────── */
 
 function AdminUsersPanel() {
@@ -644,11 +997,7 @@ function AdminUsersPanel() {
 
   const exportExcel = () => {
     const rows = filtered.map(formatUserRow);
-    exportToExcel(
-      "danh_sach_tai_khoan_" + Date.now(),
-      { "Tài khoản": rows },
-      { "Tài khoản": ["Ngày sinh", "Ngày tạo"] },
-    );
+    exportToExcel("danh_sach_tai_khoan_" + Date.now(), { "Tài khoản": rows });
   };
 
   const exportAll = async () => {
@@ -658,11 +1007,7 @@ function AdminUsersPanel() {
         sort: "-created",
       });
       const rows = all.map(formatUserRow);
-      exportToExcel(
-        "tat_ca_tai_khoan_" + Date.now(),
-        { "Tài khoản": rows },
-        { "Tài khoản": ["Ngày sinh", "Ngày tạo"] },
-      );
+      exportToExcel("tat_ca_tai_khoan_" + Date.now(), { "Tài khoản": rows });
     } catch (e: any) {
       toast.error(e?.message || "Lỗi xuất dữ liệu");
     }
@@ -1073,7 +1418,7 @@ function AdminUsersPanel() {
         "Ghi chú STK": "",
       },
     ];
-    exportToExcel("mau_nhap_tai_khoan", { "Tài khoản": sample }, { "Tài khoản": ["Ngày sinh"] });
+    exportToExcel("mau_nhap_tai_khoan", { "Tài khoản": sample });
   };
 
   const onImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1189,11 +1534,7 @@ function AdminUsersPanel() {
       }
       toast.success("Đã nhập " + ok + " tài khoản" + (fail ? ", " + fail + " lỗi" : ""));
       if (failedRows.length) {
-        exportToExcel(
-          `import_tai_khoan_loi_${Date.now()}`,
-          { "Dòng lỗi": failedRows },
-          { "Dòng lỗi": ["Ngày sinh", "date_of_birth"] },
-        );
+        exportToExcel(`import_tai_khoan_loi_${Date.now()}`, { "Dòng lỗi": failedRows });
         toast.warning("Đã xuất file các dòng lỗi");
       }
       await createStaffActionLog({
@@ -2135,25 +2476,21 @@ function StaffPanel() {
   const summary = useMemo(() => staffUsers.filter((u) => u.role === "staff").length, [staffUsers]);
 
   const downloadTemplate = () => {
-    exportToExcel(
-      "mau_import_staff",
-      {
-        "Tài khoản Staff": [
-          {
-            "Tên đăng nhập": "nguyenvana",
-            "Họ tên": "Nguyễn Văn A",
-            "Số điện thoại": "0901234567",
-            "Ngày sinh": "15/05/1990",
-            "Địa chỉ": "Hà Nội",
-            "Mật khẩu": "",
-            "Nhà máy 1": "Nhà máy A",
-            "Nhà máy 2": "Nhà máy B",
-            "Nhà máy 3": "",
-          },
-        ],
-      },
-      { "Tài khoản Staff": ["Ngày sinh"] },
-    );
+    exportToExcel("mau_import_staff", {
+      "Tài khoản Staff": [
+        {
+          "Tên đăng nhập": "nguyenvana",
+          "Họ tên": "Nguyễn Văn A",
+          "Số điện thoại": "0901234567",
+          "Ngày sinh": "15/05/1990",
+          "Địa chỉ": "Hà Nội",
+          "Mật khẩu": "",
+          "Nhà máy 1": "Nhà máy A",
+          "Nhà máy 2": "Nhà máy B",
+          "Nhà máy 3": "",
+        },
+      ],
+    });
   };
 
   const importStaff = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -2290,11 +2627,7 @@ function StaffPanel() {
       setImportResult(resultText);
       toast.success(resultText);
       if (failedRows.length) {
-        exportToExcel(
-          `staff_import_loi_${Date.now()}`,
-          { "Dòng lỗi": failedRows },
-          { "Dòng lỗi": ["Ngày sinh", "date_of_birth"] },
-        );
+        exportToExcel(`staff_import_loi_${Date.now()}`, { "Dòng lỗi": failedRows });
         toast.warning("Đã xuất file các dòng lỗi");
       }
       await load();

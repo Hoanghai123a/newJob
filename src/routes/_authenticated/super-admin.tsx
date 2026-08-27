@@ -94,6 +94,21 @@ function SuperAdminPage() {
   const headers = { Authorization: `Bearer ${pb.authStore.token}` };
 
   const compressImage = async (file: File): Promise<File> => {
+    // Kiểm tra định dạng file trước khi xử lý
+    const SUPPORTED_TYPES = new Set([
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ]);
+
+    if (!SUPPORTED_TYPES.has(file.type.toLowerCase())) {
+      throw new Error(
+        `Định dạng ${file.type || "không xác định"} không được hỗ trợ. Vui lòng chọn ảnh JPEG, PNG, WebP hoặc GIF.`
+      );
+    }
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -146,7 +161,7 @@ function SuperAdminPage() {
             0.85,
           );
         };
-        img.onerror = () => reject(new Error("Không load được ảnh"));
+        img.onerror = () => reject(new Error("Không load được ảnh. Định dạng file có thể không hợp lệ."));
         img.src = e.target?.result as string;
       };
       reader.onerror = () => reject(new Error("Không đọc được file"));
@@ -756,9 +771,12 @@ function SuperAdminPage() {
             <Input
               id="system-logo-file"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
               onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
             />
+            <p className="text-xs text-muted-foreground">
+              Chỉ hỗ trợ JPEG, PNG, WebP và GIF
+            </p>
           </div>
           <DialogFooter>
             <Button
@@ -787,9 +805,12 @@ function SuperAdminPage() {
             <Input
               id="company-logo-file"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
               onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
             />
+            <p className="text-xs text-muted-foreground">
+              Chỉ hỗ trợ JPEG, PNG, WebP và GIF
+            </p>
           </div>
           <DialogFooter>
             <Button

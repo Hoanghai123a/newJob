@@ -1118,57 +1118,50 @@ export async function executePreparedBulkImport(
 }
 
 export function downloadBulkWorkerTemplate() {
-  exportToExcel(
-    "mau_tao_nld_va_lich_su_di_lam",
-    {
-      "Người lao động": [
-        {
-          "Mã NLĐ trong file": "NLD001",
-          "Họ và tên": "Nguyễn Văn A",
-          "Số điện thoại": "0901234567_nva",
-          CCCD: "001234567890.a",
-          "Ngày sinh": "15/01/1990",
-          "Ngày cấp CCCD": "01/01/2020",
-          "Địa chỉ thường trú": "Hà Nội",
-          "Giới tính": "Nam",
-          "Ngân hàng": "VCB",
-          "Số tài khoản": "1234567890",
-          "Tên tài khoản": "NGUYEN VAN A",
-          "Ghi chú STK": "Tài khoản nhận lương",
-        },
-      ],
-      "Lịch sử đi làm": [
-        {
-          "Mã NLĐ trong file": "NLD001",
-          "Tên nhà máy": "Nhà máy A",
-          "Mã nhà máy": "",
-          "Nhà chính": "Nhà chính HN",
-          "Người tuyển": "staff01",
-          "Mã nhân viên": "NM001",
-          "Ngày vào làm": "01/01/2025",
-          "Ngày nghỉ": "31/12/2025",
-          "Mã số thuế": "0123456789",
-          "Ghi chú": "Lịch sử cũ",
-        },
-        {
-          "Mã NLĐ trong file": "NLD001",
-          "Tên nhà máy": "Nhà máy B",
-          "Mã nhà máy": "",
-          "Nhà chính": "Nhà chính HN",
-          "Người tuyển": "staff01",
-          "Mã nhân viên": "NM002",
-          "Ngày vào làm": "01/01/2026",
-          "Ngày nghỉ": "",
-          "Mã số thuế": "0123456789",
-          "Ghi chú": "Lịch sử hiện tại",
-        },
-      ],
-    },
-    {
-      "Người lao động": ["Ngày sinh", "Ngày cấp CCCD"],
-      "Lịch sử đi làm": ["Ngày vào làm", "Ngày nghỉ"],
-    },
-  );
+  exportToExcel("mau_tao_nld_va_lich_su_di_lam", {
+    "Người lao động": [
+      {
+        "Mã NLĐ trong file": "NLD001",
+        "Họ và tên": "Nguyễn Văn A",
+        "Số điện thoại": "0901234567_nva",
+        CCCD: "001234567890.a",
+        "Ngày sinh": "15/01/1990",
+        "Ngày cấp CCCD": "01/01/2020",
+        "Địa chỉ thường trú": "Hà Nội",
+        "Giới tính": "Nam",
+        "Ngân hàng": "VCB",
+        "Số tài khoản": "1234567890",
+        "Tên tài khoản": "NGUYEN VAN A",
+        "Ghi chú STK": "Tài khoản nhận lương",
+      },
+    ],
+    "Lịch sử đi làm": [
+      {
+        "Mã NLĐ trong file": "NLD001",
+        "Tên nhà máy": "Nhà máy A",
+        "Mã nhà máy": "",
+        "Nhà chính": "Nhà chính HN",
+        "Người tuyển": "staff01",
+        "Mã nhân viên": "NM001",
+        "Ngày vào làm": "01/01/2025",
+        "Ngày nghỉ": "31/12/2025",
+        "Mã số thuế": "0123456789",
+        "Ghi chú": "Lịch sử cũ",
+      },
+      {
+        "Mã NLĐ trong file": "NLD001",
+        "Tên nhà máy": "Nhà máy B",
+        "Mã nhà máy": "",
+        "Nhà chính": "Nhà chính HN",
+        "Người tuyển": "staff01",
+        "Mã nhân viên": "NM002",
+        "Ngày vào làm": "01/01/2026",
+        "Ngày nghỉ": "",
+        "Mã số thuế": "0123456789",
+        "Ghi chú": "Lịch sử hiện tại",
+      },
+    ],
+  });
 }
 
 export function exportBulkWorkerErrors(errors: WorkerImportError[], filename = "") {
@@ -1190,17 +1183,10 @@ export function exportBulkWorkerErrors(errors: WorkerImportError[], filename = "
       ...history.raw,
     })),
   );
-  exportToExcel(
-    filename || `import_nld_lich_su_loi_${Date.now()}`,
-    {
-      "NLĐ lỗi": workerRows.length ? workerRows : [{ "Lý do lỗi": "Không có dòng NLĐ lỗi" }],
-      "Lịch sử lỗi": historyRows.length
-        ? historyRows
-        : [{ "Lý do lỗi": "Không có dòng lịch sử lỗi" }],
-    },
-    {
-      "NLĐ lỗi": ["Ngày sinh", "Ngày cấp CCCD", "date_of_birth", "cccd_issue_date"],
-      "Lịch sử lỗi": ["Ngày vào làm", "Ngày nghỉ", "join_date", "leave_date"],
-    },
-  );
+  exportToExcel(filename || `import_nld_lich_su_loi_${Date.now()}`, {
+    "NLĐ lỗi": workerRows.length ? workerRows : [{ "Lý do lỗi": "Không có dòng NLĐ lỗi" }],
+    "Lịch sử lỗi": historyRows.length
+      ? historyRows
+      : [{ "Lý do lỗi": "Không có dòng lịch sử lỗi" }],
+  });
 }

@@ -70,31 +70,25 @@ function AdminImportsPage() {
   const [accountImportResult, setAccountImportResult] = useState<string>("");
 
   const downloadBulkEditTemplate = () => {
-    exportToExcel(
-      "mau_cap_nhat_nhanh_lich_su",
-      {
-        "Cập nhật nhanh": [
-          {
-            "Mã lịch sử (UID)": "LS-202608-0001",
-            "Mã NV mới": "NM001-MỚI",
-            "Tên nhà máy mới": "",
-            "Mã nhà máy mới": "",
-            "Ngày vào mới": "",
-            "Ngày nghỉ": "",
-            "Họ tên tại thời điểm đi làm": "",
-            "CCCD tại thời điểm đi làm": "",
-            "Ngày sinh": "",
-            "Địa chỉ thường trú": "",
-            "Ngày cấp CCCD": "",
-            "Người tuyển": "staff01",
-            "Ghi chú": "Cập nhật mã NV",
-          },
-        ],
-      },
-      {
-        "Cập nhật nhanh": ["Ngày vào mới", "Ngày nghỉ", "Ngày sinh", "Ngày cấp CCCD"],
-      },
-    );
+    exportToExcel("mau_cap_nhat_nhanh_lich_su", {
+      "Cập nhật nhanh": [
+        {
+          "Mã lịch sử (UID)": "LS-202608-0001",
+          "Mã NV mới": "NM001-MỚI",
+          "Tên nhà máy mới": "",
+          "Mã nhà máy mới": "",
+          "Ngày vào mới": "",
+          "Ngày nghỉ": "",
+          "Họ tên tại thời điểm đi làm": "",
+          "CCCD tại thời điểm đi làm": "",
+          "Ngày sinh": "",
+          "Địa chỉ thường trú": "",
+          "Ngày cấp CCCD": "",
+          "Người tuyển": "staff01",
+          "Ghi chú": "Cập nhật mã NV",
+        },
+      ],
+    });
   };
 
   const bulkEditHistories = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -365,11 +359,7 @@ function AdminImportsPage() {
       setBulkEditResult(summary);
       toast.success(summary);
       if (failedRows.length) {
-        exportToExcel(
-          `cap_nhat_nhanh_lich_su_loi_${Date.now()}`,
-          { "Dòng lỗi": failedRows },
-          { "Dòng lỗi": ["Ngày vào mới", "Ngày nghỉ", "Ngày sinh", "Ngày cấp CCCD"] },
-        );
+        exportToExcel(`cap_nhat_nhanh_lich_su_loi_${Date.now()}`, { "Dòng lỗi": failedRows });
         toast.warning("Đã xuất file các dòng bị lỗi");
       }
       await createStaffActionLog({
@@ -394,32 +384,28 @@ function AdminImportsPage() {
   };
 
   const downloadHistoriesTemplate = () => {
-    exportToExcel(
-      "mau_import_lich_su_di_lam",
-      {
-        "Lịch sử đi làm": [
-          {
-            "Mã tài khoản (UID)": "",
-            "Tên đăng nhập": "nguyenvana",
-            "Tên nhà máy": "Nhà máy A",
-            "Mã nhà máy": "",
-            "Nhà chính": "Nhà chính HN",
-            "Mã nhân viên": "NM001",
-            "Họ tên tại nhà máy": "Nguyễn Văn A",
-            "CCCD tại nhà máy": "012345678901",
-            "Ngày sinh": "01/01/2000",
-            "Địa chỉ thường trú": "Hà Nội",
-            "Ngày cấp CCCD": "01/01/2020",
-            "Mã số thuế": "0123456789",
-            "Người tuyển": "staff01",
-            "Ngày vào làm": "01/05/2026",
-            "Ngày nghỉ": "",
-            "Ghi chú": "Nhập mẫu",
-          },
-        ],
-      },
-      { "Lịch sử đi làm": ["Ngày sinh", "Ngày cấp CCCD", "Ngày vào làm", "Ngày nghỉ"] },
-    );
+    exportToExcel("mau_import_lich_su_di_lam", {
+      "Lịch sử đi làm": [
+        {
+          "Mã tài khoản (UID)": "",
+          "Tên đăng nhập": "nguyenvana",
+          "Tên nhà máy": "Nhà máy A",
+          "Mã nhà máy": "",
+          "Nhà chính": "Nhà chính HN",
+          "Mã nhân viên": "NM001",
+          "Họ tên tại nhà máy": "Nguyễn Văn A",
+          "CCCD tại nhà máy": "012345678901",
+          "Ngày sinh": "01/01/2000",
+          "Địa chỉ thường trú": "Hà Nội",
+          "Ngày cấp CCCD": "01/01/2020",
+          "Mã số thuế": "0123456789",
+          "Người tuyển": "staff01",
+          "Ngày vào làm": "01/05/2026",
+          "Ngày nghỉ": "",
+          "Ghi chú": "Nhập mẫu",
+        },
+      ],
+    });
   };
 
   const importHistories = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -679,20 +665,7 @@ function AdminImportsPage() {
       setLastResult(summary);
       toast.success(summary);
       if (failedRows.length) {
-        exportToExcel(
-          `lich_su_di_lam_loi_${Date.now()}`,
-          { "Dòng lỗi": failedRows },
-          {
-            "Dòng lỗi": [
-              "Ngày sinh",
-              "Ngày cấp CCCD",
-              "Ngày vào làm",
-              "Ngày nghỉ",
-              "join_date",
-              "leave_date",
-            ],
-          },
-        );
+        exportToExcel(`lich_su_di_lam_loi_${Date.now()}`, { "Dòng lỗi": failedRows });
         toast.warning("Đã xuất file các dòng lịch sử đi làm bị lỗi");
       }
       await createStaffActionLog({
@@ -710,27 +683,23 @@ function AdminImportsPage() {
   };
 
   const downloadAccountsTemplate = () => {
-    exportToExcel(
-      "mau_import_ho_so_nld",
-      {
-        "Người lao động": [
-          {
-            "Họ tên": "Nguyễn Văn A",
-            "Số điện thoại": "0900000001",
-            "Mã tài khoản (UID)": "",
-            "Giới tính": "Nam",
-            CCCD: "001099012345",
-            "Ngày sinh": "15/01/1990",
-            "Địa chỉ": "123 Đường ABC, Quận 1, TP.HCM",
-            "Ngân hàng": "VCB",
-            "Số tài khoản": "1234567890",
-            "Tên tài khoản": "NGUYEN VAN A",
-            "Ghi chú STK": "Tài khoản nhận lương",
-          },
-        ],
-      },
-      { "Người lao động": ["Ngày sinh"] },
-    );
+    exportToExcel("mau_import_ho_so_nld", {
+      "Người lao động": [
+        {
+          "Họ tên": "Nguyễn Văn A",
+          "Số điện thoại": "0900000001",
+          "Mã tài khoản (UID)": "",
+          "Giới tính": "Nam",
+          CCCD: "001099012345",
+          "Ngày sinh": "15/01/1990",
+          "Địa chỉ": "123 Đường ABC, Quận 1, TP.HCM",
+          "Ngân hàng": "VCB",
+          "Số tài khoản": "1234567890",
+          "Tên tài khoản": "NGUYEN VAN A",
+          "Ghi chú STK": "Tài khoản nhận lương",
+        },
+      ],
+    });
   };
 
   const importAccounts = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -833,11 +802,7 @@ function AdminImportsPage() {
       setAccountImportResult(summary);
       toast.success(summary);
       if (failedRows.length) {
-        exportToExcel(
-          `import_ho_so_nld_loi_${Date.now()}`,
-          { "Dòng lỗi": failedRows },
-          { "Dòng lỗi": ["Ngày sinh", "date_of_birth"] },
-        );
+        exportToExcel(`import_ho_so_nld_loi_${Date.now()}`, { "Dòng lỗi": failedRows });
         toast.warning("Đã xuất file các dòng bị lỗi");
       }
       await createStaffActionLog({

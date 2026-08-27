@@ -105,7 +105,7 @@ export function joinPbFilters(parts: Array<string | false | null | undefined>) {
 }
 
 export function buildAdminAdvanceSegmentFilter(segment: AdminAdvanceSegment) {
-  return segment === "workers" ? "" : 'requested_by.role="staff"';
+  return segment === "workers" ? 'worker!=""' : 'worker=""';
 }
 
 export function containsAny(fields: string[], keyword: string) {

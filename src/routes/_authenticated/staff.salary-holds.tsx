@@ -281,21 +281,7 @@ function SalaryHoldsPage() {
     }));
 
     try {
-      exportToExcel(
-        `danh-sach-giu-luong-${fileDate}.xlsx`,
-        { [sheetName]: exportRows },
-        {
-          [sheetName]: [
-            "Ngày vào",
-            "Ngày nghỉ",
-            "Ngày tạo",
-            "Ngày duyệt",
-            "Ngày từ chối",
-            "Ngày giải ngân",
-            "Ngày hủy",
-          ],
-        },
-      );
+      exportToExcel(`danh-sach-giu-luong-${fileDate}.xlsx`, { [sheetName]: exportRows });
       toast.success(`Đã xuất ${filtered.length} yêu cầu giữ lương`);
     } catch {
       toast.error("Không thể xuất file Excel");

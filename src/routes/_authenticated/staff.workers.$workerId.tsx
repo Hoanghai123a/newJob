@@ -482,33 +482,28 @@ function StaffWorkerDetailPage() {
       return;
     }
 
-    exportToExcel(
-      `lich_su_lao_dong_${workerId}_${Date.now()}`,
-      {
-        "Lịch sử đi làm": histories.map((history, index) => {
-          const recruiter = getRecruiterDisplay(history);
-          return {
-            STT: index + 1,
-            "Nhà máy": history.expand?.factory?.name || "",
-            "Mã nhân viên": history.employee_code || "",
-            "Họ tên tại nhà máy": history.worker_name_snapshot,
-            CCCD: history.worker_cccd_snapshot,
-            "Ngày sinh": formatDateOnly(history.worker_date_of_birth_snapshot),
-            "Địa chỉ thường trú":
-              history.worker_address_snapshot || history.hometown_snapshot || "",
-            "Mã số thuế": history.worker_tax_code_snapshot || "",
-            "Ngày cấp CCCD": formatDateOnly(history.cccd_issue_date),
-            "Người tuyển": recruiter?.name || "",
-            "Loại người tuyển": recruiter?.label || "",
-            "Ngày vào": formatDateOnly(history.join_date),
-            "Ngày nghỉ": formatDateOnly(history.leave_date),
-            "Trạng thái": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
-            "Ghi chú": history.note || "",
-          };
-        }),
-      },
-      { "Lịch sử đi làm": ["Ngày cấp CCCD", "Ngày vào", "Ngày nghỉ"] },
-    );
+    exportToExcel(`lich_su_lao_dong_${workerId}_${Date.now()}`, {
+      "Lịch sử đi làm": histories.map((history, index) => {
+        const recruiter = getRecruiterDisplay(history);
+        return {
+          STT: index + 1,
+          "Nhà máy": history.expand?.factory?.name || "",
+          "Mã nhân viên": history.employee_code || "",
+          "Họ tên tại nhà máy": history.worker_name_snapshot,
+          CCCD: history.worker_cccd_snapshot,
+          "Ngày sinh": formatDateOnly(history.worker_date_of_birth_snapshot),
+          "Địa chỉ thường trú": history.worker_address_snapshot || history.hometown_snapshot || "",
+          "Mã số thuế": history.worker_tax_code_snapshot || "",
+          "Ngày cấp CCCD": formatDateOnly(history.cccd_issue_date),
+          "Người tuyển": recruiter?.name || "",
+          "Loại người tuyển": recruiter?.label || "",
+          "Ngày vào": formatDateOnly(history.join_date),
+          "Ngày nghỉ": formatDateOnly(history.leave_date),
+          "Trạng thái": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
+          "Ghi chú": history.note || "",
+        };
+      }),
+    });
 
     toast.success("Đã xuất Excel");
   };

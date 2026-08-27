@@ -1,5 +1,7 @@
 import * as XLSX from "xlsx";
 
+import { EXCEL_DATE_FORMAT } from "./excel";
+
 export type LastWorkingDayLayout = "vertical" | "horizontal-single" | "horizontal-multi";
 export type ExcelCell = string | number | boolean | Date | null | undefined;
 export type SheetRows = ExcelCell[][];
@@ -191,7 +193,7 @@ export function downloadLastWorkingDayResults(results: LastWorkingDayResult[], s
     const cell = sheet[XLSX.utils.encode_cell({ r: row, c: 2 })];
     if (cell && typeof cell.v === "number") {
       cell.t = "n";
-      cell.z = "dd-mm-yyyy";
+      cell.z = EXCEL_DATE_FORMAT;
     }
   }
   const workbook = XLSX.utils.book_new();

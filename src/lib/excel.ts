@@ -53,9 +53,7 @@ export async function parseExcelToRowsFromUrl(url: string): Promise<string[][]> 
   return rows.map((row) => row.map((cell) => String(cell ?? "")));
 }
 
-export type ExcelDateColumns = Record<string, string[]>;
-
-const EXCEL_DATE_FORMAT = "dd/mm/yyyy";
+export const EXCEL_DATE_FORMAT = "dd/mm/yyyy";
 const EXCEL_EPOCH_UTC = Date.UTC(1899, 11, 30);
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -100,32 +98,40 @@ function parseDateParts(value: unknown): { year: number; month: number; day: num
   return null;
 }
 
-function toExcelDateSerial(value: unknown): number | null {
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  const parts = parseDateParts(value);
+function dateCandidateSerial(cell: XLSX.CellObject | undefined): number | null {
+  if (!cell || cell.v == null || cell.v === "") return null;
+  // json_to_sheet biến Date thành ô số kèm z (và phần lẻ do lệch múi giờ); số thuần không có z.
+  if (cell.t === "n") {
+    return typeof cell.z === "string" && typeof cell.v === "number" ? Math.round(cell.v) : null;
+  }
+  const parts = parseDateParts(cell.v);
   if (!parts) return null;
   return (Date.UTC(parts.year, parts.month - 1, parts.day) - EXCEL_EPOCH_UTC) / DAY_IN_MS;
 }
 
-function applyDateColumns(ws: XLSX.WorkSheet, dateColumns: string[]) {
-  if (!dateColumns.length || !ws["!ref"]) return;
+function applyDateColumns(ws: XLSX.WorkSheet) {
+  if (!ws["!ref"]) return;
 
   const range = XLSX.utils.decode_range(ws["!ref"]);
-  const dateColumnSet = new Set(dateColumns);
 
   for (let column = range.s.c; column <= range.e.c; column++) {
-    const headerAddress = XLSX.utils.encode_cell({ r: range.s.r, c: column });
-    const header = ws[headerAddress];
-    if (!header || !dateColumnSet.has(String(header.v ?? ""))) continue;
+    const pending: Array<{ address: string; serial: number }> = [];
+    let hasOtherValue = false;
 
-    for (let row = range.s.r + 1; row <= range.e.r; row++) {
+    for (let row = range.s.r + 1; row <= range.e.r && !hasOtherValue; row++) {
       const address = XLSX.utils.encode_cell({ r: row, c: column });
       const cell = ws[address];
-      if (!cell || cell.v === "" || cell.v == null) continue;
+      if (!cell || cell.v == null || cell.v === "") continue;
 
-      const serial = toExcelDateSerial(cell.v);
-      if (serial == null) continue;
+      const serial = dateCandidateSerial(cell);
+      if (serial == null) hasOtherValue = true;
+      else pending.push({ address, serial });
+    }
 
+    if (hasOtherValue || !pending.length) continue;
+
+    for (const { address, serial } of pending) {
+      const cell = ws[address];
       cell.t = "n";
       cell.v = serial;
       cell.z = EXCEL_DATE_FORMAT;
@@ -163,17 +169,18 @@ function applyAutoColumnWidths(ws: XLSX.WorkSheet) {
   });
 }
 
-export function exportToExcel(
-  filename: string,
-  sheets: Record<string, any[]>,
-  dateColumnsBySheet: ExcelDateColumns = {},
-) {
+export function buildExcelWorkbook(sheets: Record<string, any[]>) {
   const wb = XLSX.utils.book_new();
   for (const [name, rows] of Object.entries(sheets)) {
     const ws = XLSX.utils.json_to_sheet(rows.length ? rows : [{}]);
-    applyDateColumns(ws, dateColumnsBySheet[name] ?? []);
+    applyDateColumns(ws);
     applyAutoColumnWidths(ws);
     XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
   }
+  return wb;
+}
+
+export function exportToExcel(filename: string, sheets: Record<string, any[]>) {
+  const wb = buildExcelWorkbook(sheets);
   XLSX.writeFile(wb, filename.endsWith(".xlsx") ? filename : filename + ".xlsx");
 }

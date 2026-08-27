@@ -592,7 +592,7 @@ function AdvancesPage() {
       const employment = policy.employment;
       const created = await pb.collection("advances").create({
         ...companyPayload(user),
-        user: selectedAdvanceUser.id,
+        worker: selectedAdvanceUser.id,
         requested_by: user?.id || selectedAdvanceUser.id,
         recruiter_id: employment.recruiter_staff || "",
         employee_code: employment.employee_code || "",
@@ -672,7 +672,7 @@ function AdvancesPage() {
           await updateRow(row.id, after);
           await createStaffActionLog({
             actor: user,
-            targetUserId: row.user,
+            targetUserId: row.worker,
             targetCollection: "advances",
             targetRecord: row.id,
             action: "update",
@@ -709,7 +709,7 @@ function AdvancesPage() {
           await updateRow(row.id, after);
           await createStaffActionLog({
             actor: user,
-            targetUserId: row.user,
+            targetUserId: row.worker,
             targetCollection: "advances",
             targetRecord: row.id,
             action: "update",
@@ -745,7 +745,7 @@ function AdvancesPage() {
       await updateRow(row.id, after);
       await createStaffActionLog({
         actor: user,
-        targetUserId: row.user,
+        targetUserId: row.worker,
         targetCollection: "advances",
         targetRecord: row.id,
         action: "update",
@@ -780,7 +780,7 @@ function AdvancesPage() {
       try {
         await createStaffActionLog({
           actor: user,
-          targetUserId: row.user,
+          targetUserId: row.worker,
           targetCollection: "advances",
           targetRecord: row.id,
           action: "update",
@@ -823,7 +823,7 @@ function AdvancesPage() {
       await updateRow(row.id, payload);
       await createStaffActionLog({
         actor: user,
-        targetUserId: row.user,
+        targetUserId: row.worker,
         targetCollection: "advances",
         targetRecord: row.id,
         action: "update",
@@ -848,7 +848,7 @@ function AdvancesPage() {
       await updateRow(row.id, after);
       await createStaffActionLog({
         actor: user,
-        targetUserId: row.user,
+        targetUserId: row.worker,
         targetCollection: "advances",
         targetRecord: row.id,
         action: "update",
@@ -883,7 +883,7 @@ function AdvancesPage() {
         await updateRow(row.id, after);
         await createStaffActionLog({
           actor: user,
-          targetUserId: row.user,
+          targetUserId: row.worker,
           targetCollection: "advances",
           targetRecord: row.id,
           action: "update",
@@ -907,7 +907,7 @@ function AdvancesPage() {
         await updateRow(row.id, after);
         await createStaffActionLog({
           actor: user,
-          targetUserId: row.user,
+          targetUserId: row.worker,
           targetCollection: "advances",
           targetRecord: row.id,
           action: "update",
@@ -959,11 +959,7 @@ function AdvancesPage() {
       "Ngày giải ngân": formatDateOnly(row.disbursed_at),
       "Ngày thu hồi": formatDateOnly(row.recovered_at),
     }));
-    exportToExcel(
-      `ung_luong_${Date.now()}`,
-      { "Ứng lương": rows },
-      { "Ứng lương": ["Ngày vào làm", "Ngày gửi", "Ngày duyệt", "Ngày giải ngân", "Ngày thu hồi"] },
-    );
+    exportToExcel(`ung_luong_${Date.now()}`, { "Ứng lương": rows });
   };
 
   if (!isAdmin && !isStaff) {
@@ -1565,7 +1561,7 @@ function AdvancesPage() {
                       return next;
                     })
                   }
-                  className="h-8 w-8 shrink-0 [&_svg]:h-6 [&_svg]:w-6"
+                  className="h-5 w-5 shrink-0 rounded-full [&_svg]:h-3.5 [&_svg]:w-3.5"
                   onClick={(event) => event.stopPropagation()}
                 />
               )}
@@ -2129,7 +2125,7 @@ function AdvanceDetailDialog({
       try {
         await createStaffActionLog({
           actor,
-          targetUserId: row.user,
+          targetUserId: row.worker,
           targetCollection: "advances",
           targetRecord: row.id,
           action: "update",
@@ -2623,7 +2619,7 @@ function getAdvanceRequesterName(row: AdvanceRecord) {
   if (requester) {
     return requester.full_name || requester.username || requester.phone || row.requested_by || "-";
   }
-  if (row.requested_by && row.user && row.requested_by === row.user) {
+  if (row.requested_by && row.worker && row.requested_by === row.worker) {
     return row.full_name || row.employee_code || row.phone || "-";
   }
   return row.requested_by || "-";
@@ -2634,7 +2630,7 @@ function getAdvanceRequesterMeta(row: AdvanceRecord) {
   if (requester) {
     return [requester.phone].filter(Boolean).join(" - ") || "-";
   }
-  if (row.requested_by && row.user && row.requested_by === row.user) {
+  if (row.requested_by && row.worker && row.requested_by === row.worker) {
     return [row.employee_code, row.company, row.phone].filter(Boolean).join(" - ") || "-";
   }
   return row.requested_by || "-";
@@ -2644,7 +2640,7 @@ function getAdvanceRequesterField(
   row: AdvanceRecord,
   field: "employee_code" | "company" | "phone",
 ) {
-  if (row.requested_by && row.user && row.requested_by === row.user) return row[field] || "";
+  if (row.requested_by && row.worker && row.requested_by === row.worker) return row[field] || "";
   return field === "phone" ? row.expand?.requested_by?.phone || "" : "";
 }
 

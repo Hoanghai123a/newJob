@@ -495,71 +495,67 @@ function AdminCheckAttendance({
     const sampleHistory = sampleUser
       ? histories.find((history) => history.worker === sampleUser.id)
       : null;
-    exportToExcel(
-      `mau_check_cong_${month}`,
-      {
-        "Bảng kiểm công": [
-          {
-            "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
-            "Mã nhân viên": sampleHistory?.employee_code || "NV001",
-            "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
-            "Số điện thoại": sampleUser?.phone || "0900000000",
-            "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
-            Ngày: formatTemplateDate(month, 1),
-            Ca: "Ngày",
-            Lễ: "",
-            "Giờ hành chính": 8,
-            "Giờ tăng ca": 2,
-            "100%": 10,
-            "130%": 6,
-            "150%": 2,
-            "200%": 0,
-            "270%": 0,
-            "300%": 8,
-            "390%": 0,
-          },
-          {
-            "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
-            "Mã nhân viên": sampleHistory?.employee_code || "NV001",
-            "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
-            "Số điện thoại": sampleUser?.phone || "0900000000",
-            "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
-            Ngày: formatTemplateDate(month, 2),
-            Ca: "Đêm",
-            Lễ: "",
-            "Giờ hành chính": 8,
-            "Giờ tăng ca": 1,
-            "100%": "",
-            "130%": "",
-            "150%": "",
-            "200%": "",
-            "270%": "",
-            "300%": "",
-            "390%": "",
-          },
-          {
-            "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
-            "Mã nhân viên": sampleHistory?.employee_code || "NV001",
-            "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
-            "Số điện thoại": sampleUser?.phone || "0900000000",
-            "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
-            Ngày: formatTemplateDate(month, 3),
-            Ca: "Ngày",
-            Lễ: "x",
-            "Giờ hành chính": 8,
-            "Giờ tăng ca": 0,
-            "100%": "",
-            "130%": "",
-            "150%": "",
-            "200%": "",
-            "270%": "",
-            "300%": "",
-            "390%": "",
-          },
-        ],
-      },
-      { "Bảng kiểm công": ["Ngày"] },
-    );
+    exportToExcel(`mau_check_cong_${month}`, {
+      "Bảng kiểm công": [
+        {
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
+          "Số điện thoại": sampleUser?.phone || "0900000000",
+          "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
+          Ngày: formatTemplateDate(month, 1),
+          Ca: "Ngày",
+          Lễ: "",
+          "Giờ hành chính": 8,
+          "Giờ tăng ca": 2,
+          "100%": 10,
+          "130%": 6,
+          "150%": 2,
+          "200%": 0,
+          "270%": 0,
+          "300%": 8,
+          "390%": 0,
+        },
+        {
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
+          "Số điện thoại": sampleUser?.phone || "0900000000",
+          "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
+          Ngày: formatTemplateDate(month, 2),
+          Ca: "Đêm",
+          Lễ: "",
+          "Giờ hành chính": 8,
+          "Giờ tăng ca": 1,
+          "100%": "",
+          "130%": "",
+          "150%": "",
+          "200%": "",
+          "270%": "",
+          "300%": "",
+          "390%": "",
+        },
+        {
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
+          "Số điện thoại": sampleUser?.phone || "0900000000",
+          "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
+          Ngày: formatTemplateDate(month, 3),
+          Ca: "Ngày",
+          Lễ: "x",
+          "Giờ hành chính": 8,
+          "Giờ tăng ca": 0,
+          "100%": "",
+          "130%": "",
+          "150%": "",
+          "200%": "",
+          "270%": "",
+          "300%": "",
+          "390%": "",
+        },
+      ],
+    });
   };
 
   const onUpload = async (file?: File) => {
@@ -675,11 +671,7 @@ function AdminCheckAttendance({
         }`,
       );
       if (unmatchedRows.length) {
-        exportToExcel(
-          `check_cong_loi_${month}_${Date.now()}`,
-          { "Dòng lỗi": unmatchedRows },
-          { "Dòng lỗi": ["Ngày"] },
-        );
+        exportToExcel(`check_cong_loi_${month}_${Date.now()}`, { "Dòng lỗi": unmatchedRows });
         toast.warning("Đã xuất file các dòng check công chưa khớp");
       }
       setNote("");
@@ -696,35 +688,31 @@ function AdminCheckAttendance({
     const sampleHistory = sampleUser
       ? histories.find((history) => history.worker === sampleUser.id)
       : null;
-    exportToExcel(
-      `mau_check_luong_${salaryMonth}`,
-      {
-        "Bảng kiểm lương": [
-          {
-            "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
-            "Mã nhân viên": sampleHistory?.employee_code || "NV001",
-            "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
-            "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
-            "Ngày vào làm": formatTemplateDate(salaryMonth, 1),
-            "Ngày nghỉ": "",
-            "Lương cơ bản": 5000000,
-            "Số công HC": 26,
-            "HC_100%": 208,
-            "HC_130%": 12,
-            "HC_150%": 10,
-            "HC_200%": "",
-            "HC_270%": "",
-            "HC_300%": "",
-            "HC_390%": "",
-            "PC_Đời sống": 300000,
-            "PC_Chuyên cần": 500000,
-            KT_BHXH: 525000,
-            KT_Ứng: 200000,
-          },
-        ],
-      },
-      { "Bảng kiểm lương": ["Ngày vào làm", "Ngày nghỉ"] },
-    );
+    exportToExcel(`mau_check_luong_${salaryMonth}`, {
+      "Bảng kiểm lương": [
+        {
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
+          "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
+          "Ngày vào làm": formatTemplateDate(salaryMonth, 1),
+          "Ngày nghỉ": "",
+          "Lương cơ bản": 5000000,
+          "Số công HC": 26,
+          "HC_100%": 208,
+          "HC_130%": 12,
+          "HC_150%": 10,
+          "HC_200%": "",
+          "HC_270%": "",
+          "HC_300%": "",
+          "HC_390%": "",
+          "PC_Đời sống": 300000,
+          "PC_Chuyên cần": 500000,
+          KT_BHXH: 525000,
+          KT_Ứng: 200000,
+        },
+      ],
+    });
   };
 
   const onSalaryUpload = async (file?: File) => {
@@ -861,13 +849,9 @@ function AdminCheckAttendance({
         }`,
       );
       if (unmatchedRows.length) {
-        exportToExcel(
-          `check_luong_loi_${salaryMonth}_${Date.now()}`,
-          {
-            "Dòng lỗi": unmatchedRows,
-          },
-          { "Dòng lỗi": ["Ngày vào làm", "Ngày nghỉ"] },
-        );
+        exportToExcel(`check_luong_loi_${salaryMonth}_${Date.now()}`, {
+          "Dòng lỗi": unmatchedRows,
+        });
         toast.warning("Đã xuất file các dòng check lương chưa khớp");
       }
       setSalaryNote("");

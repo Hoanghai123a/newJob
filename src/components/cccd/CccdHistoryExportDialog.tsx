@@ -44,21 +44,17 @@ const LARGE_EXPORT_THRESHOLD = 1_000;
 
 function exportExcelIssues(result: CccdHistoryExcelMatchResult) {
   if (!result.issues.length) return;
-  exportToExcel(
-    `doi_chieu_xuat_anh_cccd_${Date.now()}`,
-    {
-      "Dòng cần kiểm tra": result.issues.map((issue) => ({
-        "Dòng Excel": issue.rowNumber,
-        "Mã nhân viên": issue.employeeCode,
-        "Tên nhà máy": issue.factoryName,
-        "Họ tên": issue.workerName,
-        "Lý do": issue.reason,
-        "Mã lịch sử đã chọn": issue.selectedHistoryId || "",
-        "Ngày vào đã chọn": issue.selectedJoinDate || "",
-      })),
-    },
-    { "Dòng cần kiểm tra": ["Ngày vào đã chọn"] },
-  );
+  exportToExcel(`doi_chieu_xuat_anh_cccd_${Date.now()}`, {
+    "Dòng cần kiểm tra": result.issues.map((issue) => ({
+      "Dòng Excel": issue.rowNumber,
+      "Mã nhân viên": issue.employeeCode,
+      "Tên nhà máy": issue.factoryName,
+      "Họ tên": issue.workerName,
+      "Lý do": issue.reason,
+      "Mã lịch sử đã chọn": issue.selectedHistoryId || "",
+      "Ngày vào đã chọn": issue.selectedJoinDate || "",
+    })),
+  });
 }
 
 export function CccdHistoryExportDialog({
