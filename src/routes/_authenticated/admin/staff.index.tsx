@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { PromoteStaffDialog } from "@/components/admin/PromoteStaffDialog";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { generateUid } from "@/lib/uid";
 import { findUserByUsernameInsensitive, normalizeAccountUsername } from "@/lib/account-identity";
@@ -50,7 +51,7 @@ const DEFAULT_PASSWORD = "nv123456";
 
 function staffSearchFilter(search: string) {
   const q = escapePb(search.trim());
-  const roleFilter = 'role="staff"';
+  const roleFilter = '(role="staff" || role="admin")';
   if (!q) return roleFilter;
   const searchFilter = `(${["full_name", "username", "phone", "address"]
     .map((field) => `${field}~"${q}"`)
@@ -67,6 +68,7 @@ function AdminStaffPage() {
   const [factories, setFactories] = useState<FactoryRecord[]>([]);
   const [assignmentCounts, setAssignmentCounts] = useState<Record<string, number>>({});
   const [createOpen, setCreateOpen] = useState(false);
+  const [promoteTarget, setPromoteTarget] = useState<UserRecord | null>(null);
   const [importingStaff, setImportingStaff] = useState(false);
   const [importResult, setImportResult] = useState("");
 
@@ -341,32 +343,43 @@ function AdminStaffPage() {
         <div className="space-y-2">
           {staffUsers.map((staff) => {
             const factoryCount = assignmentCounts[staff.id] || 0;
+            const metaItems = [
+              `@${accountLoginName(staff) || "—"} · ${staff.phone || "chưa có SĐT"}`,
+              staff.date_of_birth ? `Sinh: ${staff.date_of_birth}` : "",
+              staff.address ? `ĐC: ${staff.address}` : "",
+            ].filter(Boolean);
             return (
-              <Card key={staff.id} className="space-y-1 rounded-2xl p-4 shadow-soft">
-                <div className="flex items-start justify-between gap-3">
+              <Card key={staff.id} className="rounded-2xl p-3 shadow-soft">
+                <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">
-                      {staff.full_name || staff.username || "Chưa có tên"}
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <span className="truncate text-sm font-semibold">
+                        {staff.full_name || staff.username || "Chưa có tên"}
+                      </span>
+                      <StatusChip
+                        tone={staff.role === "admin" ? "info" : "success"}
+                        className="shrink-0"
+                      >
+                        {staff.role === "admin" ? "Admin" : "Staff"}
+                      </StatusChip>
+                      <StatusChip tone={factoryCount ? "info" : "neutral"} className="shrink-0">
+                        {factoryCount ? `${factoryCount} NM` : "0 NM"}
+                      </StatusChip>
                     </div>
-                    <div className="mt-0.5 text-[11px] text-muted-foreground">
-                      @{accountLoginName(staff) || "—"} · {staff.phone || "chưa có SĐT"}
+                    <div className="mt-1 truncate text-[11px] text-muted-foreground">
+                      {metaItems.join(" · ")}
                     </div>
-                    {(staff.date_of_birth || staff.address) && (
-                      <div className="mt-0.5 text-[11px] text-muted-foreground">
-                        {staff.date_of_birth && `Sinh: ${staff.date_of_birth}`}
-                        {staff.date_of_birth && staff.address && " · "}
-                        {staff.address && `ĐC: ${staff.address}`}
-                      </div>
-                    )}
                   </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <StatusChip tone={staff.role === "admin" ? "info" : "success"}>
-                      {staff.role === "admin" ? "Admin" : "Staff"}
-                    </StatusChip>
-                    <StatusChip tone={factoryCount ? "info" : "neutral"}>
-                      {factoryCount ? `${factoryCount} nhà máy` : "Chưa gán NM"}
-                    </StatusChip>
-                  </div>
+                  {staff.role === "staff" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 shrink-0 rounded-full px-3 text-xs"
+                      onClick={() => setPromoteTarget(staff)}
+                    >
+                      <ShieldCheck className="h-3.5 w-3.5" /> Nâng quyền
+                    </Button>
+                  )}
                 </div>
               </Card>
             );
@@ -380,6 +393,13 @@ function AdminStaffPage() {
         actor={currentUser}
         factories={factories}
         onCreated={load}
+      />
+
+      <PromoteStaffDialog
+        staff={promoteTarget}
+        open={promoteTarget !== null}
+        onClose={() => setPromoteTarget(null)}
+        onPromoted={load}
       />
     </PageContainer>
   );

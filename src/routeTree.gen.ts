@@ -84,6 +84,7 @@ import { Route as ApiSuperAdminCompaniesCompanyIdLogoRouteImport } from './route
 import { Route as ApiSuperAdminCompaniesCompanyIdExportRouteImport } from './routes/api/super-admin/companies.$companyId.export'
 import { Route as ApiSuperAdminCompaniesCompanyIdAdminsRouteImport } from './routes/api/super-admin/companies.$companyId.admins'
 import { Route as ApiAdminWorkersWorkerIdDeleteRouteImport } from './routes/api/admin/workers.$workerId.delete'
+import { Route as ApiAdminStaffStaffIdPromoteRouteImport } from './routes/api/admin/staff.$staffId.promote'
 import { Route as AuthenticatedStaffWorkersWorkerIdPayrollRouteImport } from './routes/_authenticated/staff.workers.$workerId_.payroll'
 import { Route as ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRouteImport } from './routes/api/super-admin/companies.$companyId.admins.$adminId'
 
@@ -500,6 +501,12 @@ const ApiAdminWorkersWorkerIdDeleteRoute =
     path: '/api/admin/workers/$workerId/delete',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminStaffStaffIdPromoteRoute =
+  ApiAdminStaffStaffIdPromoteRouteImport.update({
+    id: '/api/admin/staff/$staffId/promote',
+    path: '/api/admin/staff/$staffId/promote',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedStaffWorkersWorkerIdPayrollRoute =
   AuthenticatedStaffWorkersWorkerIdPayrollRouteImport.update({
     id: '/workers/$workerId_/payroll',
@@ -583,6 +590,7 @@ export interface FileRoutesByFullPath {
   '/staff/tools/': typeof AuthenticatedStaffToolsIndexRoute
   '/staff/workers/': typeof AuthenticatedStaffWorkersIndexRoute
   '/staff/workers/$workerId/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
+  '/api/admin/staff/$staffId/promote': typeof ApiAdminStaffStaffIdPromoteRoute
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
   '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
@@ -657,6 +665,7 @@ export interface FileRoutesByTo {
   '/staff/tools': typeof AuthenticatedStaffToolsIndexRoute
   '/staff/workers': typeof AuthenticatedStaffWorkersIndexRoute
   '/staff/workers/$workerId/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
+  '/api/admin/staff/$staffId/promote': typeof ApiAdminStaffStaffIdPromoteRoute
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
   '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
@@ -737,6 +746,7 @@ export interface FileRoutesById {
   '/_authenticated/staff/tools/': typeof AuthenticatedStaffToolsIndexRoute
   '/_authenticated/staff/workers/': typeof AuthenticatedStaffWorkersIndexRoute
   '/_authenticated/staff/workers/$workerId_/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
+  '/api/admin/staff/$staffId/promote': typeof ApiAdminStaffStaffIdPromoteRoute
   '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
   '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
   '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
@@ -817,6 +827,7 @@ export interface FileRouteTypes {
     | '/staff/tools/'
     | '/staff/workers/'
     | '/staff/workers/$workerId/payroll'
+    | '/api/admin/staff/$staffId/promote'
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
     | '/api/super-admin/companies/$companyId/export'
@@ -891,6 +902,7 @@ export interface FileRouteTypes {
     | '/staff/tools'
     | '/staff/workers'
     | '/staff/workers/$workerId/payroll'
+    | '/api/admin/staff/$staffId/promote'
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
     | '/api/super-admin/companies/$companyId/export'
@@ -970,6 +982,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/tools/'
     | '/_authenticated/staff/workers/'
     | '/_authenticated/staff/workers/$workerId_/payroll'
+    | '/api/admin/staff/$staffId/promote'
     | '/api/admin/workers/$workerId/delete'
     | '/api/super-admin/companies/$companyId/admins'
     | '/api/super-admin/companies/$companyId/export'
@@ -1004,6 +1017,7 @@ export interface RootRouteChildren {
   ApiWorkforceLookupsRoute: typeof ApiWorkforceLookupsRoute
   ApiPublicManifestWebmanifestRoute: typeof ApiPublicManifestWebmanifestRoute
   ApiPublicPbSplatRoute: typeof ApiPublicPbSplatRoute
+  ApiAdminStaffStaffIdPromoteRoute: typeof ApiAdminStaffStaffIdPromoteRoute
   ApiAdminWorkersWorkerIdDeleteRoute: typeof ApiAdminWorkersWorkerIdDeleteRoute
 }
 
@@ -1534,6 +1548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminWorkersWorkerIdDeleteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/staff/$staffId/promote': {
+      id: '/api/admin/staff/$staffId/promote'
+      path: '/api/admin/staff/$staffId/promote'
+      fullPath: '/api/admin/staff/$staffId/promote'
+      preLoaderRoute: typeof ApiAdminStaffStaffIdPromoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/staff/workers/$workerId_/payroll': {
       id: '/_authenticated/staff/workers/$workerId_/payroll'
       path: '/workers/$workerId/payroll'
@@ -1806,6 +1827,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiWorkforceLookupsRoute: ApiWorkforceLookupsRoute,
   ApiPublicManifestWebmanifestRoute: ApiPublicManifestWebmanifestRoute,
   ApiPublicPbSplatRoute: ApiPublicPbSplatRoute,
+  ApiAdminStaffStaffIdPromoteRoute: ApiAdminStaffStaffIdPromoteRoute,
   ApiAdminWorkersWorkerIdDeleteRoute: ApiAdminWorkersWorkerIdDeleteRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /**
- * Migration script: Nhập dữ liệu lịch sử lao động HR PRO từ Excel
+ * Migration script: Nhập lịch sử lao động từ Excel (1 sheet) vào MỘT công ty.
  *
- * Chạy: node scripts/migrate-hrp-history.mjs [--apply] [--file path/to/file.xlsx]
+ * Chạy: node scripts/migrate-hrp-history.mjs --code=HRP --file=/duong/dan/file.xlsx [--apply]
  *
- * Mặc định: dry-run (không ghi), file mặc định như trong code
+ *   --code   Company code trong collection `companies` (mặc định HRP)
+ *   --file   Đường dẫn file Excel
+ *   --apply  Ghi dữ liệu thật. Không có cờ này = dry-run, chỉ báo cáo.
  */
 
 import fs from "node:fs";
@@ -20,12 +22,28 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // ============================================================================
 
 const APPLY = process.argv.includes("--apply");
+
+function argValue(name) {
+  const flag = `--${name}=`;
+  const found = process.argv.find((arg) => arg.startsWith(flag));
+  return found ? found.slice(flag.length).trim() : "";
+}
+
 const FILE_PATH =
-  process.argv.find((arg) => arg.startsWith("--file="))?.slice(7) ||
+  argValue("file") ||
   "C:\\Users\\admin\\Documents\\HiTech files\\application\\op_history_08_25_0139.xlsx";
 
 const DEFAULT_STAFF_PASSWORD = "nv123456";
-const TARGET_COMPANY_CODE = "HRP";
+const TARGET_COMPANY_CODE = (argValue("code") || "HRP").toUpperCase();
+// Username staff tạo tự động: "<code>__<hotenlien><code>" (vd ABC__hoangminhhaiabc).
+// Tên viết liền không dấu + hậu tố code; username unique toàn hệ thống nên hậu tố
+// code giúp hai công ty có cùng tên người tuyển không đụng nhau.
+const STAFF_USERNAME_PREFIX = `${TARGET_COMPANY_CODE.toLowerCase()}__`;
+const STAFF_USERNAME_SUFFIX = TARGET_COMPANY_CODE.toLowerCase();
+const staffUsernameFor = (fullName) => {
+  const compactName = normalizeLabel(fullName).replace(/[^a-z0-9]+/g, "");
+  return `${STAFF_USERNAME_PREFIX}${compactName}${STAFF_USERNAME_SUFFIX}`;
+};
 const BATCH_SIZE = 40; // Số request tối đa trong 1 batch
 
 // ============================================================================
@@ -391,6 +409,36 @@ if (errors.length > 0) {
 }
 
 // ============================================================================
+// GĐ3b: KIỂM TRA TRÙNG UID WORKER CHÉO CÔNG TY
+// idx_workers_uid là UNIQUE toàn hệ thống (không theo tenant), nên một ID trong
+// Excel đã thuộc worker của công ty khác sẽ làm create thất bại giữa lúc import.
+// ============================================================================
+
+const allWorkersGlobal = await pb.collection("workers").getFullList({
+  fields: "id,uid,tenant_company",
+  sort: "",
+});
+const foreignWorkerByUid = new Map(
+  allWorkersGlobal
+    .filter((w) => w.uid && w.tenant_company !== tenantId)
+    .map((w) => [String(w.uid), w]),
+);
+const uidConflicts = preparedWorkers.filter((w) => foreignWorkerByUid.has(String(w.workerId)));
+if (uidConflicts.length > 0) {
+  console.log(`\n🚫 ${uidConflicts.length} ID trong Excel đã thuộc worker của CÔNG TY KHÁC:`);
+  uidConflicts.slice(0, 10).forEach((w) => {
+    const other = foreignWorkerByUid.get(String(w.workerId));
+    console.log(
+      `   - ${w.workerId} (${w.workerPayload.full_name}) → đang thuộc tenant ${other.tenant_company}`,
+    );
+  });
+  if (uidConflicts.length > 10) console.log(`   ... và ${uidConflicts.length - 10} ID khác`);
+  console.log(
+    `   → Phải đổi cột ID trong file sang prefix riêng của công ty này trước khi --apply.`,
+  );
+}
+
+// ============================================================================
 // BÁO CÁO DRY-RUN
 // ============================================================================
 
@@ -410,14 +458,25 @@ if (!APPLY) {
   if (missingRecruiters.length > 0) {
     console.log(`\n👤 Tài khoản staff sẽ tạo (mật khẩu: ${DEFAULT_STAFF_PASSWORD}):`);
     missingRecruiters.forEach((name, i) => {
-      const username = `hrp__${normalizeLabel(name).replace(/\s+/g, "_")}`;
+      const username = staffUsernameFor(name);
       console.log(`   ${i + 1}. ${name} → username: ${username}`);
     });
   }
   console.log(`\n⚠️  Lỗi: ${errors.length} dòng`);
+  console.log(`⚠️  ID trùng worker công ty khác: ${uidConflicts.length}`);
   console.log(`\n💡 Chạy lại với --apply để ghi dữ liệu vào PocketBase`);
-  console.log(`   node scripts/migrate-hrp-history.mjs --apply`);
+  console.log(
+    `   node scripts/migrate-hrp-history.mjs --code=${TARGET_COMPANY_CODE} --file="${FILE_PATH}" --apply`,
+  );
   process.exit(0);
+}
+
+if (uidConflicts.length > 0) {
+  console.error(
+    `\n❌ Dừng --apply: ${uidConflicts.length} ID đã thuộc worker công ty khác (uid unique toàn hệ thống).`,
+  );
+  console.error(`   Sửa cột ID trong file Excel rồi chạy lại dry-run.`);
+  process.exit(1);
 }
 
 // ============================================================================
@@ -469,7 +528,7 @@ for (const name of missingEntities) {
 // Tạo tài khoản staff thiếu
 console.log(`\n👤 Tạo ${missingRecruiters.length} tài khoản staff...`);
 for (const name of missingRecruiters) {
-  const username = `hrp__${normalizeLabel(name).replace(/\s+/g, "_")}`;
+  const username = staffUsernameFor(name);
   try {
     const user = await pb.collection("users").create({
       username,
@@ -675,7 +734,11 @@ console.log(`NLĐ thất bại: ${failCount}`);
 console.log(`Lỗi tổng: ${errors.length}`);
 
 if (errors.length > 0) {
-  const errorFile = path.join(__dirname, "..", "import_hrp_errors.json");
+  const errorFile = path.join(
+    __dirname,
+    "..",
+    `import_${TARGET_COMPANY_CODE.toLowerCase()}_errors.json`,
+  );
   fs.writeFileSync(errorFile, JSON.stringify(errors, null, 2), "utf8");
   console.log(`\n📄 Chi tiết lỗi: ${errorFile}`);
 }

@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 /**
- * Cleanup script: Xóa toàn bộ dữ liệu HR PRO (HRP) đã import để test lại.
+ * Cleanup script: Xóa dữ liệu một công ty đã import để test lại.
  *
- * Chạy: node scripts/cleanup-hrp-import.mjs [--apply]
+ * Chạy: node scripts/cleanup-hrp-import.mjs --code=HRP [--uid-prefix=HRP] [--apply]
  *
- * Mặc định: DRY-RUN (chỉ đếm, KHÔNG xóa). Thêm --apply để xóa thật.
+ *   --code        Company code trong `companies` (mặc định HRP)
+ *   --uid-prefix  Prefix uid worker cần xóa (mặc định = --code)
+ *   --apply       Xóa thật. Không có cờ này = DRY-RUN, chỉ đếm.
  *
- * Phạm vi xóa (chỉ dữ liệu do import tạo, thuộc tenant HRP):
- *   - employment_histories: NLĐ có uid bắt đầu "HRP" (loại trừ HL)
+ * Phạm vi xóa (chỉ dữ liệu do import tạo, trong tenant của --code):
+ *   - employment_histories: của NLĐ có uid bắt đầu bằng uid-prefix
  *   - cccd_versions: của các NLĐ đó
- *   - workers: uid bắt đầu "HRP"
+ *   - workers: uid bắt đầu bằng uid-prefix
  *   - factories / recruitment_entities: note="Tạo tự động từ import lịch sử"
- *   - users: staff có username bắt đầu "hrp__" (KHÔNG đụng admin)
+ *   - users: staff có username "<code>__<tên>" (KHÔNG đụng admin/tài khoản thủ công)
  */
 
 import fs from "node:fs";
@@ -22,9 +24,16 @@ import PocketBase from "pocketbase";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const APPLY = process.argv.includes("--apply");
-const TARGET_COMPANY_CODE = "HRP";
-const WORKER_UID_PREFIX = "HRP";
-const STAFF_USERNAME_PREFIX = "hrp__";
+
+function argValue(name) {
+  const flag = `--${name}=`;
+  const found = process.argv.find((arg) => arg.startsWith(flag));
+  return found ? found.slice(flag.length).trim() : "";
+}
+
+const TARGET_COMPANY_CODE = (argValue("code") || "HRP").toUpperCase();
+const WORKER_UID_PREFIX = (argValue("uid-prefix") || TARGET_COMPANY_CODE).toUpperCase();
+const STAFF_USERNAME_PREFIX = `${TARGET_COMPANY_CODE.toLowerCase()}__`;
 const AUTO_NOTE = "Tạo tự động từ import lịch sử";
 
 function loadEnv() {
@@ -119,7 +128,11 @@ const allWorkers = await pb.collection("workers").getFullList({
   fields: "id,uid",
   sort: "",
 });
-const importedWorkers = allWorkers.filter((w) => String(w.uid || "").startsWith(WORKER_UID_PREFIX));
+const importedWorkers = allWorkers.filter((w) =>
+  String(w.uid || "")
+    .toUpperCase()
+    .startsWith(WORKER_UID_PREFIX),
+);
 const importedWorkerIds = new Set(importedWorkers.map((w) => w.id));
 
 const allHist = await pb.collection("employment_histories").getFullList({
@@ -165,15 +178,21 @@ const staffToDelete = allStaff.filter((u) => {
 // Báo cáo
 console.log(`\n📊 SẼ XÓA (tenant ${TARGET_COMPANY_CODE}):`);
 console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-console.log(`  employment_histories : ${histToDelete.length} / ${allHist.length} (giữ lại ${allHist.length - histToDelete.length} không phải HRP)`);
+console.log(
+  `  employment_histories : ${histToDelete.length} / ${allHist.length} (giữ lại ${allHist.length - histToDelete.length} không thuộc import)`,
+);
 console.log(`  cccd_versions        : ${cccdToDelete.length} / ${allCccd.length}`);
-console.log(`  workers (uid HRP)    : ${importedWorkers.length} / ${allWorkers.length}`);
+console.log(
+  `  workers (uid ${WORKER_UID_PREFIX})    : ${importedWorkers.length} / ${allWorkers.length}`,
+);
 console.log(`  factories (auto)     : ${factoriesToDelete.length} / ${allFactories.length}`);
 console.log(`  recruitment_entities : ${entitiesToDelete.length} / ${allEntities.length}`);
-console.log(`  users staff (hrp__)  : ${staffToDelete.length} / ${allStaff.length} (KHÔNG đụng admin)`);
+console.log(
+  `  users staff (${STAFF_USERNAME_PREFIX})  : ${staffToDelete.length} / ${allStaff.length} (KHÔNG đụng admin)`,
+);
 if (!APPLY) {
   console.log(`\n💡 Đây là DRY-RUN, chưa xóa gì. Chạy lại với --apply để xóa thật:`);
-  console.log(`   node scripts/cleanup-hrp-import.mjs --apply`);
+  console.log(`   node scripts/cleanup-hrp-import.mjs --code=${TARGET_COMPANY_CODE} --apply`);
   finish(0);
 } else {
   // Xóa theo thứ tự phụ thuộc: histories → cccd → workers → factories/entities → staff

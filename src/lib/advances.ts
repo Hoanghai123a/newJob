@@ -147,7 +147,7 @@ export function buildAdvanceFilter(input: {
   let roleFilter = "";
   if (input.staffSelfOnly && input.userId) {
     const id = escapePb(input.userId);
-    roleFilter = `(user="${id}" && requested_by="${id}" && recruiter_id="")`;
+    roleFilter = `(requested_by="${id}" && recruiter_id="" && worker="")`;
   } else if (!input.isAdmin && !input.isStaff && input.userId) {
     roleFilter = `worker="${escapePb(input.userId)}"`;
   } else if (input.isStaff && !input.isAdmin && input.userId) {

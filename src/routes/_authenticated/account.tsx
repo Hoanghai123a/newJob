@@ -13,6 +13,7 @@ import {
 } from "@/lib/account-identity";
 import { AppHeader } from "@/components/layout/BottomNav";
 import { DeleteWorkerDialog } from "@/components/admin/DeleteWorkerDialog";
+import { PromoteStaffDialog } from "@/components/admin/PromoteStaffDialog";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
 import { Input } from "@/components/ui/input";
@@ -2073,7 +2074,7 @@ const STAFF_DEFAULT_PASSWORD = "nv123456";
 
 function staffSearchFilter(search: string) {
   const q = escapePb(search.trim());
-  const roleFilter = 'role="staff"';
+  const roleFilter = '(role="staff" || role="admin")';
   if (!q) return roleFilter;
   const searchFilter = `(${["full_name", "username", "phone", "address"]
     .map((field) => `${field}~"${q}"`)
@@ -2094,6 +2095,7 @@ function StaffPanel() {
   const [importResult, setImportResult] = useState("");
   const [editingStaff, setEditingStaff] = useState<UserRecord | null>(null);
   const [resettingStaff, setResettingStaff] = useState<UserRecord | null>(null);
+  const [promoteTarget, setPromoteTarget] = useState<UserRecord | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -2478,56 +2480,65 @@ function StaffPanel() {
         <div className="space-y-2">
           {staffUsers.map((staff) => {
             const factoryCount = assignmentCounts[staff.id] || 0;
+            const metaLine = [
+              `@${accountLoginName(staff) || "—"} · ${staff.phone || "chưa có SĐT"}`,
+              staff.date_of_birth ? `Sinh: ${staff.date_of_birth}` : "",
+              staff.address ? `ĐC: ${staff.address}` : "",
+            ]
+              .filter(Boolean)
+              .join(" · ");
             return (
               <div
                 key={staff.id}
-                className="flex items-start justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 p-3"
+                className="flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-muted/30 p-3"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">
-                    {staff.full_name || staff.username || "Chưa có tên"}
-                  </div>
-                  <div className="mt-0.5 text-[11px] text-muted-foreground">
-                    @{accountLoginName(staff) || "—"} · {staff.phone || "chưa có SĐT"}
-                  </div>
-                  {(staff.date_of_birth || staff.address) && (
-                    <div className="mt-0.5 text-[11px] text-muted-foreground">
-                      {staff.date_of_birth && `Sinh: ${staff.date_of_birth}`}
-                      {staff.date_of_birth && staff.address && " · "}
-                      {staff.address && `ĐC: ${staff.address}`}
-                    </div>
-                  )}
-                </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
-                  <div className="flex items-center gap-1">
-                    <StatusChip tone={staff.role === "admin" ? "info" : "success"}>
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <span className="truncate text-sm font-semibold">
+                      {staff.full_name || staff.username || "Chưa có tên"}
+                    </span>
+                    <StatusChip
+                      tone={staff.role === "admin" ? "info" : "success"}
+                      className="shrink-0"
+                    >
                       {staff.role === "admin" ? "Admin" : "Staff"}
                     </StatusChip>
+                    <StatusChip tone={factoryCount ? "info" : "neutral"} className="shrink-0">
+                      {factoryCount ? `${factoryCount} NM` : "0 NM"}
+                    </StatusChip>
+                  </div>
+                  <div className="mt-1 truncate text-[11px] text-muted-foreground">{metaLine}</div>
+                </div>
+                {staff.role === "staff" && (
+                  <div className="flex shrink-0 items-center gap-1">
                     <button
                       type="button"
                       onClick={() => setEditingStaff(staff)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-primary transition hover:bg-primary/10"
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-primary transition hover:bg-primary/10"
                       aria-label={`Chỉnh sửa thông tin ${staff.full_name || "staff"}`}
                       title="Chỉnh sửa thông tin"
                     >
-                      <Pencil className="h-3.5 w-3.5" />
+                      <Pencil className="h-4 w-4" />
                     </button>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <StatusChip tone={factoryCount ? "info" : "neutral"}>
-                      {factoryCount ? `${factoryCount} NM` : "Chưa gán"}
-                    </StatusChip>
                     <button
                       type="button"
                       onClick={() => setResettingStaff(staff)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-amber-600 transition hover:bg-amber-50"
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-amber-600 transition hover:bg-amber-50"
                       aria-label={`Đặt lại mật khẩu ${staff.full_name || "staff"} về mật khẩu mặc định`}
                       title={`Đặt lại về ${STAFF_DEFAULT_PASSWORD}`}
                     >
-                      <LockKeyhole className="h-3.5 w-3.5" />
+                      <LockKeyhole className="h-4 w-4" />
                     </button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 rounded-full px-2.5 text-[11px]"
+                      onClick={() => setPromoteTarget(staff)}
+                    >
+                      <ShieldCheck className="h-3.5 w-3.5" /> Nâng quyền
+                    </Button>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}
@@ -2548,6 +2559,12 @@ function StaffPanel() {
         staff={resettingStaff}
         onClose={() => setResettingStaff(null)}
         onSubmit={resetStaffPassword}
+      />
+      <PromoteStaffDialog
+        staff={promoteTarget}
+        open={promoteTarget !== null}
+        onClose={() => setPromoteTarget(null)}
+        onPromoted={load}
       />
     </Card>
   );

@@ -156,7 +156,7 @@ function groupOutstandingAdvances(rows: OutstandingAdvance[]): OutstandingWorker
   const grouped = new Map<string, OutstandingWorkerSummary>();
 
   for (const row of rows) {
-    const workerId = row.user || `missing-${row.id}`;
+    const workerId = row.worker || `missing-${row.id}`;
     const current = grouped.get(workerId);
     if (current) {
       current.count += 1;
@@ -190,7 +190,7 @@ async function loadStaffAdvanceHistory(staffId: string) {
   return pb.collection("advances").getFullList<OutstandingAdvance>({
     filter: joinTenantFilters(
       pb.authStore.record as UserRecord | null,
-      joinPbFilters([`recruiter_id="${escapePb(staffId)}"`, `user!="${escapePb(staffId)}"`]),
+      joinPbFilters([`recruiter_id="${escapePb(staffId)}"`, 'worker!=""']),
     ),
     sort: "-created",
     expand: "requested_by",
@@ -571,7 +571,7 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
       await updateRow(row.id, after);
       await createStaffActionLog({
         actor: user,
-        targetUserId: row.user,
+        targetUserId: row.worker,
         targetCollection: "advances",
         targetRecord: row.id,
         action: "update",
@@ -665,7 +665,7 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
       }
 
       const payload = {
-        user: currentWorker.user.id,
+        worker: currentWorker.user.id,
         requested_by: user.id,
         recruiter_id: employment.recruiter_staff || "",
         employee_code: employment.employee_code || "",
@@ -1516,7 +1516,6 @@ function MyAdvancesView({ interactionAllowed }: { interactionAllowed: boolean })
       await assertAdvanceInteractionAllowed(user?.role);
       const created = await pb.collection("advances").create({
         ...companyPayload(user),
-        user: user!.id,
         requested_by: user!.id,
         recruiter_id: "",
         full_name: user!.full_name || "",
@@ -2242,7 +2241,7 @@ async function withdrawStaffAdvance(user: UserRecord, advance: AdvanceRecord) {
 
   await createStaffActionLog({
     actor: user,
-    targetUserId: current.user,
+    targetUserId: current.worker,
     targetCollection: "advances",
     targetRecord: current.id,
     action: "delete",
