@@ -550,8 +550,12 @@ async function deleteRows(token: string, collection: string, rows: Record<string
       { method: "DELETE" },
       token,
     );
-    if (!response.ok && response.status !== 404)
-      throw new Error(`Không xóa được ${collection}/${row.id}.`);
+    if (!response.ok && response.status !== 404) {
+      const errorBody = await readPbJson(response);
+      throw new Error(
+        `Không xóa được ${collection}/${row.id}: ${errorBody?.message || response.statusText}`,
+      );
+    }
     if (response.ok) deleted++;
   }
   return deleted;
@@ -641,14 +645,33 @@ export async function purgeTenant(request: Request, companyId: string) {
     const auditRecord = await createAudit(ctx.adminToken, "tenant_purge_logs", audit);
 
     const deleted: Record<string, number> = {};
-    const names = sortCollections(
-      Object.keys(data.records).filter((name) => name !== "users"),
-      data.schemas,
+
+    // Thứ tự xóa: workers và users được nhiều collection tham chiếu nên xóa sau cùng.
+    // 1. Xóa tất cả collection thường (trừ workers, users) theo reverse dependency —
+    //    nhóm này gồm cccd_versions, employment_histories, advances... đều trỏ tới workers.
+    // 2. Xóa workers (sau khi mọi collection tham chiếu nó đã bị xóa).
+    // 3. Xóa users cuối cùng.
+
+    const collectionNames = Object.keys(data.records).filter(
+      (name) => name !== "users" && name !== "workers",
     );
-    for (const name of names.reverse())
-      deleted[name] = await deleteRows(ctx.adminToken, name, data.records[name]);
-    if (data.records.users)
+
+    const sortedNames = sortCollections(collectionNames, data.schemas);
+    for (const name of sortedNames.reverse()) {
+      if (data.records[name]) {
+        deleted[name] = await deleteRows(ctx.adminToken, name, data.records[name]);
+      }
+    }
+
+    // Xóa workers trước users, sau tất cả collection tham chiếu workers
+    if (data.records.workers) {
+      deleted.workers = await deleteRows(ctx.adminToken, "workers", data.records.workers);
+    }
+
+    // Xóa users cuối cùng
+    if (data.records.users) {
       deleted.users = await deleteRows(ctx.adminToken, "users", data.records.users);
+    }
     const companyResponse = await pbServerFetch(
       `/api/collections/companies/records/${encodeURIComponent(companyId)}`,
       { method: "DELETE" },
