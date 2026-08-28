@@ -27,6 +27,7 @@ export function BrandHeadLinks() {
   const { data: settings } = useAppSettings();
   const { user } = useAuth();
   const companyId = companyIdOf(user);
+  const isSuperAdmin = user?.role === "super_admin";
   const [rememberedBrand, setRememberedBrand] = useState(getRememberedCompanyBrand);
 
   useEffect(() => {
@@ -36,7 +37,8 @@ export function BrandHeadLinks() {
   }, []);
 
   useEffect(() => {
-    const remembered = rememberedBrand;
+    // Super admin không thuộc công ty nào → bỏ qua remembered brand
+    const remembered = isSuperAdmin ? null : rememberedBrand;
     const hasCurrentCompany = Boolean(companyId);
     const brandName = hasCurrentCompany
       ? settings.company_name?.trim()
@@ -50,7 +52,7 @@ export function BrandHeadLinks() {
       : "";
     const iconHref = brandLogo
       ? `/api/public/app-icon${version}${companyParam}`
-      : "/icons/app-icon.svg";
+      : `/api/public/app-icon${version}`;
     const manifestHref = brandCompanyId
       ? `/api/public/manifest/webmanifest?company=${encodeURIComponent(brandCompanyId)}${version ? `&v=${encodeURIComponent(brandVersion || "")}` : ""}`
       : "/manifest.webmanifest";
@@ -61,6 +63,7 @@ export function BrandHeadLinks() {
     document.title = brandName || "Tuyển dụng 4.0";
   }, [
     companyId,
+    isSuperAdmin,
     rememberedBrand,
     settings.company_name,
     settings.id,
