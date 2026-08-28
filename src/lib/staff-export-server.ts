@@ -261,6 +261,7 @@ function buildBasicRows(histories: EmploymentHistoryRecord[]) {
       "Thâm niên tích luỹ (ngày)": tenure.get(history.worker) ?? 0,
       "Tài khoản gốc": history.expand?.worker?.full_name || history.expand?.worker?.username || "",
       "Số điện thoại": history.expand?.worker?.phone || "",
+      "Giới tính": history.expand?.worker?.gender || "",
     };
   });
 }
@@ -278,6 +279,7 @@ function buildFullRows(histories: EmploymentHistoryRecord[]) {
       "Họ tên tại thời điểm đi làm": history.worker_name_snapshot || "",
       "CCCD tại thời điểm đi làm": history.worker_cccd_snapshot || "",
       "Số điện thoại": user?.phone || "",
+      "Giới tính": user?.gender || "",
       "Ngày sinh tại thời điểm đi làm": formatDateOnly(history.worker_date_of_birth_snapshot),
       "Địa chỉ thường trú tại thời điểm đi làm":
         history.worker_address_snapshot || history.hometown_snapshot || "",
