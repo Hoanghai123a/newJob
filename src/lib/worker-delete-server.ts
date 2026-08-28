@@ -31,19 +31,15 @@ export type WorkerDeleteDependency = {
 
 export type WorkerDeletePreview = {
   workerId: string;
-  createdAt: string;
-  deleteWindowExpiresAt: string;
   dependencies: WorkerDeleteDependency[];
   employmentHistoryCount: number;
 };
-
-const DELETE_WINDOW_MS = 72 * 60 * 60 * 1000;
 
 const DEPENDENCIES: DependencyDefinition[] = [
   {
     collection: "advances",
     label: "Yêu cầu ứng lương",
-    filter: (id) => `user="${escapePb(id)}"`,
+    filter: (id) => `worker="${escapePb(id)}"`,
   },
   {
     collection: "salary_holds",
@@ -60,7 +56,7 @@ const DEPENDENCIES: DependencyDefinition[] = [
 const EMPLOYMENT_HISTORY_DEPENDENCY: DependencyDefinition = {
   collection: "employment_histories",
   label: "Lịch sử đi làm",
-  filter: (id) => `user="${escapePb(id)}"`,
+  filter: (id) => `worker="${escapePb(id)}"`,
 };
 
 function escapePb(value: string) {
@@ -85,18 +81,6 @@ async function readJson(response: Response) {
 
 function errorResponse(message: string, status: number, code: string, extra?: object) {
   return Response.json({ message, code, ...extra }, { status });
-}
-
-function getDeleteWindow(worker: WorkerRecord) {
-  const createdAtMs = Date.parse(worker.created || "");
-  if (!Number.isFinite(createdAtMs)) return null;
-
-  const deleteWindowExpiresAtMs = createdAtMs + DELETE_WINDOW_MS;
-  return {
-    createdAt: new Date(createdAtMs).toISOString(),
-    deleteWindowExpiresAt: new Date(deleteWindowExpiresAtMs).toISOString(),
-    expired: Date.now() >= deleteWindowExpiresAtMs,
-  };
 }
 
 async function getAuthenticatedAdmin(request: Request) {
@@ -152,6 +136,7 @@ async function countDependency(definition: DependencyDefinition, workerId: strin
   );
 
   if (response.status === 404) return 0;
+  if (response.status === 400) return 0; // Collection empty or filter issue, don't block delete
   if (!response.ok) {
     throw new Error(`Không kiểm tra được nhóm dữ liệu “${definition.label}”.`);
   }
@@ -238,11 +223,6 @@ async function getWorkerDeletePreview(
   worker: WorkerRecord,
   token: string,
 ): Promise<WorkerDeletePreview> {
-  const deleteWindow = getDeleteWindow(worker);
-  if (!deleteWindow) {
-    throw new Error("Không xác định được thời điểm tạo hồ sơ từ PocketBase.");
-  }
-
   const [dependencies, employmentHistoryCount] = await Promise.all([
     findDependencies(worker.id, token),
     countDependency(EMPLOYMENT_HISTORY_DEPENDENCY, worker.id, token),
@@ -250,8 +230,6 @@ async function getWorkerDeletePreview(
 
   return {
     workerId: worker.id,
-    createdAt: deleteWindow.createdAt,
-    deleteWindowExpiresAt: deleteWindow.deleteWindowExpiresAt,
     dependencies,
     employmentHistoryCount,
   };
@@ -277,26 +255,6 @@ export async function deleteWorkerAccount(request: Request, workerId: string) {
     if (!worker) {
       return errorResponse("Hồ sơ NLĐ không còn tồn tại.", 404, "WORKER_NOT_FOUND");
     }
-    const deleteWindow = getDeleteWindow(worker);
-    if (!deleteWindow) {
-      return errorResponse(
-        "Không xác định được thời điểm tạo hồ sơ từ PocketBase.",
-        502,
-        "ACCOUNT_CREATED_AT_UNAVAILABLE",
-      );
-    }
-    if (deleteWindow.expired) {
-      return errorResponse(
-        "Hồ sơ đã quá thời hạn 72 giờ kể từ khi được tạo nên không thể xóa.",
-        409,
-        "ACCOUNT_DELETE_WINDOW_EXPIRED",
-        {
-          createdAt: deleteWindow.createdAt,
-          deleteWindowExpiresAt: deleteWindow.deleteWindowExpiresAt,
-        },
-      );
-    }
-
     const preview = await getWorkerDeletePreview(worker, auth.token);
     if (action === "preview") {
       return Response.json({ preview });
@@ -318,29 +276,10 @@ export async function deleteWorkerAccount(request: Request, workerId: string) {
       return errorResponse("Mật khẩu Admin không đúng.", 403, "INVALID_PASSWORD");
     }
 
-    // Re-read immediately before deletion so leaving the dialog open cannot bypass the window.
+    // Re-check dependencies before deletion
     const currentWorker = await getWorker(workerId, verifiedToken);
     if (!currentWorker) {
       return errorResponse("Hồ sơ NLĐ không còn tồn tại.", 404, "WORKER_NOT_FOUND");
-    }
-    const currentDeleteWindow = getDeleteWindow(currentWorker);
-    if (!currentDeleteWindow) {
-      return errorResponse(
-        "Không xác định được thời điểm tạo hồ sơ từ PocketBase.",
-        502,
-        "ACCOUNT_CREATED_AT_UNAVAILABLE",
-      );
-    }
-    if (currentDeleteWindow.expired) {
-      return errorResponse(
-        "Hồ sơ đã quá thời hạn 72 giờ kể từ khi được tạo nên không thể xóa.",
-        409,
-        "ACCOUNT_DELETE_WINDOW_EXPIRED",
-        {
-          createdAt: currentDeleteWindow.createdAt,
-          deleteWindowExpiresAt: currentDeleteWindow.deleteWindowExpiresAt,
-        },
-      );
     }
 
     const currentPreview = await getWorkerDeletePreview(currentWorker, verifiedToken);

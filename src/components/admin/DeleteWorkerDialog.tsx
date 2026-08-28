@@ -27,8 +27,6 @@ type DeleteDependency = {
 
 type DeletePreview = {
   workerId: string;
-  createdAt: string;
-  deleteWindowExpiresAt: string;
   dependencies: DeleteDependency[];
   employmentHistoryCount: number;
 };
@@ -38,8 +36,6 @@ type DeleteErrorPayload = {
   message?: string;
   dependencies?: DeleteDependency[];
   deletedEmploymentHistoryCount?: number;
-  createdAt?: string;
-  deleteWindowExpiresAt?: string;
   preview?: DeletePreview;
 };
 
@@ -70,10 +66,6 @@ export function DeleteWorkerDialog({
   const [preview, setPreview] = useState<DeletePreview | null>(null);
   const [dependencies, setDependencies] = useState<DeleteDependency[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [expiredWindow, setExpiredWindow] = useState<{
-    createdAt?: string;
-    deleteWindowExpiresAt?: string;
-  } | null>(null);
   const admin = pb.authStore.record as UserRecord | null;
   const adminIdentity = admin?.username || admin?.email || "";
 
@@ -87,7 +79,6 @@ export function DeleteWorkerDialog({
       setPreview(null);
       setDependencies([]);
       setErrorMessage("");
-      setExpiredWindow(null);
       return;
     }
 
@@ -100,7 +91,6 @@ export function DeleteWorkerDialog({
     setPreview(null);
     setDependencies([]);
     setErrorMessage("");
-    setExpiredWindow(null);
     setPreviewLoading(true);
 
     fetch(`/api/admin/workers/${encodeURIComponent(worker.id)}/delete`, {
@@ -114,12 +104,6 @@ export function DeleteWorkerDialog({
       .then(async (response) => {
         const payload = (await response.json().catch(() => ({}))) as DeleteErrorPayload;
         if (!response.ok) {
-          if (payload.code === "ACCOUNT_DELETE_WINDOW_EXPIRED") {
-            setExpiredWindow({
-              createdAt: payload.createdAt,
-              deleteWindowExpiresAt: payload.deleteWindowExpiresAt,
-            });
-          }
           throw new Error(payload.message || "Không thể tải thông tin trước khi xóa.");
         }
         if (active) {
@@ -176,15 +160,6 @@ export function DeleteWorkerDialog({
         if (payload.code === "WORKER_HAS_DEPENDENCIES") {
           setDependencies(Array.isArray(payload.dependencies) ? payload.dependencies : []);
         }
-        if (payload.code === "ACCOUNT_DELETE_WINDOW_EXPIRED") {
-          setExpiredWindow({
-            createdAt: payload.createdAt,
-            deleteWindowExpiresAt: payload.deleteWindowExpiresAt,
-          });
-          setPreview(null);
-          setConfirmed(false);
-          setPassword("");
-        }
         throw new Error(payload.message || "Không thể xóa hồ sơ NLĐ.");
       }
 
@@ -204,7 +179,7 @@ export function DeleteWorkerDialog({
   };
 
   const name = worker?.full_name || worker?.uid || worker?.phone || "NLĐ này";
-  const canContinue = Boolean(preview && confirmed && password && !expiredWindow);
+  const canContinue = Boolean(preview && confirmed && password);
 
   return (
     <AlertDialog open={open} onOpenChange={(nextOpen) => !submitting && onOpenChange(nextOpen)}>
@@ -217,8 +192,8 @@ export function DeleteWorkerDialog({
             <div className="min-w-0 space-y-1">
               <AlertDialogTitle>Xóa hồ sơ NLĐ?</AlertDialogTitle>
               <AlertDialogDescription>
-                Hồ sơ chỉ được xóa trong vòng 72 giờ kể từ thời điểm tạo. Hãy đọc kỹ dữ liệu bị ảnh
-                hưởng trước khi xác nhận.
+                Hồ sơ và lịch sử liên quan sẽ bị xóa vĩnh viễn. Hãy đọc kỹ dữ liệu bị ảnh hưởng
+                trước khi xác nhận.
               </AlertDialogDescription>
             </div>
           </div>
@@ -231,43 +206,15 @@ export function DeleteWorkerDialog({
               {worker?.uid ? `UID ${worker.uid}` : "Chưa có UID"}
               {worker?.phone ? ` · ${worker.phone}` : ""}
             </div>
-            {preview && (
-              <div className="mt-2 grid gap-1 border-t border-destructive/10 pt-2 text-xs text-muted-foreground">
-                <div>
-                  Tạo lúc:{" "}
-                  <span className="font-medium text-foreground">
-                    {formatDateTime(preview.createdAt)}
-                  </span>
-                </div>
-                <div>
-                  Hạn xóa:{" "}
-                  <span className="font-medium text-foreground">
-                    {formatDateTime(preview.deleteWindowExpiresAt)}
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
 
           {previewLoading && (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Đang kiểm tra thời hạn và dữ liệu liên
-              quan...
+              <Loader2 className="h-4 w-4 animate-spin" /> Đang kiểm tra dữ liệu liên quan...
             </div>
           )}
 
-          {expiredWindow && (
-            <div className="space-y-1 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-              <div className="font-semibold">Hồ sơ đã quá thời hạn xóa</div>
-              <div>Thời điểm tạo: {formatDateTime(expiredWindow.createdAt)}</div>
-              <div>Hạn xóa 72 giờ: {formatDateTime(expiredWindow.deleteWindowExpiresAt)}</div>
-              <p className="pt-1 text-xs">
-                Không thể tiếp tục xác nhận hoặc nhập mật khẩu để xóa hồ sơ này.
-              </p>
-            </div>
-          )}
-
-          {preview && !expiredWindow && (
+          {preview && (
             <>
               <div className="space-y-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
                 <div className="font-semibold">Dữ liệu sẽ bị ảnh hưởng</div>
@@ -376,7 +323,7 @@ export function DeleteWorkerDialog({
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={submitting}>Hủy</AlertDialogCancel>
-          {preview && !expiredWindow && (
+          {preview && (
             <Button
               type="submit"
               form="delete-worker-auth-form"
