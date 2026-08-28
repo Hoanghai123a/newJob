@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { fetchAppSettingsRecord, getAppLogoFileUrl } from "@/lib/server-app-brand";
+import {
+  fetchAppSettingsRecord,
+  getAppLogoFileUrl,
+  readNewestSystemIcon,
+  systemIconResponse,
+} from "@/lib/server-app-brand";
 
 const FALLBACK_ICON = "/icons/app-icon.svg";
 
@@ -24,6 +29,20 @@ export const Route = createFileRoute("/api/public/app-logo")({
     handlers: {
       GET: async ({ request }) => {
         const companyId = new URL(request.url).searchParams.get("company") || undefined;
+
+        // Không có company ID → dùng logo hệ thống từ file tĩnh, không mượn logo tenant
+        if (!companyId) {
+          const icon = await readNewestSystemIcon(["app-icon.png", "app-icon.jpg"]);
+          if (!icon) return fallback();
+
+          const dataUrl = `data:${icon.contentType};base64,${icon.buffer.toString("base64")}`;
+          return systemIconResponse(request, {
+            buffer: svgIconFromDataUrl(dataUrl),
+            contentType: "image/svg+xml; charset=utf-8",
+            version: icon.version,
+          });
+        }
+
         const app = await fetchAppSettingsRecord(companyId);
         if (!app) return fallback();
 

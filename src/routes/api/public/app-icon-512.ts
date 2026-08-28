@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { fetchAppSettingsRecord, getAppLogoFileUrl } from "@/lib/server-app-brand";
+import {
+  fetchAppSettingsRecord,
+  getAppLogoFileUrl,
+  readNewestSystemIcon,
+  systemIconResponse,
+} from "@/lib/server-app-brand";
 import sharp from "sharp";
 
 const FALLBACK_ICON = "/icons/app-icon-512.png";
@@ -17,6 +22,15 @@ export const Route = createFileRoute("/api/public/app-icon-512")({
     handlers: {
       GET: async ({ request }) => {
         const companyId = new URL(request.url).searchParams.get("company") || undefined;
+
+        // Nếu không có company ID → trả logo hệ thống từ file tĩnh
+        if (!companyId) {
+          const icon = await readNewestSystemIcon(["app-icon-512.png"]);
+          if (!icon) return fallback();
+          return systemIconResponse(request, icon);
+        }
+
+        // Có company ID → lấy logo công ty từ PocketBase
         const app = await fetchAppSettingsRecord(companyId);
         if (!app) return fallback();
 

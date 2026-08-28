@@ -55,7 +55,9 @@ export function BrandHeadLinks() {
       : `/api/public/app-icon${version}`;
     const manifestHref = brandCompanyId
       ? `/api/public/manifest/webmanifest?company=${encodeURIComponent(brandCompanyId)}${version ? `&v=${encodeURIComponent(brandVersion || "")}` : ""}`
-      : "/manifest.webmanifest";
+      : // Không có công ty (vd. superadmin) → manifest hệ thống động, tự cache-bust
+        // theo mtime của file logo trong public/icons
+        "/api/public/manifest/webmanifest";
 
     upsertHeadLink("icon", iconHref);
     upsertHeadLink("apple-touch-icon", iconHref);

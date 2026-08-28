@@ -102,3 +102,99 @@ export function getAppLogoFileUrl(app: NonNullable<CachedAppSettingsRecord>) {
     fileName: app.item.logo,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Logo hệ thống (dùng khi không có company ID): đọc file tĩnh trong public/icons
+// thay vì mượn app_settings của một tenant bất kỳ.
+// ---------------------------------------------------------------------------
+
+const SYSTEM_ICON_CONTENT_TYPES: Record<string, string> = {
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+};
+
+export type SystemIconFile = { buffer: Buffer; contentType: string; version: string };
+
+async function systemIconDir() {
+  const path = await import("path");
+  return path.join(process.cwd(), "public", "icons");
+}
+
+/**
+ * Đọc file logo hệ thống mới nhất trong danh sách ứng viên (theo mtime),
+ * để bản upload mới không bị file cũ khác extension che mất.
+ */
+export async function readNewestSystemIcon(fileNames: string[]): Promise<SystemIconFile | null> {
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const dir = await systemIconDir();
+
+  let best: (SystemIconFile & { mtimeMs: number }) | null = null;
+  for (const name of fileNames) {
+    const filePath = path.join(dir, name);
+    try {
+      const stat = await fs.stat(filePath);
+      if (best && stat.mtimeMs <= best.mtimeMs) continue;
+      const buffer = await fs.readFile(filePath);
+      const ext = path.extname(name).toLowerCase();
+      best = {
+        buffer,
+        contentType: SYSTEM_ICON_CONTENT_TYPES[ext] || "application/octet-stream",
+        version: `${Math.round(stat.mtimeMs)}-${stat.size}`,
+        mtimeMs: stat.mtimeMs,
+      };
+    } catch {
+      continue;
+    }
+  }
+
+  if (!best) return null;
+  return { buffer: best.buffer, contentType: best.contentType, version: best.version };
+}
+
+/** Phiên bản logo hệ thống (mtime lớn nhất) dùng để cache-busting trong manifest. */
+export async function getSystemIconVersion(fileNames: string[]): Promise<string> {
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const dir = await systemIconDir();
+
+  let newest = 0;
+  for (const name of fileNames) {
+    try {
+      const stat = await fs.stat(path.join(dir, name));
+      if (stat.mtimeMs > newest) newest = stat.mtimeMs;
+    } catch {
+      continue;
+    }
+  }
+  return newest ? Math.round(newest).toString() : Date.now().toString();
+}
+
+/**
+ * Trả về response cho logo hệ thống với ETag + no-cache để trình duyệt luôn
+ * revalidate (304 khi chưa đổi), tránh giữ logo cũ tới 5 phút.
+ */
+export function systemIconResponse(
+  request: Request,
+  icon: { buffer: Buffer | string; contentType: string; version: string },
+) {
+  const etag = `"sys-${icon.version}"`;
+  const headers = {
+    "Content-Type": icon.contentType,
+    "Cache-Control": "no-cache, must-revalidate",
+    ETag: etag,
+  };
+
+  if (request.headers.get("if-none-match") === etag) {
+    return new Response(null, { status: 304, headers });
+  }
+
+  const body =
+    typeof icon.buffer === "string" ? icon.buffer : new Uint8Array(icon.buffer);
+  return new Response(body, { status: 200, headers });
+}
+
