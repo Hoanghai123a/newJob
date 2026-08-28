@@ -628,7 +628,7 @@ function workerEditFormFrom(worker: WorkerRecord): WorkerEditForm {
 }
 
 function WorkerAccountsPanel() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const viewer = (user as UserRecord | null) ?? null;
   const workspaceQuery = useStaffWorkspaceQuery(viewer);
   const [search, setSearch] = useState("");
@@ -637,6 +637,7 @@ function WorkerAccountsPanel() {
   const [editing, setEditing] = useState<StaffWorkerRecord | null>(null);
   const [form, setForm] = useState<WorkerEditForm>(emptyWorkerEditForm);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<WorkerRecord | null>(null);
 
   const workspace = workspaceQuery.data;
   const loading = !workspace && workspaceQuery.isPending;
@@ -747,32 +748,46 @@ function WorkerAccountsPanel() {
       ) : (
         <div className="space-y-2">
           {filtered.slice(0, visibleCount).map((record) => (
-            <button
-              key={record.user.id}
-              type="button"
-              onClick={() => openEditor(record)}
-              className="list-card block w-full overflow-hidden border-l-primary text-left"
-            >
+            <div key={record.user.id} className="list-card overflow-hidden border-l-primary">
               <div className="flex min-w-0 items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">
-                    {record.user.full_name?.trim() || record.user.uid || "Thiếu thông tin"}
+                <button
+                  type="button"
+                  onClick={() => openEditor(record)}
+                  className="flex min-w-0 flex-1 items-start gap-3 text-left"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold">
+                      {record.user.full_name?.trim() || record.user.uid || "Thiếu thông tin"}
+                    </div>
+                    <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                      Mã TK: {record.user.uid || "—"} · SĐT: {record.user.phone || "—"}
+                    </div>
+                    <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                      CCCD: {maskCccd(record.user.cccd)} · Ngân hàng:{" "}
+                      {record.user.bank_name || "chưa có"}
+                    </div>
                   </div>
-                  <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                    Mã TK: {record.user.uid || "—"} · SĐT: {record.user.phone || "—"}
-                  </div>
-                  <div className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                    CCCD: {maskCccd(record.user.cccd)} · Ngân hàng:{" "}
-                    {record.user.bank_name || "chưa có"}
-                  </div>
-                </div>
-                {record.canUpdateBank ? (
-                  <Pencil className="mt-1 h-4 w-4 shrink-0 text-primary" />
-                ) : (
-                  <StatusChip tone="neutral">Chỉ xem</StatusChip>
+                  {record.canUpdateBank ? (
+                    <Pencil className="mt-1 h-4 w-4 shrink-0 text-primary" />
+                  ) : (
+                    <StatusChip tone="neutral">Chỉ xem</StatusChip>
+                  )}
+                </button>
+                {isAdmin && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setDeleteTarget(record.user)}
+                    disabled={!record.user.id}
+                    className="h-8 w-8 shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Xóa tài khoản NLĐ"
+                    title="Xóa tài khoản NLĐ"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 )}
               </div>
-            </button>
+            </div>
           ))}
 
           {visibleCount < filtered.length && (
@@ -906,6 +921,17 @@ function WorkerAccountsPanel() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteWorkerDialog
+        worker={deleteTarget}
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        onDeleted={async (workerId) => {
+          setDeleteTarget(null);
+          if (editing?.user.id === workerId) setEditing(null);
+          await workspaceQuery.refetch();
+        }}
+      />
     </Card>
   );
 }
