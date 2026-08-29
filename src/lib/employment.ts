@@ -458,6 +458,35 @@ export function getLatestEmploymentHistory(histories: EmploymentHistoryRecord[])
   return sortEmploymentHistories(histories)[0] || null;
 }
 
+function joinDatePart(history: EmploymentHistoryRecord | null | undefined) {
+  return String(history?.join_date || "").match(/^\d{4}-\d{2}-\d{2}/)?.[0] || "";
+}
+
+function createdTime(history: EmploymentHistoryRecord | null | undefined) {
+  const time = new Date(history?.created || 0).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+/**
+ * Orders workers by their latest employment record, newest first. join_date only
+ * carries a calendar day, so records sharing a day fall back to created, which is
+ * precise to the second.
+ */
+export function compareLatestHistoryRecency(
+  a: EmploymentHistoryRecord | null | undefined,
+  b: EmploymentHistoryRecord | null | undefined,
+) {
+  const aJoin = joinDatePart(a);
+  const bJoin = joinDatePart(b);
+  if (aJoin !== bJoin) {
+    if (!aJoin) return 1;
+    if (!bJoin) return -1;
+    return bJoin.localeCompare(aJoin);
+  }
+
+  return createdTime(b) - createdTime(a);
+}
+
 /** Returns the employment record that was valid on the supplied calendar date. */
 export function getEmploymentHistoryAtDate(
   histories: EmploymentHistoryRecord[],

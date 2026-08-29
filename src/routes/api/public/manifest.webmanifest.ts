@@ -17,6 +17,9 @@ export const Route = createFileRoute("/api/public/manifest/webmanifest")({
             "app-icon-512.png",
             "app-icon.png",
             "app-icon.jpg",
+            "app-icon.webp",
+            "app-icon.gif",
+            "app-icon.svg",
           ]);
           const versionParam = `?v=${encodeURIComponent(iconVersion)}`;
 
@@ -60,7 +63,6 @@ export const Route = createFileRoute("/api/public/manifest/webmanifest")({
                 {
                   src: `/api/public/app-icon${versionParam}`,
                   sizes: "any",
-                  type: "image/png",
                   purpose: "any",
                 },
               ],

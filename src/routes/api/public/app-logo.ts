@@ -32,7 +32,12 @@ export const Route = createFileRoute("/api/public/app-logo")({
 
         // Không có company ID → dùng logo hệ thống từ file tĩnh, không mượn logo tenant
         if (!companyId) {
-          const icon = await readNewestSystemIcon(["app-icon.png", "app-icon.jpg"]);
+          const icon = await readNewestSystemIcon([
+            "app-icon.png",
+            "app-icon.jpg",
+            "app-icon.webp",
+            "app-icon.gif",
+          ]);
           if (!icon) return fallback();
 
           const dataUrl = `data:${icon.contentType};base64,${icon.buffer.toString("base64")}`;

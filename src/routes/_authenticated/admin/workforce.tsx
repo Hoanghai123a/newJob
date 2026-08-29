@@ -66,6 +66,7 @@ import { useAppSettings } from "@/lib/app-settings";
 import { filterEmploymentFactories } from "@/lib/staff-employment-scope";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/money";
 import {
+  compareLatestHistoryRecency,
   fetchEmploymentHistories,
   getHistoryCccdImageProgress,
   getLatestEmploymentHistory,
@@ -152,11 +153,6 @@ function endOfDayTime(value: string) {
 
 function historySortTime(history: EmploymentHistoryRecord) {
   return new Date(history.join_date || history.created || 0).getTime();
-}
-
-function latestJoinTime(history: EmploymentHistoryRecord | null) {
-  const time = new Date(history?.join_date || "").getTime();
-  return Number.isNaN(time) ? null : time;
 }
 
 function getLatestHistoryAtEndDate(histories: EmploymentHistoryRecord[], to: string) {
@@ -1107,11 +1103,8 @@ function WorkerList({
         return haystack.includes(q);
       })
       .sort((a, b) => {
-        const aTime = latestJoinTime(a.latest);
-        const bTime = latestJoinTime(b.latest);
-        if (aTime !== null && bTime !== null && aTime !== bTime) return bTime - aTime;
-        if (aTime === null && bTime !== null) return 1;
-        if (aTime !== null && bTime === null) return -1;
+        const recency = compareLatestHistoryRecency(a.latest, b.latest);
+        if (recency) return recency;
 
         const aName = getWorkerDisplayName(a.user);
         const bName = getWorkerDisplayName(b.user);

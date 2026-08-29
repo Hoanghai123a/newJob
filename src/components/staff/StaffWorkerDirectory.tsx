@@ -26,7 +26,12 @@ import { StatusChip } from "@/components/ui/status-chip";
 import { RegisterDialog } from "@/components/workforce/RegisterDialog";
 import { useAuth } from "@/lib/auth";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
-import { getHistoryCccdImageProgress, isCurrentlyWorking, maskCccd } from "@/lib/employment";
+import {
+  compareLatestHistoryRecency,
+  getHistoryCccdImageProgress,
+  isCurrentlyWorking,
+  maskCccd,
+} from "@/lib/employment";
 import type { UserRecord } from "@/lib/pocketbase";
 import { readCachedAuxData } from "@/lib/staff-cache";
 import {
@@ -130,11 +135,6 @@ function formatDate(value?: string) {
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
 }
 
-function latestJoinTime(worker: StaffWorkerRecord) {
-  const time = new Date(worker.latestHistory?.join_date || "").getTime();
-  return Number.isNaN(time) ? null : time;
-}
-
 function isRecruitedByViewer(worker: StaffWorkerRecord, viewerId?: string) {
   return Boolean(
     viewerId && worker.histories.some((history) => history.recruiter_staff === viewerId),
@@ -222,11 +222,8 @@ export function StaffWorkerDirectory({
       })
       .map(({ worker }) => worker)
       .sort((a, b) => {
-        const aTime = latestJoinTime(a);
-        const bTime = latestJoinTime(b);
-        if (aTime !== null && bTime !== null && aTime !== bTime) return bTime - aTime;
-        if (aTime === null && bTime !== null) return 1;
-        if (aTime !== null && bTime === null) return -1;
+        const recency = compareLatestHistoryRecency(a.latestHistory, b.latestHistory);
+        if (recency) return recency;
 
         const aName = getWorkerDisplayName(a);
         const bName = getWorkerDisplayName(b);

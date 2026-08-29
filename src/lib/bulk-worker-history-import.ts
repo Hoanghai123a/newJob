@@ -1142,11 +1142,17 @@ export function downloadBulkWorkerTemplate() {
         "Mã nhà máy": "",
         "Nhà chính": "Nhà chính HN",
         "Người tuyển": "staff01",
+        "Loại người tuyển": "nội bộ",
         "Mã nhân viên": "NM001",
         "Ngày vào làm": "01/01/2025",
         "Ngày nghỉ": "31/12/2025",
         "Mã số thuế": "0123456789",
         "Ghi chú": "Lịch sử cũ",
+        "Họ tên tại thời điểm đi làm": "",
+        "CCCD tại thời điểm đi làm": "",
+        "Ngày sinh tại thời điểm đi làm": "",
+        "Địa chỉ tại thời điểm đi làm": "",
+        "Ngày cấp CCCD tại thời điểm đi làm": "",
       },
       {
         "Mã NLĐ trong file": "NLD001",
@@ -1154,11 +1160,41 @@ export function downloadBulkWorkerTemplate() {
         "Mã nhà máy": "",
         "Nhà chính": "Nhà chính HN",
         "Người tuyển": "staff01",
+        "Loại người tuyển": "nội bộ",
         "Mã nhân viên": "NM002",
         "Ngày vào làm": "01/01/2026",
         "Ngày nghỉ": "",
         "Mã số thuế": "0123456789",
         "Ghi chú": "Lịch sử hiện tại",
+        "Họ tên tại thời điểm đi làm": "",
+        "CCCD tại thời điểm đi làm": "",
+        "Ngày sinh tại thời điểm đi làm": "",
+        "Địa chỉ tại thời điểm đi làm": "",
+        "Ngày cấp CCCD tại thời điểm đi làm": "",
+      },
+    ],
+    "Hướng dẫn": [
+      { "Quy tắc": "1. File gồm 2 sheet: 'Người lao động' và 'Lịch sử đi làm'." },
+      { "Quy tắc": "2. Mỗi file tối đa 1000 NLĐ. Mỗi NLĐ tối đa 10 lịch sử." },
+      {
+        "Quy tắc":
+          "3. Có thể thêm hậu tố a-z, dấu chấm (.) hoặc gạch dưới (_) sau SĐT/CCCD để tạo username khác nhau (ví dụ: 0901234567_a, 001234567890.b). Hậu tố KHÔNG lưu vào hồ sơ.",
+      },
+      {
+        "Quy tắc":
+          "4. Ngày nhập dạng dd/mm/yyyy (hoặc yyyy-mm-dd, hoặc số serial Excel đều được).",
+      },
+      {
+        "Quy tắc":
+          "5. Cột 'Loại người tuyển': điền 'nội bộ' hoặc 'đối tác'. Bắt buộc nếu tên người tuyển trùng giữa nhân sự nội bộ và đối tác.",
+      },
+      {
+        "Quy tắc":
+          "6. Các cột snapshot (Họ tên/CCCD/... tại thời điểm đi làm): để trống nếu dùng thông tin từ sheet Người lao động. CCCD snapshot chấp nhận 9 số (CMND cũ) hoặc 12 số (CCCD mới).",
+      },
+      {
+        "Quy tắc":
+          "7. Lịch sử của cùng một NLĐ phải sắp xếp tăng dần theo Ngày vào làm, không chồng chéo ngày.",
       },
     ],
   });

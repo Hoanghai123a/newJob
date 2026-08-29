@@ -28,6 +28,8 @@ export const Route = createFileRoute("/api/public/app-icon")({
             "app-icon.png",
             "app-icon.jpg",
             "app-icon.svg",
+            "app-icon.webp",
+            "app-icon.gif",
           ]);
           if (!icon) return fallback();
           return systemIconResponse(request, icon);
