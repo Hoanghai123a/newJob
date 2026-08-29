@@ -6,6 +6,7 @@ type AuthUser = {
   email?: string;
   full_name?: string;
   role?: string;
+  tenant_company?: string;
 };
 
 type WorkerRecord = {
@@ -172,6 +173,28 @@ function workerSnapshot(worker: WorkerRecord) {
   };
 }
 
+// PocketBase chặn xóa workers khi còn employment_histories (required relation) hoặc
+// cccd_versions (unique index trên worker). Phải xóa các bản ghi này trong cùng batch.
+const CASCADE_COLLECTIONS = ["employment_histories", "cccd_versions"] as const;
+
+async function listCascadeRecordIds(collection: string, workerId: string, token: string) {
+  const query = new URLSearchParams({
+    page: "1",
+    perPage: "500",
+    fields: "id",
+    filter: `worker="${escapePb(workerId)}"`,
+  });
+  const response = await pbFetch(
+    `/api/collections/${encodeURIComponent(collection)}/records?${query}`,
+    { method: "GET" },
+    token,
+  );
+  if (!response.ok) return [];
+  const body = await readJson(response);
+  const items = Array.isArray(body?.items) ? body.items : [];
+  return items.map((item: { id?: string }) => item.id).filter(Boolean) as string[];
+}
+
 async function deleteWorkerWithLog(
   admin: AuthUser,
   worker: WorkerRecord,
@@ -179,13 +202,34 @@ async function deleteWorkerWithLog(
   token: string,
 ) {
   const name = worker.full_name || worker.uid || worker.phone || worker.id;
+  const cascadeGroups = await Promise.all(
+    CASCADE_COLLECTIONS.map(async (collection) => ({
+      collection,
+      ids: await listCascadeRecordIds(collection, worker.id, token),
+    })),
+  );
+
+  const cascadeRequests = cascadeGroups.flatMap((group) =>
+    group.ids.map((id) => ({
+      method: "DELETE",
+      url: `/api/collections/${group.collection}/records/${encodeURIComponent(id)}`,
+      headers: {},
+      body: {},
+    })),
+  );
+  const cascadeCounts = Object.fromEntries(
+    cascadeGroups.map((group) => [group.collection, group.ids.length]),
+  );
+
   const payload = {
     requests: [
+      ...cascadeRequests,
       {
         method: "POST",
         url: "/api/collections/staff_action_logs/records",
         headers: {},
         body: {
+          tenant_company: admin.tenant_company,
           actor: admin.id,
           actor_role_snapshot: "admin",
           target_user: "",
@@ -195,6 +239,7 @@ async function deleteWorkerWithLog(
           before: {
             ...workerSnapshot(worker),
             employment_history_count: employmentHistoryCount,
+            cascade_deleted: cascadeCounts,
           },
           after: null,
           note: `Admin xóa hồ sơ NLĐ ${name} và ${employmentHistoryCount} lịch sử đi làm sau khi xác thực lại mật khẩu`,

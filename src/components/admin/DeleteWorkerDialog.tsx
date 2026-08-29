@@ -46,12 +46,6 @@ type DeleteWorkerDialogProps = {
   onDeleted: (workerId: string) => void | Promise<void>;
 };
 
-function formatDateTime(value?: string) {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString("vi-VN");
-}
-
 export function DeleteWorkerDialog({
   worker,
   open,
