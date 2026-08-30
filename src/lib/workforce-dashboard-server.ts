@@ -134,23 +134,24 @@ async function firstHistoryIds(
 ) {
   const userIds = [...new Set(rows.filter((row) => row.join_date).map((row) => row.user))];
   if (!userIds.length) return new Set<string>();
-  const all: WorkforceHistoryInput[] = [];
+  const all: { id: string; worker: string; join_date: string; created?: string }[] = [];
   for (let index = 0; index < userIds.length; index += 40) {
     const users = relationInFilter("worker", userIds.slice(index, index + 40));
     all.push(
-      ...(await fullList<WorkforceHistoryInput>(
+      ...(await fullList<{ id: string; worker: string; join_date: string; created?: string }>(
         "employment_histories",
         {
           filter: [permission, source, `(${users})`].filter(Boolean).join(" && "),
-          fields: "id,user,join_date,created",
+          fields: "id,worker,join_date,created",
           sort: "join_date,created",
         },
         token,
       )),
     );
   }
+  const mapped: WorkforceHistoryInput[] = all.map((h) => ({ ...h, user: h.worker }));
   const first = new Map<string, WorkforceHistoryInput>();
-  for (const row of all) if (!first.has(row.user)) first.set(row.user, row);
+  for (const row of mapped) if (!first.has(row.user)) first.set(row.user, row);
   return new Set([...first.values()].map((row) => row.id));
 }
 
@@ -167,17 +168,29 @@ export async function handleWorkforceDashboard(request: Request) {
     const rangeError = validateWorkforceRange(from, to);
     if (rangeError) return jsonError(rangeError);
     const permission = permissionFilter(ctx.user, ctx.factoryIds);
-    const histories = await fullList<WorkforceHistoryInput>(
+    const rawHistories = await fullList<{ worker: string; [key: string]: unknown }>(
       "employment_histories",
       {
         filter: historyFilter(from, to, permission, sourceFilter(scope)),
-        expand: "user,factory,main_house,recruiter_staff,recruiter_partner",
+        expand: "worker,factory,main_house,recruiter_staff,recruiter_partner",
         fields:
-          "id,user,factory,main_house,employee_code,worker_name_snapshot,recruiter_staff,recruiter_partner,join_date,leave_date,created,updated,expand.user.id,expand.user.full_name,expand.user.username,expand.factory.id,expand.factory.name,expand.main_house.id,expand.main_house.name,expand.recruiter_staff.id,expand.recruiter_staff.full_name,expand.recruiter_staff.username,expand.recruiter_partner.id,expand.recruiter_partner.name",
+          "id,worker,factory,main_house,employee_code,worker_name_snapshot,recruiter_staff,recruiter_partner,join_date,leave_date,created,updated,expand.worker.id,expand.worker.full_name,expand.worker.username,expand.factory.id,expand.factory.name,expand.main_house.id,expand.main_house.name,expand.recruiter_staff.id,expand.recruiter_staff.full_name,expand.recruiter_staff.username,expand.recruiter_partner.id,expand.recruiter_partner.name",
         sort: "join_date,created",
       },
       ctx.token,
     );
+    const histories: WorkforceHistoryInput[] = rawHistories.map((h) => ({
+      ...h,
+      user: h.worker,
+      expand: h.expand
+        ? {
+            ...h.expand,
+            user: (h.expand as { worker?: unknown }).worker as
+              | { full_name?: string; username?: string }
+              | undefined,
+          }
+        : undefined,
+    })) as WorkforceHistoryInput[];
     const firstIds = await firstHistoryIds(
       histories.filter((row) => row.join_date.slice(0, 10) >= from),
       permission,
