@@ -1568,7 +1568,7 @@ function AdvancesPage() {
               <div className="min-w-0 flex-1">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-semibold leading-tight">
-                    {row.employee_code || "-"} - {row.full_name || "-"}
+                    {row.employee_code || "-"} · {row.company || "Chưa có nhà máy"} - {row.full_name || "-"}
                   </div>
                   <div className="mt-0.5 flex items-center gap-1">
                     {editingAmountId === row.id ? (

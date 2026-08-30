@@ -848,7 +848,7 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-semibold">
-                    {row.employee_code || "-"} - {row.full_name || "-"}
+                    {row.employee_code || "-"} · {row.company || "Chưa có nhà máy"} - {row.full_name || "-"}
                   </div>
                   <div className="text-sm font-bold text-primary">{formatMoney(row.amount)}</div>
                   <div className="text-[11px] text-muted-foreground">
