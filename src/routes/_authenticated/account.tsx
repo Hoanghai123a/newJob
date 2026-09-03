@@ -74,6 +74,11 @@ import {
   resolveTenantAccountIdentity,
 } from "@/lib/tenant";
 import { accountLoginName } from "@/lib/login-identity";
+import {
+  createCompanyRecord,
+  updateCompanyUserRole,
+  updateCompanyUserStatus,
+} from "@/lib/company-limits";
 import * as XLSX from "xlsx";
 import { toast } from "@/lib/toast";
 import {
@@ -103,6 +108,9 @@ import {
   Info,
   ChevronRight,
   Trash,
+  Loader2,
+  Power,
+  PowerOff,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/account")({
@@ -1124,7 +1132,7 @@ function AdminUsersPanel() {
             addFailedStaffRow(r, rowNumber, "Không được phép quản trị tài khoản này");
             continue;
           }
-          await pb.collection("users").update(user.id, { role: "staff" });
+          await updateCompanyUserRole(user.id, "staff");
           if (factoryId) {
             await pb.collection("factory_managers").create({
               ...factoryManagerTenantPayload(me as UserRecord),
@@ -1341,7 +1349,7 @@ function AdminUsersPanel() {
       return;
     }
     try {
-      await pb.collection("users").update(roleTarget.id, { role: roleValue });
+      await updateCompanyUserRole(roleTarget.id, roleValue);
       await createStaffActionLog({
         actor: me as UserRecord,
         targetUserId: roleTarget.id,
@@ -1389,7 +1397,7 @@ function AdminUsersPanel() {
       }
       const identity = await resolveTenantAccountIdentity(me, username);
       const uid = await generateUid(manualUid || undefined);
-      await pb.collection("users").create({
+      await createCompanyRecord("staff_accounts", {
         full_name,
         phone,
         username: identity.username,
@@ -1525,7 +1533,7 @@ function AdminUsersPanel() {
         try {
           const identity = await resolveTenantAccountIdentity(me, normalizedUsername);
           const uid = await generateUid(manualUid || undefined);
-          await pb.collection("users").create({
+          await createCompanyRecord("staff_accounts", {
             full_name,
             phone,
             username: identity.username,
@@ -2463,6 +2471,7 @@ function StaffPanel() {
   const [editingStaff, setEditingStaff] = useState<UserRecord | null>(null);
   const [resettingStaff, setResettingStaff] = useState<UserRecord | null>(null);
   const [promoteTarget, setPromoteTarget] = useState<UserRecord | null>(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -2595,7 +2604,7 @@ function StaffPanel() {
         try {
           const identity = await resolveTenantAccountIdentity(currentUser, username);
           const uid = await generateUid();
-          const newUser = await pb.collection("users").create({
+          const newUser = await createCompanyRecord("staff_accounts", {
             username: identity.username,
             ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
             uid,
@@ -2699,7 +2708,7 @@ function StaffPanel() {
     const password = form.password.trim() || STAFF_DEFAULT_PASSWORD;
     const uid = await generateUid();
 
-    const newUser = await pb.collection("users").create({
+    const newUser = await createCompanyRecord("staff_accounts", {
       username: identity.username,
       ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
       uid,
@@ -2782,6 +2791,47 @@ function StaffPanel() {
     toast.success(`Đã đặt lại mật khẩu staff về "${STAFF_DEFAULT_PASSWORD}"`);
   };
 
+  const toggleStaffStatus = async (staff: UserRecord) => {
+    if (
+      !isManageableAccount(staff) ||
+      !requireTenantCompany(currentUser) ||
+      staff.id === currentUser?.id ||
+      updatingStatusId
+    )
+      return;
+
+    const nextStatus = staff.status === "disabled" ? "active" : "disabled";
+    setUpdatingStatusId(staff.id);
+    try {
+      await updateCompanyUserStatus(staff.id, nextStatus);
+      await createStaffActionLog({
+        actor: currentUser,
+        targetUserId: staff.id,
+        targetCollection: "users",
+        targetRecord: staff.id,
+        action: "update",
+        before: { status: staff.status || "active" },
+        after: { status: nextStatus },
+        note:
+          nextStatus === "disabled"
+            ? "Admin dừng hoạt động tài khoản staff"
+            : "Admin mở lại hoạt động tài khoản staff",
+      });
+      setStaffUsers((items) =>
+        items.map((item) => (item.id === staff.id ? { ...item, status: nextStatus } : item)),
+      );
+      toast.success(
+        `${staff.full_name || staff.username || "Tài khoản"} đã ${
+          nextStatus === "disabled" ? "dừng hoạt động" : "được mở hoạt động"
+        }`,
+      );
+    } catch (error: any) {
+      toast.error(error?.message || "Không cập nhật được trạng thái tài khoản");
+    } finally {
+      setUpdatingStatusId("");
+    }
+  };
+
   return (
     <Card className="space-y-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2862,6 +2912,12 @@ function StaffPanel() {
                     >
                       {staff.role === "admin" ? "Admin" : "Staff"}
                     </StatusChip>
+                    <StatusChip
+                      tone={staff.status === "disabled" ? "neutral" : "success"}
+                      className="shrink-0"
+                    >
+                      {staff.status === "disabled" ? "Dừng hoạt động" : "Hoạt động"}
+                    </StatusChip>
                     <StatusChip tone={factoryCount ? "info" : "neutral"} className="shrink-0">
                       {factoryCount ? `${factoryCount} NM` : "0 NM"}
                     </StatusChip>
@@ -2887,6 +2943,34 @@ function StaffPanel() {
                       title={`Đặt lại về ${STAFF_DEFAULT_PASSWORD}`}
                     >
                       <LockKeyhole className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void toggleStaffStatus(staff);
+                      }}
+                      disabled={updatingStatusId === staff.id || updatingStatusId !== ""}
+                      className={
+                        "flex h-8 w-8 items-center justify-center rounded-full transition " +
+                        (staff.status === "disabled"
+                          ? "text-emerald-600 hover:bg-emerald-50"
+                          : "text-rose-600 hover:bg-rose-50")
+                      }
+                      aria-label={
+                        staff.status === "disabled"
+                          ? `Mở hoạt động ${staff.full_name || "staff"}`
+                          : `Dừng hoạt động ${staff.full_name || "staff"}`
+                      }
+                      title={staff.status === "disabled" ? "Mở hoạt động" : "Dừng hoạt động"}
+                    >
+                      {updatingStatusId === staff.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : staff.status === "disabled" ? (
+                        <Power className="h-4 w-4" />
+                      ) : (
+                        <PowerOff className="h-4 w-4" />
+                      )}
                     </button>
                     <Button
                       variant="outline"
