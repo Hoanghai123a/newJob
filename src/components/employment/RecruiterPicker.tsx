@@ -48,30 +48,38 @@ export function RecruiterPicker({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedSearch(query);
   const parsed = parseRecruiterSelection(value);
+  const selectedInternalId = parsed?.type === "internal" ? parsed.id : undefined;
+  const selectedInternal =
+    selectedInternalId !== undefined
+      ? internalUsers.find((user) => user.id === selectedInternalId)
+      : undefined;
   const availableInternalUsers = useMemo(
-    () => filterInternalRecruiters(internalUsers),
-    [internalUsers],
+    () => filterInternalRecruiters(internalUsers, selectedInternalId),
+    [internalUsers, selectedInternalId],
   );
   const activePartners = useMemo(
     () => partners.filter((partner) => partner.status !== "inactive"),
     [partners],
   );
-  const selectedInternal =
-    parsed?.type === "internal"
-      ? availableInternalUsers.find((user) => user.id === parsed.id)
-      : undefined;
   const selectedPartner =
     parsed?.type === "partner" ? partners.find((partner) => partner.id === parsed.id) : undefined;
 
   const keyword = normalizeUserPickerSearch(debouncedQuery);
   const filteredInternal = useMemo(() => {
-    if (!keyword) return availableInternalUsers;
-    return availableInternalUsers.filter((user) =>
-      normalizeUserPickerSearch(
-        `${user.full_name || ""} ${user.username || ""} ${user.phone || ""} ${user.uid || ""}`,
-      ).includes(keyword),
-    );
-  }, [availableInternalUsers, keyword]);
+    const filtered = !keyword
+      ? availableInternalUsers
+      : availableInternalUsers.filter((user) =>
+          normalizeUserPickerSearch(
+            `${user.full_name || ""} ${user.username || ""} ${user.phone || ""} ${user.uid || ""}`,
+          ).includes(keyword),
+      );
+
+    if (selectedInternal && !filtered.some((user) => user.id === selectedInternal.id)) {
+      return [selectedInternal, ...filtered];
+    }
+
+    return filtered;
+  }, [availableInternalUsers, keyword, selectedInternal]);
   const filteredPartners = useMemo(() => {
     if (!keyword) return activePartners;
     return activePartners.filter((partner) =>

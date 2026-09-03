@@ -1,7 +1,18 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
-import { Building2, FileSpreadsheet, Plus, Search, ShieldCheck, Upload, Users } from "lucide-react";
+import {
+  Building2,
+  FileSpreadsheet,
+  Loader2,
+  Plus,
+  Power,
+  PowerOff,
+  Search,
+  ShieldCheck,
+  Upload,
+  Users,
+} from "lucide-react";
 import { toast } from "@/lib/toast";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -38,6 +49,7 @@ import { normalizeDate } from "@/lib/date-utils";
 import { escapePb } from "@/lib/delegations";
 import { companyFilter, companyIdOf, resolveTenantAccountIdentity } from "@/lib/tenant";
 import { accountLoginName } from "@/lib/login-identity";
+import { createCompanyRecord, updateCompanyUserStatus } from "@/lib/company-limits";
 
 export const Route = createFileRoute("/_authenticated/admin/staff/")({
   beforeLoad: () => {
@@ -71,6 +83,7 @@ function AdminStaffPage() {
   const [promoteTarget, setPromoteTarget] = useState<UserRecord | null>(null);
   const [importingStaff, setImportingStaff] = useState(false);
   const [importResult, setImportResult] = useState("");
+  const [updatingStatusId, setUpdatingStatusId] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -108,6 +121,24 @@ function AdminStaffPage() {
   }, [debouncedSearch]);
 
   const summary = useMemo(() => staffUsers.filter((u) => u.role === "staff").length, [staffUsers]);
+
+  const toggleStaffStatus = async (staff: UserRecord) => {
+    const nextStatus = staff.status === "disabled" ? "active" : "disabled";
+    setUpdatingStatusId(staff.id);
+    try {
+      await updateCompanyUserStatus(staff.id, nextStatus);
+      toast.success(
+        `${staff.full_name || staff.username || "Tài khoản"} đã ${
+          nextStatus === "disabled" ? "dừng hoạt động" : "được kích hoạt lại"
+        }`,
+      );
+      await load();
+    } catch (error: any) {
+      toast.error(error?.message || "Không cập nhật được trạng thái tài khoản");
+    } finally {
+      setUpdatingStatusId("");
+    }
+  };
 
   const downloadTemplate = () => {
     exportToExcel("mau_import_staff", {
@@ -190,7 +221,7 @@ function AdminStaffPage() {
         try {
           const identity = await resolveTenantAccountIdentity(currentUser, username);
           const uid = await generateUid();
-          const newUser = await pb.collection("users").create({
+          const newUser = await createCompanyRecord("staff_accounts", {
             username: identity.username,
             ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
             uid,
@@ -201,10 +232,6 @@ function AdminStaffPage() {
             password,
             passwordConfirm: password,
             role: "staff",
-            tenant_company: companyIdOf(currentUser),
-            status: "active",
-            must_change_password: true,
-            emailVisibility: false,
           });
 
           const factoryCols = Object.keys(row).filter(
@@ -354,6 +381,12 @@ function AdminStaffPage() {
                       >
                         {staff.role === "admin" ? "Admin" : "Staff"}
                       </StatusChip>
+                      <StatusChip
+                        tone={staff.status === "disabled" ? "neutral" : "success"}
+                        className="shrink-0"
+                      >
+                        {staff.status === "disabled" ? "Dừng hoạt động" : "Hoạt động"}
+                      </StatusChip>
                       <StatusChip tone={factoryCount ? "info" : "neutral"} className="shrink-0">
                         {factoryCount ? `${factoryCount} NM` : "0 NM"}
                       </StatusChip>
@@ -362,15 +395,37 @@ function AdminStaffPage() {
                       {metaItems.join(" · ")}
                     </div>
                   </div>
-                  {staff.role === "staff" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 shrink-0 rounded-full px-3 text-xs"
-                      onClick={() => setPromoteTarget(staff)}
-                    >
-                      <ShieldCheck className="h-3.5 w-3.5" /> Nâng quyền
-                    </Button>
+                  {staff.role === "staff" && staff.id !== currentUser.id && (
+                    <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 rounded-full px-3 text-xs"
+                        onClick={() => setPromoteTarget(staff)}
+                      >
+                        <ShieldCheck className="h-3.5 w-3.5" /> Nâng quyền
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 rounded-full px-3 text-xs"
+                        onClick={() => void toggleStaffStatus(staff)}
+                        disabled={updatingStatusId === staff.id}
+                      >
+                        {updatingStatusId === staff.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : staff.status === "disabled" ? (
+                          <Power className="h-3.5 w-3.5" />
+                        ) : (
+                          <PowerOff className="h-3.5 w-3.5" />
+                        )}
+                        {updatingStatusId === staff.id
+                          ? "Đang lưu..."
+                          : staff.status === "disabled"
+                            ? "Mở hoạt động"
+                            : "Dừng hoạt động"}
+                      </Button>
+                    </div>
                   )}
                 </div>
               </Card>
@@ -465,7 +520,7 @@ function CreateStaffDialog({
       const password = form.password.trim() || DEFAULT_PASSWORD;
       const uid = await generateUid();
 
-      const newUser = await pb.collection("users").create({
+      const newUser = await createCompanyRecord("staff_accounts", {
         username: identity.username,
         ...(identity.hasLoginName ? { login_name: identity.loginName } : {}),
         uid,
@@ -476,10 +531,6 @@ function CreateStaffDialog({
         password,
         passwordConfirm: password,
         role: "staff",
-        tenant_company: companyIdOf(actor),
-        status: "active",
-        must_change_password: true,
-        emailVisibility: false,
       });
 
       await createStaffActionLog({

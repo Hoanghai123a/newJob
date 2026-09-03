@@ -63,10 +63,16 @@ export function getRecruiterDisplay(history?: EmploymentHistoryRecord | null) {
   return null;
 }
 
-export function filterInternalRecruiters(users: UserRecord[]) {
-  return users.filter(
+export function filterInternalRecruiters(users: UserRecord[], selectedId?: string) {
+  const activeUsers = users.filter(
     (user) => (user.role === "staff" || user.role === "admin") && user.status !== "disabled",
   );
+  if (!selectedId) return activeUsers;
+
+  const selectedUser = users.find((user) => user.id === selectedId);
+  if (!selectedUser || selectedUser.status !== "disabled") return activeUsers;
+
+  return [...activeUsers, selectedUser];
 }
 
 export function findRecruitmentEntity(entities: RecruitmentEntityRecord[], id?: string) {
