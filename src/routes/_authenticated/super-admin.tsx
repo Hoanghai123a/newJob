@@ -1,6 +1,16 @@
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Building2, Gauge, LogOut, Pencil, Plus, RefreshCw, ShieldCheck, UserRoundCog } from "lucide-react";
+import {
+  AlertCircle,
+  Building2,
+  Gauge,
+  LogOut,
+  Pencil,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+  UserRoundCog,
+} from "lucide-react";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
 import { type CompanyRecord, type CompanyStatus } from "@/lib/tenant";
@@ -69,6 +79,7 @@ function SuperAdminPage() {
   const { logout } = useAuth();
   const [items, setItems] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
@@ -170,13 +181,16 @@ function SuperAdminPage() {
   };
   const load = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const r = await fetch("/api/super-admin/companies", { headers });
       const b = await r.json().catch(() => null);
       if (!r.ok) throw new Error(b?.message || "Không tải được danh sách công ty.");
       setItems(b.items || []);
     } catch (e: any) {
-      toast.error(e.message);
+      const message = e?.message || "Không tải được danh sách công ty.";
+      setLoadError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -517,7 +531,20 @@ function SuperAdminPage() {
             Đang tải...
           </Card>
         )}
-        {!loading && (!items || items.length === 0) && (
+        {!loading && loadError && (
+          <Card
+            className="col-span-full flex flex-col items-center gap-3 p-8 text-center"
+            role="alert"
+          >
+            <AlertCircle className="h-6 w-6 text-destructive" aria-hidden="true" />
+            <p className="text-sm text-destructive">{loadError}</p>
+            <Button variant="outline" size="sm" onClick={() => void load()}>
+              <RefreshCw className="h-4 w-4" />
+              Thử lại
+            </Button>
+          </Card>
+        )}
+        {!loading && !loadError && (!items || items.length === 0) && (
           <Card className="col-span-full p-8 text-center text-sm text-muted-foreground">
             Chưa có công ty nào.
           </Card>

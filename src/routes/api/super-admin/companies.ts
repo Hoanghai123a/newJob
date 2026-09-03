@@ -8,6 +8,7 @@ import {
 import {
   getPocketBaseAdminToken,
   getServerAuthUser,
+  invalidatePocketBaseAdminToken,
   pbServerFetch,
   readPbJson,
   escapePb,
@@ -52,32 +53,52 @@ async function count(adminToken: string, collection: string, filter: string) {
 }
 
 async function listCompanies(adminToken: string) {
-  const response = await pbServerFetch(
+  let effectiveToken = adminToken;
+  let response = await pbServerFetch(
     "/api/collections/companies/records?perPage=200",
     {},
     adminToken,
   );
+  if (response.status === 401 || response.status === 403) {
+    invalidatePocketBaseAdminToken(adminToken);
+    const refreshedToken = await getPocketBaseAdminToken();
+    if (refreshedToken && refreshedToken !== adminToken) {
+      effectiveToken = refreshedToken;
+      response = await pbServerFetch(
+        "/api/collections/companies/records?perPage=200",
+        {},
+        refreshedToken,
+      );
+    }
+  }
   const body = await readPbJson(response);
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error("Xác thực quản trị PocketBase không hợp lệ hoặc đã hết hạn.");
+    }
     throw new Error(body?.message || "Không tải được danh sách công ty từ PocketBase.");
   }
   return Promise.all(
     (body?.items || []).map(async (company: any) => ({
       ...company,
       usage: {
-        accounts: await count(adminToken, "users", `tenant_company = "${escapePb(company.id)}"`),
+        accounts: await count(
+          effectiveToken,
+          "users",
+          `tenant_company = "${escapePb(company.id)}"`,
+        ),
         workers: await count(
-          adminToken,
+          effectiveToken,
           "users",
           `tenant_company = "${escapePb(company.id)}" && role = "user"`,
         ),
         factories: await count(
-          adminToken,
+          effectiveToken,
           "factories",
           `tenant_company = "${escapePb(company.id)}"`,
         ),
         employment_histories: await count(
-          adminToken,
+          effectiveToken,
           "employment_histories",
           `tenant_company = "${escapePb(company.id)}"`,
         ),

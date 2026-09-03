@@ -16,7 +16,7 @@ function env(name: string) {
 }
 
 export function escapePb(value: string) {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\\"');
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 export async function pbServerFetch(path: string, init: RequestInit = {}, token?: string) {
@@ -49,11 +49,40 @@ export async function getServerAuthUser(
   return body?.record?.id ? { token, user: body.record } : null;
 }
 
-let cachedAdminToken = "";
-export async function getPocketBaseAdminToken() {
-  if (cachedAdminToken) return cachedAdminToken;
-  const direct = env("PB_ADMIN_TOKEN");
-  if (direct) return (cachedAdminToken = direct);
+type CachedAdminToken = { token: string; expiresAt: number };
+
+const ADMIN_TOKEN_REFRESH_SKEW_MS = 60_000;
+let cachedAdminToken: CachedAdminToken | null = null;
+let adminTokenRequest: Promise<string> | null = null;
+
+function tokenExpiry(token: string) {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    return typeof decoded.exp === "number" ? decoded.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+function usableCachedToken(entry: CachedAdminToken | null) {
+  return Boolean(entry && entry.expiresAt > Date.now() + ADMIN_TOKEN_REFRESH_SKEW_MS);
+}
+
+async function requestAdminToken() {
+  const direct = env("PB_ADMIN_TOKEN").trim();
+  const directExpiry = direct ? tokenExpiry(direct) : null;
+  if (
+    direct &&
+    (directExpiry === null || directExpiry > Date.now() + ADMIN_TOKEN_REFRESH_SKEW_MS)
+  ) {
+    // Tokens without an exp claim are deliberately not cached indefinitely.
+    if (directExpiry === null) return direct;
+    cachedAdminToken = { token: direct, expiresAt: directExpiry };
+    return direct;
+  }
+
   const identity = env("PB_ADMIN_EMAIL");
   const password = env("PB_ADMIN_PASSWORD");
   if (!identity || !password) return "";
@@ -67,9 +96,30 @@ export async function getPocketBaseAdminToken() {
       body: JSON.stringify({ identity, password }),
     });
     const body = await readPbJson(response);
-    if (response.ok && body?.token) return (cachedAdminToken = body.token);
+    if (response.ok && typeof body?.token === "string") {
+      const expiresAt = tokenExpiry(body.token);
+      if (expiresAt && expiresAt > Date.now()) {
+        cachedAdminToken = { token: body.token, expiresAt };
+      } else {
+        cachedAdminToken = null;
+      }
+      return body.token;
+    }
   }
   return "";
+}
+
+export async function getPocketBaseAdminToken() {
+  if (usableCachedToken(cachedAdminToken)) return cachedAdminToken!.token;
+  if (adminTokenRequest) return adminTokenRequest;
+  adminTokenRequest = requestAdminToken().finally(() => {
+    adminTokenRequest = null;
+  });
+  return adminTokenRequest;
+}
+
+export function invalidatePocketBaseAdminToken(token?: string) {
+  if (!token || cachedAdminToken?.token === token) cachedAdminToken = null;
 }
 
 export async function getCompanyForUser(user: ServerAuthUser, adminToken?: string) {
