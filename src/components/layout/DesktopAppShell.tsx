@@ -11,6 +11,7 @@ import {
   Banknote,
   BadgeDollarSign,
   BarChart3,
+  BookOpen,
   Building2,
   CalendarClock,
   ChevronDown,
@@ -71,6 +72,7 @@ const staffNavigation: readonly NavigationSection[] = [
   {
     label: "Tiện ích mở rộng",
     items: [
+      { to: "/user-guide", label: "Hướng dẫn sử dụng", icon: BookOpen },
       { to: "/notebook", label: "Sổ tay", icon: ClipboardList },
       { to: "/staff/tools/qr", label: "Tạo mã QR", icon: QrCode },
       { to: "/staff/money-to-text", label: "Đọc số tiền", icon: BadgeDollarSign },
@@ -106,6 +108,7 @@ const adminNavigation: readonly NavigationSection[] = [
   {
     label: "Tiện ích mở rộng",
     items: [
+      { to: "/user-guide", label: "Hướng dẫn sử dụng", icon: BookOpen },
       { to: "/notebook", label: "Sổ tay", icon: ClipboardList },
       { to: "/staff/tools/qr", label: "Tạo mã QR", icon: QrCode },
       { to: "/staff/money-to-text", label: "Đọc số tiền", icon: BadgeDollarSign },

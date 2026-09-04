@@ -19,6 +19,7 @@ import { Route as ApiTenantCompanyRouteImport } from './routes/api/tenant-compan
 import { Route as ApiEmploymentHistoriesRouteImport } from './routes/api/employment-histories'
 import { Route as AuthenticatedWorkHistoryRouteImport } from './routes/_authenticated/work-history'
 import { Route as AuthenticatedWorkRouteImport } from './routes/_authenticated/work'
+import { Route as AuthenticatedUserGuideRouteImport } from './routes/_authenticated/user-guide'
 import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
 import { Route as AuthenticatedNotebookRouteImport } from './routes/_authenticated/notebook'
@@ -47,6 +48,7 @@ import { Route as ApiPublicAppIcon192RouteImport } from './routes/api/public/app
 import { Route as ApiPublicAppIconRouteImport } from './routes/api/public/app-icon'
 import { Route as ApiEmploymentHistoriesCapacityRouteImport } from './routes/api/employment-histories.capacity'
 import { Route as ApiCompanyLoginContextRouteImport } from './routes/api/company/login-context'
+import { Route as ApiAdminCompanyRecordsRouteImport } from './routes/api/admin/company-records'
 import { Route as AuthenticatedStaffWorkforceRouteImport } from './routes/_authenticated/staff.workforce'
 import { Route as AuthenticatedStaffToolsRouteImport } from './routes/_authenticated/staff.tools'
 import { Route as AuthenticatedStaffSalaryHoldsRouteImport } from './routes/_authenticated/staff.salary-holds'
@@ -136,6 +138,11 @@ const AuthenticatedWorkHistoryRoute =
 const AuthenticatedWorkRoute = AuthenticatedWorkRouteImport.update({
   id: '/work',
   path: '/work',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedUserGuideRoute = AuthenticatedUserGuideRouteImport.update({
+  id: '/user-guide',
+  path: '/user-guide',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSuperAdminRoute = AuthenticatedSuperAdminRouteImport.update({
@@ -281,6 +288,11 @@ const ApiEmploymentHistoriesCapacityRoute =
 const ApiCompanyLoginContextRoute = ApiCompanyLoginContextRouteImport.update({
   id: '/api/company/login-context',
   path: '/api/company/login-context',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminCompanyRecordsRoute = ApiAdminCompanyRecordsRouteImport.update({
+  id: '/api/admin/company-records',
+  path: '/api/admin/company-records',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStaffWorkforceRoute =
@@ -537,6 +549,7 @@ export interface FileRoutesByFullPath {
   '/notebook': typeof AuthenticatedNotebookRoute
   '/staff': typeof AuthenticatedStaffRouteWithChildren
   '/super-admin': typeof AuthenticatedSuperAdminRoute
+  '/user-guide': typeof AuthenticatedUserGuideRoute
   '/work': typeof AuthenticatedWorkRoute
   '/work-history': typeof AuthenticatedWorkHistoryRoute
   '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
@@ -560,6 +573,7 @@ export interface FileRoutesByFullPath {
   '/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
   '/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
   '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
+  '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
@@ -615,6 +629,7 @@ export interface FileRoutesByTo {
   '/news': typeof AuthenticatedNewsRoute
   '/notebook': typeof AuthenticatedNotebookRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
+  '/user-guide': typeof AuthenticatedUserGuideRoute
   '/work': typeof AuthenticatedWorkRoute
   '/work-history': typeof AuthenticatedWorkHistoryRoute
   '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
@@ -635,6 +650,7 @@ export interface FileRoutesByTo {
   '/staff/recruited': typeof AuthenticatedStaffRecruitedRoute
   '/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
   '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
+  '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
@@ -693,6 +709,7 @@ export interface FileRoutesById {
   '/_authenticated/notebook': typeof AuthenticatedNotebookRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteWithChildren
   '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
+  '/_authenticated/user-guide': typeof AuthenticatedUserGuideRoute
   '/_authenticated/work': typeof AuthenticatedWorkRoute
   '/_authenticated/work-history': typeof AuthenticatedWorkHistoryRoute
   '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
@@ -716,6 +733,7 @@ export interface FileRoutesById {
   '/_authenticated/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
   '/_authenticated/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
   '/_authenticated/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
+  '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
@@ -774,6 +792,7 @@ export interface FileRouteTypes {
     | '/notebook'
     | '/staff'
     | '/super-admin'
+    | '/user-guide'
     | '/work'
     | '/work-history'
     | '/api/employment-histories'
@@ -797,6 +816,7 @@ export interface FileRouteTypes {
     | '/staff/salary-holds'
     | '/staff/tools'
     | '/staff/workforce'
+    | '/api/admin/company-records'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
@@ -852,6 +872,7 @@ export interface FileRouteTypes {
     | '/news'
     | '/notebook'
     | '/super-admin'
+    | '/user-guide'
     | '/work'
     | '/work-history'
     | '/api/employment-histories'
@@ -872,6 +893,7 @@ export interface FileRouteTypes {
     | '/staff/recruited'
     | '/staff/salary-holds'
     | '/staff/workforce'
+    | '/api/admin/company-records'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
@@ -929,6 +951,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notebook'
     | '/_authenticated/staff'
     | '/_authenticated/super-admin'
+    | '/_authenticated/user-guide'
     | '/_authenticated/work'
     | '/_authenticated/work-history'
     | '/api/employment-histories'
@@ -952,6 +975,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/salary-holds'
     | '/_authenticated/staff/tools'
     | '/_authenticated/staff/workforce'
+    | '/api/admin/company-records'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
@@ -1001,6 +1025,7 @@ export interface RootRouteChildren {
   ApiEmploymentHistoriesRoute: typeof ApiEmploymentHistoriesRouteWithChildren
   ApiTenantCompanyRoute: typeof ApiTenantCompanyRoute
   ApiUidCounterRoute: typeof ApiUidCounterRoute
+  ApiAdminCompanyRecordsRoute: typeof ApiAdminCompanyRecordsRoute
   ApiCompanyLoginContextRoute: typeof ApiCompanyLoginContextRoute
   ApiPublicAppIconRoute: typeof ApiPublicAppIconRoute
   ApiPublicAppIcon192Route: typeof ApiPublicAppIcon192Route
@@ -1091,6 +1116,13 @@ declare module '@tanstack/react-router' {
       path: '/work'
       fullPath: '/work'
       preLoaderRoute: typeof AuthenticatedWorkRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/user-guide': {
+      id: '/_authenticated/user-guide'
+      path: '/user-guide'
+      fullPath: '/user-guide'
+      preLoaderRoute: typeof AuthenticatedUserGuideRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/super-admin': {
@@ -1287,6 +1319,13 @@ declare module '@tanstack/react-router' {
       path: '/api/company/login-context'
       fullPath: '/api/company/login-context'
       preLoaderRoute: typeof ApiCompanyLoginContextRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/company-records': {
+      id: '/api/admin/company-records'
+      path: '/api/admin/company-records'
+      fullPath: '/api/admin/company-records'
+      preLoaderRoute: typeof ApiAdminCompanyRecordsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/staff/workforce': {
@@ -1673,6 +1712,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNotebookRoute: typeof AuthenticatedNotebookRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRouteWithChildren
   AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
+  AuthenticatedUserGuideRoute: typeof AuthenticatedUserGuideRoute
   AuthenticatedWorkRoute: typeof AuthenticatedWorkRoute
   AuthenticatedWorkHistoryRoute: typeof AuthenticatedWorkHistoryRoute
   AuthenticatedAdminAccountsRoute: typeof AuthenticatedAdminAccountsRouteWithChildren
@@ -1699,6 +1739,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNotebookRoute: AuthenticatedNotebookRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRouteWithChildren,
   AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
+  AuthenticatedUserGuideRoute: AuthenticatedUserGuideRoute,
   AuthenticatedWorkRoute: AuthenticatedWorkRoute,
   AuthenticatedWorkHistoryRoute: AuthenticatedWorkHistoryRoute,
   AuthenticatedAdminAccountsRoute: AuthenticatedAdminAccountsRouteWithChildren,
@@ -1811,6 +1852,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEmploymentHistoriesRoute: ApiEmploymentHistoriesRouteWithChildren,
   ApiTenantCompanyRoute: ApiTenantCompanyRoute,
   ApiUidCounterRoute: ApiUidCounterRoute,
+  ApiAdminCompanyRecordsRoute: ApiAdminCompanyRecordsRoute,
   ApiCompanyLoginContextRoute: ApiCompanyLoginContextRoute,
   ApiPublicAppIconRoute: ApiPublicAppIconRoute,
   ApiPublicAppIcon192Route: ApiPublicAppIcon192Route,
