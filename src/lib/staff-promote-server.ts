@@ -63,40 +63,46 @@ function validateTarget(admin: ServerAuthUser, staff: StaffRecord) {
 
 async function promoteWithLog(admin: ServerAuthUser, staff: StaffRecord, token: string) {
   const name = staff.full_name || staff.username || staff.id;
-  const payload = {
-    requests: [
-      {
-        method: "POST",
-        url: "/api/collections/staff_action_logs/records",
-        headers: {},
-        body: {
-          tenant_company: admin.tenant_company,
-          actor: admin.id,
-          actor_role_snapshot: "admin",
-          target_user: staff.id,
-          target_collection: "users",
-          target_record: staff.id,
-          action: "update",
-          before: { role: "staff" },
-          after: { role: "admin" },
-          note: `Admin ủy quyền ${name} từ Staff lên Admin sau khi xác thực lại mật khẩu`,
-        },
-      },
-      {
-        method: "PATCH",
-        url: `/api/collections/users/records/${encodeURIComponent(staff.id)}`,
-        headers: {},
-        body: { role: "admin" },
-      },
-    ],
-  };
-  const formData = new FormData();
-  formData.append("@jsonPayload", JSON.stringify(payload));
 
-  const response = await pbServerFetch("/api/batch", { method: "POST", body: formData }, token);
-  if (!response.ok) {
-    const body = await readPbJson(response);
-    throw new Error(body?.message || "PocketBase không thể hoàn tất giao dịch nâng quyền.");
+  // Ghi log trước
+  const logResponse = await pbServerFetch(
+    "/api/collections/staff_action_logs/records",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tenant_company: admin.tenant_company,
+        actor: admin.id,
+        actor_role_snapshot: "admin",
+        target_user: staff.id,
+        target_collection: "users",
+        target_record: staff.id,
+        action: "update",
+        before: { role: "staff" },
+        after: { role: "admin" },
+        note: `Admin ủy quyền ${name} từ Staff lên Admin sau khi xác thực lại mật khẩu`,
+      }),
+    },
+    token,
+  );
+  if (!logResponse.ok) {
+    const body = await readPbJson(logResponse);
+    throw new Error(body?.message || "Không thể ghi log nâng quyền.");
+  }
+
+  // Nâng quyền
+  const updateResponse = await pbServerFetch(
+    `/api/collections/users/records/${encodeURIComponent(staff.id)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: "admin" }),
+    },
+    token,
+  );
+  if (!updateResponse.ok) {
+    const body = await readPbJson(updateResponse);
+    throw new Error(body?.message || "Không thể cập nhật role lên admin.");
   }
 }
 
