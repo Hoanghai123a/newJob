@@ -570,16 +570,26 @@ export async function createStaffActionLog(input: StaffActionLogInput) {
   if (!input.actor?.id) return;
 
   let targetUserId = input.targetUserId || "";
-  if (targetUserId) {
+  let targetWorkerId = "";
+
+  // Chỉ tìm worker khi target không phải là staff/admin (collection users)
+  if (targetUserId && input.targetCollection !== "users") {
     const worker = await getWorker(targetUserId).catch(() => null);
-    if (worker) targetUserId = worker.id;
+    if (worker) {
+      targetUserId = worker.id;
+      targetWorkerId = worker.id;
+    }
+  } else if (targetUserId && input.targetCollection === "users") {
+    // Khi target là user (staff/admin), dùng target_user thay vì target_worker
+    targetWorkerId = "";
   }
 
   await pb.collection("staff_action_logs").create({
     ...companyPayload(input.actor as UserRecord),
     actor: input.actor.id,
     actor_role_snapshot: input.actor.role || "user",
-    target_worker: targetUserId,
+    target_user: input.targetCollection === "users" ? targetUserId : "",
+    target_worker: targetWorkerId || (input.targetCollection !== "users" ? targetUserId : ""),
     target_collection: input.targetCollection,
     target_record: input.targetRecord || "",
     action: input.action,
