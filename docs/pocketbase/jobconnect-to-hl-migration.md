@@ -13,7 +13,7 @@ $env:MIGRATION_TEMP_PASSWORD = "nv123456"
 npm run migration:test
 ```
 
-Preflight chỉ đọc, backup schema/record/file và ghi `docs/migration-audit/latest-jobconnect-to-hl-preflight.json`. Nó dừng nếu duplicate UID/employee code, relation mồ côi, tenant mơ hồ hoặc lỗi build/lint.
+Preflight chỉ đọc, backup schema/record/file và ghi `docs/migration-audit/latest-jobconnect-to-hl-preflight.json`. Nó dừng nếu duplicate UID/ID, relation mồ côi, tenant mơ hồ hoặc lỗi build/lint. `employee_code` được phép trùng giữa các tenant; duplicate trong nguồn chỉ được giữ lại khi bật `MIGRATION_ALLOW_SOURCE_EMPLOYEE_CODE_DUPLICATES=1` và sẽ xuất hiện trong `warnings` để rà soát sau migration.
 
 ## Apply
 
@@ -23,6 +23,8 @@ Chỉ chạy sau khi dry-run có `unresolved: []`, đã kiểm tra báo cáo và
 $env:MIGRATION_TEMP_PASSWORD = "nv123456"
 npm run migration:apply
 ```
+
+Khi đã xác nhận mã `employee_code` trùng trong nguồn là dữ liệu cần giữ nguyên, thêm `$env:MIGRATION_ALLOW_SOURCE_EMPLOYEE_CODE_DUPLICATES = "1"` cho cả dry-run và apply. Không dùng cờ này để bỏ qua duplicate UID hoặc ID nguồn.
 
 Apply yêu cầu preflight gần nhất đạt, tự tạo `migration_run_id`, thêm checkpoint sau từng nhóm và không xóa `HOANGLONGDJC`. Không dùng `--no-backup` khi apply production.
 

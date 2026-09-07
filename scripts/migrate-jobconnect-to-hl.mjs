@@ -13,6 +13,8 @@ import PocketBase from "pocketbase";
 const APPLY = process.argv.includes("--apply");
 const DIRECT = process.argv.includes("--direct");
 const KEEP_BACKUP = !process.argv.includes("--no-backup");
+const ALLOW_SOURCE_EMPLOYEE_CODE_DUPLICATES =
+  process.env.MIGRATION_ALLOW_SOURCE_EMPLOYEE_CODE_DUPLICATES === "1";
 const TEMP_PASSWORD = process.env.MIGRATION_TEMP_PASSWORD || "nv123456";
 const MIGRATION_RUN_ID =
   process.env.MIGRATION_RUN_ID ||
@@ -509,14 +511,24 @@ async function main() {
   const sourceUserById = new Map(sourceUsers.map((row) => [row.id, row]));
   const sourceWorkerUsers = sourceUsers.filter((row) => row.role !== "admin");
   for (const field of ["uid", "employee_code"]) {
-    for (const [value, ids] of duplicateValues(sourceUsers, field))
-      report.unresolved.push({
+    for (const [value, ids] of duplicateValues(sourceUsers, field)) {
+      const duplicate = {
         scope: "source",
         field,
         value,
         ids,
         reason: "Giá trị nguồn bị trùng.",
-      });
+      };
+      if (field === "employee_code" && ALLOW_SOURCE_EMPLOYEE_CODE_DUPLICATES) {
+        report.warnings.push({
+          ...duplicate,
+          reason:
+            "Giữ nguyên mã nhân viên trùng theo từng bản ghi nguồn; cần rà soát sau migration.",
+        });
+      } else {
+        report.unresolved.push(duplicate);
+      }
+    }
   }
   const sourceRecords = new Map();
   for (const collection of sourceCollections) {
@@ -637,9 +649,6 @@ async function main() {
     }
   }
   const sourceUids = new Set(sourceUsers.map((user) => String(user.uid || "")).filter(Boolean));
-  const sourceEmployeeCodes = new Set(
-    sourceUsers.map((user) => String(user.employee_code || "")).filter(Boolean),
-  );
   for (const rows of targetRowsByCollection.values()) {
     for (const row of rows.filter((item) => !isAllowedTenantRow(item))) {
       if (row.uid && sourceUids.has(String(row.uid)))
@@ -648,13 +657,6 @@ async function main() {
           targetId: row.id,
           uid: row.uid,
           reason: "UID nguồn đã tồn tại ngoài tenant test.",
-        });
-      if (row.employee_code && sourceEmployeeCodes.has(String(row.employee_code)))
-        report.unresolved.push({
-          scope: "employee_code",
-          targetId: row.id,
-          employee_code: row.employee_code,
-          reason: "Mã nhân viên nguồn đã tồn tại ngoài tenant test.",
         });
     }
   }
