@@ -20,6 +20,8 @@ export interface CompanyRecord {
   max_factories?: number;
   max_file_bytes?: number;
   max_employment_histories?: number;
+  max_recruitment_entities?: number;
+  max_staff_accounts?: number;
   created?: string;
   updated?: string;
 }

@@ -37,6 +37,33 @@ async function historyCount(adminToken: string, companyId: string) {
   return Number(body?.totalItems || 0);
 }
 
+async function companyUsage(adminToken: string, companyId: string) {
+  const tenant = escapePb(companyId);
+  const [staffAccounts, factories, recruitmentEntities, workers, accounts] = await Promise.all([
+    count(
+      adminToken,
+      "users",
+      `tenant_company = "${tenant}" && (role = "staff" || role = "admin")`,
+    ),
+    count(adminToken, "factories", `tenant_company = "${tenant}"`),
+    count(adminToken, "recruitment_entities", `tenant_company = "${tenant}"`),
+    count(adminToken, "users", `tenant_company = "${tenant}" && role = "user"`),
+    count(adminToken, "users", `tenant_company = "${tenant}"`),
+  ]);
+  return { staffAccounts, factories, recruitmentEntities, workers, accounts };
+}
+
+async function count(adminToken: string, collection: string, filter: string) {
+  const response = await pbServerFetch(
+    `/api/collections/${collection}/records?page=1&perPage=1&skipTotal=0&filter=${encodeURIComponent(filter)}&fields=id`,
+    {},
+    adminToken,
+  );
+  const body = await readPbJson(response);
+  if (!response.ok) throw new Error(body?.message || `Không kiểm tra được dữ liệu ${collection}.`);
+  return Number(body?.totalItems || 0);
+}
+
 async function updateCompanyIdentity(
   adminToken: string,
   companyId: string,
@@ -143,6 +170,8 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId")({
           "max_factories",
           "max_file_bytes",
           "max_employment_histories",
+          "max_recruitment_entities",
+          "max_staff_accounts",
         ];
         const payload = Object.fromEntries(
           Object.entries(body || {}).filter(([key]) => allowed.includes(key)),
@@ -154,8 +183,8 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId")({
           if (!payload.name) return error("Tên công ty không được để trống.");
         }
         if (payload.code !== undefined) {
-          payload.code = normalizeCompanyCode(payload.code);
-          if (!payload.code || !isSupportedCompanyCode(payload.code))
+          payload.code = normalizeCompanyCode(String(payload.code));
+          if (!payload.code || !isSupportedCompanyCode(String(payload.code)))
             return error("Mã công ty chỉ gồm chữ, số, dấu chấm hoặc gạch dưới.");
           try {
             const record = await updateCompanyIdentity(
@@ -172,23 +201,44 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId")({
             );
           }
         }
-        if (payload.max_employment_histories !== undefined) {
-          const limit = Number(payload.max_employment_histories);
-          if (!Number.isSafeInteger(limit) || limit < 0)
-            return error("Giới hạn lịch sử lao động phải là số nguyên không âm.");
+        const limitSpecs = [
+          ["max_accounts", "tài khoản", "accounts"],
+          ["max_workers", "lao động", "workers"],
+          ["max_factories", "nhà máy", "factories"],
+          ["max_recruitment_entities", "Nhà chính/Đối tác", "recruitment_entities"],
+          ["max_staff_accounts", "nhân viên quản lý", "staff_accounts"],
+          ["max_employment_histories", "lịch sử lao động", "employment_histories"],
+          ["max_file_bytes", "dung lượng tệp", "file_bytes"],
+        ] as const;
+        const hasLimitUpdate = limitSpecs.some(([field]) => payload[field] !== undefined);
+        if (hasLimitUpdate) {
           try {
-            const existing = await historyCount(ctx.adminToken, params.companyId);
-            if (limit > 0 && limit < existing)
-              return error(
-                `Giới hạn không được thấp hơn ${existing} bản ghi lịch sử lao động hiện có.`,
-              );
+            const usage = await companyUsage(ctx.adminToken, params.companyId);
+            for (const [field, label, usageKey] of limitSpecs) {
+              if (payload[field] === undefined) continue;
+              const limit = Number(payload[field]);
+              if (!Number.isSafeInteger(limit) || limit < 0)
+                return error(`Giới hạn ${label} phải là số nguyên không âm.`);
+              const actual =
+                usageKey === "employment_histories"
+                  ? await historyCount(ctx.adminToken, params.companyId)
+                  : usageKey === "file_bytes"
+                    ? 0
+                    : usageKey === "staff_accounts"
+                      ? usage.staffAccounts
+                      : usageKey === "recruitment_entities"
+                        ? usage.recruitmentEntities
+                        : usage[usageKey];
+              if (limit > 0 && limit < actual)
+                return error(`Giới hạn ${label} không được thấp hơn ${actual} bản ghi hiện có.`);
+              payload[field] = limit;
+            }
           } catch (cause) {
             return error(
-              cause instanceof Error ? cause.message : "Không kiểm tra được lịch sử lao động.",
+              cause instanceof Error ? cause.message : "Không kiểm tra được hạn mức.",
               502,
             );
           }
-          payload.max_employment_histories = limit;
         }
         const response = await pbServerFetch(
           `/api/collections/companies/records/${encodeURIComponent(params.companyId)}`,

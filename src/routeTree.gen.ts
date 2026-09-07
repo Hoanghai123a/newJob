@@ -48,6 +48,7 @@ import { Route as ApiPublicAppIcon192RouteImport } from './routes/api/public/app
 import { Route as ApiPublicAppIconRouteImport } from './routes/api/public/app-icon'
 import { Route as ApiEmploymentHistoriesCapacityRouteImport } from './routes/api/employment-histories.capacity'
 import { Route as ApiCompanyLoginContextRouteImport } from './routes/api/company/login-context'
+import { Route as ApiAdvancesHydrateRequestersRouteImport } from './routes/api/advances/hydrate-requesters'
 import { Route as ApiAdminCompanyRecordsRouteImport } from './routes/api/admin/company-records'
 import { Route as AuthenticatedStaffWorkforceRouteImport } from './routes/_authenticated/staff.workforce'
 import { Route as AuthenticatedStaffToolsRouteImport } from './routes/_authenticated/staff.tools'
@@ -290,6 +291,12 @@ const ApiCompanyLoginContextRoute = ApiCompanyLoginContextRouteImport.update({
   path: '/api/company/login-context',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdvancesHydrateRequestersRoute =
+  ApiAdvancesHydrateRequestersRouteImport.update({
+    id: '/api/advances/hydrate-requesters',
+    path: '/api/advances/hydrate-requesters',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminCompanyRecordsRoute = ApiAdminCompanyRecordsRouteImport.update({
   id: '/api/admin/company-records',
   path: '/api/admin/company-records',
@@ -574,6 +581,7 @@ export interface FileRoutesByFullPath {
   '/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
   '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
   '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
@@ -651,6 +659,7 @@ export interface FileRoutesByTo {
   '/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
   '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
   '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
@@ -734,6 +743,7 @@ export interface FileRoutesById {
   '/_authenticated/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
   '/_authenticated/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
   '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
@@ -817,6 +827,7 @@ export interface FileRouteTypes {
     | '/staff/tools'
     | '/staff/workforce'
     | '/api/admin/company-records'
+    | '/api/advances/hydrate-requesters'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
@@ -894,6 +905,7 @@ export interface FileRouteTypes {
     | '/staff/salary-holds'
     | '/staff/workforce'
     | '/api/admin/company-records'
+    | '/api/advances/hydrate-requesters'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
@@ -976,6 +988,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/tools'
     | '/_authenticated/staff/workforce'
     | '/api/admin/company-records'
+    | '/api/advances/hydrate-requesters'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
@@ -1026,6 +1039,7 @@ export interface RootRouteChildren {
   ApiTenantCompanyRoute: typeof ApiTenantCompanyRoute
   ApiUidCounterRoute: typeof ApiUidCounterRoute
   ApiAdminCompanyRecordsRoute: typeof ApiAdminCompanyRecordsRoute
+  ApiAdvancesHydrateRequestersRoute: typeof ApiAdvancesHydrateRequestersRoute
   ApiCompanyLoginContextRoute: typeof ApiCompanyLoginContextRoute
   ApiPublicAppIconRoute: typeof ApiPublicAppIconRoute
   ApiPublicAppIcon192Route: typeof ApiPublicAppIcon192Route
@@ -1319,6 +1333,13 @@ declare module '@tanstack/react-router' {
       path: '/api/company/login-context'
       fullPath: '/api/company/login-context'
       preLoaderRoute: typeof ApiCompanyLoginContextRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/advances/hydrate-requesters': {
+      id: '/api/advances/hydrate-requesters'
+      path: '/api/advances/hydrate-requesters'
+      fullPath: '/api/advances/hydrate-requesters'
+      preLoaderRoute: typeof ApiAdvancesHydrateRequestersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/company-records': {
@@ -1853,6 +1874,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTenantCompanyRoute: ApiTenantCompanyRoute,
   ApiUidCounterRoute: ApiUidCounterRoute,
   ApiAdminCompanyRecordsRoute: ApiAdminCompanyRecordsRoute,
+  ApiAdvancesHydrateRequestersRoute: ApiAdvancesHydrateRequestersRoute,
   ApiCompanyLoginContextRoute: ApiCompanyLoginContextRoute,
   ApiPublicAppIconRoute: ApiPublicAppIconRoute,
   ApiPublicAppIcon192Route: ApiPublicAppIcon192Route,

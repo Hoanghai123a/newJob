@@ -9,6 +9,7 @@ import { fetchFactories, type FactoryRecord } from "./factories";
 import { fetchMainHouses, type MainHouseRecord } from "./main-houses";
 import { pb, type UserRecord } from "./pocketbase";
 import { companyFilter, companyIdOf } from "./tenant";
+import { createCompanyRecord } from "./company-limits";
 import { resolveBankName } from "./vn-banks";
 
 export const MAX_BULK_WORKERS = 1_000;
@@ -629,10 +630,7 @@ export async function applyBulkWorkerImportReferences(
         : { status: "active" };
     const record = item.existingId
       ? await pb.collection("factories").update(item.existingId, payload)
-      : await pb.collection("factories").create({
-          ...payload,
-          tenant_company: companyIdOf(pb.authStore.record as UserRecord | null),
-        });
+      : await createCompanyRecord("factories", payload);
     applied.push({
       id: record.id,
       name: item.name,
@@ -655,10 +653,7 @@ export async function applyBulkWorkerImportReferences(
         : { status: "active" };
     const record = item.existingId
       ? await pb.collection("recruitment_entities").update(item.existingId, payload)
-      : await pb.collection("recruitment_entities").create({
-          ...payload,
-          tenant_company: companyIdOf(pb.authStore.record as UserRecord | null),
-        });
+      : await createCompanyRecord("recruitment_entities", payload);
     applied.push({
       id: record.id,
       name: item.name,
@@ -1181,8 +1176,7 @@ export function downloadBulkWorkerTemplate() {
           "3. Có thể thêm hậu tố a-z, dấu chấm (.) hoặc gạch dưới (_) sau SĐT/CCCD để tạo username khác nhau (ví dụ: 0901234567_a, 001234567890.b). Hậu tố KHÔNG lưu vào hồ sơ.",
       },
       {
-        "Quy tắc":
-          "4. Ngày nhập dạng dd/mm/yyyy (hoặc yyyy-mm-dd, hoặc số serial Excel đều được).",
+        "Quy tắc": "4. Ngày nhập dạng dd/mm/yyyy (hoặc yyyy-mm-dd, hoặc số serial Excel đều được).",
       },
       {
         "Quy tắc":

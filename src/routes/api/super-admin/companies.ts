@@ -20,6 +20,8 @@ const DEFAULT_LIMITS = {
   max_factories: 0,
   max_file_bytes: 0,
   max_employment_histories: 0,
+  max_recruitment_entities: 0,
+  max_staff_accounts: 0,
 };
 
 function error(message: string, status = 400) {
@@ -30,9 +32,10 @@ function text(value: unknown, limit = 200) {
     .trim()
     .slice(0, limit);
 }
-function number(value: unknown) {
+function limitValue(value: unknown) {
+  if (value === undefined || value === "") return 0;
   const n = Number(value);
-  return Number.isFinite(n) && n >= 0 ? Math.trunc(n) : 0;
+  return Number.isSafeInteger(n) && n >= 0 ? n : null;
 }
 
 async function requireSuperAdmin(request: Request) {
@@ -92,9 +95,19 @@ async function listCompanies(adminToken: string) {
           "users",
           `tenant_company = "${escapePb(company.id)}" && role = "user"`,
         ),
+        staff_accounts: await count(
+          effectiveToken,
+          "users",
+          `tenant_company = "${escapePb(company.id)}" && (role = "staff" || role = "admin")`,
+        ),
         factories: await count(
           effectiveToken,
           "factories",
+          `tenant_company = "${escapePb(company.id)}"`,
+        ),
+        recruitment_entities: await count(
+          effectiveToken,
+          "recruitment_entities",
           `tenant_company = "${escapePb(company.id)}"`,
         ),
         employment_histories: await count(
@@ -137,6 +150,11 @@ export const Route = createFileRoute("/api/super-admin/companies")({
           adminPassword.length < 8
         )
           return error("Nhập đủ tên, mã công ty, tài khoản Admin và mật khẩu tối thiểu 8 ký tự.");
+        const limits = Object.fromEntries(
+          Object.keys(DEFAULT_LIMITS).map((key) => [key, limitValue(body?.[key])]),
+        );
+        const invalidLimit = Object.entries(limits).find(([, value]) => value === null);
+        if (invalidLimit) return error(`Giới hạn ${invalidLimit[0]} phải là số nguyên không âm.`);
         const companyResponse = await pbServerFetch(
           "/api/collections/companies/records",
           {
@@ -150,9 +168,7 @@ export const Route = createFileRoute("/api/super-admin/companies")({
               hotline: text(body?.hotline, 40),
               email: text(body?.email, 120),
               ...DEFAULT_LIMITS,
-              ...Object.fromEntries(
-                Object.keys(DEFAULT_LIMITS).map((key) => [key, number(body?.[key])]),
-              ),
+              ...limits,
             }),
           },
           ctx.adminToken,

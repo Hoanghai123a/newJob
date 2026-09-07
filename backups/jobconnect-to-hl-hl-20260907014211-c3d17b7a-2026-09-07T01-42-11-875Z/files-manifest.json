@@ -1,0 +1,308 @@
+[
+  {
+    "collection": "users",
+    "recordId": "77uartyi6rhbl85",
+    "field": "avatar",
+    "filename": "b3echkjced27_dx5q8mqg0z.png",
+    "path": "files/users/77uartyi6rhbl85/b3echkjced27_dx5q8mqg0z.png",
+    "size": 312485,
+    "sha256": "ee27da174128a4fc83fb9cfb4d76d96a7ac853daf66a9ec6a4ae79c8cde6db63"
+  },
+  {
+    "collection": "users",
+    "recordId": "dwinxx6g4tvph9b",
+    "field": "avatar",
+    "filename": "b5gwi7c7jyf8_iyz76oblh3.png",
+    "path": "files/users/dwinxx6g4tvph9b/b5gwi7c7jyf8_iyz76oblh3.png",
+    "size": 265621,
+    "sha256": "1e432924128b9bb6063af032a3f1cac78f588694d60f32b7414e95dbbe34d658"
+  },
+  {
+    "collection": "app_settings",
+    "recordId": "kba9wyoiyhkt406",
+    "field": "logo",
+    "filename": "1000010602_wop90mzo0f.jpg",
+    "path": "files/app_settings/kba9wyoiyhkt406/1000010602_wop90mzo0f.jpg",
+    "size": 34701,
+    "sha256": "16bb50424dab0b956e6a830d65611e022a32dd42920d816cd1fc948645b4084f"
+  },
+  {
+    "collection": "app_settings",
+    "recordId": "kba9wyoiyhkt406",
+    "field": "install_guide_images",
+    "filename": "b1jrbvwyrak0_5rfdcym41c.png",
+    "path": "files/app_settings/kba9wyoiyhkt406/b1jrbvwyrak0_5rfdcym41c.png",
+    "size": 255363,
+    "sha256": "3709d6450d095f9ae26dff5fef7e4a4f409673d0588defdf814a3f50d9101388"
+  },
+  {
+    "collection": "app_settings",
+    "recordId": "kba9wyoiyhkt406",
+    "field": "install_guide_images",
+    "filename": "b2s4kiemrq5s_0cgzsy7m8c.png",
+    "path": "files/app_settings/kba9wyoiyhkt406/b2s4kiemrq5s_0cgzsy7m8c.png",
+    "size": 323050,
+    "sha256": "bc285c7cbe4c73608329a6e9a9b2800f54630f3824d441862d9411f6327a4e1f"
+  },
+  {
+    "collection": "app_settings",
+    "recordId": "kba9wyoiyhkt406",
+    "field": "install_guide_images",
+    "filename": "b37sbb9sh8p0_i7bsjfazy7.png",
+    "path": "files/app_settings/kba9wyoiyhkt406/b37sbb9sh8p0_i7bsjfazy7.png",
+    "size": 312485,
+    "sha256": "ee27da174128a4fc83fb9cfb4d76d96a7ac853daf66a9ec6a4ae79c8cde6db63"
+  },
+  {
+    "collection": "app_settings",
+    "recordId": "kba9wyoiyhkt406",
+    "field": "install_guide_images",
+    "filename": "b45cipzw060f_ixcsbpkpxy.png",
+    "path": "files/app_settings/kba9wyoiyhkt406/b45cipzw060f_ixcsbpkpxy.png",
+    "size": 292563,
+    "sha256": "8eaa5fd2bc029edd8562c938ef59df15ac530d2fe1a164939f169d9c6f785ec6"
+  },
+  {
+    "collection": "app_settings",
+    "recordId": "kba9wyoiyhkt406",
+    "field": "install_guide_images",
+    "filename": "b5awctcp58pg_4vuhs0mu17.png",
+    "path": "files/app_settings/kba9wyoiyhkt406/b5awctcp58pg_4vuhs0mu17.png",
+    "size": 265621,
+    "sha256": "1e432924128b9bb6063af032a3f1cac78f588694d60f32b7414e95dbbe34d658"
+  },
+  {
+    "collection": "app_settings",
+    "recordId": "kba9wyoiyhkt406",
+    "field": "install_guide_images",
+    "filename": "b61op2l5ba35_l1p2yr2mc5.png",
+    "path": "files/app_settings/kba9wyoiyhkt406/b61op2l5ba35_l1p2yr2mc5.png",
+    "size": 220164,
+    "sha256": "96009a7e776d7da11d443ac0ab1e1e5feddb81a837e344702446678cf7e9ca9c"
+  },
+  {
+    "collection": "recruitments",
+    "recordId": "uqonp7d2zre6d7t",
+    "field": "images",
+    "filename": "compal_h43z4k8fde.png",
+    "path": "files/recruitments/uqonp7d2zre6d7t/compal_h43z4k8fde.png",
+    "size": 730236,
+    "sha256": "798e922990c5f8ef29c8150a83e98bba738d56b26ae574d0bdc506ee6853f9ba"
+  },
+  {
+    "collection": "recruitments",
+    "recordId": "uqonp7d2zre6d7t",
+    "field": "images",
+    "filename": "compal1_hg7lyas70w.jpg",
+    "path": "files/recruitments/uqonp7d2zre6d7t/compal1_hg7lyas70w.jpg",
+    "size": 53739,
+    "sha256": "c631d96670da8d57775ccdf71e9693e4ebb9d5b8a3cdaf09ba33d19753d780c2"
+  },
+  {
+    "collection": "recruitments",
+    "recordId": "uqonp7d2zre6d7t",
+    "field": "images",
+    "filename": "compal2_kq29qbfus1.jpg",
+    "path": "files/recruitments/uqonp7d2zre6d7t/compal2_kq29qbfus1.jpg",
+    "size": 1210911,
+    "sha256": "3bdc4128e037743cd9846a07b1660cf55b6a00972d013c8a80fb0c63ec135dff"
+  },
+  {
+    "collection": "check_attendance_batches",
+    "recordId": "nglrcjq3cpt2ohe",
+    "field": "source_file",
+    "filename": "mau_check_cong_2026_05_3_y91l80fdjp.xlsx",
+    "path": "files/check_attendance_batches/nglrcjq3cpt2ohe/mau_check_cong_2026_05_3_y91l80fdjp.xlsx",
+    "size": 8917,
+    "sha256": "9460a0b55765b10f830ed744d83642b77db6759c797635e4a290580d56c84551"
+  },
+  {
+    "collection": "check_attendance_batches",
+    "recordId": "qlp8m5h6jqcm95l",
+    "field": "source_file",
+    "filename": "check_cong_2026_06_zevbnq6uia.xlsx",
+    "path": "files/check_attendance_batches/qlp8m5h6jqcm95l/check_cong_2026_06_zevbnq6uia.xlsx",
+    "size": 8913,
+    "sha256": "2a9d357d80ee0987b3b62322cc4ee23f3b33f1df8976240381d675e7bb890a6f"
+  },
+  {
+    "collection": "check_attendance_batches",
+    "recordId": "rxf73kqq6qbmzq5",
+    "field": "source_file",
+    "filename": "check_cong_2026_06_c0241f1lg8.xlsx",
+    "path": "files/check_attendance_batches/rxf73kqq6qbmzq5/check_cong_2026_06_c0241f1lg8.xlsx",
+    "size": 9238,
+    "sha256": "a111f92a64f0d4c88ba346c3dd3fd8e44d37f5a6b209d2b30e3878f456a3e37b"
+  },
+  {
+    "collection": "check_salary_batches",
+    "recordId": "3u2d3l1jdejtsar",
+    "field": "source_file",
+    "filename": "mau_check_luong_2026_05_ijpfbdpwnz.xlsx",
+    "path": "files/check_salary_batches/3u2d3l1jdejtsar/mau_check_luong_2026_05_ijpfbdpwnz.xlsx",
+    "size": 9269,
+    "sha256": "630548984554d0a040e421979327c7ecf08b11b96b229000a501bc7d65d056e4"
+  },
+  {
+    "collection": "check_salary_batches",
+    "recordId": "y2slwtg27yc7uef",
+    "field": "source_file",
+    "filename": "mau_check_luong_2026_05_t7wv702dxq.xlsx",
+    "path": "files/check_salary_batches/y2slwtg27yc7uef/mau_check_luong_2026_05_t7wv702dxq.xlsx",
+    "size": 9240,
+    "sha256": "9f4b628c70b3cc56564fb498b558880df38d4b12bbfd7bfa5ee069a314b90948"
+  },
+  {
+    "collection": "check_salary_batches",
+    "recordId": "bymbmalk6kihap4",
+    "field": "source_file",
+    "filename": "check_luong_2026_06_ocldd3uddt.xlsx",
+    "path": "files/check_salary_batches/bymbmalk6kihap4/check_luong_2026_06_ocldd3uddt.xlsx",
+    "size": 8906,
+    "sha256": "3b5378ceca1c6f8a18a2362569641bfcad67f53fe2881197c1638f68d1d3581e"
+  },
+  {
+    "collection": "check_salary_batches",
+    "recordId": "uq3pjooailhz6s3",
+    "field": "source_file",
+    "filename": "mau_check_luong_2026_07_crcmjw2g6g.xlsx",
+    "path": "files/check_salary_batches/uq3pjooailhz6s3/mau_check_luong_2026_07_crcmjw2g6g.xlsx",
+    "size": 8712,
+    "sha256": "fec47c531b58f6398885e5ac5d963467864bf418f1fb359ad144378afb6e797a"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "rq4u2jdd0do035b",
+    "field": "front_image",
+    "filename": "545xnx96q60_r322uc1as6.jpg",
+    "path": "files/cccd_versions/rq4u2jdd0do035b/545xnx96q60_r322uc1as6.jpg",
+    "size": 42931,
+    "sha256": "1b268e1719ce8203aef9e5de98c5b42e5f108f167c94ce9f972b29869c4f784e"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "rq4u2jdd0do035b",
+    "field": "back_image",
+    "filename": "22hiw3qw1bn3_g8j0bvjeq3.jpg",
+    "path": "files/cccd_versions/rq4u2jdd0do035b/22hiw3qw1bn3_g8j0bvjeq3.jpg",
+    "size": 59076,
+    "sha256": "03daf64dd1f88eeefe7ccc0ad3933fea1ec63ba5a576e44a46900de35662b738"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "n0c3jyaumawmsrz",
+    "field": "front_image",
+    "filename": "5dbb7nfoj9j_3wpdcoiaw5.jpg",
+    "path": "files/cccd_versions/n0c3jyaumawmsrz/5dbb7nfoj9j_3wpdcoiaw5.jpg",
+    "size": 42931,
+    "sha256": "1b268e1719ce8203aef9e5de98c5b42e5f108f167c94ce9f972b29869c4f784e"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "n0c3jyaumawmsrz",
+    "field": "back_image",
+    "filename": "11718ntdg1re_8q08j6yiki.jpg",
+    "path": "files/cccd_versions/n0c3jyaumawmsrz/11718ntdg1re_8q08j6yiki.jpg",
+    "size": 48969,
+    "sha256": "c9cf6c011e7d71c0804c0159fc4b1fe51d8319788b1e0b93878def472e20189e"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "2nu42ch1gm3z6sk",
+    "field": "front_image",
+    "filename": "cccd_mat_truoc_1786112965841_sevppqgf4j.jpg",
+    "path": "files/cccd_versions/2nu42ch1gm3z6sk/cccd_mat_truoc_1786112965841_sevppqgf4j.jpg",
+    "size": 49116,
+    "sha256": "450601f0b943e7f9bb1c78450ac52f9c9f2781532e33bdbf32a15865979bf935"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "2nu42ch1gm3z6sk",
+    "field": "back_image",
+    "filename": "cccd_mat_sau_1786112977890_zzaggmb1c3.jpg",
+    "path": "files/cccd_versions/2nu42ch1gm3z6sk/cccd_mat_sau_1786112977890_zzaggmb1c3.jpg",
+    "size": 45834,
+    "sha256": "e5dab486b2ca87334e8f6e3bfeca8051d115420542c770422d437d3984231551"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "biir830wg6m5c9k",
+    "field": "front_image",
+    "filename": "cccd_mat_truoc_1786621754549_qqtvlzciha.jpg",
+    "path": "files/cccd_versions/biir830wg6m5c9k/cccd_mat_truoc_1786621754549_qqtvlzciha.jpg",
+    "size": 35771,
+    "sha256": "bba568e821dd04416617031d686c777ee9cc82e341c15061866534bf389defa4"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "biir830wg6m5c9k",
+    "field": "back_image",
+    "filename": "cccd_mat_sau_1786621774780_kypnqmv1sf.jpg",
+    "path": "files/cccd_versions/biir830wg6m5c9k/cccd_mat_sau_1786621774780_kypnqmv1sf.jpg",
+    "size": 48682,
+    "sha256": "168b0f986faad2cd6fa86786dc5948f5110092335f6143d1f2c59ada9b831fa1"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "yk3j4l5p8f2hqzo",
+    "field": "front_image",
+    "filename": "cccd_mat_truoc_1786952150680_00x6rj84ed.jpg",
+    "path": "files/cccd_versions/yk3j4l5p8f2hqzo/cccd_mat_truoc_1786952150680_00x6rj84ed.jpg",
+    "size": 43462,
+    "sha256": "a2d19b87aab28be89fd20fa6c601490085d6e0881c694a9afa6337d81a137945"
+  },
+  {
+    "collection": "cccd_versions",
+    "recordId": "yk3j4l5p8f2hqzo",
+    "field": "back_image",
+    "filename": "cccd_mat_sau_1786952147366_jjbjzvng5f.jpg",
+    "path": "files/cccd_versions/yk3j4l5p8f2hqzo/cccd_mat_sau_1786952147366_jjbjzvng5f.jpg",
+    "size": 49217,
+    "sha256": "17d3692756d61749f1c443c5ba10bd467d83d713e0eb7bd6e5d3a4f1128349a6"
+  },
+  {
+    "collection": "approval_requests",
+    "recordId": "mievis25degh0ft",
+    "field": "images",
+    "filename": "672uecm6qzy_enhofgur7e.jpg",
+    "path": "files/approval_requests/mievis25degh0ft/672uecm6qzy_enhofgur7e.jpg",
+    "size": 259501,
+    "sha256": "6fc290b91bdf135a2625ac2d65da1fd7d7ed1ec31e14772a3abd0641e0dbc871"
+  },
+  {
+    "collection": "approval_requests",
+    "recordId": "mievis25degh0ft",
+    "field": "images",
+    "filename": "logo_3q5zt6agcn.png",
+    "path": "files/approval_requests/mievis25degh0ft/logo_3q5zt6agcn.png",
+    "size": 30938,
+    "sha256": "ad8d07a4b23d2afd1167f4e77633d33716d8fca9416751db595c3012ea7e9e1a"
+  },
+  {
+    "collection": "guide_documents",
+    "recordId": "bi97g63k00t85ze",
+    "field": "files",
+    "filename": "book1_vvbgki5qxq.xlsx",
+    "path": "files/guide_documents/bi97g63k00t85ze/book1_vvbgki5qxq.xlsx",
+    "size": 14531,
+    "sha256": "6fae619dc1fd35f48a1588c44364856053146f21576af1d2920e0d151bf76249"
+  },
+  {
+    "collection": "guide_documents",
+    "recordId": "bi97g63k00t85ze",
+    "field": "files",
+    "filename": "doc1_kzj9ii64px.docx",
+    "path": "files/guide_documents/bi97g63k00t85ze/doc1_kzj9ii64px.docx",
+    "size": 12883,
+    "sha256": "b758a6df947ad9dccd1747ad76a4a489a7f2aca1dbc16ed772556a54bf7a0129"
+  },
+  {
+    "collection": "guide_documents",
+    "recordId": "bi97g63k00t85ze",
+    "field": "files",
+    "filename": "form_ti_n_ph_ng_ktx_5vf325tj1o.xlsx",
+    "path": "files/guide_documents/bi97g63k00t85ze/form_ti_n_ph_ng_ktx_5vf325tj1o.xlsx",
+    "size": 13273,
+    "sha256": "36cdc1f58bc2d383dcc7f6f62f211684cde56231076bed42dbfe1e65609e1033"
+  }
+]

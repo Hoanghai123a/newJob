@@ -25,9 +25,13 @@ export const Route = createFileRoute("/api/advances/hydrate-requesters")({
             (typeof process !== "undefined" ? process.env.PB_URL : undefined) ||
             "";
           const adminEmail =
-            typeof process !== "undefined" ? process.env.POCKETBASE_ADMIN_EMAIL || "" : "";
+            typeof process !== "undefined"
+              ? process.env.POCKETBASE_ADMIN_EMAIL || process.env.PB_ADMIN_EMAIL || ""
+              : "";
           const adminPassword =
-            typeof process !== "undefined" ? process.env.POCKETBASE_ADMIN_PASSWORD || "" : "";
+            typeof process !== "undefined"
+              ? process.env.POCKETBASE_ADMIN_PASSWORD || process.env.PB_ADMIN_PASSWORD || ""
+              : "";
 
           if (!pbUrl || !adminEmail || !adminPassword) {
             console.error("Missing PocketBase admin credentials in environment");

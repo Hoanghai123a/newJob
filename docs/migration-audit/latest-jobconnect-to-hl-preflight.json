@@ -1,0 +1,257 @@
+{
+  "apply": false,
+  "direct": false,
+  "created_at": "2026-09-07T02:36:37.809Z",
+  "migration_run_id": "hl-20260907023637-33f2dff6",
+  "sourceUrl": "http://127.0.0.1:8090",
+  "targetUrl": "http://localhost:8290",
+  "backupDir": "D:\\My App\\newApp\\backups\\jobconnect-to-hl-hl-20260907023637-33f2dff6-2026-09-07T02-36-37-809Z",
+  "excludedCollections": [
+    "garden_foods",
+    "garden_exchange_tiers",
+    "garden_balances",
+    "garden_exchange_requests",
+    "garden_visit_saves",
+    "garden_game_sessions",
+    "garden_gem_rewards",
+    "garden_duels",
+    "garden_coin_logs",
+    "gems",
+    "gem_transactions",
+    "minesweeper",
+    "minesweeper_scores",
+    "counter",
+    "counters",
+    "game_sessions",
+    "game_scores"
+  ],
+  "unresolved": [],
+  "warnings": [
+    {
+      "scope": "company",
+      "reason": "Mã HL đã tồn tại; sẽ tái sử dụng để chạy idempotent."
+    },
+    {
+      "scope": "company",
+      "reason": "Không tìm thấy tenant test HOANGLONGDJC; tiếp tục vì migration không tự động purge tenant test."
+    }
+  ],
+  "counts": {
+    "users": 17,
+    "complaints": 4,
+    "app_settings": 1,
+    "advances": 6,
+    "attendance": 48,
+    "guides": 4,
+    "factories": 3,
+    "recruitments": 1,
+    "check_attendance_batches": 3,
+    "check_attendance_items": 5,
+    "check_salary_batches": 4,
+    "check_salary_items": 4,
+    "group_chat_messages": 14,
+    "transport_contacts": 1,
+    "recruitment_areas": 4,
+    "factory_managers": 1,
+    "employment_histories": 14,
+    "staff_action_logs": 148,
+    "recruitment_entities": 2,
+    "chat_rooms": 1,
+    "chat_room_members": 1,
+    "chat_join_requests": 1,
+    "cccd_versions": 10,
+    "notebook_categories": 1,
+    "notebook_entries": 0,
+    "approval_requests": 1,
+    "approval_responses": 1,
+    "push_subscriptions": 1,
+    "salary_holds": 7,
+    "work_progress_tabs": 1,
+    "work_progress_statuses": 3,
+    "work_progress_tasks": 2,
+    "guide_documents": 1
+  },
+  "mapping": {
+    "users": {
+      "77uartyi6rhbl85": {
+        "id": "new",
+        "username": "hl__admin",
+        "role": "admin"
+      },
+      "uiv0bjbth0h2nhx": {
+        "id": "new",
+        "username": "hl__nv02",
+        "role": "user"
+      },
+      "dwinxx6g4tvph9b": {
+        "id": "new",
+        "username": "hl__nv04",
+        "role": "staff"
+      },
+      "mcuithhgvxq1oer": {
+        "id": "new",
+        "username": "hl__nv05",
+        "role": "user"
+      },
+      "7zgadkco1qi6rb8": {
+        "id": "new",
+        "username": "hl__nv06",
+        "role": "user"
+      },
+      "u7i50k0teemm3mb": {
+        "id": "new",
+        "username": "hl__chamchikiemtiem",
+        "role": "user"
+      },
+      "7205g1uzun0c3zz": {
+        "id": "new",
+        "username": "hl__codexui2355",
+        "role": "user"
+      },
+      "9ghuzvtqudvfboa": {
+        "id": "new",
+        "username": "hl__nv02_2",
+        "role": "user"
+      },
+      "poivcpvlkym5av1": {
+        "id": "new",
+        "username": "hl__nv99",
+        "role": "user"
+      },
+      "830sc5qnu867t86": {
+        "id": "new",
+        "username": "hl__nvhl",
+        "role": "staff"
+      },
+      "bo85ujxgoa4m62c": {
+        "id": "new",
+        "username": "hl__nvtest",
+        "role": "admin"
+      },
+      "e1e5az09dfop723": {
+        "id": "new",
+        "username": "hl__nldtest",
+        "role": "user"
+      },
+      "m9ukni4c390eaa4": {
+        "id": "new",
+        "username": "hl__0855536618",
+        "role": "user"
+      },
+      "1ahxwxyhp7fll9i": {
+        "id": "new",
+        "username": "hl__0343733777",
+        "role": "user"
+      },
+      "mtvfk5bviaew5vd": {
+        "id": "new",
+        "username": "hl__0343751753",
+        "role": "user"
+      },
+      "k7ggk76o5tin1ov": {
+        "id": "new",
+        "username": "hl__0225365254",
+        "role": "user"
+      },
+      "t1gk7bk6l6gqi91": {
+        "id": "new",
+        "username": "hl__codextest0823072302",
+        "role": "user"
+      }
+    },
+    "workers": {
+      "uiv0bjbth0h2nhx": {
+        "sourceUserId": "uiv0bjbth0h2nhx"
+      },
+      "dwinxx6g4tvph9b": {
+        "sourceUserId": "dwinxx6g4tvph9b"
+      },
+      "mcuithhgvxq1oer": {
+        "sourceUserId": "mcuithhgvxq1oer"
+      },
+      "7zgadkco1qi6rb8": {
+        "sourceUserId": "7zgadkco1qi6rb8"
+      },
+      "u7i50k0teemm3mb": {
+        "sourceUserId": "u7i50k0teemm3mb"
+      },
+      "7205g1uzun0c3zz": {
+        "sourceUserId": "7205g1uzun0c3zz"
+      },
+      "9ghuzvtqudvfboa": {
+        "sourceUserId": "9ghuzvtqudvfboa"
+      },
+      "poivcpvlkym5av1": {
+        "sourceUserId": "poivcpvlkym5av1"
+      },
+      "830sc5qnu867t86": {
+        "sourceUserId": "830sc5qnu867t86"
+      },
+      "e1e5az09dfop723": {
+        "sourceUserId": "e1e5az09dfop723"
+      },
+      "m9ukni4c390eaa4": {
+        "sourceUserId": "m9ukni4c390eaa4"
+      },
+      "1ahxwxyhp7fll9i": {
+        "sourceUserId": "1ahxwxyhp7fll9i"
+      },
+      "mtvfk5bviaew5vd": {
+        "sourceUserId": "mtvfk5bviaew5vd"
+      },
+      "k7ggk76o5tin1ov": {
+        "sourceUserId": "k7ggk76o5tin1ov"
+      },
+      "t1gk7bk6l6gqi91": {
+        "sourceUserId": "t1gk7bk6l6gqi91"
+      }
+    },
+    "collections": {
+      "users": "users",
+      "complaints": "complaints",
+      "app_settings": "app_settings",
+      "advances": "advances",
+      "attendance": "attendance",
+      "guides": "guides",
+      "factories": "factories",
+      "recruitments": "recruitments",
+      "check_attendance_batches": "check_attendance_batches",
+      "check_attendance_items": "check_attendance_items",
+      "check_salary_batches": "check_salary_batches",
+      "check_salary_items": "check_salary_items",
+      "group_chat_messages": "group_chat_messages",
+      "transport_contacts": "transport_contacts",
+      "recruitment_areas": "recruitment_areas",
+      "factory_managers": "factory_managers",
+      "employment_histories": "employment_histories",
+      "staff_action_logs": "staff_action_logs",
+      "recruitment_entities": "recruitment_entities",
+      "chat_rooms": "chat_rooms",
+      "chat_room_members": "chat_room_members",
+      "chat_join_requests": "chat_join_requests",
+      "cccd_versions": "cccd_versions",
+      "notebook_categories": "notebook_categories",
+      "notebook_entries": "notebook_entries",
+      "approval_requests": "approval_requests",
+      "approval_responses": "approval_responses",
+      "push_subscriptions": "push_subscriptions",
+      "salary_holds": "salary_holds",
+      "work_progress_tabs": "work_progress_tabs",
+      "work_progress_statuses": "work_progress_statuses",
+      "work_progress_tasks": "work_progress_tasks",
+      "guide_documents": "guide_documents"
+    }
+  },
+  "purgePreview": null,
+  "checkpoints": [],
+  "created_ids": {
+    "companies": [],
+    "users": [],
+    "workers": [],
+    "records": {}
+  },
+  "sourceFiles": {
+    "count": 34,
+    "sha256": "69a57d7143eda9e0b882695c68212587165a6a85360ffd7e1d3b2d3040e8db7d"
+  }
+}

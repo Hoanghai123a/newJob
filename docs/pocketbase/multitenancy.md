@@ -33,7 +33,7 @@ Một số collection cũ (`advances`, `recruitments`) đã dùng field text `co
 
 ## Thay đổi được script áp dụng
 
-- Tạo collection `companies`: mã duy nhất, tên, trạng thái, thông tin liên hệ và hạn mức `max_accounts`, `max_workers`, `max_factories`, `max_file_bytes`.
+- Tạo collection `companies`: mã duy nhất, tên, trạng thái, thông tin liên hệ và hạn mức `max_accounts`, `max_workers`, `max_factories`, `max_file_bytes`, `max_employment_histories`, `max_recruitment_entities`, `max_staff_accounts`.
 - Bổ sung relation tenant cho collection nghiệp vụ; không thay đổi `uid_counters` và collection hệ thống không thuộc tenant.
 - Không tự tạo công ty mặc định hoặc gán hàng loạt bản ghi thiếu tenant. Dry-run xuất `unresolved`; chỉ backfill khi có bằng chứng xác định duy nhất từ quan hệ hiện có.
 
@@ -57,6 +57,8 @@ Dùng field tenant thực tế của collection:
 ```
 
 Với relation tới `users`, `factories`, `employment_histories`, phải thêm điều kiện relation đó cùng tenant field bằng `@request.auth.company`. Không cấp quyền nghiệp vụ cho `super_admin`; role này chỉ có rule CRUD với collection `companies` và API `/api/super-admin/*`.
+
+Để áp dụng hạn mức động, quyền `create` của `factories` và `recruitment_entities` được khóa trong PocketBase; ứng dụng tạo mới qua API server `/api/admin/company-records`. Rule `users` chỉ cho phép tạo tài khoản role `user`; Staff/Admin được tạo qua API này để kiểm tra `max_staff_accounts`.
 
 Sau khi backfill và kiểm tra hoàn tất, đặt relation tenant thành bắt buộc theo từng collection. Không đặt `company` text của các collection tương thích thành bắt buộc như tenant relation.
 

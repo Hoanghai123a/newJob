@@ -1,0 +1,48 @@
+{
+  "migration_run_id": "hl-20260907013605-8112b362",
+  "status": "completed",
+  "checkpoint": "advances",
+  "checkpoints": [
+    {
+      "name": "preflight",
+      "status": "completed",
+      "at": "2026-09-07T01:36:06.137Z"
+    },
+    {
+      "name": "company",
+      "status": "completed",
+      "at": "2026-09-07T01:36:06.141Z"
+    },
+    {
+      "name": "users-workers",
+      "status": "completed",
+      "at": "2026-09-07T01:36:07.991Z"
+    },
+    {
+      "name": "complaints",
+      "status": "completed",
+      "at": "2026-09-07T01:36:07.999Z"
+    },
+    {
+      "name": "app_settings",
+      "status": "completed",
+      "at": "2026-09-07T01:36:08.069Z"
+    },
+    {
+      "name": "advances",
+      "status": "completed",
+      "at": "2026-09-07T01:36:08.079Z"
+    }
+  ],
+  "created": {
+    "company": 1,
+    "users": 17,
+    "workers": 13,
+    "records": {
+      "complaints": 4,
+      "app_settings": 1,
+      "advances": 6
+    }
+  },
+  "companyId": "9jkfh1ndtkbigyk"
+}

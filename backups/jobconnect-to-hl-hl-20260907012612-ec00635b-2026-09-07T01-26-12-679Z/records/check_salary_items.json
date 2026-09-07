@@ -1,0 +1,288 @@
+[
+  {
+    "allowance_lines": [
+      {
+        "amount": 500000,
+        "label": "Chuyên cần"
+      },
+      {
+        "amount": 300000,
+        "label": "Đời sống"
+      },
+      {
+        "amount": 200000,
+        "label": "Thâm niên"
+      }
+    ],
+    "batch": "3u2d3l1jdejtsar",
+    "collectionId": "pbc_1743178508",
+    "collectionName": "check_salary_items",
+    "created": "2026-05-23 00:33:06.134Z",
+    "deduction_lines": [
+      {
+        "amount": 525000,
+        "label": "BHXH"
+      },
+      {
+        "amount": 200000,
+        "label": "Tạm ứng"
+      },
+      {
+        "amount": 200000,
+        "label": "Đồng phục"
+      }
+    ],
+    "id": "cqy6poxyr9lfcos",
+    "month": "2026-05",
+    "personal": {
+      "base_salary": 5000000,
+      "company": "Compal",
+      "employee_code": "223344",
+      "end_date": "",
+      "standard_workdays": 26,
+      "start_date": "2026-05-01"
+    },
+    "round_no": 1,
+    "totals": {
+      "allowance": 1000000,
+      "deduction": 925000,
+      "net": 7228846.153846154,
+      "wage": 7153846.153846154
+    },
+    "updated": "2026-05-23 00:33:06.134Z",
+    "user": "dwinxx6g4tvph9b",
+    "wage_lines": [
+      {
+        "amount": 5000000,
+        "hours": 208,
+        "rate": "100%"
+      },
+      {
+        "amount": 360576.9230769231,
+        "hours": 10,
+        "rate": "150%"
+      },
+      {
+        "amount": 480769.23076923075,
+        "hours": 10,
+        "rate": "2"
+      },
+      {
+        "amount": 519230.76923076925,
+        "hours": 8,
+        "rate": "2.7"
+      },
+      {
+        "amount": 793269.2307692309,
+        "hours": 11,
+        "rate": "3"
+      }
+    ]
+  },
+  {
+    "allowance_lines": [
+      {
+        "amount": 300000,
+        "label": "Chuyên cần"
+      },
+      {
+        "amount": 300000,
+        "label": "Đời sống"
+      }
+    ],
+    "batch": "y2slwtg27yc7uef",
+    "collectionId": "pbc_1743178508",
+    "collectionName": "check_salary_items",
+    "created": "2026-05-23 00:43:12.490Z",
+    "deduction_lines": [
+      {
+        "amount": 200000,
+        "label": "Tạm ứng"
+      },
+      {
+        "amount": 200000,
+        "label": "Đồng phục"
+      }
+    ],
+    "id": "jhat1klx0zliian",
+    "month": "2026-05",
+    "personal": {
+      "base_salary": 5000000,
+      "company": "Compal",
+      "employee_code": "223344",
+      "end_date": "",
+      "standard_workdays": 26,
+      "start_date": "2026-05-01"
+    },
+    "round_no": 2,
+    "totals": {
+      "allowance": 600000,
+      "deduction": 400000,
+      "net": 7673557.692307692,
+      "wage": 7473557.692307692
+    },
+    "updated": "2026-05-23 00:43:12.489Z",
+    "user": "dwinxx6g4tvph9b",
+    "wage_lines": [
+      {
+        "amount": 5000000,
+        "hours": 208,
+        "rate": "100%"
+      },
+      {
+        "amount": 360576.9230769231,
+        "hours": 10,
+        "rate": "150%"
+      },
+      {
+        "amount": 504807.69230769237,
+        "hours": 10,
+        "rate": "210%"
+      },
+      {
+        "amount": 576923.076923077,
+        "hours": 8,
+        "rate": "300%"
+      },
+      {
+        "amount": 1031250,
+        "hours": 11,
+        "rate": "390%"
+      }
+    ]
+  },
+  {
+    "allowance_lines": [
+      {
+        "amount": 500000,
+        "label": "Chuyên cần"
+      },
+      {
+        "amount": 300000,
+        "label": "Đời sống"
+      }
+    ],
+    "batch": "bymbmalk6kihap4",
+    "collectionId": "pbc_1743178508",
+    "collectionName": "check_salary_items",
+    "created": "2026-06-30 13:32:19.687Z",
+    "deduction_lines": [
+      {
+        "amount": 525000,
+        "label": "BHXH"
+      },
+      {
+        "amount": 200000,
+        "label": "Tạm ứng"
+      }
+    ],
+    "id": "wzy9gsa6l7bgzad",
+    "month": "2026-06",
+    "personal": {
+      "base_salary": 5000000,
+      "company": "Compal",
+      "employee_code": "NV002",
+      "end_date": "2026-06-30",
+      "standard_workdays": 26,
+      "start_date": "2026-05-20"
+    },
+    "round_no": 1,
+    "totals": {
+      "allowance": 800000,
+      "deduction": 725000,
+      "net": 9053686,
+      "wage": 8978686
+    },
+    "updated": "2026-06-30 13:32:19.687Z",
+    "user": "poivcpvlkym5av1",
+    "wage_lines": [
+      {
+        "amount": 5000000,
+        "hours": 208,
+        "rate": "100%"
+      },
+      {
+        "amount": 360577,
+        "hours": 10,
+        "rate": "150%"
+      },
+      {
+        "amount": 280316,
+        "hours": 5,
+        "rate": "200%"
+      },
+      {
+        "amount": 884631,
+        "hours": 14,
+        "rate": "270%"
+      },
+      {
+        "amount": 2453162,
+        "hours": 64,
+        "rate": "130%"
+      }
+    ]
+  },
+  {
+    "allowance_lines": [
+      {
+        "amount": 300000,
+        "label": "Đời sống"
+      },
+      {
+        "amount": 500000,
+        "label": "Chuyên cần"
+      }
+    ],
+    "batch": "uq3pjooailhz6s3",
+    "collectionId": "pbc_1743178508",
+    "collectionName": "check_salary_items",
+    "created": "2026-07-07 02:32:41.855Z",
+    "deduction_lines": [
+      {
+        "amount": 525000,
+        "label": "BHXH"
+      },
+      {
+        "amount": 200000,
+        "label": "Ứng"
+      }
+    ],
+    "id": "341sb3zp3rvaerf",
+    "month": "2026-07",
+    "personal": {
+      "base_salary": 5000000,
+      "company": "Compal",
+      "employee_code": "VA12563",
+      "end_date": "",
+      "standard_workdays": 26,
+      "start_date": "2026-07-02"
+    },
+    "round_no": 1,
+    "totals": {
+      "allowance": 800000,
+      "deduction": 725000,
+      "net": 5810577,
+      "wage": 5735577
+    },
+    "updated": "2026-07-07 02:32:41.855Z",
+    "user": "e1e5az09dfop723",
+    "wage_lines": [
+      {
+        "amount": 5000000,
+        "hours": 208,
+        "rate": "100%"
+      },
+      {
+        "amount": 375000,
+        "hours": 12,
+        "rate": "130%"
+      },
+      {
+        "amount": 360577,
+        "hours": 10,
+        "rate": "150%"
+      }
+    ]
+  }
+]
