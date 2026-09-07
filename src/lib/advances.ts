@@ -289,7 +289,5 @@ export async function countAdvances(filter: string) {
 }
 
 export function formatMoney(value: number) {
-  return Number(value || 0).toLocaleString("vi-VN", {
-    maximumFractionDigits: 0,
-  });
+  return Math.floor(Number(value || 0)).toLocaleString("vi-VN");
 }
