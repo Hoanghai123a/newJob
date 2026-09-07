@@ -33,6 +33,8 @@ const LIMIT_FIELDS = [
   { name: "max_workers", type: "number", min: 0, onlyInt: true },
   { name: "max_factories", type: "number", min: 0, onlyInt: true },
   { name: "max_file_bytes", type: "number", min: 0, onlyInt: true },
+  { name: "max_recruitment_entities", type: "number", min: 0, onlyInt: true },
+  { name: "max_staff_accounts", type: "number", min: 0, onlyInt: true },
 ];
 const COMPANY_FIELDS = [
   { name: "code", type: "text", required: true, max: 40 },
@@ -420,7 +422,7 @@ function usersAccessRules() {
   const tenant = "tenant_company = @request.auth.tenant_company";
   const manageableRole = '(role = "user" || role = "staff" || role = "")';
   const requestedManageableRole =
-    '(@request.body.role:isset = false || @request.body.role = "user" || @request.body.role = "staff" || @request.body.role = "")';
+    '(@request.body.role:isset = false || @request.body.role = "user" || @request.body.role = "")';
   const unchangedTenant =
     "(@request.body.tenant_company:isset = false || @request.body.tenant_company = @request.auth.tenant_company)";
   const selfAdminUpdate =
@@ -435,6 +437,8 @@ function usersAccessRules() {
     deleteRule: `(@request.auth.role = "super_admin" || (@request.auth.role = "admin" && ${tenant} && ${manageableRole}) || (@request.auth.role != "admin" && @request.auth.id != "" && ${tenant}))`,
   };
 }
+
+const API_ONLY_CREATE_COLLECTIONS = new Set(["factories", "recruitment_entities"]);
 
 async function ensureTenantRules(collections) {
   const changes = [];
@@ -451,8 +455,9 @@ async function ensureTenantRules(collections) {
     const next = {
       listRule: accessRules?.listRule || appendRule(collection.listRule, recordConstraint),
       viewRule: accessRules?.viewRule || appendRule(collection.viewRule, recordConstraint),
-      createRule:
-        accessRules?.createRule || appendRule(collection.createRule, createBodyConstraint),
+      createRule: API_ONLY_CREATE_COLLECTIONS.has(collection.name)
+        ? null
+        : accessRules?.createRule || appendRule(collection.createRule, createBodyConstraint),
       updateRule:
         accessRules?.updateRule || appendRule(collection.updateRule, updateBodyConstraint),
       deleteRule: accessRules?.deleteRule || appendRule(collection.deleteRule, deleteConstraint),
