@@ -210,7 +210,9 @@ export function buildAdminAdvanceSegmentFilter(segment: AdminAdvanceSegment) {
 export function containsAny(fields: string[], keyword: string) {
   const q = escapePb(keyword.trim());
   if (!q) return "";
-  return `(${fields.map((field) => `${field}~"${q}"`).join(" || ")})`;
+  // Chỉ tìm 3 trường cốt lõi: full_name, employee_code, phone
+  const mainFields = fields.slice(0, 3);
+  return `(${mainFields.map((field) => `${field}~"${q}"`).join(" || ")})`;
 }
 
 export function buildAdvanceFilter(input: {
