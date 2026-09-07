@@ -1607,7 +1607,7 @@ function AdvancesPage() {
                         <span className="text-sm font-bold leading-tight text-primary">
                           {formatMoney(row.amount)}
                         </span>
-                        {row.original_amount && row.original_amount !== row.amount && (
+                        {Boolean(row.original_amount) && row.original_amount !== row.amount && (
                           <span className="text-[11px] text-muted-foreground line-through">
                             {formatMoney(row.original_amount)}
                           </span>
