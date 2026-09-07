@@ -292,7 +292,11 @@ function buildAdvanceDaySummaries(
 
 function getOutstandingRequesterName(row: OutstandingAdvance) {
   const requester = row.expand?.requested_by;
-  return requester?.full_name || requester?.username || requester?.phone || "Không xác định";
+  if (requester) {
+    return requester.full_name || requester.username || requester.phone || "Không xác định";
+  }
+  // Return ID as fallback - will be fixed by hydrateAdvanceRequesters
+  return row.requested_by || "Không xác định";
 }
 
 // PLACEHOLDER_CONTINUE

@@ -2620,9 +2620,11 @@ function getAdvanceRequesterName(row: AdvanceRecord) {
   if (requester) {
     return requester.full_name || requester.username || requester.phone || row.requested_by || "-";
   }
+  // If requested_by is the worker themselves
   if (row.requested_by && row.worker && row.requested_by === row.worker) {
     return row.full_name || row.employee_code || row.phone || "-";
   }
+  // Return ID as fallback - will be fixed by hydrateAdvanceRequesters
   return row.requested_by || "-";
 }
 
@@ -2631,9 +2633,11 @@ function getAdvanceRequesterMeta(row: AdvanceRecord) {
   if (requester) {
     return [requester.phone].filter(Boolean).join(" - ") || "-";
   }
+  // If requested_by is the worker themselves
   if (row.requested_by && row.worker && row.requested_by === row.worker) {
     return [row.employee_code, row.company, row.phone].filter(Boolean).join(" - ") || "-";
   }
+  // Return ID as fallback - will be fixed by hydrateAdvanceRequesters
   return row.requested_by || "-";
 }
 

@@ -54,22 +54,60 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
   const requesterIds = [
     ...new Set(
       rows
-        .filter((row) => row.requested_by && !row.expand?.requested_by)
+        .filter((row) => {
+          // Include rows where requested_by exists but expand failed or returned null
+          if (!row.requested_by) return false;
+          const hasValidExpand = row.expand?.requested_by?.id;
+          return !hasValidExpand;
+        })
         .map((row) => row.requested_by as string),
     ),
   ];
+
   if (!requesterIds.length) return rows;
 
-  const filter = requesterIds.map((id) => `id="${escapePb(id)}"`).join(" || ");
-  const requesters = await pb
-    .collection("users")
-    .getFullList<UserRecord>({ filter, fields: "id,full_name,username,phone,role" })
-    .catch(() => [] as UserRecord[]);
-  const byId = new Map(requesters.map((requester) => [requester.id, requester]));
+  console.log(`Hydrating ${requesterIds.length} advance requesters:`, requesterIds);
+
+  // Try to fetch users by ID - some may not be in current tenant due to migration
+  // Fetch in batches to avoid too long filter strings
+  const batchSize = 50;
+  const allRequesters: UserRecord[] = [];
+
+  for (let i = 0; i < requesterIds.length; i += batchSize) {
+    const batch = requesterIds.slice(i, i + batchSize);
+    const filter = batch.map((id) => `id="${escapePb(id)}"`).join(" || ");
+
+    try {
+      const requesters = await pb
+        .collection("users")
+        .getFullList<UserRecord>({
+          filter,
+          fields: "id,full_name,username,phone,role,tenant_company",
+        });
+      allRequesters.push(...requesters);
+      console.log(`Fetched ${requesters.length} requesters in batch`);
+    } catch (error) {
+      console.warn(`Failed to fetch batch of ${batch.length} advance requesters:`, error);
+    }
+  }
+
+  const byId = new Map(allRequesters.map((requester) => [requester.id, requester]));
 
   return rows.map((row) => {
-    const requester = row.requested_by ? byId.get(row.requested_by) : undefined;
-    if (!requester) return row;
+    if (!row.requested_by) return row;
+
+    // Check if already has valid expand
+    if (row.expand?.requested_by?.id) return row;
+
+    const requester = byId.get(row.requested_by);
+    if (!requester) {
+      // User not found - likely deleted or in different tenant after migration
+      console.warn(
+        `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`
+      );
+      return row;
+    }
+
     return { ...row, expand: { ...row.expand, requested_by: requester } };
   });
 }
