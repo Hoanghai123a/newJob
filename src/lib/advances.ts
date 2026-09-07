@@ -158,8 +158,9 @@ export const ADVANCE_TAB_FILTERS = {
   all: "",
 } satisfies Record<AdminTab, string>;
 
-export const LEGACY_STAFF_REQUESTED_PENDING_FILTER =
-  '(status="pending" && (requested_by.role="staff" || requested_by.role="admin"))';
+// Note: PocketBase does NOT support filtering by expanded relation fields (requested_by.role)
+// Admin should see all pending advances regardless of who created them
+export const LEGACY_STAFF_REQUESTED_PENDING_FILTER = 'status="pending"';
 
 export const STATUS_META: Record<
   AdvanceStatus,
