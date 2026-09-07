@@ -68,8 +68,43 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
 
   console.log(`Hydrating ${requesterIds.length} advance requesters:`, requesterIds);
 
-  // Try to fetch users by ID - some may not be in current tenant due to migration
-  // Fetch in batches to avoid too long filter strings
+  // Fallback: if we can't fetch users from PocketBase, try to get from API route
+  // which uses admin token to bypass listRule restrictions
+  try {
+    const response = await fetch("/api/advances/hydrate-requesters", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: pb.authStore.token ? `Bearer ${pb.authStore.token}` : "",
+      },
+      body: JSON.stringify({ requesterIds }),
+    });
+
+    if (response.ok) {
+      const requesters = (await response.json()) as UserRecord[];
+      console.log(`Fetched ${requesters.length} requesters via API route`);
+      const byId = new Map(requesters.map((requester) => [requester.id, requester]));
+
+      return rows.map((row) => {
+        if (!row.requested_by) return row;
+        if (row.expand?.requested_by?.id) return row;
+
+        const requester = byId.get(row.requested_by);
+        if (!requester) {
+          console.warn(
+            `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`
+          );
+          return row;
+        }
+
+        return { ...row, expand: { ...row.expand, requested_by: requester } };
+      });
+    }
+  } catch (error) {
+    console.warn("Failed to use API route for hydration, falling back to direct fetch:", error);
+  }
+
+  // Fallback to direct PocketBase fetch (will likely fail due to listRule)
   const batchSize = 50;
   const allRequesters: UserRecord[] = [];
 
@@ -85,9 +120,10 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
           fields: "id,full_name,username,phone,role,tenant_company",
         });
       allRequesters.push(...requesters);
-      console.log(`Fetched ${requesters.length} requesters in batch`);
+      console.log(`Fetched ${requesters.length} requesters in batch`, requesters.map(r => r.id));
     } catch (error) {
-      console.warn(`Failed to fetch batch of ${batch.length} advance requesters:`, error);
+      console.error(`Failed to fetch batch of ${batch.length} advance requesters:`, error);
+      console.error(`Filter used: ${filter}`);
     }
   }
 
