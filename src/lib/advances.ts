@@ -50,6 +50,30 @@ export type AdvanceRecord = {
   created: string;
 };
 
+export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
+  const requesterIds = [
+    ...new Set(
+      rows
+        .filter((row) => row.requested_by && !row.expand?.requested_by)
+        .map((row) => row.requested_by as string),
+    ),
+  ];
+  if (!requesterIds.length) return rows;
+
+  const filter = requesterIds.map((id) => `id="${escapePb(id)}"`).join(" || ");
+  const requesters = await pb
+    .collection("users")
+    .getFullList<UserRecord>({ filter, fields: "id,full_name,username,phone,role" })
+    .catch(() => [] as UserRecord[]);
+  const byId = new Map(requesters.map((requester) => [requester.id, requester]));
+
+  return rows.map((row) => {
+    const requester = row.requested_by ? byId.get(row.requested_by) : undefined;
+    if (!requester) return row;
+    return { ...row, expand: { ...row.expand, requested_by: requester } };
+  });
+}
+
 export const ADVANCE_TAB_FILTERS = {
   pending: 'status="pending"',
   recruiter_approved: 'status="recruiter_approved"',

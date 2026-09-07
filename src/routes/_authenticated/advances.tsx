@@ -31,6 +31,7 @@ import {
   buildAdminAdvanceSegmentFilter,
   buildAdvanceFilter,
   formatMoney,
+  hydrateAdvanceRequesters,
 } from "@/lib/advances";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ResponsiveOverlay } from "@/components/layout/ResponsiveOverlay";
@@ -392,7 +393,7 @@ function AdvancesPage() {
         isAdmin && tab === "pending"
           ? await pb.collection("advances").getFullList<AdvanceRecord>(listOptions)
           : (await pb.collection("advances").getList<AdvanceRecord>(1, 300, listOptions)).items;
-      setItems(rows);
+      setItems(await hydrateAdvanceRequesters(rows));
       if (!isAdmin) {
         const latestResolved = rows.reduce(
           (max, row) => Math.max(max, row.resolved_at ? new Date(row.resolved_at).getTime() : 0),

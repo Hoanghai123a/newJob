@@ -25,6 +25,7 @@ import {
   joinPbFilters,
   buildAdvanceFilter,
   formatMoney,
+  hydrateAdvanceRequesters,
 } from "@/lib/advances";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { FilterBar } from "@/components/ui/filter-bar";
@@ -435,7 +436,7 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
         sort: "-created",
         expand: "requested_by",
       });
-      setItems(res.items as unknown as AdvanceRecord[]);
+      setItems(await hydrateAdvanceRequesters(res.items as unknown as AdvanceRecord[]));
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Lỗi tải Ứng lương"));
     } finally {
