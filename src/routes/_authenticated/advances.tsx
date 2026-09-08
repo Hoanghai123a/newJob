@@ -118,6 +118,27 @@ export const Route = createFileRoute("/_authenticated/advances")({
 const TRANSFER_DESCRIPTION_STORAGE_KEY = "jobconnect.advanceTransferDescriptionTemplate";
 const ADVANCE_FILTERS_STORAGE_KEY = "jobconnect.advanceFilters";
 const DEFAULT_TRANSFER_DESCRIPTION_TEMPLATE = "Giải ngân ứng + tên";
+const ADVANCE_PAGINATION_TABS = new Set<AdminTab>(["recovered", "all"]);
+const ADVANCE_PAGE_SIZE = 40;
+
+function localIsoDate(date = new Date()) {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function shiftLocalIsoDate(isoDate: string, months: number) {
+  const date = new Date(`${isoDate}T00:00:00`);
+  date.setMonth(date.getMonth() + months);
+  return localIsoDate(date);
+}
+
+function getAdvanceExportDefaults() {
+  const today = localIsoDate();
+  return {
+    from: shiftLocalIsoDate(today, -18),
+    to: today,
+  };
+}
 
 type DisbursementFilter = "all" | "yes" | "no";
 type AdvanceUndoKind = "recovery" | "rejection";
@@ -223,9 +244,11 @@ function AdvancesPage() {
   const [storedFilters] = useState(readStoredAdvanceFilters);
 
   const [items, setItems] = useState<AdvanceRecord[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [search, setSearch] = useState(storedFilters.search || "");
   const debouncedSearch = useDebouncedSearch(search);
   const [tab, setTab] = useState<AdminTab>(storedFilters.tab || "pending");
+  const [page, setPage] = useState(1);
   const [showProfile, setShowProfile] = useState(false);
   const [sending, setSending] = useState(false);
   const [amountText, setAmountText] = useState("");
@@ -264,6 +287,9 @@ function AdvancesPage() {
   const [showFilters, setShowFilters] = useState(Boolean(storedFilters.showFilters));
   const [undoRequest, setUndoRequest] = useState<AdvanceUndoRequest | null>(null);
   const [undoing, setUndoing] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportDateFrom, setExportDateFrom] = useState(() => getAdvanceExportDefaults().from);
+  const [exportDateTo, setExportDateTo] = useState(() => getAdvanceExportDefaults().to);
   const [advanceSettingOpen, setAdvanceSettingOpen] = useState(false);
   const [disableConfirmationOpen, setDisableConfirmationOpen] = useState(false);
   const [advanceSettingSaving, setAdvanceSettingSaving] = useState(false);
@@ -366,6 +392,8 @@ function AdvancesPage() {
     [isAdmin, disbursementFilter],
   );
 
+  const isPaginatedTab = ADVANCE_PAGINATION_TABS.has(tab);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -391,11 +419,34 @@ function AdvancesPage() {
         sort: "-created",
         expand: "requested_by",
       };
-      const rows =
-        isAdmin && tab === "pending"
-          ? await pb.collection("advances").getFullList<AdvanceRecord>(listOptions)
-          : (await pb.collection("advances").getList<AdvanceRecord>(1, 300, listOptions)).items;
+      let rows: AdvanceRecord[];
+      let nextTotalItems = 0;
+      let nextTotalPages = 1;
+      if (isAdmin && tab === "pending") {
+        rows = await pb.collection("advances").getFullList<AdvanceRecord>(listOptions);
+        nextTotalItems = rows.length;
+      } else if (isPaginatedTab) {
+        const response = await pb.collection("advances").getList<AdvanceRecord>(
+          page,
+          ADVANCE_PAGE_SIZE,
+          listOptions,
+        );
+        rows = response.items;
+        nextTotalItems = response.totalItems;
+        nextTotalPages = response.totalPages;
+      } else {
+        const response = await pb.collection("advances").getList<AdvanceRecord>(1, 300, listOptions);
+        rows = response.items;
+        nextTotalItems = response.totalItems;
+        nextTotalPages = response.totalPages;
+      }
       setItems(await hydrateAdvanceRequesters(rows));
+      setTotalItems(nextTotalItems || rows.length);
+      if (isPaginatedTab) {
+        setPage((current) => Math.min(current, nextTotalPages || 1));
+      } else {
+        setPage(1);
+      }
       if (!isAdmin) {
         const latestResolved = rows.reduce(
           (max, row) => Math.max(max, row.resolved_at ? new Date(row.resolved_at).getTime() : 0),
@@ -418,6 +469,8 @@ function AdvancesPage() {
     isAdmin,
     isStaff,
     debouncedSearch,
+    isPaginatedTab,
+    page,
     selectedFactoryName,
     tab,
     user?.id,
@@ -506,11 +559,21 @@ function AdvancesPage() {
 
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [dateFrom, dateTo, disbursementFilter, factoryFilter, debouncedSearch, tab]);
+    setPage(1);
+  }, [adminSegment, dateFrom, dateTo, disbursementFilter, factoryFilter, debouncedSearch, tab]);
+
+  useEffect(() => {
+    if (!isPaginatedTab) return;
+    setPage((current) => Math.min(current, Math.max(1, Math.ceil(totalItems / ADVANCE_PAGE_SIZE))));
+  }, [isPaginatedTab, totalItems]);
 
   const limit = advancePolicy?.limit || 0;
   const outstanding = advancePolicy?.outstanding || 0;
   const available = advancePolicy?.available || 0;
+  const totalAdvancePages = Math.max(1, Math.ceil(totalItems / ADVANCE_PAGE_SIZE));
+  const pageStart = isPaginatedTab && totalItems > 0 ? (page - 1) * ADVANCE_PAGE_SIZE + 1 : 0;
+  const pageEnd = isPaginatedTab ? Math.min(page * ADVANCE_PAGE_SIZE, totalItems) : items.length;
+  const exportDefaults = getAdvanceExportDefaults();
 
   const filtered = items;
   const isActionable = (row: AdvanceRecord) => {
@@ -931,8 +994,31 @@ function AdvancesPage() {
     }
   };
 
+  const openExportDialog = () => {
+    const defaults = getAdvanceExportDefaults();
+    setExportDateFrom(defaults.from);
+    setExportDateTo(defaults.to);
+    setExportOpen(true);
+  };
+
   const exportCurrent = async () => {
     if (exporting || loading) return;
+    const defaults = getAdvanceExportDefaults();
+    const from = exportDateFrom || defaults.from;
+    const to = exportDateTo || defaults.to;
+    if (from < defaults.from) {
+      toast.error(`Ngày đầu không được sớm hơn ${defaults.from.split("-").reverse().join("/")}`);
+      return;
+    }
+    if (to > defaults.to) {
+      toast.error("Ngày cuối không được lớn hơn hôm nay");
+      return;
+    }
+    if (from > to) {
+      toast.error("Ngày đầu phải nhỏ hơn hoặc bằng ngày cuối");
+      return;
+    }
+
     setExporting(true);
     try {
       const response = await fetch("/api/tenant-company", {
@@ -943,14 +1029,38 @@ function AdvancesPage() {
         throw new Error(payload?.message || "Không lấy được mã công ty để đặt tên file.");
       }
 
-      const rows = buildAdvanceExportRows(
-        filtered.map((row) => ({
+      const exportBase = buildAdvanceFilter({
+        isAdmin,
+        isStaff,
+        userId: user?.id,
+        tab,
+        dateFrom: from,
+        dateTo: to,
+        search: debouncedSearch,
+        factoryName: isAdmin ? selectedFactoryName : "",
+        disbursed: isAdmin ? disbursementFilter : "all",
+      });
+      const exportFilter = joinTenantFilters(
+        user,
+        isAdmin
+          ? joinPbFilters([exportBase, buildAdminAdvanceSegmentFilter(adminSegment)])
+          : exportBase,
+      );
+      const rows = await pb.collection("advances").getFullList<AdvanceRecord>({
+        filter: exportFilter,
+        sort: "-created",
+        expand: "requested_by",
+      });
+      const hydratedRows = await hydrateAdvanceRequesters(rows);
+      const exportRows = buildAdvanceExportRows(
+        hydratedRows.map((row) => ({
           ...row,
           requester_name: getAdvanceRequesterName(row),
         })),
       );
-      exportToExcel(buildAdvanceExportFilename(payload.code), { "Ứng lương": rows });
-      toast.success(`Đã xuất ${rows.length} dòng dữ liệu ứng lương`);
+      exportToExcel(buildAdvanceExportFilename(payload.code), { "Ứng lương": exportRows });
+      toast.success(`Đã xuất ${exportRows.length} dòng dữ liệu ứng lương`);
+      setExportOpen(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Không thể xuất file ứng lương");
     } finally {
@@ -1195,21 +1305,23 @@ function AdvancesPage() {
   return (
     <PageContainer
       title="Ứng lương"
-      subtitle={loading && items.length === 0 ? "Đang tải dữ liệu..." : `${items.length} mục`}
+      subtitle={
+        loading && items.length === 0
+          ? "Đang tải dữ liệu..."
+          : isPaginatedTab
+            ? `${totalItems.toLocaleString("vi-VN")} mục`
+            : `${items.length} mục`
+      }
       right={
         <button
-          onClick={exportCurrent}
+          onClick={openExportDialog}
           disabled={loading || exporting}
           aria-busy={exporting}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:bg-muted"
           aria-label="Xuất Excel"
-          title={exporting ? "Đang tạo file Excel" : "Xuất Excel"}
+          title="Xuất Excel"
         >
-          {exporting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <FileDown className="h-4 w-4" />
-          )}
+          <FileDown className="h-4 w-4" />
         </button>
       }
     >
@@ -1609,7 +1721,7 @@ function AdvancesPage() {
                         <span className="text-sm font-bold leading-tight text-primary">
                           {formatMoney(row.amount)}
                         </span>
-                        {Boolean(row.original_amount) && row.original_amount !== row.amount && (
+                        {row.original_amount != null && row.original_amount !== row.amount && (
                           <span className="text-[11px] text-muted-foreground line-through">
                             {formatMoney(row.original_amount)}
                           </span>
@@ -1752,6 +1864,41 @@ function AdvancesPage() {
         })
       )}
 
+      {isPaginatedTab && totalItems > 0 && (
+        <div className="space-y-2 pt-2">
+          <div className="text-center text-xs text-muted-foreground" aria-live="polite">
+            Đang hiển thị {pageStart}–{pageEnd} trong {totalItems.toLocaleString("vi-VN")} mục.
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={page === 1 || loading}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Trang trước
+            </Button>
+            <span className="min-w-20 text-center text-xs font-medium text-muted-foreground">
+              Trang {page}/{totalAdvancePages}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={page >= totalAdvancePages || loading}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              Trang sau
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       <AdvanceDetailDialog
         advanceDetail={advanceDetail}
         setAdvanceDetail={setAdvanceDetail}
@@ -1770,6 +1917,67 @@ function AdvancesPage() {
         requestAdvanceUndo={requestAdvanceUndo}
         load={load}
       />
+      <ResponsiveOverlay
+        open={exportOpen}
+        onOpenChange={(open) => !exporting && setExportOpen(open)}
+        title="Xuất Excel ứng lương"
+        description="Chọn khoảng thời gian cần xuất dữ liệu."
+        presentation="dialog"
+        className="max-w-md"
+      >
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <Label className="text-xs">Từ ngày</Label>
+              <DateInput
+                value={exportDateFrom}
+                onChange={(value) => {
+                  setExportDateFrom(value);
+                  if (value && exportDateTo && value > exportDateTo) setExportDateTo(value);
+                }}
+                min={exportDefaults.from}
+                max={exportDateTo || exportDefaults.to}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Đến ngày</Label>
+              <DateInput
+                value={exportDateTo}
+                onChange={(value) => {
+                  setExportDateTo(value);
+                  if (value && exportDateFrom && value < exportDateFrom) setExportDateFrom(value);
+                }}
+                min={exportDateFrom || exportDefaults.from}
+                max={exportDefaults.to}
+              />
+            </div>
+          </div>
+          <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+            Ngày đầu không sớm hơn {exportDefaults.from.split("-").reverse().join("/")}. Ngày cuối mặc
+            định là hôm nay.
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => setExportOpen(false)}
+              disabled={exporting}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              className="flex-1"
+              onClick={() => void exportCurrent()}
+              disabled={exporting}
+            >
+              {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+              {exporting ? "Đang xuất..." : "Xuất Excel"}
+            </Button>
+          </div>
+        </div>
+      </ResponsiveOverlay>
 
       <Dialog
         open={advanceSettingOpen}
@@ -2181,7 +2389,7 @@ function AdvanceDetailDialog({
   const qrBlock =
     qrUrl && qrKey ? (
       <div
-        key={`${advanceDetail.id}:${qrKey}`}
+        key={`${advanceDetail?.id ?? "advance"}:${qrKey}`}
         className="mt-3 flex flex-col items-center gap-2 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-3"
       >
         <div className="text-[11px] font-semibold text-primary">Mã QR chuyển khoản</div>
