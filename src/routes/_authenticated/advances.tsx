@@ -72,7 +72,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { exportToExcel, formatDateOnly } from "@/lib/excel";
+import { exportToExcel } from "@/lib/excel";
+import { buildAdvanceExportFilename, buildAdvanceExportRows } from "@/lib/advance-export";
 import { escapePb } from "@/lib/delegations";
 import { markSeen } from "@/lib/seen";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/money";
@@ -266,6 +267,7 @@ function AdvancesPage() {
   const [advanceSettingOpen, setAdvanceSettingOpen] = useState(false);
   const [disableConfirmationOpen, setDisableConfirmationOpen] = useState(false);
   const [advanceSettingSaving, setAdvanceSettingSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const advanceReportingEnabled = settings.advance_reporting_enabled !== false;
   const interactionAllowed = isAdvanceInteractionAllowed(settings, user?.role);
@@ -929,38 +931,31 @@ function AdvancesPage() {
     }
   };
 
-  const exportCurrent = () => {
-    const rows = filtered.map((row) => ({
-      "Họ tên": row.full_name,
-      "Mã nhân viên": row.employee_code,
-      "Nhà máy": row.company,
-      "Ngày vào làm": formatDateOnly(row.join_date),
-      "Số điện thoại": row.phone,
-      "Người báo ứng": getAdvanceRequesterName(row),
-      "Mã nhân viên người báo": getAdvanceRequesterField(row, "employee_code"),
-      "Nhà máy người báo": getAdvanceRequesterField(row, "company"),
-      "Số điện thoại người báo": getAdvanceRequesterField(row, "phone"),
-      "Ngân hàng": row.bank_name || "",
-      "Số tài khoản": row.bank_account_number || "",
-      "Tên chủ tài khoản": row.bank_account_name || "",
-      "Hình thức nhận tiền":
-        PAYOUT_METHOD_META[normalizeAdvancePayoutMethod(row.payout_method)].label,
-      "Số tiền": row.amount,
-      "Số tiền ban đầu":
-        row.original_amount && row.original_amount !== row.amount ? row.original_amount : "",
-      "Lý do": row.reason,
-      "Trạng thái": STATUS_META[(row.status || "pending") as AdvanceStatus].label,
-      "Đã giải ngân": row.status === "accepted" ? (row.disbursed ? "Có" : "Không") : "",
-      "Thu hồi": RECOVERY_META[(row.recovery_status || "none") as RecoveryStatus].label,
-      "Ghi chú admin": row.admin_note || "",
-      "Ghi chú người tuyển": row.recruiter_note || "",
-      "Ghi chú thu hồi": row.recovery_note || "",
-      "Ngày gửi": formatDateOnly(row.created),
-      "Ngày duyệt": formatDateOnly(row.resolved_at),
-      "Ngày giải ngân": formatDateOnly(row.disbursed_at),
-      "Ngày thu hồi": formatDateOnly(row.recovered_at),
-    }));
-    exportToExcel(`ung_luong_${Date.now()}`, { "Ứng lương": rows });
+  const exportCurrent = async () => {
+    if (exporting || loading) return;
+    setExporting(true);
+    try {
+      const response = await fetch("/api/tenant-company", {
+        headers: pb.authStore.token ? { Authorization: `Bearer ${pb.authStore.token}` } : undefined,
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || typeof payload?.code !== "string" || !payload.code.trim()) {
+        throw new Error(payload?.message || "Không lấy được mã công ty để đặt tên file.");
+      }
+
+      const rows = buildAdvanceExportRows(
+        filtered.map((row) => ({
+          ...row,
+          requester_name: getAdvanceRequesterName(row),
+        })),
+      );
+      exportToExcel(buildAdvanceExportFilename(payload.code), { "Ứng lương": rows });
+      toast.success(`Đã xuất ${rows.length} dòng dữ liệu ứng lương`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Không thể xuất file ứng lương");
+    } finally {
+      setExporting(false);
+    }
   };
 
   if (!isAdmin && !isStaff) {
@@ -1204,11 +1199,17 @@ function AdvancesPage() {
       right={
         <button
           onClick={exportCurrent}
-          disabled={loading}
+          disabled={loading || exporting}
+          aria-busy={exporting}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground hover:bg-muted"
           aria-label="Xuất Excel"
+          title={exporting ? "Đang tạo file Excel" : "Xuất Excel"}
         >
-          <FileDown className="h-4 w-4" />
+          {exporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <FileDown className="h-4 w-4" />
+          )}
         </button>
       }
     >
@@ -1569,7 +1570,8 @@ function AdvancesPage() {
               <div className="min-w-0 flex-1">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-semibold leading-tight">
-                    {row.employee_code || "-"} · {row.company || "Chưa có nhà máy"} - {row.full_name || "-"}
+                    {row.employee_code || "-"} · {row.company || "Chưa có nhà máy"} -{" "}
+                    {row.full_name || "-"}
                   </div>
                   <div className="mt-0.5 flex items-center gap-1">
                     {editingAmountId === row.id ? (

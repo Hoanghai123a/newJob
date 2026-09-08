@@ -146,6 +146,17 @@ function normalizeCccdNumber(value?: string) {
   return String(value || "").replace(/\D/g, "");
 }
 
+async function fetchTenantCompanyCode() {
+  const response = await fetch("/api/tenant-company", {
+    headers: pb.authStore.token ? { Authorization: `Bearer ${pb.authStore.token}` } : undefined,
+  });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok || typeof payload?.code !== "string" || !payload.code.trim()) {
+    throw new Error(payload?.message || "Không lấy được mã công ty để đặt tên file.");
+  }
+  return String(payload.code).trim();
+}
+
 function getLatestHistoryByJoinDate(histories: EmploymentHistoryRecord[]) {
   return histories.reduce<EmploymentHistoryRecord | null>((latest, history) => {
     if (!latest) return history;
@@ -482,7 +493,8 @@ function StaffWorkerDetailPage() {
       return;
     }
 
-    exportToExcel(`lich_su_lao_dong_${workerId}_${Date.now()}`, {
+    const companyCode = await fetchTenantCompanyCode();
+    exportToExcel(`${companyCode}_lich_su_NLD_${Date.now()}`, {
       "Lịch sử đi làm": histories.map((history, index) => {
         const recruiter = getRecruiterDisplay(history);
         return {
