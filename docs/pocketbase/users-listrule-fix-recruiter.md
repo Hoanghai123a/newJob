@@ -1,12 +1,19 @@
-# Sửa listRule collection `users` để Admin thấy Staff trong dropdown "Người tuyển"
+# Sửa listRule và viewRule collection `users` để Admin hiển thị đầy đủ trong "Người tuyển"
 
 ## Vấn đề
 
-Khi Admin đăng nhập và chọn "Người tuyển" trong form tạo/sửa lịch sử đi làm, dropdown chỉ hiển thị "Đối tác", không hiển thị danh sách Staff nội bộ.
+**Vấn đề 1:** Khi Admin đăng nhập và chọn "Người tuyển" trong form tạo/sửa lịch sử đi làm, dropdown chỉ hiển thị "Đối tác", không hiển thị danh sách Staff nội bộ.
+
+**Vấn đề 2:** Khi xuất file Excel, cột "Người tuyển" thiếu các bản ghi có người tuyển = Admin.
 
 ## Nguyên nhân
 
-Collection `users` trong PocketBase có `listRule` chỉ cho phép Admin/Staff đọc các user có `role="user"`, **KHÔNG cho phép đọc các user có `role="admin"` hoặc `role="staff"` khác**.
+Collection `users` trong PocketBase có `listRule` và `viewRule` chỉ cho phép Admin/Staff đọc các user có `role="user"`, **KHÔNG cho phép đọc các user có `role="admin"` hoặc `role="staff"` khác**.
+
+### Tác động:
+
+1. **listRule bị hạn chế** → Admin không thể query danh sách Staff khác → Dropdown "Người tuyển" không hiển thị Staff/Admin nội bộ
+2. **viewRule bị hạn chế** → PocketBase không expand relation `recruiter_staff` khi người tuyển là Admin → File Excel xuất ra thiếu các dòng có "Người tuyển" = Admin
 
 Ví dụ rule hiện tại:
 ```
@@ -70,11 +77,19 @@ Click **Save changes** để áp dụng rule mới.
 
 ## Kiểm tra
 
-Sau khi cập nhật:
+Sau khi cập nhật cả `listRule` và `viewRule`:
+
+### Kiểm tra dropdown (fix vấn đề 1):
 1. Đăng xuất và đăng nhập lại bằng tài khoản Admin
 2. Vào form tạo/sửa lịch sử đi làm
 3. Click vào dropdown "Người tuyển"
 4. Bạn sẽ thấy danh sách **Nhân sự nội bộ** bao gồm cả Admin và Staff
+
+### Kiểm tra xuất Excel (fix vấn đề 2):
+1. Vào trang quản lý lao động (workforce)
+2. Chọn nhà máy và nhấn "Xuất Excel"
+3. Mở file Excel xuất ra
+4. Kiểm tra cột "Người tuyển" - giờ sẽ hiển thị đầy đủ các bản ghi có người tuyển là Admin
 
 ## Lưu ý bảo mật
 
