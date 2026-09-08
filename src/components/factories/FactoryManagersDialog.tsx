@@ -49,7 +49,7 @@ export function FactoryManagersDialog({
         pb
           .collection("users")
           .getList<UserRecord>(1, 200, {
-            filter: `${companyFilter(pb.authStore.record as UserRecord | null)} && role = "staff"`,
+            filter: `${companyFilter(pb.authStore.record as UserRecord | null)} && (role="staff" || role="admin")`,
             sort: "full_name,username",
           })
           .then((res) => res.items),

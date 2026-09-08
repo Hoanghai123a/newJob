@@ -615,14 +615,6 @@ function StaffWorkerDetailPage() {
     if (!joinForm.join_date) return toast.warning("Nhập ngày vào làm");
     if (!joinForm.recruiter_staff) return toast.warning("Chọn người tuyển");
     if (!joinForm.main_house) return toast.warning("Chọn nhà chính");
-    if (!workerUser.phone || !workerUser.phone.trim()) {
-      return toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
-    }
-    const missingSnapshotFields = getMissingEmploymentSnapshotFields(joinForm);
-    if (missingSnapshotFields.length) {
-      toast.warning(`Thiếu thông tin cá nhân: ${missingSnapshotFields.join(", ")}`);
-      return;
-    }
     if (!canSubmitJoinForWorker) {
       toast.error("Bạn không có quyền báo đi làm tại nhà máy đã chọn");
       return;
@@ -691,23 +683,26 @@ function StaffWorkerDetailPage() {
       }
     }
 
-    const created = await createEmploymentHistory({
-      user: workerUser.id,
-      factory: joinForm.factory,
-      main_house: joinForm.main_house,
-      employee_code: joinForm.employee_code.trim(),
-      worker_name_snapshot: joinForm.worker_name_snapshot.trim(),
-      worker_cccd_snapshot: joinForm.worker_cccd_snapshot.trim(),
-      worker_date_of_birth_snapshot: joinForm.worker_date_of_birth_snapshot,
-      worker_address_snapshot: joinForm.worker_address_snapshot.trim(),
-      hometown_snapshot: joinForm.worker_address_snapshot.trim(),
-      cccd_issue_date: joinForm.cccd_issue_date,
-      worker_tax_code_snapshot: joinForm.worker_tax_code_snapshot.trim(),
-      ...buildRecruiterPayload(joinForm.recruiter_staff),
-      cccd_version: cccdVersionId,
-      join_date: joinForm.join_date,
-      note: joinForm.note.trim(),
-    });
+    const created = await createEmploymentHistory(
+      {
+        worker: workerUser.id,
+        factory: joinForm.factory,
+        main_house: joinForm.main_house,
+        employee_code: joinForm.employee_code.trim(),
+        worker_name_snapshot: joinForm.worker_name_snapshot.trim(),
+        worker_cccd_snapshot: joinForm.worker_cccd_snapshot.trim(),
+        worker_date_of_birth_snapshot: joinForm.worker_date_of_birth_snapshot,
+        worker_address_snapshot: joinForm.worker_address_snapshot.trim(),
+        hometown_snapshot: joinForm.worker_address_snapshot.trim(),
+        cccd_issue_date: joinForm.cccd_issue_date,
+        worker_tax_code_snapshot: joinForm.worker_tax_code_snapshot.trim(),
+        ...buildRecruiterPayload(joinForm.recruiter_staff),
+        cccd_version: cccdVersionId,
+        join_date: joinForm.join_date,
+        note: joinForm.note.trim(),
+      },
+      { mode: "report_join" },
+    );
 
     await reloadHistories();
     await createStaffActionLog({
@@ -1114,7 +1109,7 @@ function StaffWorkerDetailPage() {
             <InfoCell
               label="Người tuyển gần nhất"
               value={(() => {
-                const recruiter = getRecruiterDisplay(latestHistory);
+                const recruiter = getRecruiterDisplay(latestHistory, staffUsers);
                 return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa gán";
               })()}
             />
@@ -1218,7 +1213,7 @@ function StaffWorkerDetailPage() {
                   <div className="mt-0.5 break-words text-[11px] text-muted-foreground [overflow-wrap:anywhere]">
                     Mã NV: {history.employee_code || "Chưa có"} · Người tuyển:{" "}
                     {(() => {
-                      const recruiter = getRecruiterDisplay(history);
+                      const recruiter = getRecruiterDisplay(history, staffUsers);
                       return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa gán";
                     })()}
                   </div>
@@ -1903,7 +1898,7 @@ function StaffWorkerDetailPage() {
                 <InfoCell
                   label="Người tuyển"
                   value={(() => {
-                    const recruiter = getRecruiterDisplay(detailHistory);
+                    const recruiter = getRecruiterDisplay(detailHistory, staffUsers);
                     return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa gán";
                   })()}
                 />

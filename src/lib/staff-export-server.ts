@@ -359,7 +359,9 @@ export async function handleStaffExcelExport(request: Request) {
   const factoryIds = Array.isArray(body?.factoryIds)
     ? [
         ...new Set(
-          body.factoryIds.filter((value): value is string => typeof value === "string" && value),
+          body.factoryIds.filter(
+            (value): value is string => typeof value === "string" && value.length > 0,
+          ),
         ),
       ]
     : [];
@@ -390,7 +392,11 @@ export async function handleStaffExcelExport(request: Request) {
     const histories = await fetchAllHistories(filter, auth.token);
     if (!histories.length) return jsonError("Không có dữ liệu phù hợp để xuất.", 404);
 
-    const rows = mode === "basic" ? buildBasicRows(histories) : buildFullRows(histories);
+    const workerIds = [...new Set(histories.map((history) => history.worker).filter(Boolean))];
+    const tenureHistories = await fetchHistoriesForTenure(workerIds, auth.user, auth.token);
+    const tenure = tenureByHistoryId(tenureHistories);
+    const rows =
+      mode === "basic" ? buildBasicRows(histories, tenure) : buildFullRows(histories, tenure);
     const file = createWorkbook(rows, mode);
     const filename = `jobconnect_${mode === "basic" ? "co_ban" : "day_du"}_${dateOnly(new Date())}.xlsx`;
 

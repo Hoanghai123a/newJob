@@ -25,6 +25,7 @@ import {
   joinPbFilters,
   buildAdvanceFilter,
   formatMoney,
+  hydrateAdvanceRequesters,
 } from "@/lib/advances";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { FilterBar } from "@/components/ui/filter-bar";
@@ -291,7 +292,11 @@ function buildAdvanceDaySummaries(
 
 function getOutstandingRequesterName(row: OutstandingAdvance) {
   const requester = row.expand?.requested_by;
-  return requester?.full_name || requester?.username || requester?.phone || "Không xác định";
+  if (requester) {
+    return requester.full_name || requester.username || requester.phone || "Không xác định";
+  }
+  // Return ID as fallback - will be fixed by hydrateAdvanceRequesters
+  return row.requested_by || "Không xác định";
 }
 
 // PLACEHOLDER_CONTINUE
@@ -435,7 +440,7 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
         sort: "-created",
         expand: "requested_by",
       });
-      setItems(res.items as unknown as AdvanceRecord[]);
+      setItems(await hydrateAdvanceRequesters(res.items as unknown as AdvanceRecord[]));
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Lỗi tải Ứng lương"));
     } finally {

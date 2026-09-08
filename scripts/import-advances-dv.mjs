@@ -281,7 +281,7 @@ const workerByUid = new Map(workers.map((w) => [w.uid.toUpperCase(), w]));
 console.log(`   → ${workers.length} NLĐ`);
 
 const staffUsers = await pb.collection("users").getFullList({
-  filter: `tenant_company="${tenantId}" && role="staff"`,
+  filter: `tenant_company="${tenantId}" && (role="staff" || role="admin")`,
   fields: "id,full_name",
 });
 const staffByName = new Map(staffUsers.map((s) => [normalizeLabel(s.full_name), s]));

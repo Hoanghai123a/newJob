@@ -198,10 +198,6 @@ export function RegisterDialog({
     if (!mainHouseId) return toast.error("Chọn nhà chính");
     if (!selectedUser) return;
 
-    if (!selectedUser.phone || !selectedUser.phone.trim()) {
-      return toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
-    }
-
     const personalSnapshot = {
       worker_name_snapshot: workerName.trim(),
       worker_cccd_snapshot: workerCccd.trim(),
@@ -209,11 +205,6 @@ export function RegisterDialog({
       worker_address_snapshot: workerAddress.trim(),
       cccd_issue_date: cccdIssueDate,
     };
-    const missingSnapshotFields = getMissingEmploymentSnapshotFields(personalSnapshot);
-    if (missingSnapshotFields.length) {
-      return toast.error(`Thiếu thông tin cá nhân: ${missingSnapshotFields.join(", ")}`);
-    }
-
     const workerCccdDigits = workerCccd.replace(/\D/g, "");
     if (workerCccd && workerCccdDigits.length !== 12) {
       return toast.error("CCCD phải có đúng 12 chữ số; có thể thêm ký tự phía sau");
@@ -264,23 +255,26 @@ export function RegisterDialog({
         cccdVersionId = version.id;
       }
 
-      const created = await createEmploymentHistory({
-        worker: userId,
-        factory: factoryId,
-        main_house: mainHouseId,
-        employee_code: employeeCode.trim() || undefined,
-        worker_name_snapshot: workerName.trim(),
-        worker_cccd_snapshot: workerCccd.trim(),
-        worker_date_of_birth_snapshot: workerDateOfBirth,
-        worker_address_snapshot: workerAddress.trim(),
-        hometown_snapshot: workerAddress.trim(),
-        cccd_issue_date: cccdIssueDate,
-        worker_tax_code_snapshot: workerTaxCode.trim(),
-        ...buildRecruiterPayload(recruiterId),
-        cccd_version: cccdVersionId,
-        join_date: joinDate,
-        note: note.trim() || undefined,
-      });
+      const created = await createEmploymentHistory(
+        {
+          worker: userId,
+          factory: factoryId,
+          main_house: mainHouseId,
+          employee_code: employeeCode.trim() || undefined,
+          worker_name_snapshot: workerName.trim(),
+          worker_cccd_snapshot: workerCccd.trim(),
+          worker_date_of_birth_snapshot: workerDateOfBirth,
+          worker_address_snapshot: workerAddress.trim(),
+          hometown_snapshot: workerAddress.trim(),
+          cccd_issue_date: cccdIssueDate,
+          worker_tax_code_snapshot: workerTaxCode.trim(),
+          ...buildRecruiterPayload(recruiterId),
+          cccd_version: cccdVersionId,
+          join_date: joinDate,
+          note: note.trim() || undefined,
+        },
+        { mode: "report_join" },
+      );
       await createStaffActionLog({
         actor,
         targetUserId: userId,

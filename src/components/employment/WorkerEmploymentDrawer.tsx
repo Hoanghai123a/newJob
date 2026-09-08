@@ -731,13 +731,6 @@ export function WorkerEmploymentDrawer({
     if (!joinForm.join_date) return toast.warning("Nhập ngày vào làm");
     if (!joinForm.recruiter_staff) return toast.warning("Chọn Người tuyển");
     if (!joinForm.main_house) return toast.warning("Chọn nhà chính");
-    if (!user.phone || !user.phone.trim()) {
-      return toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
-    }
-    const missingSnapshotFields = getMissingEmploymentSnapshotFields(joinForm);
-    if (missingSnapshotFields.length) {
-      return toast.warning(`Thiếu thông tin cá nhân: ${missingSnapshotFields.join(", ")}`);
-    }
     if (
       !canReportJoin(
         actor,
@@ -806,23 +799,26 @@ export function WorkerEmploymentDrawer({
           }
         }
       }
-      const created = await createEmploymentHistory({
-        worker: user.id,
-        factory: joinForm.factory,
-        main_house: joinForm.main_house,
-        employee_code: joinForm.employee_code.trim(),
-        worker_name_snapshot: joinForm.worker_name_snapshot.trim(),
-        worker_cccd_snapshot: joinForm.worker_cccd_snapshot.trim(),
-        worker_date_of_birth_snapshot: joinForm.worker_date_of_birth_snapshot,
-        worker_address_snapshot: joinForm.worker_address_snapshot.trim(),
-        hometown_snapshot: joinForm.worker_address_snapshot.trim(),
-        cccd_issue_date: joinForm.cccd_issue_date,
-        worker_tax_code_snapshot: joinForm.worker_tax_code_snapshot.trim(),
-        ...buildRecruiterPayload(joinForm.recruiter_staff),
-        cccd_version: cccdVersionId,
-        join_date: joinForm.join_date,
-        note: joinForm.note.trim(),
-      });
+      const created = await createEmploymentHistory(
+        {
+          worker: user.id,
+          factory: joinForm.factory,
+          main_house: joinForm.main_house,
+          employee_code: joinForm.employee_code.trim(),
+          worker_name_snapshot: joinForm.worker_name_snapshot.trim(),
+          worker_cccd_snapshot: joinForm.worker_cccd_snapshot.trim(),
+          worker_date_of_birth_snapshot: joinForm.worker_date_of_birth_snapshot,
+          worker_address_snapshot: joinForm.worker_address_snapshot.trim(),
+          hometown_snapshot: joinForm.worker_address_snapshot.trim(),
+          cccd_issue_date: joinForm.cccd_issue_date,
+          worker_tax_code_snapshot: joinForm.worker_tax_code_snapshot.trim(),
+          ...buildRecruiterPayload(joinForm.recruiter_staff),
+          cccd_version: cccdVersionId,
+          join_date: joinForm.join_date,
+          note: joinForm.note.trim(),
+        },
+        { mode: "report_join" },
+      );
       await createStaffActionLog({
         actor,
         targetUserId: user.id,
@@ -1816,7 +1812,7 @@ export function WorkerEmploymentDrawer({
                       const canEdit = canEditHistoryRecord(h);
                       const factoryName = h.expand?.factory?.name || "Nhà máy";
                       const mainHouseName = h.expand?.main_house?.name || "—";
-                      const recruiter = getRecruiterDisplay(h);
+                      const recruiter = getRecruiterDisplay(h, staffUsers);
                       const recruiterName = recruiter
                         ? `${recruiter.name} · ${recruiter.label}`
                         : "—";
@@ -1969,9 +1965,19 @@ export function WorkerEmploymentDrawer({
                   <div className="text-[11px] text-muted-foreground">Ngày vào làm</div>
                   <div className="mt-1 font-medium">{formatDate(selectedHistory.join_date)}</div>
                 </div>
-                <div className="p-3">
+                <div className="border-r p-3">
                   <div className="text-[11px] text-muted-foreground">Ngày nghỉ</div>
                   <div className="mt-1 font-medium">{formatDate(selectedHistory.leave_date)}</div>
+                </div>
+                <div className="p-3">
+                  <div className="text-[11px] text-blue-700 dark:text-blue-300">
+                    Thâm niên tích lũy
+                  </div>
+                  <div className="mt-1 font-medium text-blue-900 dark:text-blue-100">
+                    {selectedHistory.accumulated_seniority_days != null
+                      ? `${selectedHistory.accumulated_seniority_days} ngày`
+                      : "—"}
+                  </div>
                 </div>
               </div>
 
@@ -2016,7 +2022,7 @@ export function WorkerEmploymentDrawer({
                   <span className="text-muted-foreground">Người tuyển: </span>
                   <span className="font-medium">
                     {(() => {
-                      const recruiter = getRecruiterDisplay(selectedHistory);
+                      const recruiter = getRecruiterDisplay(selectedHistory, staffUsers);
                       return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa có";
                     })()}
                   </span>

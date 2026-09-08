@@ -40,7 +40,7 @@ export function StaffRealtimeSyncGate() {
     };
 
     void sync();
-    const interval = window.setInterval(() => void sync(), 60_000);
+    const interval = window.setInterval(() => void sync(), MIN_SYNC_INTERVAL);
     const onVisible = () => {
       if (document.visibilityState === "visible") void sync();
     };

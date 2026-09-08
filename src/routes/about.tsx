@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useAppSettings } from "@/lib/app-settings";
 import { AppHeader, BottomNav } from "@/components/layout/BottomNav";
+import { InstallFloatingBanner } from "@/components/layout/InstallFloatingBanner";
 import { Card } from "@/components/ui/card";
 import { Building2, MapPin, Phone } from "lucide-react";
 
@@ -60,6 +61,7 @@ function AboutPage() {
         </Card>
       </div>
 
+      <InstallFloatingBanner />
       <BottomNav />
     </div>
   );

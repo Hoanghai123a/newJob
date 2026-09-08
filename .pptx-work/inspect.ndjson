@@ -1,0 +1,216 @@
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"","type":"master","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"BLANK","type":"blank","placeholders":[{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout2.xml","name":"TITLE","type":"title","placeholders":[{"name":"title","type":"title"},{"name":"subtitle","type":"subtitle"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout3.xml","name":"OBJECT","type":"obj","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout4.xml","name":"SECTION_HEADER","type":"secHead","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout5.xml","name":"TWO_OBJECTS","type":"twoObj","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout6.xml","name":"TWO_OBJECTS_WITH_TEXT","type":"twoTxTwoObj","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"body","type":"body"},{"name":"body","type":"body"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout7.xml","name":"TITLE_ONLY","type":"titleOnly","placeholders":[{"name":"title","type":"title"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout8.xml","name":"OBJECT_WITH_CAPTION_TEXT","type":"objTx","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout9.xml","name":"PICTURE_WITH_CAPTION_TEXT","type":"picTx","placeholders":[{"name":"title","type":"title"},{"name":"picture","type":"picture"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout10.xml","name":"VERTICAL_TEXT","type":"vertTx","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout11.xml","name":"VERTICAL_TITLE_AND_VERTICAL_TEXT","type":"vertTitleAndTx","placeholders":[{"name":"title","type":"title"},{"name":"body","type":"body"},{"name":"dateTime","type":"dateTime"},{"name":"footer","type":"footer"},{"name":"slideNumber","type":"slideNumber","textPreview":"‹#›"}]}
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"TUYỂN DỤNG 4.0","textShapes":2}
+{"kind":"textbox","id":"sh/pcz254na","slide":1,"name":"Google Shape;86;p13","text":"TUYỂN DỤNG 4.0","textPreview":"TUYỂN DỤNG 4.0","textChars":14,"textLines":1,"bbox":[320.13,300.7,639.73,73.59]}
+{"kind":"textbox","id":"sh/4bq1wzmp","slide":1,"name":"Google Shape;87;p13","text":"Từ File Excel Rời Rạc Đến Một Nguồn Dữ Liệu Điều Hành Thống Nhất\nGiải pháp tối ưu dành cho Giám đốc, HR & Đội ngũ Vận hành Nhà máy","textPreview":"Từ File Excel Rời Rạc Đến Một Nguồn Dữ Liệu Điều Hành Thống Nhất | Giải pháp tối ưu dành cho Giám đốc, HR & Đội ngũ Vận hành Nhà máy","textChars":130,"textLines":2,"bbox":[335.36,394.3,609.27,64]}
+{"kind":"image","id":"im/krm9kvm9","slide":1,"name":"Google Shape;84;p13","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/lsfqt0nu","slide":1,"name":"Google Shape;85;p13","bbox":[464.89,249.7,350.19,31]}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":""}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"Khoảng Trống Thông Tin","textShapes":13}
+{"kind":"textbox","id":"sh/9w76xob6","slide":2,"name":"Google Shape;95;p14","text":"Khoảng Trống Thông Tin","textPreview":"Khoảng Trống Thông Tin","textChars":22,"textLines":1,"bbox":[89,266,532.35,33]}
+{"kind":"textbox","id":"sh/mtgn29sf","slide":2,"name":"Google Shape;96;p14","text":"Vòng Lặp Thủ Công Tốn Kém","textPreview":"Vòng Lặp Thủ Công Tốn Kém","textChars":25,"textLines":1,"bbox":[684,266,532.35,33]}
+{"kind":"textbox","id":"sh/7up4vet0","slide":2,"name":"Google Shape;97;p14","text":"Dòng công việc hiện tại:\n Nhập liệu → Gửi file → Kế toán tổng hợp → Đối soát lại → Báo cáo lãnh đạo.","textPreview":"Dòng công việc hiện tại: |  Nhập liệu → Gửi file → Kế toán tổng hợp → Đối soát lại → Báo cáo lãnh đạo.","textChars":100,"textLines":2,"bbox":[684,309,507,72]}
+{"kind":"textbox","id":"sh/wzi583ah","slide":2,"name":"Google Shape;98;p14","text":"Hệ quả: Đội ngũ tiêu tốn hàng chục giờ mỗi tuần không phải cho công việc chuyên môn, mà là để xác minh \"đâu mới là dữ liệu đúng\".","textPreview":"Hệ quả: Đội ngũ tiêu tốn hàng chục giờ mỗi tuần không phải cho công việc chuyên môn, mà là để xác minh \"đâu mới là dữ liệu đúng\".","textChars":129,"textLines":1,"bbox":[684,396,507,48]}
+{"kind":"textbox","id":"sh/uxwf6xgz","slide":2,"name":"Google Shape;100;p14","text":"Sai lệch dữ liệu: Bất đồng tên, mã nhân viên, nhà máy giữa các file làm việc độc lập.","textPreview":"Sai lệch dữ liệu: Bất đồng tên, mã nhân viên, nhà máy giữa các file làm việc độc lập.","textChars":85,"textLines":1,"bbox":[113,309,483,48]}
+{"kind":"textbox","id":"sh/fi5gz2hk","slide":2,"name":"Google Shape;101;p14","text":"Thiếu tính cập nhật: Khó xác định bản ghi nào là mới nhất và chính xác nhất.","textPreview":"Thiếu tính cập nhật: Khó xác định bản ghi nào là mới nhất và chính xác nhất.","textChars":76,"textLines":1,"bbox":[113,369,483,48]}
+{"kind":"textbox","id":"sh/gjyx87y5","slide":2,"name":"Google Shape;102;p14","text":"Rủi ro tài chính: Sai sót trong đối soát tuyển dụng, tạm ứng và giữ lương.","textPreview":"Rủi ro tài chính: Sai sót trong đối soát tuyển dụng, tạm ứng và giữ lương.","textChars":74,"textLines":1,"bbox":[113,429,483,48]}
+{"kind":"textbox","id":"sh/hk7y1czq","slide":2,"name":"Google Shape;103;p14","text":"Phụ thuộc cá nhân: Báo cáo lãnh đạo chậm trễ, phụ thuộc duy nhất vào người tổng hợp.","textPreview":"Phụ thuộc cá nhân: Báo cáo lãnh đạo chậm trễ, phụ thuộc duy nhất vào người tổng hợp.","textChars":84,"textLines":1,"bbox":[113,489,483,48]}
+{"kind":"textbox","id":"sh/3mpg3mhw","slide":2,"name":"Google Shape;105;p14","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[89,305,14,36]}
+{"kind":"textbox","id":"sh/4nyxcryh","slide":2,"name":"Google Shape;106;p14","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[89,365,14,36]}
+{"kind":"textbox","id":"sh/po7y5czm","slide":2,"name":"Google Shape;107;p14","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[89,425,14,36]}
+{"kind":"textbox","id":"sh/qpgfehg7","slide":2,"name":"Google Shape;108;p14","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[89,485,14,36]}
+{"kind":"textbox","id":"sh/rq9g7mhs","slide":2,"name":"Google Shape;109;p14","text":"Bối Cảnh Vận Hành & Hạn Chế Từ Excel","textPreview":"Bối Cảnh Vận Hành & Hạn Chế Từ Excel","textChars":36,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/1kbidgju","slide":2,"name":"Google Shape;110;p14","bbox":[60,113,1160,2]}
+{"kind":"image","id":"im/pcvutg3i","slide":2,"name":"Google Shape;92;p14","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/29kbylk7","slide":2,"name":"Google Shape;93;p14","bbox":[60,237,565,341]}
+{"kind":"image","id":"im/3atsrqlc","slide":2,"name":"Google Shape;94;p14","bbox":[655,237,565,341]}
+{"kind":"image","id":"im/g72twb21","slide":2,"name":"Google Shape;99;p14","bbox":[89,271,22,22]}
+{"kind":"image","id":"im/18bapg3m","slide":2,"name":"Google Shape;104;p14","bbox":[684,271,22,22]}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":""}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"Hồ Sơ NLĐ Chuẩn Hoá","textShapes":7}
+{"kind":"textbox","id":"sh/dkrilsrq","slide":3,"name":"Google Shape;120;p15","text":"Hồ Sơ NLĐ Chuẩn Hoá","textPreview":"Hồ Sơ NLĐ Chuẩn Hoá","textChars":19,"textLines":1,"bbox":[87,377,256.54,33]}
+{"kind":"textbox","id":"sh/sji1s7q5","slide":3,"name":"Google Shape;121;p15","text":"Tự động định danh theo UID, CCCD và Tài khoản. Theo dõi xuyên suốt lịch sử đi làm, mã NV, nhà máy và đối tác tuyển dụng.","textPreview":"Tự động định danh theo UID, CCCD và Tài khoản. Theo dõi xuyên suốt lịch sử đi làm, mã NV, nhà máy và đối tác tuyển dụng.","textChars":120,"textLines":1,"bbox":[87,420,316.67,72]}
+{"kind":"textbox","id":"sh/qh0jqx8z","slide":3,"name":"Google Shape;123;p15","text":"Công & Tài Chính Vận Hành","textPreview":"Công & Tài Chính Vận Hành","textChars":25,"textLines":1,"bbox":[481.67,377,329.96,33]}
+{"kind":"textbox","id":"sh/1oripcrm","slide":3,"name":"Google Shape;124;p15","text":"Nối liền vòng đời người lao động đến công, lương, ghi chú thâm niên, phê duyệt quy trình ứng và giữ lương tự động.","textPreview":"Nối liền vòng đời người lao động đến công, lương, ghi chú thâm niên, phê duyệt quy trình ứng và giữ lương tự động.","textChars":114,"textLines":1,"bbox":[481.67,420,316.67,72]}
+{"kind":"textbox","id":"sh/fm90n29w","slide":3,"name":"Google Shape;126;p15","text":"Kiểm Soát & Nhật Ký","textPreview":"Kiểm Soát & Nhật Ký","textChars":19,"textLines":1,"bbox":[876.34,377,238.86,33]}
+{"kind":"textbox","id":"sh/el0jux8b","slide":3,"name":"Google Shape;127;p15","text":"Phân quyền hiển thị theo vai trò (Admin/Staff/Đối tác). Lưu trữ nhật ký chi tiết: Ai làm, lúc nào và thay đổi những gì.","textPreview":"Phân quyền hiển thị theo vai trò (Admin/Staff/Đối tác). Lưu trữ nhật ký chi tiết: Ai làm, lúc nào và thay đổi những gì.","textChars":119,"textLines":1,"bbox":[876.34,420,316.67,72]}
+{"kind":"textbox","id":"sh/7y5gnepg","slide":3,"name":"Google Shape;131;p15","text":"Giải Pháp Cốt Lõi: Một Nguồn Dữ Liệu","textPreview":"Giải Pháp Cốt Lõi: Một Nguồn Dữ Liệu","textChars":36,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/8jexgj61","slide":3,"name":"Google Shape;132;p15","bbox":[60,113,1160,2]}
+{"kind":"image","id":"im/4betoryh","slide":3,"name":"Google Shape;115;p15","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/repsjmhs","slide":3,"name":"Google Shape;116;p15","bbox":[60,284,370.67,247]}
+{"kind":"image","id":"im/6dwbqhg7","slide":3,"name":"Google Shape;117;p15","bbox":[454.67,284,370.67,247]}
+{"kind":"image","id":"im/t07ulwzy","slide":3,"name":"Google Shape;118;p15","bbox":[849.34,284,370.67,247]}
+{"kind":"image","id":"im/szytsryd","slide":3,"name":"Google Shape;119;p15","bbox":[87,311,50,50]}
+{"kind":"image","id":"im/7ils72ho","slide":3,"name":"Google Shape;122;p15","bbox":[481.67,311,50,50]}
+{"kind":"image","id":"im/mhcbexg3","slide":3,"name":"Google Shape;125;p15","bbox":[876.34,311,50,50]}
+{"kind":"image","id":"im/ylgbux8z","slide":3,"name":"Google Shape;128;p15","bbox":[99.5,325,25,22]}
+{"kind":"image","id":"im/zmpsn2pk","slide":3,"name":"Google Shape;129;p15","bbox":[498.17,325,17,22]}
+{"kind":"image","id":"im/0nytw765","slide":3,"name":"Google Shape;130;p15","bbox":[887.34,325,28,22]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":""}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"Năng Lực Sản Phẩm Sẵn Sàng","textShapes":5}
+{"kind":"textbox","id":"sh/nqp8ju1k","slide":4,"name":"Google Shape;138;p16","text":"Năng Lực Sản Phẩm Sẵn Sàng","textPreview":"Năng Lực Sản Phẩm Sẵn Sàng","textChars":26,"textLines":1,"bbox":[60,50,588,53]}
+{"kind":"shape","id":"sh/mpg7apkz","slide":4,"name":"Google Shape;139;p16","bbox":[60,113,560,2]}
+{"kind":"textbox","id":"sh/7uxsfy9w","slide":4,"name":"Google Shape;141;p16","text":"Quản Lý Tập Trung & Thông Minh","textPreview":"Quản Lý Tập Trung & Thông Minh","textChars":30,"textLines":1,"bbox":[60,145,588,33]}
+{"kind":"textbox","id":"sh/8v6983qh","slide":4,"name":"Google Shape;142;p16","text":"• Dashboard Nhân Lực Real-time: Xử lý mượt mà 500+ bản ghi mỗi lần tải. Lọc chính xác theo nhà máy, người tuyển, trạng thái đang làm hay đã nghỉ.","textPreview":"• Dashboard Nhân Lực Real-time: Xử lý mượt mà 500+ bản ghi mỗi lần tải. Lọc chính xác theo nhà máy, người tuyển, trạng thái đang làm hay ...","textChars":145,"textLines":1,"bbox":[60,188,560,48]}
+{"kind":"textbox","id":"sh/9wfah8rm","slide":4,"name":"Google Shape;143;p16","text":"• Nhập/Xuất Excel Thông Minh: Cập nhật theo UID. Tự động tách các dòng lỗi để sửa riêng, không làm ngắt quãng dòng dữ liệu hợp lệ.","textPreview":"• Nhập/Xuất Excel Thông Minh: Cập nhật theo UID. Tự động tách các dòng lỗi để sửa riêng, không làm ngắt quãng dòng dữ liệu hợp lệ.","textChars":130,"textLines":1,"bbox":[60,248,560,48]}
+{"kind":"textbox","id":"sh/uxobad87","slide":4,"name":"Google Shape;144;p16","text":"• Kiểm Soát Rủi Ro: Cảnh báo trùng lịch sử đang làm, kiểm tra phiên bản CCCD và bảo mật tài chính tối đa.","textPreview":"• Kiểm Soát Rủi Ro: Cảnh báo trùng lịch sử đang làm, kiểm tra phiên bản CCCD và bảo mật tài chính tối đa.","textChars":105,"textLines":1,"bbox":[60,308,560,48]}
+{"kind":"image","id":"im/e143qpor","slide":4,"name":"Google Shape;137;p16","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/14v2lkn2","slide":4,"name":"Google Shape;140;p16","bbox":[660,0,620,720]}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":""}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"Giá Trị Trực Tiếp Cho Doanh Nghiệp","textShapes":1}
+{"kind":"shape","id":"sh/xgna1obe","slide":5,"name":"Google Shape;150;p17","bbox":[60,274.5,1160,266]}
+{"kind":"shape","id":"sh/be5szet8","slide":5,"name":"Google Shape;152;p17","bbox":[60.5,327,227.97,1]}
+{"kind":"shape","id":"sh/adwrq9cn","slide":5,"name":"Google Shape;153;p17","bbox":[288.47,327,415.62,1]}
+{"kind":"shape","id":"sh/pc3ax4b2","slide":5,"name":"Google Shape;154;p17","bbox":[704.09,327,515.41,1]}
+{"kind":"shape","id":"sh/obu9ozuh","slide":5,"name":"Google Shape;155;p17","bbox":[60.5,380,227.97,1]}
+{"kind":"shape","id":"sh/nalsvutw","slide":5,"name":"Google Shape;156;p17","bbox":[288.47,380,415.62,1]}
+{"kind":"shape","id":"sh/29crmpcr","slide":5,"name":"Google Shape;157;p17","bbox":[704.09,380,515.41,1]}
+{"kind":"shape","id":"sh/t87at8bm","slide":5,"name":"Google Shape;158;p17","bbox":[60.5,433,227.97,1]}
+{"kind":"shape","id":"sh/87yt03a1","slide":5,"name":"Google Shape;159;p17","bbox":[288.47,433,415.62,1]}
+{"kind":"shape","id":"sh/snqlcbm9","slide":5,"name":"Google Shape;160;p17","bbox":[704.09,433,515.41,1]}
+{"kind":"shape","id":"sh/dozmlwnu","slide":5,"name":"Google Shape;161;p17","bbox":[60.5,486,227.97,1]}
+{"kind":"shape","id":"sh/q1o3a143","slide":5,"name":"Google Shape;162;p17","bbox":[288.47,486,415.62,1]}
+{"kind":"shape","id":"sh/r2hkj65o","slide":5,"name":"Google Shape;163;p17","bbox":[704.09,486,515.41,1]}
+{"kind":"shape","id":"sh/4z6l8rmd","slide":5,"name":"Google Shape;164;p17","bbox":[60.5,539,227.97,1]}
+{"kind":"shape","id":"sh/50f2hwny","slide":5,"name":"Google Shape;165;p17","bbox":[288.47,539,415.62,1]}
+{"kind":"shape","id":"sh/ixo36h47","slide":5,"name":"Google Shape;166;p17","bbox":[704.09,539,515.41,1]}
+{"kind":"textbox","id":"sh/3yxkfm5s","slide":5,"name":"Google Shape;167;p17","text":"Giá Trị Trực Tiếp Cho Doanh Nghiệp","textPreview":"Giá Trị Trực Tiếp Cho Doanh Nghiệp","textChars":34,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/gv6l4rm1","slide":5,"name":"Google Shape;168;p17","bbox":[60,113,1160,2]}
+{"kind":"table","id":"tb/upozutcf","slide":5,"name":"Google Shape;151;p17","rows":5,"cols":3,"preview":"Nỗi Đau Khi Dùng Excel | Hệ Quả Vận Hành | Giải Pháp Từ Ứng Dụng","bbox":[60,274.5,314.96,314.96]}
+{"kind":"image","id":"im/c7mxgj6x","slide":5,"name":"Google Shape;149;p17","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":""}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"5","textShapes":13}
+{"kind":"textbox","id":"sh/psbmxgzi","slide":6,"name":"Google Shape;175;p18","text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[81,335,523,110]}
+{"kind":"textbox","id":"sh/2p0n2lg7","slide":6,"name":"Google Shape;176;p18","text":"Phút Nắm Trọn Tình Hình","textPreview":"Phút Nắm Trọn Tình Hình","textChars":23,"textLines":1,"bbox":[81,455,523,25]}
+{"kind":"textbox","id":"sh/nqt4v6hs","slide":6,"name":"Google Shape;177;p18","text":"Xem & Quyết Định Ngay Tức Thì","textPreview":"Xem & Quyết Định Ngay Tức Thì","textChars":29,"textLines":1,"bbox":[655,284,593.25,33]}
+{"kind":"textbox","id":"sh/0ni50by1","slide":6,"name":"Google Shape;178;p18","text":"Giám đốc không cần bắt đầu bằng câu hỏi \"File Excel nào mới nhất?\". Hệ thống tự động trả lời 4 câu hỏi cốt lõi:","textPreview":"Giám đốc không cần bắt đầu bằng câu hỏi \"File Excel nào mới nhất?\". Hệ thống tự động trả lời 4 câu hỏi cốt lõi:","textChars":111,"textLines":1,"bbox":[655,327,565,48]}
+{"kind":"textbox","id":"sh/1ormtgzm","slide":6,"name":"Google Shape;179;p18","text":"Hôm nay có bao nhiêu lao động đang thực tế đi làm?","textPreview":"Hôm nay có bao nhiêu lao động đang thực tế đi làm?","textChars":50,"textLines":1,"bbox":[699,387,521,24]}
+{"kind":"textbox","id":"sh/twfmts36","slide":6,"name":"Google Shape;180;p18","text":"Nhà máy hay nguồn tuyển đối tác nào đang hiệu quả nhất?","textPreview":"Nhà máy hay nguồn tuyển đối tác nào đang hiệu quả nhất?","textChars":55,"textLines":1,"bbox":[699,423,521,24]}
+{"kind":"textbox","id":"sh/sb6l0nm1","slide":6,"name":"Google Shape;181;p18","text":"Chi tiết bảng công, tạm ứng và bảng lương hiện tại ra sao?","textPreview":"Chi tiết bảng công, tạm ứng và bảng lương hiện tại ra sao?","textChars":58,"textLines":1,"bbox":[699,459,521,24]}
+{"kind":"textbox","id":"sh/7ax4rilg","slide":6,"name":"Google Shape;182;p18","text":"Những yêu cầu duyệt tài chính nào đang tồn đọng cần xử lý?","textPreview":"Những yêu cầu duyệt tài chính nào đang tồn đọng cần xử lý?","textChars":58,"textLines":1,"bbox":[699,495,521,24]}
+{"kind":"textbox","id":"sh/6943yd4v","slide":6,"name":"Google Shape;183;p18","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[675,383,14,36]}
+{"kind":"textbox","id":"sh/h0fmxc3i","slide":6,"name":"Google Shape;184;p18","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[675,419,14,36]}
+{"kind":"textbox","id":"sh/gz6l47mx","slide":6,"name":"Google Shape;185;p18","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[675,455,14,36]}
+{"kind":"textbox","id":"sh/fyx4v2lc","slide":6,"name":"Google Shape;186;p18","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[675,491,14,36]}
+{"kind":"textbox","id":"sh/uxo32x4r","slide":6,"name":"Google Shape;187;p18","text":"Góc Nhìn Báo Cáo Điều Hành","textPreview":"Góc Nhìn Báo Cáo Điều Hành","textChars":26,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/p4zm1c3e","slide":6,"name":"Google Shape;188;p18","bbox":[60,113,1160,2]}
+{"kind":"image","id":"im/107edsb2","slide":6,"name":"Google Shape;173;p18","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/3a5wnix4","slide":6,"name":"Google Shape;174;p18","bbox":[60,294,565,227]}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":""}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"* Nguyên tắc tự động nâng gói khi chạm 80% hạn mức — Không xáo trộn quy trình...","textShapes":2}
+{"kind":"shape","id":"sh/cj2dcne1","slide":7,"name":"Google Shape;194;p19","bbox":[60,252,1160,266]}
+{"kind":"textbox","id":"sh/qh0vaxwv","slide":7,"name":"Google Shape;196;p19","text":"* Nguyên tắc tự động nâng gói khi chạm 80% hạn mức — Không xáo trộn quy trình hay di chuyển dữ liệu.","textPreview":"* Nguyên tắc tự động nâng gói khi chạm 80% hạn mức — Không xáo trộn quy trình hay di chuyển dữ liệu.","textChars":100,"textLines":1,"bbox":[60,530,1160,21]}
+{"kind":"shape","id":"sh/bitcj2dg","slide":7,"name":"Google Shape;197;p19","bbox":[60.5,304.5,227.69,1]}
+{"kind":"shape","id":"sh/ofid8nep","slide":7,"name":"Google Shape;198;p19","bbox":[288.19,304.5,220.84,1]}
+{"kind":"shape","id":"sh/pgruhsva","slide":7,"name":"Google Shape;199;p19","bbox":[509.03,304.5,217.09,1]}
+{"kind":"shape","id":"sh/cj2lo3id","slide":7,"name":"Google Shape;200;p19","bbox":[726.12,304.5,223.81,1]}
+{"kind":"shape","id":"sh/dkb2h8ji","slide":7,"name":"Google Shape;201;p19","bbox":[949.94,304.5,269.56,1]}
+{"kind":"shape","id":"sh/qhk3mtk7","slide":7,"name":"Google Shape;202;p19","bbox":[60.5,357.5,227.69,1]}
+{"kind":"shape","id":"sh/ritkfy1s","slide":7,"name":"Google Shape;203;p19","bbox":[288.19,357.5,220.84,1]}
+{"kind":"shape","id":"sh/0n2lsni9","slide":7,"name":"Google Shape;204;p19","bbox":[509.03,357.5,217.09,1]}
+{"kind":"shape","id":"sh/1ov2lsju","slide":7,"name":"Google Shape;205;p19","bbox":[726.12,357.5,223.81,1]}
+{"kind":"shape","id":"sh/elk3qd03","slide":7,"name":"Google Shape;206;p19","bbox":[949.94,357.5,269.56,1]}
+{"kind":"shape","id":"sh/zmtkji1o","slide":7,"name":"Google Shape;207;p19","bbox":[60.5,410.5,227.69,1]}
+{"kind":"shape","id":"sh/8rmlwni5","slide":7,"name":"Google Shape;208;p19","bbox":[288.19,410.5,220.84,1]}
+{"kind":"shape","id":"sh/9sv2psjq","slide":7,"name":"Google Shape;209;p19","bbox":[509.03,410.5,217.09,1]}
+{"kind":"shape","id":"sh/jmxofml8","slide":7,"name":"Google Shape;210;p19","bbox":[726.12,410.5,223.81,1]}
+{"kind":"shape","id":"sh/ilonmhkn","slide":7,"name":"Google Shape;211;p19","bbox":[949.94,410.5,269.56,1]}
+{"kind":"shape","id":"sh/58z6hw3y","slide":7,"name":"Google Shape;212;p19","bbox":[60.5,463.5,227.69,1]}
+{"kind":"shape","id":"sh/k765or2d","slide":7,"name":"Google Shape;213;p19","bbox":[288.19,463.5,220.84,1]}
+{"kind":"shape","id":"sh/vix4bmlw","slide":7,"name":"Google Shape;214;p19","bbox":[509.03,463.5,217.09,1]}
+{"kind":"shape","id":"sh/ahonihkb","slide":7,"name":"Google Shape;215;p19","bbox":[726.12,463.5,223.81,1]}
+{"kind":"shape","id":"sh/xkf6dc32","slide":7,"name":"Google Shape;216;p19","bbox":[949.94,463.5,269.56,1]}
+{"kind":"shape","id":"sh/wj65kr2h","slide":7,"name":"Google Shape;217;p19","bbox":[60.5,516.5,227.69,1]}
+{"kind":"shape","id":"sh/fehon6l0","slide":7,"name":"Google Shape;218;p19","bbox":[288.19,516.5,220.84,1]}
+{"kind":"shape","id":"sh/ud8nu1kv","slide":7,"name":"Google Shape;219;p19","bbox":[509.03,516.5,217.09,1]}
+{"kind":"shape","id":"sh/q9crm543","slide":7,"name":"Google Shape;220;p19","bbox":[726.12,516.5,223.81,1]}
+{"kind":"shape","id":"sh/ral8va58","slide":7,"name":"Google Shape;221;p19","bbox":[949.94,516.5,269.56,1]}
+{"kind":"textbox","id":"sh/cbu9ofmt","slide":7,"name":"Google Shape;222;p19","text":"Bảng Giá Dịch Vụ Mở Rộng Linh Hoạt","textPreview":"Bảng Giá Dịch Vụ Mở Rộng Linh Hoạt","textChars":34,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/dw3qhkne","slide":7,"name":"Google Shape;223;p19","bbox":[60,113,1160,2]}
+{"kind":"table","id":"tb/mh8ridgj","slide":7,"name":"Google Shape;195;p19","rows":5,"cols":5,"preview":"Gói Dịch Vụ | Chi Phí / Tháng | Lịch Sử Đi Làm | Tài Khoản Staff | Đối Tác & Nhà Máy","bbox":[60,252,314.96,314.96]}
+{"kind":"image","id":"im/72hojehg","slide":7,"name":"Google Shape;193;p19","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":""}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"Lập Luận Giá Trị ROI","textShapes":1}
+{"kind":"textbox","id":"sh/ilgjit0r","slide":8,"name":"Google Shape;232;p20","text":"Lập Luận Giá Trị ROI","textPreview":"Lập Luận Giá Trị ROI","textChars":20,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/3mp0ryhw","slide":8,"name":"Google Shape;233;p20","bbox":[60,113,1160,2]}
+{"kind":"image","id":"im/xkfqpsbq","slide":8,"name":"Google Shape;228;p20","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/cj69gnu5","slide":8,"name":"Google Shape;229;p20","bbox":[60,145,1160,525]}
+{"kind":"image","id":"im/bix8nit0","slide":8,"name":"Google Shape;230;p20","bbox":[60,424.5,1160,78]}
+{"kind":"image","id":"im/ahoredcf","slide":8,"name":"Google Shape;231;p20","bbox":[87.7,443.5,18,16]}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":""}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"Chúng tôi đồng hành định hướng từng bước giúp doanh nghiệp chuyển đổi an toàn...","textShapes":10}
+{"kind":"textbox","id":"sh/i58bypsr","slide":9,"name":"Google Shape;243;p21","text":"Chúng tôi đồng hành định hướng từng bước giúp doanh nghiệp chuyển đổi an toàn mà không làm gián đoạn vận hành:","textPreview":"Chúng tôi đồng hành định hướng từng bước giúp doanh nghiệp chuyển đổi an toàn mà không làm gián đoạn vận hành:","textChars":110,"textLines":1,"bbox":[60,279.41,1160,24]}
+{"kind":"shape","id":"sh/h4za5kb6","slide":9,"name":"Google Shape;244;p21","bbox":[60,437.5,1160,4]}
+{"kind":"textbox","id":"sh/vihs3atg","slide":9,"name":"Google Shape;246;p21","text":"1. Thiết Lập Hệ Thống","textPreview":"1. Thiết Lập Hệ Thống","textChars":21,"textLines":1,"bbox":[81,398.41,236.04,27]}
+{"kind":"textbox","id":"sh/uh8bu5sv","slide":9,"name":"Google Shape;247;p21","text":"Khởi tạo Workspace, khai báo danh mục nhà máy, đối tác và phân quyền chi tiết cho đội ngũ Staff (1-2 ngày).","textPreview":"Khởi tạo Workspace, khai báo danh mục nhà máy, đối tác và phân quyền chi tiết cho đội ngũ Staff (1-2 ngày).","textChars":107,"textLines":1,"bbox":[81,433.41,224.8,60.89]}
+{"kind":"textbox","id":"sh/8f69sfap","slide":9,"name":"Google Shape;249;p21","text":"2. Di Chuyển Dữ Liệu","textPreview":"2. Di Chuyển Dữ Liệu","textChars":20,"textLines":1,"bbox":[378.73,398.41,236.04,27]}
+{"kind":"textbox","id":"sh/yl47218n","slide":9,"name":"Google Shape;250;p21","text":"Kỹ thuật hỗ trợ chuẩn hóa file Excel hiện tại sang Template chuẩn, xử lý dứt điểm các dòng dữ liệu lỗi cũ.","textPreview":"Kỹ thuật hỗ trợ chuẩn hóa file Excel hiện tại sang Template chuẩn, xử lý dứt điểm các dòng dữ liệu lỗi cũ.","textChars":106,"textLines":1,"bbox":[378.73,433.41,224.8,60.89]}
+{"kind":"textbox","id":"sh/knmp4bqt","slide":9,"name":"Google Shape;252;p21","text":"3. Vận Hành Thực Tế","textPreview":"3. Vận Hành Thực Tế","textChars":19,"textLines":1,"bbox":[676.47,398.41,236.04,27]}
+{"kind":"textbox","id":"sh/lovqdgry","slide":9,"name":"Google Shape;253;p21","text":"Đưa vào chạy luồng Hồ sơ, Lịch sử đi làm, Phê duyệt ứng lương và Công/Lương real-time trên ứng dụng.","textPreview":"Đưa vào chạy luồng Hồ sơ, Lịch sử đi làm, Phê duyệt ứng lương và Công/Lương real-time trên ứng dụng.","textChars":100,"textLines":1,"bbox":[676.47,433.41,224.8,81.19]}
+{"kind":"textbox","id":"sh/bid8769w","slide":9,"name":"Google Shape;255;p21","text":"4. Đo Lường & Bàn Giao","textPreview":"4. Đo Lường & Bàn Giao","textChars":22,"textLines":1,"bbox":[974.2,398.41,236.04,27]}
+{"kind":"textbox","id":"sh/cjmp0bqh","slide":9,"name":"Google Shape;256;p21","text":"Đo lường thời gian đối soát giảm được, nghiệm thu chỉ số lỗi về 0 và chọn gói chính thức theo quy mô thật.","textPreview":"Đo lường thời gian đối soát giảm được, nghiệm thu chỉ số lỗi về 0 và chọn gói chính thức theo quy mô thật.","textChars":106,"textLines":1,"bbox":[974.2,433.41,224.8,81.19]}
+{"kind":"textbox","id":"sh/xkvq9gr2","slide":9,"name":"Google Shape;257;p21","text":"Lộ Trình Thí Điểm 30 Ngày Triển Khai","textPreview":"Lộ Trình Thí Điểm 30 Ngày Triển Khai","textChars":36,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/2tk7uh8f","slide":9,"name":"Google Shape;258;p21","bbox":[60,113,1160,2]}
+{"kind":"image","id":"im/utgje5k3","slide":9,"name":"Google Shape;238;p21","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/qp03694b","slide":9,"name":"Google Shape;239;p21","bbox":[60,343.41,266.8,192.19]}
+{"kind":"image","id":"im/rq94zelw","slide":9,"name":"Google Shape;240;p21","bbox":[357.73,343.41,266.8,192.19]}
+{"kind":"image","id":"im/cr2l8jmh","slide":9,"name":"Google Shape;241;p21","bbox":[655.47,343.41,266.8,192.19]}
+{"kind":"image","id":"im/dsbm143m","slide":9,"name":"Google Shape;242;p21","bbox":[953.2,343.41,266.8,192.19]}
+{"kind":"image","id":"im/il032p4z","slide":9,"name":"Google Shape;245;p21","bbox":[81,364.41,59.23,24]}
+{"kind":"image","id":"im/3m94vulk","slide":9,"name":"Google Shape;248;p21","bbox":[378.73,364.41,59.23,24]}
+{"kind":"image","id":"im/4nil4zm5","slide":9,"name":"Google Shape;251;p21","bbox":[676.47,364.41,59.23,24]}
+{"kind":"image","id":"im/pormx43q","slide":9,"name":"Google Shape;254;p21","bbox":[974.2,364.41,59.23,24]}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":""}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"Gói Thí Điểm Khởi Động","textShapes":19}
+{"kind":"textbox","id":"sh/d8ridcb2","slide":10,"name":"Google Shape;266;p22","text":"Gói Thí Điểm Khởi Động","textPreview":"Gói Thí Điểm Khởi Động","textChars":22,"textLines":1,"bbox":[92,238.25,526.05,36]}
+{"kind":"shape","id":"sh/s7i1k7uh","slide":10,"name":"Google Shape;267;p22","bbox":[92,283.25,501,1]}
+{"kind":"textbox","id":"sh/7ap0zits","slide":10,"name":"Google Shape;268;p22","text":"500.000 đ / tháng","textPreview":"500.000 đ / tháng","textChars":17,"textLines":1,"bbox":[92,294.25,501,42]}
+{"kind":"shape","id":"sh/m9wz6dc7","slide":10,"name":"Google Shape;269;p22","bbox":[92,454.25,501,75]}
+{"kind":"textbox","id":"sh/cfuxgjap","slide":10,"name":"Google Shape;270;p22","text":"Cam Kết Hoàn Tiền 100%:\n Nếu sau 30 ngày sử dụng không giảm tối thiểu 50% thời gian đối soát dữ liệu của anh/chị.","textPreview":"Cam Kết Hoàn Tiền 100%: |  Nếu sau 30 ngày sử dụng không giảm tối thiểu 50% thời gian đối soát dữ liệu của anh/chị.","textChars":113,"textLines":2,"bbox":[108,466.25,469,51]}
+{"kind":"shape","id":"sh/xg3y9ora","slide":10,"name":"Google Shape;271;p22","bbox":[92,454.25,4,75]}
+{"kind":"textbox","id":"sh/adcfe9sz","slide":10,"name":"Google Shape;272;p22","text":"3 Bước Kích Hoạt Trong 15 Phút","textPreview":"3 Bước Kích Hoạt Trong 15 Phút","textChars":30,"textLines":1,"bbox":[689,240.25,521.85,36]}
+{"kind":"shape","id":"sh/belw7e9k","slide":10,"name":"Google Shape;273;p22","bbox":[689,285.25,497,1]}
+{"kind":"shape","id":"sh/obuxczat","slide":10,"name":"Google Shape;274;p22","bbox":[689,490.25,497,55]}
+{"kind":"textbox","id":"sh/pc3e54re","slide":10,"name":"Google Shape;275;p22","text":"KÍCH HOẠT HỆ THỐNG NGAY","textPreview":"KÍCH HOẠT HỆ THỐNG NGAY","textChars":23,"textLines":1,"bbox":[717,504.25,441,27]}
+{"kind":"textbox","id":"sh/29sfa9sn","slide":10,"name":"Google Shape;276;p22","text":"Hotline / Zalo hỗ trợ kỹ thuật trực tiếp: 24/7","textPreview":"Hotline / Zalo hỗ trợ kỹ thuật trực tiếp: 24/7","textChars":46,"textLines":1,"bbox":[689,555.25,497,19.5]}
+{"kind":"textbox","id":"sh/na1w3e98","slide":10,"name":"Google Shape;277;p22","text":"Quản lý đến 500 lịch sử đi làm thực tế","textPreview":"Quản lý đến 500 lịch sử đi làm thực tế","textChars":38,"textLines":1,"bbox":[116,351.25,477,24]}
+{"kind":"textbox","id":"sh/87exo3ax","slide":10,"name":"Google Shape;278;p22","text":"5 tài khoản Staff + 5 Nhà máy / Đối tác","textPreview":"5 tài khoản Staff + 5 Nhà máy / Đối tác","textChars":39,"textLines":1,"bbox":[116,383.25,477,24]}
+{"kind":"textbox","id":"sh/98nyh8ri","slide":10,"name":"Google Shape;279;p22","text":"Cập nhật tính năng & Bảo mật tự động","textPreview":"Cập nhật tính năng & Bảo mật tự động","textChars":36,"textLines":1,"bbox":[116,415.25,477,24]}
+{"kind":"textbox","id":"sh/ho7ahkj2","slide":10,"name":"Google Shape;280;p22","text":"Xác nhận chọn gói Thí điểm: Khởi tạo hệ thống riêng cho công ty ngay lập tức.","textPreview":"Xác nhận chọn gói Thí điểm: Khởi tạo hệ thống riêng cho công ty ngay lập tức.","textChars":77,"textLines":1,"bbox":[733,296.25,453,48]}
+{"kind":"textbox","id":"sh/gnyt8fih","slide":10,"name":"Google Shape;281;p22","text":"Gửi file Excel mẫu hiện tại: Đội ngũ kỹ thuật hỗ trợ chuẩn hóa và import dữ liệu ban đầu 1-1 miễn phí.","textPreview":"Gửi file Excel mẫu hiện tại: Đội ngũ kỹ thuật hỗ trợ chuẩn hóa và import dữ liệu ban đầu 1-1 miễn phí.","textChars":102,"textLines":1,"bbox":[733,354.25,453,48]}
+{"kind":"textbox","id":"sh/fmpsfa1w","slide":10,"name":"Google Shape;282;p22","text":"Bàn giao & Bắt đầu vận hành: Nhận báo cáo điều hành chuẩn hóa ngay trong tuần này.","textPreview":"Bàn giao & Bắt đầu vận hành: Nhận báo cáo điều hành chuẩn hóa ngay trong tuần này.","textChars":82,"textLines":1,"bbox":[733,412.25,453,48]}
+{"kind":"textbox","id":"sh/pcralkjy","slide":10,"name":"Google Shape;284;p22","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[92,347.25,14,36]}
+{"kind":"textbox","id":"sh/4bitcfid","slide":10,"name":"Google Shape;285;p22","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[92,379.25,14,36]}
+{"kind":"textbox","id":"sh/3a9sja18","slide":10,"name":"Google Shape;286;p22","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[92,411.25,14,36]}
+{"kind":"textbox","id":"sh/5gna90ju","slide":10,"name":"Google Shape;288;p22","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[709,292.25,14,36]}
+{"kind":"textbox","id":"sh/kfet0v29","slide":10,"name":"Google Shape;289;p22","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[709,350.25,14,36]}
+{"kind":"textbox","id":"sh/alc7a1g7","slide":10,"name":"Google Shape;290;p22","text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[709,408.25,14,36]}
+{"kind":"textbox","id":"sh/ipw7e1g3","slide":10,"name":"Google Shape;294;p22","text":"Bắt Đầu Ngay — Cam Kết Không Rủi Ro","textPreview":"Bắt Đầu Ngay — Cam Kết Không Rủi Ro","textChars":35,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/jq58n6ho","slide":10,"name":"Google Shape;295;p22","bbox":[60,113,1160,2]}
+{"kind":"image","id":"im/1gnm5sv6","slide":10,"name":"Google Shape;263;p22","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/gfulcnul","slide":10,"name":"Google Shape;264;p22","bbox":[60,206.25,565,402.5]}
+{"kind":"image","id":"im/zap4fmdk","slide":10,"name":"Google Shape;265;p22","bbox":[655,206.25,565,402.5]}
+{"kind":"image","id":"im/ypgnmhcz","slide":10,"name":"Google Shape;283;p22","bbox":[794.98,509.25,18,18]}
+{"kind":"image","id":"im/lgvix8vm","slide":10,"name":"Google Shape;287;p22","bbox":[112,468.25,14,14]}
+{"kind":"image","id":"im/kfmhone1","slide":10,"name":"Google Shape;291;p22","bbox":[116,355.25,16,16]}
+{"kind":"image","id":"im/jed0vidg","slide":10,"name":"Google Shape;292;p22","bbox":[116,387.25,16,16]}
+{"kind":"image","id":"im/yd4zmdwv","slide":10,"name":"Google Shape;293;p22","bbox":[116,419.25,16,16]}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":""}
+{"kind":"slide","id":"sl/jetc3ut0","slide":11,"title":"https://adminlte.io/wp-content/uploads/2026/05/hr-dashboard-02-frontkit-hr.jpg","textShapes":3}
+{"kind":"textbox","id":"sh/ypk72lgj","slide":11,"name":"Google Shape;302;p23","text":"https://adminlte.io/wp-content/uploads/2026/05/hr-dashboard-02-frontkit-hr.jpg","textPreview":"https://adminlte.io/wp-content/uploads/2026/05/hr-dashboard-02-frontkit-hr.jpg","textChars":78,"textLines":1,"bbox":[463.5,383.25,468,19.5]}
+{"kind":"textbox","id":"sh/jqt8vqh4","slide":11,"name":"Google Shape;303;p23","text":"Source: adminlte.io","textPreview":"Source: adminlte.io","textChars":19,"textLines":1,"bbox":[463.5,407.75,468,24]}
+{"kind":"textbox","id":"sh/w3ip0byt","slide":11,"name":"Google Shape;304;p23","text":"Image Sources","textPreview":"Image Sources","textChars":13,"textLines":1,"bbox":[60,50,1218,53]}
+{"kind":"shape","id":"sh/xorqtgze","slide":11,"name":"Google Shape;305;p23","bbox":[60,113,1160,2]}
+{"kind":"image","id":"im/jip0v6l8","slide":11,"name":"Google Shape;300;p23","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/ixgj21kn","slide":11,"name":"Google Shape;301;p23","bbox":[348.5,382.5,90,50]}
+{"kind":"notes","id":"nt/jetc3ut0","slide":11,"text":""}

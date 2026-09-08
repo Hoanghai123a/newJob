@@ -89,7 +89,9 @@ export function buildPocketBaseFileUrl(params: {
   fileName: string;
 }) {
   const { upstream, collectionIdOrName, recordId, fileName } = params;
-  return `${upstream}/api/files/${encodeURIComponent(collectionIdOrName)}/${encodeURIComponent(recordId)}/${encodeURIComponent(fileName)}`;
+  // If upstream already ends with /api/public/pb (client-side proxy), don't add /api again
+  const base = upstream.endsWith('/api/public/pb') ? upstream : `${upstream}/api`;
+  return `${base}/files/${encodeURIComponent(collectionIdOrName)}/${encodeURIComponent(recordId)}/${encodeURIComponent(fileName)}`;
 }
 
 export function getAppLogoFileUrl(app: NonNullable<CachedAppSettingsRecord>) {

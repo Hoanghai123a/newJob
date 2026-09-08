@@ -37,7 +37,10 @@ export function buildRecruiterPayload(value: string) {
   };
 }
 
-export function getRecruiterDisplay(history?: EmploymentHistoryRecord | null) {
+export function getRecruiterDisplay(
+  history?: EmploymentHistoryRecord | null,
+  internalUsers?: ReadonlyArray<Pick<UserRecord, "id" | "full_name" | "username" | "phone" | "uid">>,
+) {
   const partner = history?.expand?.recruiter_partner;
   if (partner) {
     return {
@@ -49,7 +52,11 @@ export function getRecruiterDisplay(history?: EmploymentHistoryRecord | null) {
     };
   }
 
-  const staff = history?.expand?.recruiter_staff;
+  const staff =
+    history?.expand?.recruiter_staff ||
+    (history?.recruiter_staff
+      ? internalUsers?.find((user) => user.id === history.recruiter_staff)
+      : undefined);
   if (staff || history?.recruiter_staff) {
     return {
       id: staff?.id || history?.recruiter_staff || "",

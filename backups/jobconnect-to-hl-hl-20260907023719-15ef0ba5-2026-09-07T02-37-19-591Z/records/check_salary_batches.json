@@ -1,0 +1,54 @@
+[
+  {
+    "collectionId": "pbc_3429686283",
+    "collectionName": "check_salary_batches",
+    "created": "2026-05-23 00:33:06.034Z",
+    "id": "3u2d3l1jdejtsar",
+    "month": "2026-05",
+    "note": "Thử",
+    "round_no": 1,
+    "source_file": "mau_check_luong_2026_05_ijpfbdpwnz.xlsx",
+    "total_rows": 5,
+    "total_users": 1,
+    "updated": "2026-05-23 00:33:06.034Z"
+  },
+  {
+    "collectionId": "pbc_3429686283",
+    "collectionName": "check_salary_batches",
+    "created": "2026-05-23 00:43:12.369Z",
+    "id": "y2slwtg27yc7uef",
+    "month": "2026-05",
+    "note": "",
+    "round_no": 2,
+    "source_file": "mau_check_luong_2026_05_t7wv702dxq.xlsx",
+    "total_rows": 5,
+    "total_users": 1,
+    "updated": "2026-05-23 00:43:12.369Z"
+  },
+  {
+    "collectionId": "pbc_3429686283",
+    "collectionName": "check_salary_batches",
+    "created": "2026-06-30 13:32:19.649Z",
+    "id": "bymbmalk6kihap4",
+    "month": "2026-06",
+    "note": "thử 1",
+    "round_no": 1,
+    "source_file": "check_luong_2026_06_ocldd3uddt.xlsx",
+    "total_rows": 5,
+    "total_users": 1,
+    "updated": "2026-06-30 13:32:19.649Z"
+  },
+  {
+    "collectionId": "pbc_3429686283",
+    "collectionName": "check_salary_batches",
+    "created": "2026-07-07 02:32:41.839Z",
+    "id": "uq3pjooailhz6s3",
+    "month": "2026-07",
+    "note": "",
+    "round_no": 1,
+    "source_file": "mau_check_luong_2026_07_crcmjw2g6g.xlsx",
+    "total_rows": 1,
+    "total_users": 1,
+    "updated": "2026-07-07 02:32:41.839Z"
+  }
+]

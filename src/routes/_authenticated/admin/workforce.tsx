@@ -516,6 +516,7 @@ function WorkforcePage() {
             <WorkerList
               histories={histories}
               userById={userById}
+              staffAdminUsers={staffAdminUsers}
               factoryById={factoryById}
               latestByUser={latestByUser}
               loading={loading}
@@ -712,7 +713,7 @@ function RecruitGroups({
 
   const recruiterStats = useMemo(() => {
     const map = new Map<string, { working: number; joined: number; left: number }>();
-    const staffSet = new Set(users.filter((u) => u.role === "staff").map((u) => u.id));
+    const staffSet = new Set(users.filter((u) => u.role === "staff" || u.role === "admin").map((u) => u.id));
 
     for (const h of latestByUser.values()) {
       const recruiterId = h.recruiter_staff;
@@ -1038,6 +1039,7 @@ function SubChip({
 function WorkerList({
   histories,
   userById,
+  staffAdminUsers,
   factoryById,
   latestByUser,
   loading,
@@ -1046,6 +1048,7 @@ function WorkerList({
 }: {
   histories: EmploymentHistoryRecord[];
   userById: Map<string, UserRecord>;
+  staffAdminUsers: UserRecord[];
   factoryById: Map<string, FactoryRecord>;
   latestByUser: Map<string, EmploymentHistoryRecord>;
   loading: boolean;
@@ -1180,7 +1183,7 @@ function WorkerList({
               const isWorking = !!latest && isCurrentlyWorking(latest);
               const factoryName =
                 latest?.expand?.factory?.name || factoryById.get(latest?.factory || "")?.name;
-              const recruiter = getRecruiterDisplay(latest);
+              const recruiter = getRecruiterDisplay(latest, staffAdminUsers);
               const recruiterName = recruiter
                 ? `${recruiter.name} · ${recruiter.label}`
                 : undefined;

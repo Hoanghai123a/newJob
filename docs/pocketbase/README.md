@@ -20,6 +20,10 @@ Collection `app_settings` cần có field Select `staff_employment_factory_scope
 `assigned` và `all`. Giá trị mặc định là `assigned`; field này cho phép Admin quyết định staff
 được chọn nhà máy được phân công hay toàn bộ nhà máy trong luồng Tạo nhanh và Báo đi làm mới.
 
+Trong luồng Báo đi làm mới, hai field `employment_histories.worker_name_snapshot` và
+`employment_histories.worker_cccd_snapshot` phải để `required = false`. Có thể kiểm tra bằng
+`npm run pb:relax-employment-snapshots` và áp dụng bằng `npm run pb:relax-employment-snapshots -- --apply`.
+
 Collection `users` đã có sẵn. Chỉ cần đảm bảo field `role` chấp nhận thêm giá trị `staff` (xem hướng dẫn ở `users-role-update.md`).
 Luồng tạo nhanh NLĐ trong mục danh sách lao động còn cần rule `users.create/update`
 cho admin/staff và các field ảnh CCCD/ngân hàng/ngày sinh như hướng dẫn trong

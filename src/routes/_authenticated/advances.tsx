@@ -31,6 +31,7 @@ import {
   buildAdminAdvanceSegmentFilter,
   buildAdvanceFilter,
   formatMoney,
+  hydrateAdvanceRequesters,
 } from "@/lib/advances";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ResponsiveOverlay } from "@/components/layout/ResponsiveOverlay";
@@ -392,7 +393,7 @@ function AdvancesPage() {
         isAdmin && tab === "pending"
           ? await pb.collection("advances").getFullList<AdvanceRecord>(listOptions)
           : (await pb.collection("advances").getList<AdvanceRecord>(1, 300, listOptions)).items;
-      setItems(rows);
+      setItems(await hydrateAdvanceRequesters(rows));
       if (!isAdmin) {
         const latestResolved = rows.reduce(
           (max, row) => Math.max(max, row.resolved_at ? new Date(row.resolved_at).getTime() : 0),
@@ -1606,7 +1607,7 @@ function AdvancesPage() {
                         <span className="text-sm font-bold leading-tight text-primary">
                           {formatMoney(row.amount)}
                         </span>
-                        {row.original_amount && row.original_amount !== row.amount && (
+                        {Boolean(row.original_amount) && row.original_amount !== row.amount && (
                           <span className="text-[11px] text-muted-foreground line-through">
                             {formatMoney(row.original_amount)}
                           </span>
@@ -2619,9 +2620,11 @@ function getAdvanceRequesterName(row: AdvanceRecord) {
   if (requester) {
     return requester.full_name || requester.username || requester.phone || row.requested_by || "-";
   }
+  // If requested_by is the worker themselves
   if (row.requested_by && row.worker && row.requested_by === row.worker) {
     return row.full_name || row.employee_code || row.phone || "-";
   }
+  // Return ID as fallback - will be fixed by hydrateAdvanceRequesters
   return row.requested_by || "-";
 }
 
@@ -2630,9 +2633,11 @@ function getAdvanceRequesterMeta(row: AdvanceRecord) {
   if (requester) {
     return [requester.phone].filter(Boolean).join(" - ") || "-";
   }
+  // If requested_by is the worker themselves
   if (row.requested_by && row.worker && row.requested_by === row.worker) {
     return [row.employee_code, row.company, row.phone].filter(Boolean).join(" - ") || "-";
   }
+  // Return ID as fallback - will be fixed by hydrateAdvanceRequesters
   return row.requested_by || "-";
 }
 

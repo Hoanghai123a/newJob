@@ -50,6 +50,104 @@ export type AdvanceRecord = {
   created: string;
 };
 
+export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
+  const requesterIds = [
+    ...new Set(
+      rows
+        .filter((row) => {
+          // Include rows where requested_by exists but expand failed or returned null
+          if (!row.requested_by) return false;
+          const hasValidExpand = row.expand?.requested_by?.id;
+          return !hasValidExpand;
+        })
+        .map((row) => row.requested_by as string),
+    ),
+  ];
+
+  if (!requesterIds.length) return rows;
+
+  console.log(`Hydrating ${requesterIds.length} advance requesters:`, requesterIds);
+
+  // Fallback: if we can't fetch users from PocketBase, try to get from API route
+  // which uses admin token to bypass listRule restrictions
+  try {
+    const response = await fetch("/api/advances/hydrate-requesters", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: pb.authStore.token ? `Bearer ${pb.authStore.token}` : "",
+      },
+      body: JSON.stringify({ requesterIds }),
+    });
+
+    if (response.ok) {
+      const requesters = (await response.json()) as UserRecord[];
+      console.log(`Fetched ${requesters.length} requesters via API route`);
+      const byId = new Map(requesters.map((requester) => [requester.id, requester]));
+
+      return rows.map((row) => {
+        if (!row.requested_by) return row;
+        if (row.expand?.requested_by?.id) return row;
+
+        const requester = byId.get(row.requested_by);
+        if (!requester) {
+          console.warn(
+            `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`
+          );
+          return row;
+        }
+
+        return { ...row, expand: { ...row.expand, requested_by: requester } };
+      });
+    }
+  } catch (error) {
+    console.warn("Failed to use API route for hydration, falling back to direct fetch:", error);
+  }
+
+  // Fallback to direct PocketBase fetch (will likely fail due to listRule)
+  const batchSize = 50;
+  const allRequesters: UserRecord[] = [];
+
+  for (let i = 0; i < requesterIds.length; i += batchSize) {
+    const batch = requesterIds.slice(i, i + batchSize);
+    const filter = batch.map((id) => `id="${escapePb(id)}"`).join(" || ");
+
+    try {
+      const requesters = await pb
+        .collection("users")
+        .getFullList<UserRecord>({
+          filter,
+          fields: "id,full_name,username,phone,role,tenant_company",
+        });
+      allRequesters.push(...requesters);
+      console.log(`Fetched ${requesters.length} requesters in batch`, requesters.map(r => r.id));
+    } catch (error) {
+      console.error(`Failed to fetch batch of ${batch.length} advance requesters:`, error);
+      console.error(`Filter used: ${filter}`);
+    }
+  }
+
+  const byId = new Map(allRequesters.map((requester) => [requester.id, requester]));
+
+  return rows.map((row) => {
+    if (!row.requested_by) return row;
+
+    // Check if already has valid expand
+    if (row.expand?.requested_by?.id) return row;
+
+    const requester = byId.get(row.requested_by);
+    if (!requester) {
+      // User not found - likely deleted or in different tenant after migration
+      console.warn(
+        `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`
+      );
+      return row;
+    }
+
+    return { ...row, expand: { ...row.expand, requested_by: requester } };
+  });
+}
+
 export const ADVANCE_TAB_FILTERS = {
   pending: 'status="pending"',
   recruiter_approved: 'status="recruiter_approved"',
@@ -60,8 +158,9 @@ export const ADVANCE_TAB_FILTERS = {
   all: "",
 } satisfies Record<AdminTab, string>;
 
-export const LEGACY_STAFF_REQUESTED_PENDING_FILTER =
-  '(status="pending" && (requested_by.role="staff" || requested_by.role="admin"))';
+// Note: PocketBase does NOT support filtering by expanded relation fields (requested_by.role)
+// Admin should see all pending advances regardless of who created them
+export const LEGACY_STAFF_REQUESTED_PENDING_FILTER = 'status="pending"';
 
 export const STATUS_META: Record<
   AdvanceStatus,
@@ -111,7 +210,9 @@ export function buildAdminAdvanceSegmentFilter(segment: AdminAdvanceSegment) {
 export function containsAny(fields: string[], keyword: string) {
   const q = escapePb(keyword.trim());
   if (!q) return "";
-  return `(${fields.map((field) => `${field}~"${q}"`).join(" || ")})`;
+  // Chỉ tìm 3 trường cốt lõi: full_name, employee_code, phone
+  const mainFields = fields.slice(0, 3);
+  return `(${mainFields.map((field) => `${field}~"${q}"`).join(" || ")})`;
 }
 
 export function buildAdvanceFilter(input: {
@@ -188,5 +289,5 @@ export async function countAdvances(filter: string) {
 }
 
 export function formatMoney(value: number) {
-  return Number(value || 0).toLocaleString("vi-VN");
+  return Math.floor(Number(value || 0)).toLocaleString("vi-VN");
 }

@@ -6,7 +6,7 @@
     "system": false,
     "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
     "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
-    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "createRule": null,
     "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
     "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [

@@ -48,7 +48,14 @@ export const Route = createFileRoute("/_authenticated/super-admin")({
 });
 
 type Company = CompanyRecord & {
-  usage?: { accounts: number; workers: number; factories: number; employment_histories: number };
+  usage?: {
+    accounts: number;
+    workers: number;
+    staff_accounts: number;
+    factories: number;
+    recruitment_entities: number;
+    employment_histories: number;
+  };
 };
 type Admin = {
   id: string;
@@ -72,6 +79,8 @@ const empty = {
   max_factories: "0",
   max_file_bytes: "0",
   max_employment_histories: "0",
+  max_recruitment_entities: "0",
+  max_staff_accounts: "0",
 };
 
 function SuperAdminPage() {
@@ -86,7 +95,15 @@ function SuperAdminPage() {
   const [limitCompany, setLimitCompany] = useState<Company | null>(null);
   const [editCompany, setEditCompany] = useState<Company | null>(null);
   const [editCompanyForm, setEditCompanyForm] = useState({ name: "", code: "" });
-  const [limit, setLimit] = useState("0");
+  const [limitForm, setLimitForm] = useState({
+    max_accounts: "0",
+    max_workers: "0",
+    max_staff_accounts: "0",
+    max_factories: "0",
+    max_recruitment_entities: "0",
+    max_employment_histories: "0",
+    max_file_bytes: "0",
+  });
   const [adminCompany, setAdminCompany] = useState<Company | null>(null);
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [adminLoading, setAdminLoading] = useState(false);
@@ -116,7 +133,7 @@ function SuperAdminPage() {
 
     if (!SUPPORTED_TYPES.has(file.type.toLowerCase())) {
       throw new Error(
-        `Định dạng ${file.type || "không xác định"} không được hỗ trợ. Vui lòng chọn ảnh JPEG, PNG, WebP hoặc GIF.`
+        `Định dạng ${file.type || "không xác định"} không được hỗ trợ. Vui lòng chọn ảnh JPEG, PNG, WebP hoặc GIF.`,
       );
     }
 
@@ -158,11 +175,9 @@ function SuperAdminPage() {
                 reject(new Error("Không nén được ảnh"));
                 return;
               }
-              const compressedFile = new File(
-                [blob],
-                file.name.replace(/\.[^.]+$/, ".jpg"),
-                { type: "image/jpeg" },
-              );
+              const compressedFile = new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), {
+                type: "image/jpeg",
+              });
               console.log(
                 `Compressed: ${file.size} bytes → ${compressedFile.size} bytes (${Math.round((compressedFile.size / file.size) * 100)}%)`,
               );
@@ -172,7 +187,8 @@ function SuperAdminPage() {
             0.85,
           );
         };
-        img.onerror = () => reject(new Error("Không load được ảnh. Định dạng file có thể không hợp lệ."));
+        img.onerror = () =>
+          reject(new Error("Không load được ảnh. Định dạng file có thể không hợp lệ."));
         img.src = e.target?.result as string;
       };
       reader.onerror = () => reject(new Error("Không đọc được file"));
@@ -421,111 +437,128 @@ function SuperAdminPage() {
         </Button>
       </div>
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {Array.isArray(items) && items.map((company) => {
-          const used = company.usage?.employment_histories || 0;
-          const max = company.max_employment_histories || 0;
-          return (
-            <Card key={company.id} className="space-y-3 p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate font-bold">{company.name}</p>
-                  <p className="text-xs text-muted-foreground">{company.code}</p>
-                </div>
-                <Select
-                  value={company.status}
-                  onValueChange={(v) =>
-                    void patchCompany(company, { status: v as CompanyStatus }).then(() =>
-                      toast.success("Đã cập nhật trạng thái công ty."),
-                    )
-                  }
-                >
-                  <SelectTrigger
-                    className={`h-auto w-auto shrink-0 gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold shadow-none [&>svg]:h-3 [&>svg]:w-3 ${
-                      company.status === "active"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                        : company.status === "suspended"
-                          ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
-                          : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-                    }`}
-                    aria-label={`Trạng thái công ty ${company.name}`}
+        {Array.isArray(items) &&
+          items.map((company) => {
+            const used = company.usage?.employment_histories || 0;
+            const max = company.max_employment_histories || 0;
+            return (
+              <Card key={company.id} className="space-y-3 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate font-bold">{company.name}</p>
+                    <p className="text-xs text-muted-foreground">{company.code}</p>
+                  </div>
+                  <Select
+                    value={company.status}
+                    onValueChange={(v) =>
+                      void patchCompany(company, { status: v as CompanyStatus }).then(() =>
+                        toast.success("Đã cập nhật trạng thái công ty."),
+                      )
+                    }
                   >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Hoạt động</SelectItem>
-                    <SelectItem value="suspended">Tạm khóa</SelectItem>
-                    <SelectItem value="closed">Đã đóng</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div>
-                  <b>{company.usage?.accounts || 0}</b>
-                  <p>Tài khoản</p>
+                    <SelectTrigger
+                      className={`h-auto w-auto shrink-0 gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold shadow-none [&>svg]:h-3 [&>svg]:w-3 ${
+                        company.status === "active"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          : company.status === "suspended"
+                            ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                            : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                      }`}
+                      aria-label={`Trạng thái công ty ${company.name}`}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Hoạt động</SelectItem>
+                      <SelectItem value="suspended">Tạm khóa</SelectItem>
+                      <SelectItem value="closed">Đã đóng</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div>
-                  <b>{company.usage?.workers || 0}</b>
-                  <p>Lao động</p>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-3">
+                  <div>
+                    <b>{company.usage?.accounts || 0}</b>
+                    <p>Tài khoản</p>
+                  </div>
+                  <div>
+                    <b>{company.usage?.workers || 0}</b>
+                    <p>Lao động</p>
+                  </div>
+                  <div>
+                    <b>{company.usage?.factories || 0}</b>
+                    <p>Nhà máy</p>
+                  </div>
+                  <div>
+                    <b>{company.usage?.recruitment_entities || 0}</b>
+                    <p>Nhà chính/Đối tác</p>
+                  </div>
+                  <div>
+                    <b>{company.usage?.staff_accounts || 0}</b>
+                    <p>Nhân viên</p>
+                  </div>
                 </div>
-                <div>
-                  <b>{company.usage?.factories || 0}</b>
-                  <p>Nhà máy</p>
+                <div className="rounded-xl bg-muted/60 p-2 text-xs">
+                  <b>
+                    Lịch sử lao động: {used}/{max || "Không giới hạn"}
+                  </b>
+                  <p className="mt-1 text-muted-foreground">
+                    {max === 0 ? "Không giới hạn" : used >= max ? "Đã đạt giới hạn" : "Còn chỗ"}
+                  </p>
                 </div>
-              </div>
-              <div className="rounded-xl bg-muted/60 p-2 text-xs">
-                <b>
-                  Lịch sử lao động: {used}/{max || "Không giới hạn"}
-                </b>
-                <p className="mt-1 text-muted-foreground">
-                  {max === 0 ? "Không giới hạn" : used >= max ? "Đã đạt giới hạn" : "Còn chỗ"}
-                </p>
-              </div>
-              <div className="grid grid-cols-4 gap-1.5">
-                <Button
-                  className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
-                  variant="outline"
-                  onClick={() => {
-                    setEditCompany(company);
-                    setEditCompanyForm({ name: company.name, code: company.code });
-                  }}
-                >
-                  <Pencil className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">Sửa</span>
-                </Button>
-                <Button
-                  className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
-                  variant="outline"
-                  onClick={() => {
-                    setLimitCompany(company);
-                    setLimit(String(max));
-                  }}
-                >
-                  <Gauge className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">Hạn mức</span>
-                </Button>
-                <Button
-                  className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
-                  variant="outline"
-                  onClick={() => {
-                    setLogoCompany(company);
-                    setLogoFile(null);
-                  }}
-                >
-                  <Building2 className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">Logo</span>
-                </Button>
-                <Button
-                  className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
-                  onClick={() => void loadAdmins(company)}
-                >
-                  <UserRoundCog className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">Admin</span>
-                </Button>
-              </div>
-              <CompanyTransferActions company={company} onChanged={load} />
-            </Card>
-          );
-        })}
+                <div className="grid grid-cols-4 gap-1.5">
+                  <Button
+                    className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
+                    variant="outline"
+                    onClick={() => {
+                      setEditCompany(company);
+                      setEditCompanyForm({ name: company.name, code: company.code });
+                    }}
+                  >
+                    <Pencil className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Sửa</span>
+                  </Button>
+                  <Button
+                    className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
+                    variant="outline"
+                    onClick={() => {
+                      setLimitCompany(company);
+                      setLimitForm({
+                        max_accounts: String(company.max_accounts || 0),
+                        max_workers: String(company.max_workers || 0),
+                        max_staff_accounts: String(company.max_staff_accounts || 0),
+                        max_factories: String(company.max_factories || 0),
+                        max_recruitment_entities: String(company.max_recruitment_entities || 0),
+                        max_employment_histories: String(company.max_employment_histories || 0),
+                        max_file_bytes: String(company.max_file_bytes || 0),
+                      });
+                    }}
+                  >
+                    <Gauge className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Hạn mức</span>
+                  </Button>
+                  <Button
+                    className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
+                    variant="outline"
+                    onClick={() => {
+                      setLogoCompany(company);
+                      setLogoFile(null);
+                    }}
+                  >
+                    <Building2 className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Logo</span>
+                  </Button>
+                  <Button
+                    className="min-w-0 gap-1 px-1.5 text-[10px] sm:px-2 sm:text-xs"
+                    onClick={() => void loadAdmins(company)}
+                  >
+                    <UserRoundCog className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Admin</span>
+                  </Button>
+                </div>
+                <CompanyTransferActions company={company} onChanged={load} />
+              </Card>
+            );
+          })}
         {loading && (
           <Card className="col-span-full p-8 text-center text-sm text-muted-foreground">
             Đang tải...
@@ -612,6 +645,8 @@ function SuperAdminPage() {
                         max_factories: "Giới hạn nhà máy",
                         max_file_bytes: "Dung lượng tệp",
                         max_employment_histories: "Giới hạn lịch sử lao động",
+                        max_recruitment_entities: "Giới hạn Nhà chính/Đối tác",
+                        max_staff_accounts: "Giới hạn nhân viên quản lý",
                       } as Record<string, string>
                     )[key]
                   }
@@ -642,15 +677,46 @@ function SuperAdminPage() {
         </DialogContent>
       </Dialog>
       <Dialog open={!!limitCompany} onOpenChange={(o) => !o && setLimitCompany(null)}>
-        <DialogContent className="max-w-md" bodyClassName="max-h-[75dvh] overflow-y-auto px-5 py-4">
+        <DialogContent className="max-w-xl" bodyClassName="max-h-[80dvh] overflow-y-auto px-5 py-4">
           <DialogHeader>
-            <DialogTitle>Hạn mức lịch sử lao động</DialogTitle>
+            <DialogTitle>Hạn mức công ty</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            Hiện có {limitCompany?.usage?.employment_histories || 0} bản ghi. Nhập 0 để không giới
-            hạn.
-          </p>
-          <Input type="number" min="0" value={limit} onChange={(e) => setLimit(e.target.value)} />
+          <p className="text-sm text-muted-foreground">Nhập 0 để không giới hạn.</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {(
+              [
+                ["max_accounts", "Tài khoản", "accounts"],
+                ["max_workers", "Lao động", "workers"],
+                ["max_staff_accounts", "Nhân viên quản lý", "staff_accounts"],
+                ["max_factories", "Nhà máy", "factories"],
+                ["max_recruitment_entities", "Nhà chính/Đối tác", "recruitment_entities"],
+                ["max_employment_histories", "Lịch sử lao động", "employment_histories"],
+                ["max_file_bytes", "Dung lượng tệp (byte)", "file_bytes"],
+              ] as const
+            ).map(([field, label, usageKey]) => {
+              const used =
+                usageKey === "file_bytes"
+                  ? 0
+                  : Number((limitCompany?.usage as any)?.[usageKey] || 0);
+              return (
+                <div key={field} className="space-y-1.5">
+                  <Label htmlFor={`limit-${field}`}>{label}</Label>
+                  <Input
+                    id={`limit-${field}`}
+                    type="number"
+                    min="0"
+                    value={limitForm[field]}
+                    onChange={(event) =>
+                      setLimitForm((current) => ({ ...current, [field]: event.target.value }))
+                    }
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Đang dùng: {used} / {Number(limitForm[field] || 0) || "Không giới hạn"}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setLimitCompany(null)}>
               Hủy
@@ -658,7 +724,12 @@ function SuperAdminPage() {
             <Button
               onClick={() =>
                 limitCompany &&
-                void patchCompany(limitCompany, { max_employment_histories: Number(limit || 0) })
+                void patchCompany(
+                  limitCompany,
+                  Object.fromEntries(
+                    Object.entries(limitForm).map(([field, value]) => [field, Number(value || 0)]),
+                  ),
+                )
                   .then(() => {
                     toast.success("Đã lưu hạn mức.");
                     setLimitCompany(null);
@@ -801,16 +872,10 @@ function SuperAdminPage() {
               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
               onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
             />
-            <p className="text-xs text-muted-foreground">
-              Chỉ hỗ trợ JPEG, PNG, WebP và GIF
-            </p>
+            <p className="text-xs text-muted-foreground">Chỉ hỗ trợ JPEG, PNG, WebP và GIF</p>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => void deleteSystemLogo()}
-              disabled={logoSaving}
-            >
+            <Button variant="outline" onClick={() => void deleteSystemLogo()} disabled={logoSaving}>
               Về mặc định
             </Button>
             <Button onClick={() => void uploadSystemLogo()} disabled={logoSaving || !logoFile}>
@@ -835,9 +900,7 @@ function SuperAdminPage() {
               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
               onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
             />
-            <p className="text-xs text-muted-foreground">
-              Chỉ hỗ trợ JPEG, PNG, WebP và GIF
-            </p>
+            <p className="text-xs text-muted-foreground">Chỉ hỗ trợ JPEG, PNG, WebP và GIF</p>
           </div>
           <DialogFooter>
             <Button

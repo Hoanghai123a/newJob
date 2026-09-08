@@ -4,6 +4,7 @@ import { pb, dataUrlToFile, fileUrl, type UserRecord } from "@/lib/pocketbase";
 import { fetchFactories } from "@/lib/factories";
 import { fetchRecruitmentEntities } from "@/lib/recruitment-entities";
 import { companyFilter, companyIdOf, companyPayload } from "@/lib/tenant";
+import { createCompanyRecord } from "@/lib/company-limits";
 import { useAppSettings } from "@/lib/app-settings";
 import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import { createStaffActionLog } from "@/lib/staff-log";
@@ -508,9 +509,7 @@ function FactoriesTab() {
           note: "Admin cập nhật nhà máy",
         });
       } else {
-        const created = await pb
-          .collection("factories")
-          .create({ ...payload, ...tenantRecordPayload(currentUser) });
+        const created = await createCompanyRecord("factories", payload);
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "factories",
@@ -760,9 +759,7 @@ function FactoriesTab() {
           note: "Admin cập nhật đơn vị Nhà chính & Đối tác",
         });
       } else {
-        const created = await pb
-          .collection("recruitment_entities")
-          .create({ ...payload, ...tenantRecordPayload(currentUser) });
+        const created = await createCompanyRecord("recruitment_entities", payload);
         await createStaffActionLog({
           actor: currentUser,
           targetCollection: "recruitment_entities",

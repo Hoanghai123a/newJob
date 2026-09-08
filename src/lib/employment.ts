@@ -112,6 +112,7 @@ export interface EmploymentHistoryRecord {
   join_date: string;
   leave_date?: string;
   status?: EmploymentStatus;
+  accumulated_seniority_days?: number;
   note?: string;
   created?: string;
   updated?: string;
@@ -147,6 +148,58 @@ export function getHistoryCccdImageProgress(
   return `${sides.size}/2`;
 }
 
+/**
+ * Tính số ngày làm việc của một lịch sử đi làm.
+ * Nếu chưa có leave_date thì tính đến hôm nay.
+ */
+export function calculateWorkingDays(history: EmploymentHistoryRecord): number {
+  if (!history.join_date) return 0;
+
+  const joinDate = new Date(history.join_date);
+  const leaveDate = history.leave_date ? new Date(history.leave_date) : new Date();
+
+  if (Number.isNaN(joinDate.getTime()) || Number.isNaN(leaveDate.getTime())) return 0;
+  if (leaveDate < joinDate) return 0;
+
+  const diffTime = leaveDate.getTime() - joinDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays;
+}
+
+/**
+ * Tính thâm niên tích lũy cho một lịch sử mới.
+ * Thâm niên tích lũy = tổng số ngày làm việc của TẤT CẢ các lịch sử trước đó của cùng worker.
+ * @param workerId ID của worker
+ * @param newJoinDate Ngày vào làm của lịch sử mới (để xác định "trước đó")
+ * @param allHistories Tất cả lịch sử của worker này, đã sort theo join_date
+ */
+export function calculateAccumulatedSeniority(
+  workerId: string,
+  newJoinDate: string,
+  allHistories: EmploymentHistoryRecord[],
+): number {
+  const newJoin = new Date(newJoinDate);
+  if (Number.isNaN(newJoin.getTime())) return 0;
+
+  // Lọc các lịch sử trước ngày vào mới
+  const previousHistories = allHistories.filter((h) => {
+    if (h.worker !== workerId) return false;
+    if (!h.join_date) return false;
+    const hJoin = new Date(h.join_date);
+    if (Number.isNaN(hJoin.getTime())) return false;
+    return hJoin < newJoin;
+  });
+
+  // Tính tổng số ngày
+  let totalDays = 0;
+  for (const history of previousHistories) {
+    totalDays += calculateWorkingDays(history);
+  }
+
+  return totalDays;
+}
+
 export interface EmploymentDraft {
   worker: string;
   /** @deprecated callers should pass worker. */
@@ -178,6 +231,8 @@ export interface EmploymentHistoryAuditOptions {
   fileName?: string;
   before?: EmploymentHistoryRecord | null;
 }
+
+export type EmploymentHistoryCreateMode = "standard" | "report_join";
 
 const AUDITED_HISTORY_FIELDS = [
   "worker_name_snapshot",
@@ -564,29 +619,37 @@ async function assertEmploymentHistoryCapacity(adding = 1) {
     throw new Error(body?.message || "Không kiểm tra được hạn mức lịch sử lao động.");
 }
 
-export async function createEmploymentHistory(draft: EmploymentDraft, opts?: { uid?: string }) {
+export async function createEmploymentHistory(
+  draft: EmploymentDraft,
+  opts?: { uid?: string; mode?: EmploymentHistoryCreateMode },
+) {
+  const mode = opts?.mode || "standard";
   await assertEmploymentHistoryCapacity();
   const normalizedDraft = normalizeEmploymentPayload(draft);
   if (!normalizedDraft.worker) throw new Error("Thiếu hồ sơ NLĐ.");
   normalizedDraft.status = deriveEmploymentStatus(normalizedDraft);
   const missingFields = getMissingEmploymentSnapshotFields(normalizedDraft);
-  if (missingFields.length) {
+  if (mode === "standard" && missingFields.length) {
     throw new Error(`Thiếu thông tin cá nhân của lịch sử đi làm: ${missingFields.join(", ")}.`);
   }
-  normalizedDraft.worker_cccd_snapshot = requireValidCccdNumber(
-    normalizedDraft.worker_cccd_snapshot,
-  );
-  normalizedDraft.cccd_version = await resolveHistoryCccdVersion(
-    normalizedDraft.worker,
-    normalizedDraft.worker_cccd_snapshot,
-    normalizedDraft.cccd_version,
-  );
+  const cccdNumber = normalizedDraft.worker_cccd_snapshot || "";
+  if (mode === "report_join" && !cccdNumber) {
+    normalizedDraft.worker_cccd_snapshot = "";
+    normalizedDraft.cccd_version = undefined;
+  } else {
+    normalizedDraft.worker_cccd_snapshot = requireValidCccdNumber(cccdNumber);
+    normalizedDraft.cccd_version = await resolveHistoryCccdVersion(
+      normalizedDraft.worker,
+      normalizedDraft.worker_cccd_snapshot,
+      normalizedDraft.cccd_version,
+    );
+  }
 
   const uid = opts?.uid || (await generateEmploymentHistoryUid());
   const response = await fetch("/api/employment-histories", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${pb.authStore.token}` },
-    body: JSON.stringify({ payload: { ...normalizedDraft, uid } }),
+    body: JSON.stringify({ payload: { ...normalizedDraft, uid }, mode }),
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) throw new Error(body?.message || "Không tạo được lịch sử lao động.");

@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { getRememberedCompanyBrand } from "@/lib/company-brand";
+import { InstallFloatingBanner } from "@/components/layout/InstallFloatingBanner";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
@@ -129,6 +130,7 @@ function LoginPage() {
   return (
     <main className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-background desktop:fixed desktop:inset-0 desktop:z-40 desktop:grid desktop:grid-cols-[minmax(0,1.2fr)_minmax(32rem,0.8fr)]">
       {loading ? <LoginLoadingOverlay /> : null}
+      <InstallFloatingBanner />
       <MobileBrandHeader brand={companyLookup.company} />
       <DesktopBrandPanel brand={companyLookup.company} />
       <section className="relative flex min-w-0 flex-1 desktop:items-center desktop:justify-center desktop:bg-muted/30 desktop:px-12">

@@ -1,0 +1,32 @@
+[
+  {
+    "about": "Hoàng Long – Minh bạch ngày công, vững tâm cống hiến. Ứng dụng hỗ trợ công nhân theo dõi lịch làm việc ca ngày/đêm trực quan, tạm tính lương thưởng chuẩn xác và cập nhật liên tục các cơ hội việc làm khu công nghiệp mới nhất.",
+    "account_code_prefix": "HL",
+    "address": "https://maps.app.goo.gl/Nx812ioGPMwzD7SZ6",
+    "advance_limit": 2000000,
+    "advance_reporting_enabled": false,
+    "advance_rules": "Đi làm đủ 7 ngày ứng 500k, đủ 10 ngày ứng 500k nữa (tối đa tồn ứng 1tr/người). Nếu mới đi làm tháng đầu hỗ trợ ứng thêm 1tr khi đủ 15 ngày không để đóng trọ",
+    "allow_advance_after_leave": false,
+    "collectionId": "pbc_3126690926",
+    "collectionName": "app_settings",
+    "companies": null,
+    "company_name": "Chấm công Hoàng Long DJC",
+    "created": "2026-05-21 18:09:54.683Z",
+    "email": "Hoanglong@gmail.com",
+    "hotline": "0343751753",
+    "id": "kba9wyoiyhkt406",
+    "install_guide_images": [
+      "b1jrbvwyrak0_5rfdcym41c.png",
+      "b2s4kiemrq5s_0cgzsy7m8c.png",
+      "b37sbb9sh8p0_i7bsjfazy7.png",
+      "b45cipzw060f_ixcsbpkpxy.png",
+      "b5awctcp58pg_4vuhs0mu17.png",
+      "b61op2l5ba35_l1p2yr2mc5.png"
+    ],
+    "logo": "1000010602_wop90mzo0f.jpg",
+    "name": "",
+    "requireApproval": false,
+    "slogan": "Tiện ích cho người lao động",
+    "updated": "2026-08-01 08:20:06.740Z"
+  }
+]

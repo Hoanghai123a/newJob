@@ -54,7 +54,20 @@ function getPasswordVerifiedAt(userId: string): number | undefined | null {
   if (value === null) return undefined;
 
   const verifiedAt = Number(value);
-  if (!Number.isFinite(verifiedAt) || verifiedAt <= 0 || verifiedAt > Date.now()) return null;
+  const isValid = Number.isFinite(verifiedAt) && verifiedAt > 0 && verifiedAt <= Date.now();
+
+  // Auto-fix corrupt/invalid timestamp: treat as first login
+  if (!isValid) {
+    console.warn("[auth] Invalid password-verified-at, resetting:", {
+      userId,
+      value,
+      verifiedAt,
+      now: Date.now(),
+    });
+    window.localStorage.removeItem(passwordReauthStorageKey(userId));
+    return undefined; // Treat as new session, will be set on line 157
+  }
+
   return verifiedAt;
 }
 

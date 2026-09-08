@@ -29,12 +29,26 @@ async function context(request: Request) {
 
 async function getCompany(adminToken: string, companyId: string) {
   const response = await pbServerFetch(
-    `/api/collections/companies/records/${encodeURIComponent(companyId)}?fields=id,code`,
+    `/api/collections/companies/records/${encodeURIComponent(companyId)}?fields=id,code,max_staff_accounts`,
     {},
     adminToken,
   );
   const company = await readPbJson(response);
   return response.ok && company?.id && company?.code ? company : null;
+}
+
+async function staffAccountCount(adminToken: string, companyId: string) {
+  const filter = encodeURIComponent(
+    `tenant_company = "${escapePb(companyId)}" && (role = "staff" || role = "admin")`,
+  );
+  const response = await pbServerFetch(
+    `/api/collections/users/records?perPage=1&skipTotal=0&filter=${filter}&fields=id`,
+    {},
+    adminToken,
+  );
+  const body = await readPbJson(response);
+  if (!response.ok) throw new Error(body?.message || "Không kiểm tra được hạn mức nhân viên.");
+  return Number(body?.totalItems || 0);
 }
 
 export const Route = createFileRoute("/api/super-admin/companies/$companyId/admins")({
@@ -73,6 +87,22 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId/admi
           return error("Nhập tên đăng nhập và mật khẩu tối thiểu 8 ký tự.");
         const company = await getCompany(ctx.adminToken, params.companyId);
         if (!company) return error("Không tìm thấy công ty đã chọn.", 404);
+        const staffLimit = Math.max(0, Math.trunc(Number(company.max_staff_accounts || 0)));
+        if (staffLimit > 0) {
+          try {
+            const used = await staffAccountCount(ctx.adminToken, params.companyId);
+            if (used + 1 > staffLimit)
+              return error(
+                `Đã đạt hạn mức nhân viên quản lý (${used}/${staffLimit}). Không thể tạo thêm Admin.`,
+                409,
+              );
+          } catch (cause) {
+            return error(
+              cause instanceof Error ? cause.message : "Không kiểm tra được hạn mức nhân viên.",
+              502,
+            );
+          }
+        }
         const username = buildTechnicalUsername(company.code, loginName);
         const duplicateResponse = await pbServerFetch(
           `/api/collections/users/records?perPage=1&fields=id&filter=${encodeURIComponent(`username = "${escapePb(username)}"`)}`,

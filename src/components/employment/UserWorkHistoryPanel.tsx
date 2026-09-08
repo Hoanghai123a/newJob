@@ -224,6 +224,16 @@ export function UserWorkHistoryPanel() {
                   <div className="mt-1 text-sm font-semibold">{formatDate(history.leave_date)}</div>
                 </div>
               </div>
+              <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/30 p-3">
+                <div className="text-[11px] text-blue-700 dark:text-blue-300">
+                  Thâm niên tích lũy (các lần trước)
+                </div>
+                <div className="mt-1 text-sm font-semibold text-blue-900 dark:text-blue-100">
+                  {history.accumulated_seniority_days != null
+                    ? `${history.accumulated_seniority_days} ngày`
+                    : "Chưa có dữ liệu"}
+                </div>
+              </div>
               {history.note && (
                 <div className="rounded-xl bg-muted/40 p-3 text-sm text-muted-foreground">
                   {history.note}

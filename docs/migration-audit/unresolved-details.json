@@ -1,0 +1,708 @@
+[
+  {
+    "scope": "source",
+    "field": "employee_code",
+    "value": "1491274",
+    "ids": [
+      "w9zhwiiilo8hvm4",
+      "kgcj26j3zzk78ab"
+    ],
+    "reason": "Giá trị nguồn bị trùng."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "f8ndttjfpr5zal1",
+    "employee_code": "DJC26064795",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "yd81y83p70egvo7",
+    "employee_code": "DJC26064790",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "a225tw2mj3ysika",
+    "employee_code": "17009263",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "5v950x3bqzsnysu",
+    "employee_code": "VZ2611305",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "bjhfwfm74zbkeun",
+    "employee_code": "ST260725",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "gf1gkhk4l3s3quv",
+    "employee_code": "VZ2670447",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "h5a6v28xtqoeppq",
+    "employee_code": "ST260603",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "b1n93c410n20ixq",
+    "employee_code": "VZ2670447",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "s089h1ox8ozih0u",
+    "employee_code": "VZ2610879",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "iyqfwcpgx4ulue3",
+    "employee_code": "P008385",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "3yeokw7lvy5v57c",
+    "employee_code": "ST260628",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "zwuuf48gi2fhjb1",
+    "employee_code": "ST260603",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "is8jsvucudpss4p",
+    "employee_code": "VZ2610879",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "yv5sxi7wq51g1le",
+    "employee_code": "1486588",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "7wh9eu3iezzyqpa",
+    "employee_code": "1721707",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "5x2kkgs2rbahrln",
+    "employee_code": "1724579",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "z33955tdhings78",
+    "employee_code": "1143330",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "ydce832t6au25jv",
+    "employee_code": "1719505",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "lauvp0dz8ysrunl",
+    "employee_code": "1491274",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "gyxivvte2moh22r",
+    "employee_code": "17009263",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "rt9ukhgt04g1aln",
+    "employee_code": "1716049",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "g2njib16ot4d23k",
+    "employee_code": "1539070",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "wwnts4hmbe9enf0",
+    "employee_code": "HP1000",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "hrtj5zpg15z4ff0",
+    "employee_code": "1544407",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "ljixyko3nx39fxm",
+    "employee_code": "1557038",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "bpp1jdhskn53z7n",
+    "employee_code": "HP2605053",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "z6kzfbhyrqkspua",
+    "employee_code": "DJC26064794",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "7tx4xamhh9zeaxs",
+    "employee_code": "DJC26064795",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "52r5ktwk1o8oknf",
+    "employee_code": "DJC26064790",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "0ztmvc0g1lgnylh",
+    "employee_code": "VZ2611305",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "3fw7rq1qm20xoz2",
+    "employee_code": "HP2605052",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "jxsdj3u8v09dom1",
+    "employee_code": "HP2605054",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "5r92h6yi4rdu74k",
+    "employee_code": "HP2605086",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "5ly97ai3bng4us8",
+    "employee_code": "HP2605086",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "wzajxpzty332va4",
+    "employee_code": "1694495",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "9wbtpulcl6wjp4x",
+    "employee_code": "1612749",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "56x8rk449rxdhwq",
+    "employee_code": "1693214",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "t04icrap1591969",
+    "employee_code": "1685867",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "io7hdzngp4a71kf",
+    "employee_code": "1611011",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "uu0qgyoja671g7p",
+    "employee_code": "1681198",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "dm23hltyvzjk02w",
+    "employee_code": "1493168",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "lh9ud0s0stdnfft",
+    "employee_code": "1669045",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "rsjumez6i8ewvfa",
+    "employee_code": "1684251",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "rqj2bqbtpsifnpn",
+    "employee_code": "1682824",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "qt960pa9q55yd7i",
+    "employee_code": "4296",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "nuvnmo7n73bb64t",
+    "employee_code": "1462959",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "9qcwtgkfnf4t2qe",
+    "employee_code": "1535869",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "4lzgk3c4p9rk2w9",
+    "employee_code": "1670059",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "g6p0hf4n9o2m1i8",
+    "employee_code": "ST260725",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "wgj9oysfer77oey",
+    "employee_code": "VZ2670446",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "w2w3oi23a8cnqqz",
+    "employee_code": "VZ2670447",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "zebtc1lpswtbgb1",
+    "employee_code": "ST260612",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "2ldueql2x90rfa8",
+    "employee_code": "ST260611",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "5ngx0g27krpjn3k",
+    "employee_code": "13098",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "m2il0i0ix4ztu0v",
+    "employee_code": "P008385",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "yy16fekm6lki0zj",
+    "employee_code": "ST260603",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "206uyk61mfwpfec",
+    "employee_code": "ST260628",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "64aw0yui50qkn36",
+    "employee_code": "VZ2610879",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "ajyahd9lvdogtik",
+    "employee_code": "DC2035",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "szunale8wt20cua",
+    "employee_code": "DC2034",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "06ys1yc2m6kjxhz",
+    "employee_code": "12778",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "6b2sagigo2ukwuj",
+    "employee_code": "12778",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "4zbshqjob5jpogr",
+    "employee_code": "12918",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "395h9jz45wjs9t3",
+    "employee_code": "12835",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "v129zanw3v3ekos",
+    "employee_code": "P007297",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "ul5hozvgofi0zof",
+    "employee_code": "1486588",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "93f03b10elakcwo",
+    "employee_code": "1721707",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "sn4q7zeufsbj923",
+    "employee_code": "1724579",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "4a4xa1qr3498b7n",
+    "employee_code": "1143330",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "b759ss7p5ppyjif",
+    "employee_code": "1719505",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "fgsje1fil0z8bsk",
+    "employee_code": "1491274",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "dxjmbs7y2l1655d",
+    "employee_code": "17009263",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "ha0b1qbm3mih37o",
+    "employee_code": "1716049",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "ea13ngbt0rvp4jf",
+    "employee_code": "1539070",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "4451jfphy33vj0g",
+    "employee_code": "HP1000",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "mpcb4561u75n61h",
+    "employee_code": "1544407",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "wfeoyvas6e9ed9f",
+    "employee_code": "1557038",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "elxrzpigug1d6ce",
+    "employee_code": "HP2605053",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "z19la36dtg3madm",
+    "employee_code": "DJC26064794",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "x7fnwqjhm28rvex",
+    "employee_code": "DJC26064795",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "fkf44meq412pjh6",
+    "employee_code": "DJC26064790",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "qygr1nk3jkqd42e",
+    "employee_code": "VZ2611305",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "lro0lhmdshavtr3",
+    "employee_code": "HP2605052",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "pbl055v5ncl8rnl",
+    "employee_code": "HP2605054",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "k8mthbenf62yuut",
+    "employee_code": "HP2605086",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "5rp1ya853llnejv",
+    "employee_code": "HP2605086",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "koumykizgio6it3",
+    "employee_code": "1694495",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "pzrxuc5ooeutcsk",
+    "employee_code": "1612749",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "n7ot86zk5lzs69z",
+    "employee_code": "1693214",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "5p5aa8mtovd3012",
+    "employee_code": "1685867",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "s2k6esz3n3hic7b",
+    "employee_code": "1611011",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "bjaouyn3j3qens6",
+    "employee_code": "1681198",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "h21buk1o4dd7jae",
+    "employee_code": "1493168",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "4cb0zqstav6gffb",
+    "employee_code": "1669045",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "oax60rv0e649u0y",
+    "employee_code": "1684251",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "mx02o36opewjgdn",
+    "employee_code": "1682824",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "hpx06mfm8x3zubp",
+    "employee_code": "4296",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "dr87126ghjhk68g",
+    "employee_code": "1462959",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "99px6nav3b8ue2o",
+    "employee_code": "1535869",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "900595zea8rxvm4",
+    "employee_code": "1670059",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "tl1zcuta6hwtx4v",
+    "employee_code": "ST260725",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "g2xhh2jtzqfl0we",
+    "employee_code": "VZ2670446",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "0hqlshfiiq6hjo4",
+    "employee_code": "VZ2670447",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "7z7xobcpsidjd5p",
+    "employee_code": "ST260612",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "c0f6dr2wm85zi5e",
+    "employee_code": "ST260611",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "pjcgldqn1rslmbl",
+    "employee_code": "13098",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "0wicnuidr9z4e0r",
+    "employee_code": "P008385",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "zv718i9gtju1ggx",
+    "employee_code": "ST260603",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "8d3qx2jaq95b5eo",
+    "employee_code": "ST260628",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "lwm55dx8wrdacxl",
+    "employee_code": "VZ2610879",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "opgdo1jm96nw4ma",
+    "employee_code": "DC2035",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "t22bs4ww3d2rq66",
+    "employee_code": "DC2034",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "8x28t3wsaettrhe",
+    "employee_code": "12778",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "igwjppbkrieukfv",
+    "employee_code": "12918",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "qnrkrumcn2q7hev",
+    "employee_code": "12835",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  },
+  {
+    "scope": "employee_code",
+    "targetId": "mizflzabaa0gg8y",
+    "employee_code": "P007297",
+    "reason": "Mã nhân viên nguồn đã tồn tại ngoài tenant test."
+  }
+]
