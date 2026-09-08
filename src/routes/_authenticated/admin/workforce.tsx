@@ -516,6 +516,7 @@ function WorkforcePage() {
             <WorkerList
               histories={histories}
               userById={userById}
+              staffAdminUsers={staffAdminUsers}
               factoryById={factoryById}
               latestByUser={latestByUser}
               loading={loading}
@@ -1038,6 +1039,7 @@ function SubChip({
 function WorkerList({
   histories,
   userById,
+  staffAdminUsers,
   factoryById,
   latestByUser,
   loading,
@@ -1046,6 +1048,7 @@ function WorkerList({
 }: {
   histories: EmploymentHistoryRecord[];
   userById: Map<string, UserRecord>;
+  staffAdminUsers: UserRecord[];
   factoryById: Map<string, FactoryRecord>;
   latestByUser: Map<string, EmploymentHistoryRecord>;
   loading: boolean;

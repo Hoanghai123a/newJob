@@ -372,9 +372,6 @@ function StaffWorkforceDashboardPage() {
                 <WorkforceDashboard
                   viewer={viewer}
                   detailHref="/staff/workers"
-                  detailHistories={histories}
-                  detailUsers={staffUsers}
-                  detailFactories={visibleFactories}
                 />
               </TabsContent>
 
