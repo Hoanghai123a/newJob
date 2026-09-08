@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { useState, type ComponentType, type ReactNode } from "react";
+import { type ComponentType, type ReactNode } from "react";
 import {
   Building2,
   ChevronLeft,
@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { InstallFloatingBanner } from "./InstallFloatingBanner";
 import { useStaffExcelExport } from "@/components/staff/staff-excel-export-context";
 
 export type RoleNavigationItem = {
@@ -57,59 +56,56 @@ export function BottomNav() {
           : [];
 
   return (
-    <>
-      <InstallFloatingBanner />
-      <nav
-        aria-label="Điều hướng chính"
-        className="mobile-bottom-nav fixed bottom-0 left-1/2 z-40 w-full max-w-[30rem] -translate-x-1/2 border-t border-border/70 bg-card/95 backdrop-blur-xl desktop:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    <nav
+      aria-label="Điều hướng chính"
+      className="mobile-bottom-nav fixed bottom-0 left-1/2 z-40 w-full max-w-[30rem] -translate-x-1/2 border-t border-border/70 bg-card/95 backdrop-blur-xl desktop:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <ul
+        className={cn(
+          "grid gap-1 px-2 pb-1.5 pt-1.5",
+          items.length === 4 ? "grid-cols-4" : "grid-cols-3",
+        )}
       >
-        <ul
-          className={cn(
-            "grid gap-1 px-2 pb-1.5 pt-1.5",
-            items.length === 4 ? "grid-cols-4" : "grid-cols-3",
-          )}
-        >
-          {items.map((item) => {
-            const active = isItemActive(item, pathname);
-            const Icon = item.icon;
-            const className = cn(
-              "relative mx-auto flex min-h-[62px] w-full min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-xs font-medium transition-colors",
-              active ? "bg-primary/12 text-primary" : "text-muted-foreground active:bg-muted",
-            );
+        {items.map((item) => {
+          const active = isItemActive(item, pathname);
+          const Icon = item.icon;
+          const className = cn(
+            "relative mx-auto flex min-h-[62px] w-full min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-xs font-medium transition-colors",
+            active ? "bg-primary/12 text-primary" : "text-muted-foreground active:bg-muted",
+          );
 
-            return (
-              <li key={item.to} className="min-w-0">
-                {item.action === "staff-export" ? (
-                  <button type="button" onClick={openStaffExcelExport} className={className}>
-                    <Icon className="h-[22px] w-[22px]" />
-                    <span className="line-clamp-2 text-center text-[11px] leading-[1.1]">
-                      {item.label}
-                    </span>
-                  </button>
-                ) : (
-                  <Link
-                    to={item.to as never}
-                    aria-current={active ? "page" : undefined}
-                    className={className}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-[22px] w-[22px] transition-transform",
-                        active && "scale-105",
-                      )}
-                    />
-                    <span className="line-clamp-2 text-center text-[11px] leading-[1.1]">
-                      {item.label}
-                    </span>
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </>
+          return (
+            <li key={item.to} className="min-w-0">
+              {item.action === "staff-export" ? (
+                <button type="button" onClick={openStaffExcelExport} className={className}>
+                  <Icon className="h-[22px] w-[22px]" />
+                  <span className="line-clamp-2 text-center text-[11px] leading-[1.1]">
+                    {item.label}
+                  </span>
+                </button>
+              ) : (
+                <Link
+                  to={item.to as never}
+                  aria-current={active ? "page" : undefined}
+                  className={className}
+                >
+                  <Icon
+                    className={cn(
+                      "h-[22px] w-[22px] transition-transform",
+                      active && "scale-105",
+                    )}
+                  />
+                  <span className="line-clamp-2 text-center text-[11px] leading-[1.1]">
+                    {item.label}
+                  </span>
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
 

@@ -7,6 +7,7 @@ import { useAppSettings } from "@/lib/app-settings";
 import { getSeen } from "@/lib/seen";
 import { MobileSection } from "@/components/layout/MobileSection";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { InstallFloatingBanner } from "@/components/layout/InstallFloatingBanner";
 import { FeatureTile } from "@/components/dashboard/FeatureTile";
 import { DesktopAppShell } from "@/components/layout/DesktopAppShell";
 import { WorkforceDashboard } from "@/components/workforce/WorkforceDashboard";
@@ -609,6 +610,7 @@ function DashboardPage() {
         )}
       </div>
 
+      <InstallFloatingBanner />
       <BottomNav />
 
       <Dialog open={adminActionsOpen} onOpenChange={setAdminActionsOpen}>

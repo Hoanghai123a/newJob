@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { pb } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { InstallFloatingBanner } from "@/components/layout/InstallFloatingBanner";
 import { StaffRealtimeSyncGate } from "@/components/staff/StaffRealtimeSyncGate";
 import { DesktopAppShell } from "@/components/layout/DesktopAppShell";
 import { DataLoadingState } from "@/components/ui/data-loading-state";
@@ -59,6 +60,7 @@ function AuthLayout() {
         <DesktopAppShell>
           <Outlet />
         </DesktopAppShell>
+        <InstallFloatingBanner />
         <BottomNav />
       </div>
     </StaffExcelExportProvider>
