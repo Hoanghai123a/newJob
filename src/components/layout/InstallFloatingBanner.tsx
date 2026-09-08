@@ -120,7 +120,11 @@ export function InstallFloatingBanner() {
     }
   };
 
-  const allowedRoute = pathname === "/" || pathname === "/login" || (pathname === "/account" && forceOpen);
+  const allowedRoute =
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/about" ||
+    (pathname === "/account" && forceOpen);
 
   if (!ready || hidden || !hasUsedEnough || focused || !allowedRoute) return null;
 
