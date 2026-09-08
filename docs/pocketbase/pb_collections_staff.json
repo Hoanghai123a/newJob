@@ -563,7 +563,7 @@
         "pattern": "",
         "presentable": true,
         "primaryKey": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "text"
       },
@@ -577,7 +577,7 @@
         "pattern": "",
         "presentable": false,
         "primaryKey": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "text"
       },
@@ -716,6 +716,18 @@
         "system": false,
         "type": "select",
         "values": ["working", "left"]
+      },
+      {
+        "hidden": false,
+        "id": "number_emphist_acc_seniority",
+        "max": null,
+        "min": 0,
+        "name": "accumulated_seniority_days",
+        "onlyInt": true,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
       },
       {
         "autogeneratePattern": "",

@@ -712,7 +712,7 @@ function RecruitGroups({
 
   const recruiterStats = useMemo(() => {
     const map = new Map<string, { working: number; joined: number; left: number }>();
-    const staffSet = new Set(users.filter((u) => u.role === "staff").map((u) => u.id));
+    const staffSet = new Set(users.filter((u) => u.role === "staff" || u.role === "admin").map((u) => u.id));
 
     for (const h of latestByUser.values()) {
       const recruiterId = h.recruiter_staff;

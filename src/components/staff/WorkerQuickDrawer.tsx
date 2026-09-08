@@ -306,15 +306,6 @@ export function WorkerQuickDrawer({
       toast.warning("Chọn nhà chính");
       return;
     }
-    if (!worker.user.phone || !worker.user.phone.trim()) {
-      toast.error("Người lao động chưa có số điện thoại. Vui lòng cập nhật hồ sơ trước.");
-      return;
-    }
-    const missingSnapshotFields = getMissingEmploymentSnapshotFields(joinForm);
-    if (missingSnapshotFields.length) {
-      toast.warning(`Thiếu thông tin cá nhân: ${missingSnapshotFields.join(", ")}`);
-      return;
-    }
     if (
       !canReportJoin(
         viewer,
@@ -385,23 +376,26 @@ export function WorkerQuickDrawer({
         }
       }
 
-      const created = await createEmploymentHistory({
-        user: worker.user.id,
-        factory: joinForm.factory,
-        main_house: joinForm.main_house,
-        employee_code: joinForm.employee_code.trim(),
-        worker_name_snapshot: joinForm.worker_name_snapshot.trim(),
-        worker_cccd_snapshot: joinForm.worker_cccd_snapshot.trim(),
-        worker_date_of_birth_snapshot: joinForm.worker_date_of_birth_snapshot,
-        worker_address_snapshot: joinForm.worker_address_snapshot.trim(),
-        hometown_snapshot: joinForm.worker_address_snapshot.trim(),
-        cccd_issue_date: joinForm.cccd_issue_date,
-        worker_tax_code_snapshot: joinForm.worker_tax_code_snapshot.trim(),
-        ...buildRecruiterPayload(joinForm.recruiter_staff),
-        cccd_version: cccdVersionId,
-        join_date: joinForm.join_date,
-        note: joinForm.note.trim(),
-      });
+      const created = await createEmploymentHistory(
+        {
+          worker: worker.user.id,
+          factory: joinForm.factory,
+          main_house: joinForm.main_house,
+          employee_code: joinForm.employee_code.trim(),
+          worker_name_snapshot: joinForm.worker_name_snapshot.trim(),
+          worker_cccd_snapshot: joinForm.worker_cccd_snapshot.trim(),
+          worker_date_of_birth_snapshot: joinForm.worker_date_of_birth_snapshot,
+          worker_address_snapshot: joinForm.worker_address_snapshot.trim(),
+          hometown_snapshot: joinForm.worker_address_snapshot.trim(),
+          cccd_issue_date: joinForm.cccd_issue_date,
+          worker_tax_code_snapshot: joinForm.worker_tax_code_snapshot.trim(),
+          ...buildRecruiterPayload(joinForm.recruiter_staff),
+          cccd_version: cccdVersionId,
+          join_date: joinForm.join_date,
+          note: joinForm.note.trim(),
+        },
+        { mode: "report_join" },
+      );
       await createStaffActionLog({
         actor: viewer,
         targetUserId: worker.user.id,

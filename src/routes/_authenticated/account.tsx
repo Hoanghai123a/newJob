@@ -3333,7 +3333,7 @@ function FactoryAssignmentsPanel() {
         pb
           .collection("users")
           .getList<UserRecord>(1, 200, {
-            filter: buildUserSearchFilter(debouncedSearch, `role="staff"`),
+            filter: buildUserSearchFilter(debouncedSearch, `(role="staff" || role="admin")`),
             sort: "full_name,username",
           })
           .then((res) => res.items),

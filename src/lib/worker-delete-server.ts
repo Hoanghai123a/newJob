@@ -45,7 +45,7 @@ const DEPENDENCIES: DependencyDefinition[] = [
   {
     collection: "salary_holds",
     label: "Dữ liệu giữ lương",
-    filter: (id) => `worker="${escapePb(id)}"`,
+    filter: (id) => `worker_profile="${escapePb(id)}"`,
   },
   {
     collection: "approval_requests",
@@ -175,14 +175,31 @@ function workerSnapshot(worker: WorkerRecord) {
 
 // PocketBase chặn xóa workers khi còn employment_histories (required relation) hoặc
 // cccd_versions (unique index trên worker). Phải xóa các bản ghi này trong cùng batch.
-const CASCADE_COLLECTIONS = ["employment_histories", "cccd_versions"] as const;
+// Thêm các collection khác có relation đến workers để tránh "required relation reference" error.
+const CASCADE_COLLECTIONS = [
+  { collection: "employment_histories", field: "worker" },
+  { collection: "cccd_versions", field: "worker" },
+  { collection: "check_attendance_items", field: "worker" },
+  { collection: "check_salary_items", field: "worker" },
+  { collection: "group_chat_messages", field: "worker" },
+  { collection: "chat_room_members", field: "worker" },
+  { collection: "chat_join_requests", field: "worker" },
+  { collection: "push_subscriptions", field: "worker" },
+  { collection: "notebook_entries", field: "worker_profile" },
+  { collection: "staff_action_logs", field: "target_worker" },
+] as const;
 
-async function listCascadeRecordIds(collection: string, workerId: string, token: string) {
+async function listCascadeRecordIds(
+  collection: string,
+  field: string,
+  workerId: string,
+  token: string,
+) {
   const query = new URLSearchParams({
     page: "1",
     perPage: "500",
     fields: "id",
-    filter: `worker="${escapePb(workerId)}"`,
+    filter: `${field}="${escapePb(workerId)}"`,
   });
   const response = await pbFetch(
     `/api/collections/${encodeURIComponent(collection)}/records?${query}`,
@@ -203,9 +220,9 @@ async function deleteWorkerWithLog(
 ) {
   const name = worker.full_name || worker.uid || worker.phone || worker.id;
   const cascadeGroups = await Promise.all(
-    CASCADE_COLLECTIONS.map(async (collection) => ({
-      collection,
-      ids: await listCascadeRecordIds(collection, worker.id, token),
+    CASCADE_COLLECTIONS.map(async (item) => ({
+      collection: item.collection,
+      ids: await listCascadeRecordIds(item.collection, item.field, worker.id, token),
     })),
   );
 
@@ -259,6 +276,13 @@ async function deleteWorkerWithLog(
   const response = await pbFetch("/api/batch", { method: "POST", body: formData }, token);
   if (!response.ok) {
     const body = await readJson(response);
+    console.error("[deleteWorkerWithLog] Batch API failed:", {
+      status: response.status,
+      statusText: response.statusText,
+      body,
+      workerId: worker.id,
+      cascadeCounts,
+    });
     const message = body?.message || "PocketBase không thể hoàn tất giao dịch xóa và ghi nhật ký.";
     throw new Error(message);
   }
@@ -349,7 +373,12 @@ export async function deleteWorkerAccount(request: Request, workerId: string) {
       deletedEmploymentHistoryCount: currentPreview.employmentHistoryCount,
     });
   } catch (error) {
+    console.error("[deleteWorkerAccount] Error deleting worker:", {
+      workerId,
+      adminId: auth.user.id,
+      error: error instanceof Error ? { message: error.message, stack: error.stack } : error,
+    });
     const message = error instanceof Error ? error.message : "Không thể xóa hồ sơ NLĐ.";
-    return errorResponse(message, 502, "WORKER_DELETE_FAILED");
+    return errorResponse(message, 500, "WORKER_DELETE_FAILED");
   }
 }

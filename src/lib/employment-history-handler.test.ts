@@ -95,6 +95,11 @@ test("bỏ tenant giả mạo và luôn gán tenant từ phiên đăng nhập", 
         tenant_company: "forged",
         company: "forged",
         factory: "factory-1",
+        worker_name_snapshot: "Nguyễn Văn A",
+        worker_cccd_snapshot: "001234567890",
+        worker_date_of_birth_snapshot: "1990-01-01",
+        worker_address_snapshot: "Hà Nội",
+        cccd_issue_date: "2020-01-01",
       },
     }),
     deps,
@@ -107,6 +112,37 @@ test("bỏ tenant giả mạo và luôn gán tenant từ phiên đăng nhập", 
   assert.deepEqual(JSON.parse(String(create.init.body)), {
     worker: "worker-1",
     factory: "factory-1",
+    worker_name_snapshot: "Nguyễn Văn A",
+    worker_cccd_snapshot: "001234567890",
+    worker_date_of_birth_snapshot: "1990-01-01",
+    worker_address_snapshot: "Hà Nội",
+    cccd_issue_date: "2020-01-01",
     tenant_company: "company-1",
   });
+});
+
+test("report_join chấp nhận snapshot và CCCD bị thiếu", async () => {
+  const { deps, calls } = makeDeps();
+  const response = await handleCreateEmploymentHistory(
+    request({ mode: "report_join", payload: { worker: "worker-1", factory: "factory-1" } }),
+    deps,
+  );
+  assert.equal(response.status, 201);
+  const create = calls.find(
+    (call) => call.path === "/api/collections/employment_histories/records",
+  );
+  assert.deepEqual(JSON.parse(String(create?.init?.body)), {
+    worker: "worker-1",
+    factory: "factory-1",
+    tenant_company: "company-1",
+  });
+});
+
+test("mode chuẩn vẫn từ chối snapshot thiếu", async () => {
+  const { deps } = makeDeps();
+  const response = await handleCreateEmploymentHistory(
+    request({ payload: { worker: "worker-1", factory: "factory-1" } }),
+    deps,
+  );
+  assert.equal(response.status, 400);
 });

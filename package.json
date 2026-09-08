@@ -30,6 +30,7 @@
     "pb:migrate-workers": "node scripts/migrate-workers.mjs",
     "pb:backfill-employment-snapshots": "node scripts/backfill-employment-snapshots.mjs",
     "pb:repair-employment-histories": "node scripts/repair-employment-histories.mjs",
+    "pb:relax-employment-snapshots": "node scripts/relax-employment-snapshot-fields.mjs",
     "pb:remove-retired-features": "node scripts/remove-retired-features-pb.mjs",
     "pb:init-uid-counters": "node --env-file=.env scripts/init-uid-counters.mjs",
     "pb:audit-duplicate-user-uids": "node --env-file=.env scripts/audit-duplicate-user-uids.mjs",
