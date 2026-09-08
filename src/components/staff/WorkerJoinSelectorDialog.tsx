@@ -21,6 +21,7 @@ import {
 import { escapePb, relationInFilter } from "@/lib/delegations";
 import type { FactoryRecord } from "@/lib/factories";
 import { pb, type UserRecord } from "@/lib/pocketbase";
+import { companyFilter } from "@/lib/tenant";
 import type { WorkerRecord } from "@/lib/workers";
 import { toast } from "@/lib/toast";
 
@@ -59,18 +60,19 @@ function maskPhone(value?: string) {
   return `${"*".repeat(Math.max(4, phone.length - 4))}${phone.slice(-4)}`;
 }
 
-async function fetchLatestHistories(userIds: string[]) {
+async function fetchLatestHistories(userIds: string[], viewer: UserRecord) {
   const uniqueIds = [...new Set(userIds.filter(Boolean))];
   const historiesByUser = new Map<string, EmploymentHistoryRecord[]>();
 
   for (let index = 0; index < uniqueIds.length; index += FILTER_BATCH_SIZE) {
     const batch = uniqueIds.slice(index, index + FILTER_BATCH_SIZE);
+    const filter = [companyFilter(viewer), relationInFilter("worker", batch)].join(" && ");
     const histories = await pb
       .collection("employment_histories")
       .getFullList<EmploymentHistoryRecord>({
-        filter: relationInFilter("worker", batch),
+        filter,
         sort: "-join_date,-created",
-        fields: "id,user,factory,employee_code,join_date,leave_date,status,created,updated",
+        fields: "id,worker,factory,employee_code,join_date,leave_date,status,created,updated",
       });
     histories.forEach((history) => {
       const group = historiesByUser.get(history.worker) || [];
@@ -87,15 +89,16 @@ async function fetchLatestHistories(userIds: string[]) {
   return latestByUser;
 }
 
-async function fetchCandidateUsers(userIds: string[]) {
+async function fetchCandidateUsers(userIds: string[], viewer: UserRecord) {
   const uniqueIds = [...new Set(userIds.filter(Boolean))];
   const users: WorkerRecord[] = [];
   for (let index = 0; index < uniqueIds.length; index += FILTER_BATCH_SIZE) {
     const batch = uniqueIds.slice(index, index + FILTER_BATCH_SIZE);
+    const filter = [companyFilter(viewer), relationInFilter("id", batch)].join(" && ");
     const rows = await pb.collection("workers").getFullList<WorkerRecord>({
-      filter: relationInFilter("id", batch),
+      filter,
       sort: "full_name",
-      fields: "id,full_name,phone,uid",
+      fields: "id,tenant_company,full_name,phone,uid",
     });
     users.push(...rows);
   }
@@ -160,11 +163,22 @@ export function WorkerJoinSelectorDialog({
       toast.warning("Nhập mã NV, họ tên hoặc chọn nhà máy");
       return;
     }
-    if (useNameFallback && !factoryId) {
-      toast.warning("Khi tìm theo họ tên, vui lòng chọn nhà máy");
+    if (!viewer?.id) {
+      setHasSearched(true);
+      setItems([]);
+      setError("Không xác định được tài khoản đang đăng nhập.");
       return;
     }
-    if (!viewer?.id) return;
+
+    let tenantFilter: string;
+    try {
+      tenantFilter = companyFilter(viewer);
+    } catch (reason: unknown) {
+      setHasSearched(true);
+      setItems([]);
+      setError(reason instanceof Error ? reason.message : "Tài khoản chưa được gán công ty.");
+      return;
+    }
 
     if (append) setLoadingMore(true);
     else setLoading(true);
@@ -189,9 +203,9 @@ export function WorkerJoinSelectorDialog({
           const response = await pb
             .collection("workers")
             .getList<WorkerRecord>(sourcePage, SOURCE_PAGE_SIZE, {
-              filter: `full_name~"${escapePb(fullName.trim())}"`,
+              filter: `${tenantFilter} && full_name~"${escapePb(fullName.trim())}"`,
               sort: "full_name",
-              fields: "id,full_name,phone,uid",
+              fields: "id,tenant_company,full_name,phone,uid",
             });
 
           sourceHasMore = sourcePage < response.totalPages;
@@ -203,13 +217,16 @@ export function WorkerJoinSelectorDialog({
           );
           if (!exactUsers.length) continue;
 
-          const latestByUser = await fetchLatestHistories(exactUsers.map((user) => user.id));
+          const latestByUser = await fetchLatestHistories(
+            exactUsers.map((user) => user.id),
+            viewer,
+          );
           exactUsers.forEach((user) => {
             const latest = latestByUser.get(user.id);
             if (
               latest &&
               searchFactoryIds.has(latest.factory) &&
-              latest.factory === factoryId &&
+              (!factoryId || latest.factory === factoryId) &&
               !normalizeCode(latest.employee_code)
             ) {
               candidateMap.set(user.id, { user, latest });
@@ -230,7 +247,7 @@ export function WorkerJoinSelectorDialog({
         return;
       }
 
-      const filters = [];
+      const filters = [tenantFilter];
       // PocketBase's ~ operator narrows the query; exact matching is verified below.
       if (code) filters.push(`employee_code~"${escapePb(employeeCode.trim())}"`);
       if (factoryId) filters.push(`factory="${escapePb(factoryId)}"`);
@@ -253,7 +270,7 @@ export function WorkerJoinSelectorDialog({
           .getList<EmploymentHistoryRecord>(sourcePage, SOURCE_PAGE_SIZE, {
             filter: filters.join(" && "),
             sort: "-join_date,-created",
-            fields: "id,user,factory,employee_code,join_date,leave_date,status,created,updated",
+            fields: "id,worker,factory,employee_code,join_date,leave_date,status,created,updated",
           });
 
         sourceHasMore = sourcePage < response.totalPages;
@@ -269,7 +286,7 @@ export function WorkerJoinSelectorDialog({
         ];
         if (!candidateUserIds.length) continue;
 
-        const latestByUser = await fetchLatestHistories(candidateUserIds);
+        const latestByUser = await fetchLatestHistories(candidateUserIds, viewer);
         const validLatest = [...latestByUser.values()].filter((latest) => {
           if (!searchFactoryIds.has(latest.factory)) return false;
           if (code && normalizeCode(latest.employee_code) !== code) return false;
@@ -279,7 +296,7 @@ export function WorkerJoinSelectorDialog({
         if (!validLatest.length) continue;
 
         const latestByUserId = new Map(validLatest.map((history) => [history.worker, history]));
-        const users = await fetchCandidateUsers([...latestByUserId.keys()]);
+        const users = await fetchCandidateUsers([...latestByUserId.keys()], viewer);
         users.forEach((user) => {
           const latest = latestByUserId.get(user.id);
           if (latest) candidateMap.set(user.id, { user, latest });
@@ -309,8 +326,13 @@ export function WorkerJoinSelectorDialog({
     setSelectingId(item.user.id);
     try {
       const [user, histories] = await Promise.all([
-        pb.collection("workers").getOne<WorkerRecord>(item.user.id),
-        fetchEmploymentHistories([item.user.id]),
+        pb
+          .collection("workers")
+          .getFirstListItem<WorkerRecord>(
+            `id="${escapePb(item.user.id)}" && ${companyFilter(viewer)}`,
+            { fields: "id,tenant_company,full_name,phone,uid" },
+          ),
+        fetchEmploymentHistories([item.user.id], viewer),
       ]);
       onSelect({ user, histories });
     } catch (reason: unknown) {
