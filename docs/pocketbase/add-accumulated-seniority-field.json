@@ -1,0 +1,14 @@
+{
+  "id": "number_emphist_acc_seniority",
+  "name": "accumulated_seniority_days",
+  "type": "number",
+  "system": false,
+  "required": false,
+  "presentable": false,
+  "unique": false,
+  "options": {
+    "min": 0,
+    "max": null,
+    "noDecimal": true
+  }
+}

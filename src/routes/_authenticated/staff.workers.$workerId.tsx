@@ -1109,7 +1109,7 @@ function StaffWorkerDetailPage() {
             <InfoCell
               label="Người tuyển gần nhất"
               value={(() => {
-                const recruiter = getRecruiterDisplay(latestHistory);
+                const recruiter = getRecruiterDisplay(latestHistory, staffUsers);
                 return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa gán";
               })()}
             />
@@ -1213,7 +1213,7 @@ function StaffWorkerDetailPage() {
                   <div className="mt-0.5 break-words text-[11px] text-muted-foreground [overflow-wrap:anywhere]">
                     Mã NV: {history.employee_code || "Chưa có"} · Người tuyển:{" "}
                     {(() => {
-                      const recruiter = getRecruiterDisplay(history);
+                      const recruiter = getRecruiterDisplay(history, staffUsers);
                       return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa gán";
                     })()}
                   </div>
@@ -1898,7 +1898,7 @@ function StaffWorkerDetailPage() {
                 <InfoCell
                   label="Người tuyển"
                   value={(() => {
-                    const recruiter = getRecruiterDisplay(detailHistory);
+                    const recruiter = getRecruiterDisplay(detailHistory, staffUsers);
                     return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa gán";
                   })()}
                 />

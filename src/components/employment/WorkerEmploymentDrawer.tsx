@@ -1812,7 +1812,7 @@ export function WorkerEmploymentDrawer({
                       const canEdit = canEditHistoryRecord(h);
                       const factoryName = h.expand?.factory?.name || "Nhà máy";
                       const mainHouseName = h.expand?.main_house?.name || "—";
-                      const recruiter = getRecruiterDisplay(h);
+                      const recruiter = getRecruiterDisplay(h, staffUsers);
                       const recruiterName = recruiter
                         ? `${recruiter.name} · ${recruiter.label}`
                         : "—";
@@ -2022,7 +2022,7 @@ export function WorkerEmploymentDrawer({
                   <span className="text-muted-foreground">Người tuyển: </span>
                   <span className="font-medium">
                     {(() => {
-                      const recruiter = getRecruiterDisplay(selectedHistory);
+                      const recruiter = getRecruiterDisplay(selectedHistory, staffUsers);
                       return recruiter ? `${recruiter.name} · ${recruiter.label}` : "Chưa có";
                     })()}
                   </span>

@@ -349,7 +349,7 @@ export function StaffWorkerDirectory({
           {visibleWorkers.map((worker) => {
             const latest = worker.latestHistory;
             const isWorking = latest ? isCurrentlyWorking(latest) : false;
-            const recruiter = getRecruiterDisplay(latest);
+            const recruiter = getRecruiterDisplay(latest, staffUsers);
             const recruiterName = recruiter ? `${recruiter.name} · ${recruiter.label}` : undefined;
             const mainHouseName = latest?.expand?.main_house?.name;
             const workerName = getWorkerDisplayName(worker);

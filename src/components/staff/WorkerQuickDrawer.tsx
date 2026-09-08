@@ -644,7 +644,7 @@ export function WorkerQuickDrawer({
                   <InfoCell
                     label="Người tuyển"
                     value={(() => {
-                      const recruiter = getRecruiterDisplay(latest);
+                      const recruiter = getRecruiterDisplay(latest, staffUsers);
                       return recruiter ? `${recruiter.name} · ${recruiter.label}` : "—";
                     })()}
                   />

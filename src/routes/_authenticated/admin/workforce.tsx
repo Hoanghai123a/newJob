@@ -1180,7 +1180,7 @@ function WorkerList({
               const isWorking = !!latest && isCurrentlyWorking(latest);
               const factoryName =
                 latest?.expand?.factory?.name || factoryById.get(latest?.factory || "")?.name;
-              const recruiter = getRecruiterDisplay(latest);
+              const recruiter = getRecruiterDisplay(latest, staffAdminUsers);
               const recruiterName = recruiter
                 ? `${recruiter.name} · ${recruiter.label}`
                 : undefined;

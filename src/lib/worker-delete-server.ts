@@ -226,65 +226,73 @@ async function deleteWorkerWithLog(
     })),
   );
 
-  const cascadeRequests = cascadeGroups.flatMap((group) =>
-    group.ids.map((id) => ({
-      method: "DELETE",
-      url: `/api/collections/${group.collection}/records/${encodeURIComponent(id)}`,
-      headers: {},
-      body: {},
-    })),
-  );
   const cascadeCounts = Object.fromEntries(
     cascadeGroups.map((group) => [group.collection, group.ids.length]),
   );
 
-  const payload = {
-    requests: [
-      ...cascadeRequests,
-      {
-        method: "POST",
-        url: "/api/collections/staff_action_logs/records",
-        headers: {},
-        body: {
-          tenant_company: admin.tenant_company,
-          actor: admin.id,
-          actor_role_snapshot: "admin",
-          target_user: "",
-          target_collection: "workers",
-          target_record: worker.id,
-          action: "delete",
-          before: {
-            ...workerSnapshot(worker),
-            employment_history_count: employmentHistoryCount,
-            cascade_deleted: cascadeCounts,
-          },
-          after: null,
-          note: `Admin xóa hồ sơ NLĐ ${name} và ${employmentHistoryCount} lịch sử đi làm sau khi xác thực lại mật khẩu`,
-        },
-      },
-      {
-        method: "DELETE",
-        url: `/api/collections/workers/records/${encodeURIComponent(worker.id)}`,
-        headers: {},
-        body: {},
-      },
-    ],
-  };
-  const formData = new FormData();
-  formData.append("@jsonPayload", JSON.stringify(payload));
+  // Delete cascade records sequentially (no batch API)
+  for (const group of cascadeGroups) {
+    for (const id of group.ids) {
+      const deleteUrl = `/api/collections/${group.collection}/records/${encodeURIComponent(id)}`;
+      const response = await pbFetch(deleteUrl, { method: "DELETE" }, token);
+      if (!response.ok) {
+        const body = await readJson(response);
+        console.error(`[deleteWorkerWithLog] Failed to delete cascade record ${id} from ${group.collection}:`, {
+          status: response.status,
+          body,
+        });
+        throw new Error(`Không thể xóa bản ghi liên kết trong ${group.collection}: ${body?.message || response.statusText}`);
+      }
+    }
+  }
 
-  const response = await pbFetch("/api/batch", { method: "POST", body: formData }, token);
-  if (!response.ok) {
-    const body = await readJson(response);
-    console.error("[deleteWorkerWithLog] Batch API failed:", {
-      status: response.status,
-      statusText: response.statusText,
+  // Log the deletion action
+  const logUrl = "/api/collections/staff_action_logs/records";
+  const logBody = {
+    tenant_company: admin.tenant_company,
+    actor: admin.id,
+    actor_role_snapshot: "admin",
+    target_user: "",
+    target_collection: "workers",
+    target_record: worker.id,
+    action: "delete",
+    before: {
+      ...workerSnapshot(worker),
+      employment_history_count: employmentHistoryCount,
+      cascade_deleted: cascadeCounts,
+    },
+    after: null,
+    note: `Admin xóa hồ sơ NLĐ ${name} và ${employmentHistoryCount} lịch sử đi làm sau khi xác thực lại mật khẩu`,
+  };
+  const logResponse = await pbFetch(
+    logUrl,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(logBody),
+    },
+    token,
+  );
+  if (!logResponse.ok) {
+    const body = await readJson(logResponse);
+    console.error("[deleteWorkerWithLog] Failed to log deletion:", {
+      status: logResponse.status,
+      body,
+    });
+    // Continue anyway - logging failure should not block deletion
+  }
+
+  // Finally, delete the worker record
+  const workerDeleteUrl = `/api/collections/workers/records/${encodeURIComponent(worker.id)}`;
+  const workerResponse = await pbFetch(workerDeleteUrl, { method: "DELETE" }, token);
+  if (!workerResponse.ok) {
+    const body = await readJson(workerResponse);
+    console.error("[deleteWorkerWithLog] Failed to delete worker:", {
+      status: workerResponse.status,
       body,
       workerId: worker.id,
-      cascadeCounts,
     });
-    const message = body?.message || "PocketBase không thể hoàn tất giao dịch xóa và ghi nhật ký.";
-    throw new Error(message);
+    throw new Error(`Không thể xóa hồ sơ NLĐ: ${body?.message || workerResponse.statusText}`);
   }
 }
 
