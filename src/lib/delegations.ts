@@ -8,7 +8,9 @@ export function escapePb(value: string) {
 export function relationInFilter(field: string, ids: string[]) {
   const cleanIds = [...new Set(ids.filter(Boolean))];
   if (!cleanIds.length) return `${field}=""`;
-  return cleanIds.map((id) => `${field}="${escapePb(id)}"`).join(" || ");
+  const orClause = cleanIds.map((id) => `${field}="${escapePb(id)}"`).join(" || ");
+  // Wrap in parentheses to ensure correct precedence when combined with &&
+  return cleanIds.length > 1 ? `(${orClause})` : orClause;
 }
 
 export function userDisplayName(user?: Partial<UserRecord> | null) {

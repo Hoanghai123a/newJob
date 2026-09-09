@@ -464,7 +464,7 @@ async function fetchVisibleStaffActionLogs(userId: string, limit: number) {
     const histories = await pb.collection("employment_histories").getFullList<{ id: string }>({
       filter: joinTenantFilters(
         pb.authStore.record as UserRecord | null,
-        `worker="${userId}" || user="${userId}"`,
+        `worker="${userId}"`,
       ),
       fields: "id",
     });

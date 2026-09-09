@@ -40,6 +40,7 @@ import { getUserErrorMessage } from "@/lib/toast";
 import {
   buildRecruiterPayload,
   encodeInternalRecruiter,
+  recruiterSelectionFromHistory,
   type RecruiterSelectionValue,
 } from "@/lib/recruiters";
 
@@ -177,17 +178,21 @@ export function RegisterDialog({
 
     applySnapshot(getEmploymentPersonalSnapshot(null, selectedUser));
     fetchEmploymentHistories([selectedUser.id])
-      .then((rows) =>
-        applySnapshot(
-          getEmploymentPersonalSnapshot(getLatestEmploymentHistory(rows), selectedUser),
-        ),
-      )
+      .then((rows) => {
+        const latestHistory = getLatestEmploymentHistory(rows);
+        applySnapshot(getEmploymentPersonalSnapshot(latestHistory, selectedUser));
+        if (active) {
+          setRecruiterId(
+            recruiterSelectionFromHistory(latestHistory) || encodeInternalRecruiter(actor?.id),
+          );
+        }
+      })
       .catch(() => undefined);
 
     return () => {
       active = false;
     };
-  }, [selectedUser]);
+  }, [selectedUser, actor?.id]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

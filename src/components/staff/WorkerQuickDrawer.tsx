@@ -76,6 +76,7 @@ import {
   buildRecruiterPayload,
   encodeInternalRecruiter,
   getRecruiterDisplay,
+  recruiterSelectionFromHistory,
   type RecruiterSelectionValue,
 } from "@/lib/recruiters";
 
@@ -200,7 +201,7 @@ export function WorkerQuickDrawer({
       ...personalSnapshot,
       hometown_snapshot: personalSnapshot.worker_address_snapshot,
       worker_tax_code_snapshot: latest?.worker_tax_code_snapshot || "",
-      recruiter_staff: encodeInternalRecruiter(viewer?.id),
+      recruiter_staff: recruiterSelectionFromHistory(latest) || encodeInternalRecruiter(viewer?.id),
       join_date: todayDate(),
       note: "",
     });

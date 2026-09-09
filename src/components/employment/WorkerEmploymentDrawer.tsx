@@ -594,7 +594,7 @@ export function WorkerEmploymentDrawer({
         ...personalSnapshot,
         hometown_snapshot: personalSnapshot.worker_address_snapshot,
         worker_tax_code_snapshot: latest?.worker_tax_code_snapshot || "",
-        recruiter_staff: encodeInternalRecruiter(actor?.id),
+        recruiter_staff: recruiterSelectionFromHistory(latest) || encodeInternalRecruiter(actor?.id),
         join_date: todayIso(),
         note: "",
       });

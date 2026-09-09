@@ -372,8 +372,11 @@ export function getMissingEmploymentEditFields(snapshot: Partial<EmploymentPerso
 
 function normalizeEmploymentPayload<T extends Partial<EmploymentDraft>>(payload: T): T {
   const normalized = { ...payload } as T & Partial<EmploymentDraft>;
-  normalized.worker = normalized.worker || normalized.user;
-  if (!normalized.worker) throw new Error("Thiếu hồ sơ NLĐ.");
+  // Only validate worker when explicitly setting it (create/transfer), not on partial updates
+  if ("worker" in payload || "user" in payload) {
+    normalized.worker = normalized.worker || normalized.user;
+    if (!normalized.worker) throw new Error("Thiếu hồ sơ NLĐ.");
+  }
 
   if ("worker_name_snapshot" in payload) {
     normalized.worker_name_snapshot = cleanSnapshotText(payload.worker_name_snapshot);
