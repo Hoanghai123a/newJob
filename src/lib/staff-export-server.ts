@@ -6,6 +6,7 @@ import { buildExcelWorkbook } from "./excel";
 import { getPBUpstream } from "./pocketbase-config";
 import type { UserRecord } from "./pocketbase";
 import { getRecruiterDisplay } from "./recruiters";
+import { getCompanyForUser } from "./tenant-server";
 import { resolveBankCode } from "./vn-banks";
 
 type ExportMode = "basic" | "full";
@@ -126,6 +127,24 @@ function dateOnly(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
+function timestampForFilename(date = new Date()) {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}_${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+}
+
+function sanitizeCompanyCode(value: unknown) {
+  return (
+    String(value || "")
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9_.-]/g, "_") || "CONG_TY"
+  );
+}
+
+export function buildStaffHistoryExportFilename(companyCode: unknown, now = new Date()) {
+  return `${sanitizeCompanyCode(companyCode)}_Lich_su_NLD_${timestampForFilename(now)}.xlsx`;
+}
+
 function isValidIsoDate(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) return false;
@@ -204,6 +223,16 @@ async function fetchAllHistories(filter: string, token: string) {
   } while (page <= totalPages);
 
   return histories;
+}
+
+async function resolveExportCompanyCode(user: UserRecord) {
+  try {
+    const company = await getCompanyForUser(user);
+    if (company?.code) return company.code;
+  } catch (error) {
+    console.warn("[staff-export] could not resolve company code for filename", error);
+  }
+  return user.username?.split("__", 1)[0] || user.tenant_company || "";
 }
 
 function formatDateOnly(value?: string) {
@@ -331,7 +360,8 @@ export async function handleStaffExcelExport(request: Request) {
 
     const rows = mode === "basic" ? buildBasicRows(histories) : buildFullRows(histories);
     const file = createWorkbook(rows, mode);
-    const filename = `jobconnect_${mode === "basic" ? "co_ban" : "day_du"}_${dateOnly(new Date())}.xlsx`;
+    const companyCode = await resolveExportCompanyCode(auth.user);
+    const filename = buildStaffHistoryExportFilename(companyCode);
 
     return new Response(file, {
       status: 200,
