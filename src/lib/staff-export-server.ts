@@ -206,76 +206,13 @@ async function fetchAllHistories(filter: string, token: string) {
   return histories;
 }
 
-async function fetchHistoriesForTenure(
-  workerIds: string[],
-  user: UserRecord,
-  token: string,
-) {
-  if (!workerIds.length) return [];
-
-  const parts = [
-    `(${relationInFilter("worker", workerIds)})`,
-    `join_date <= "${dateOnly(new Date())}"`,
-  ];
-  if (user.tenant_company) {
-    parts.push(`tenant_company="${escapePb(user.tenant_company)}"`);
-  }
-
-  return fetchAllHistories(parts.join(" && "), token);
-}
-
 function formatDateOnly(value?: string) {
   if (!value) return "";
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
 }
 
-function computeHistoryDurationDays(
-  history: EmploymentHistoryRecord,
-  referenceDate = new Date(),
-) {
-  if (!history.join_date) return 0;
-  const joinTime = Date.parse(history.join_date);
-  if (Number.isNaN(joinTime)) return 0;
-
-  const refTime = referenceDate.getTime();
-  const leaveTime = history.leave_date ? Date.parse(history.leave_date) : refTime;
-  const endTime = Number.isNaN(leaveTime) ? refTime : leaveTime;
-  return endTime > joinTime ? Math.floor((endTime - joinTime) / 86_400_000) : 0;
-}
-
-export function tenureByHistoryId(
-  histories: EmploymentHistoryRecord[],
-  referenceDate = new Date(),
-) {
-  const grouped = new Map<string, EmploymentHistoryRecord[]>();
-  for (const history of histories) {
-    const rows = grouped.get(history.worker) || [];
-    rows.push(history);
-    grouped.set(history.worker, rows);
-  }
-
-  const result = new Map<string, number>();
-  for (const rows of grouped.values()) {
-    rows.sort((a, b) => {
-      const joinDiff = (Date.parse(a.join_date) || 0) - (Date.parse(b.join_date) || 0);
-      if (joinDiff) return joinDiff;
-
-      const createdDiff = (Date.parse(a.created || "") || 0) - (Date.parse(b.created || "") || 0);
-      if (createdDiff) return createdDiff;
-      return a.id.localeCompare(b.id);
-    });
-
-    let accumulatedDays = 0;
-    for (const history of rows) {
-      result.set(history.id, accumulatedDays);
-      accumulatedDays += computeHistoryDurationDays(history, referenceDate);
-    }
-  }
-  return result;
-}
-
-function buildBasicRows(histories: EmploymentHistoryRecord[], tenure: Map<string, number>) {
+function buildBasicRows(histories: EmploymentHistoryRecord[]) {
   return histories.map((history, index) => {
     const recruiter = getRecruiterDisplay(history);
     return {
@@ -296,7 +233,7 @@ function buildBasicRows(histories: EmploymentHistoryRecord[], tenure: Map<string
       "Ngày vào": formatDateOnly(history.join_date),
       "Ngày nghỉ": formatDateOnly(history.leave_date),
       "Trạng thái": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
-      "Thâm niên tích luỹ (ngày)": tenure.get(history.id) ?? 0,
+      "Thâm niên tích luỹ (ngày)": history.accumulated_seniority_days ?? 0,
       "Tài khoản gốc": history.expand?.worker?.full_name || history.expand?.worker?.username || "",
       "Số điện thoại": history.expand?.worker?.phone || "",
       "Giới tính": history.expand?.worker?.gender || "",
@@ -304,7 +241,7 @@ function buildBasicRows(histories: EmploymentHistoryRecord[], tenure: Map<string
   });
 }
 
-function buildFullRows(histories: EmploymentHistoryRecord[], tenure: Map<string, number>) {
+function buildFullRows(histories: EmploymentHistoryRecord[]) {
   return histories.map((history, index) => {
     const user = history.expand?.worker;
     const recruiter = getRecruiterDisplay(history);
@@ -327,7 +264,7 @@ function buildFullRows(histories: EmploymentHistoryRecord[], tenure: Map<string,
       "Người tuyển": recruiter?.name || "",
       "Loại người tuyển": recruiter?.label || "",
       "Ngày cấp CCCD tại thời điểm đi làm": formatDateOnly(history.cccd_issue_date),
-      "Thâm niên tích luỹ (ngày)": tenure.get(history.id) ?? 0,
+      "Thâm niên tích luỹ (ngày)": history.accumulated_seniority_days ?? 0,
       "Mã số thuế": history.worker_tax_code_snapshot || "",
       "Trạng thái lịch sử": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
       "Ghi chú": history.note || "",
@@ -392,11 +329,7 @@ export async function handleStaffExcelExport(request: Request) {
     const histories = await fetchAllHistories(filter, auth.token);
     if (!histories.length) return jsonError("Không có dữ liệu phù hợp để xuất.", 404);
 
-    const workerIds = [...new Set(histories.map((history) => history.worker).filter(Boolean))];
-    const tenureHistories = await fetchHistoriesForTenure(workerIds, auth.user, auth.token);
-    const tenure = tenureByHistoryId(tenureHistories);
-    const rows =
-      mode === "basic" ? buildBasicRows(histories, tenure) : buildFullRows(histories, tenure);
+    const rows = mode === "basic" ? buildBasicRows(histories) : buildFullRows(histories);
     const file = createWorkbook(rows, mode);
     const filename = `jobconnect_${mode === "basic" ? "co_ban" : "day_du"}_${dateOnly(new Date())}.xlsx`;
 
