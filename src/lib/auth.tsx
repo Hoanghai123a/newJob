@@ -109,6 +109,18 @@ function refreshAuthOnce() {
   return pendingAuthRefresh;
 }
 
+function getAuthErrorStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== "object") return undefined;
+  const candidate = error as { status?: unknown; response?: { status?: unknown } };
+  if (typeof candidate.status === "number") return candidate.status;
+  return typeof candidate.response?.status === "number" ? candidate.response.status : undefined;
+}
+
+function isRejectedAuthSession(error: unknown) {
+  const status = getAuthErrorStatus(error);
+  return status === 401 || status === 403;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<UserRecord | null>(null);
@@ -154,9 +166,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, false);
     // Validate the stored session before exposing authenticated UI.
     (async () => {
+      const storedToken = pb.authStore.token;
+      const storedUser = pb.authStore.record as UserRecord | null;
+
       try {
         if (pb.authStore.isValid) {
-          const storedUser = pb.authStore.record as UserRecord | null;
           const passwordVerifiedAt = storedUser?.id ? getPasswordVerifiedAt(storedUser.id) : null;
 
           if (!storedUser?.id || passwordVerifiedAt === null) {
@@ -182,8 +196,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.warn("[auth] refresh skipped", error);
-        pb.authStore.clear();
-        setUser(null);
+        if (isRejectedAuthSession(error)) {
+          pb.authStore.clear();
+          setUser(null);
+        } else if (storedToken && storedUser?.id) {
+          // A network/server failure is not proof that the stored session is invalid.
+          // Restore the local snapshot if the token has not expired while refreshing.
+          pb.authStore.save(storedToken, storedUser as NonNullable<typeof pb.authStore.record>);
+          if (pb.authStore.isValid) setUser(storedUser);
+          else {
+            pb.authStore.clear();
+            setUser(null);
+          }
+        } else {
+          pb.authStore.clear();
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }

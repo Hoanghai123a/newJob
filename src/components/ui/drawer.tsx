@@ -5,7 +5,11 @@ import { cn } from "@/lib/utils";
 import { splitOverlayChildren } from "@/components/ui/overlay-layout";
 
 const Drawer = (props: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
-  <DrawerPrimitive.Root {...props} />
+  <DrawerPrimitive.Root
+    // Keep opening a drawer from changing document-level layout styles.
+    noBodyStyles
+    {...props}
+  />
 );
 Drawer.displayName = "Drawer";
 
@@ -56,9 +60,10 @@ const DrawerContent = React.forwardRef<
 
   return (
     <DrawerPortal>
-      <DrawerOverlay />
+      <DrawerOverlay data-vaul-animate="false" />
       <DrawerPrimitive.Content
         ref={ref}
+        data-vaul-animate="false"
         className={cn(
           "fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[92dvh] h-auto flex-col overflow-hidden rounded-t-3xl border bg-background",
           className,

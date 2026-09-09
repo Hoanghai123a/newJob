@@ -189,6 +189,18 @@
 }
 
 @layer utilities {
+  /* Keep desktop content fixed when Radix temporarily locks document scrolling. */
+  @media (min-width: 961px) {
+    html {
+      scrollbar-gutter: stable;
+    }
+
+    body[data-scroll-locked] {
+      margin-right: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+
   .app-shell {
     max-width: 30rem;
     margin-inline: auto;
@@ -520,10 +532,6 @@
     border-left-width: 4px;
     padding: 0.75rem 0.875rem;
     box-shadow: var(--shadow-soft);
-    transition: transform 0.15s ease;
-  }
-  .list-card:active {
-    transform: scale(0.99);
   }
 
   body:has([role="dialog"][data-state="open"]) [data-install-banner="visible"] {

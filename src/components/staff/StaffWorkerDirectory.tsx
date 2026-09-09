@@ -33,6 +33,7 @@ import {
   maskCccd,
 } from "@/lib/employment";
 import type { UserRecord } from "@/lib/pocketbase";
+import type { WorkerRecord } from "@/lib/workers";
 import { readCachedAuxData } from "@/lib/staff-cache";
 import {
   fetchCachedStaffWorkspace,
@@ -145,6 +146,13 @@ function getWorkerDisplayName(worker: StaffWorkerRecord) {
   return worker.user.full_name?.trim() || worker.user.uid?.trim() || "Thiếu thông tin";
 }
 
+function workerAsUserRecord(worker: WorkerRecord): UserRecord {
+  return {
+    ...worker,
+    status: worker.status === "inactive" ? "disabled" : worker.status,
+  };
+}
+
 export function StaffWorkerDirectory({
   workers,
   viewer,
@@ -153,6 +161,7 @@ export function StaffWorkerDirectory({
   onSelectWorker,
   embedded = false,
   managedFactoryNames = EMPTY_FACTORY_NAMES,
+  staffUsers = [],
 }: {
   workers: StaffWorkerRecord[];
   viewer: UserRecord | null;
@@ -161,6 +170,7 @@ export function StaffWorkerDirectory({
   onSelectWorker: (worker: StaffWorkerRecord) => void;
   embedded?: boolean;
   managedFactoryNames?: string[];
+  staffUsers?: UserRecord[];
 }) {
   const restoredState = useMemo(
     () => readDirectoryState(viewer?.id, mode, embedded),
@@ -442,7 +452,7 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const [joinSelectorOpen, setJoinSelectorOpen] = useState(false);
   const [selectedJoinWorker, setSelectedJoinWorker] = useState<{
-    user: UserRecord;
+    user: WorkerRecord;
     histories: StaffWorkerRecord["histories"];
   } | null>(null);
   const [registerOpen, setRegisterOpen] = useState(false);
@@ -474,6 +484,14 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
   const selected = useMemo(
     () => workers.find((worker) => worker.user.id === selectedWorkerId) || null,
     [selectedWorkerId, workers],
+  );
+  const selectedUser = useMemo(
+    () => (selected ? workerAsUserRecord(selected.user) : null),
+    [selected],
+  );
+  const selectedJoinUser = useMemo(
+    () => (selectedJoinWorker ? workerAsUserRecord(selectedJoinWorker.user) : null),
+    [selectedJoinWorker],
   );
 
   const openWorker = (worker: StaffWorkerRecord) => {
@@ -687,11 +705,12 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
           mode={mode}
           onSelectWorker={openWorker}
           managedFactoryNames={managedFactoryNames}
+          staffUsers={staffUsers}
         />
       )}
 
       <WorkerEmploymentDrawer
-        user={selected?.user ?? null}
+        user={selectedUser}
         actor={viewer}
         histories={selected?.histories ?? []}
         factories={factories}
@@ -727,7 +746,7 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
       />
 
       <WorkerEmploymentDrawer
-        user={selectedJoinWorker?.user ?? null}
+        user={selectedJoinUser}
         actor={viewer}
         histories={selectedJoinWorker?.histories ?? []}
         factories={factories}
@@ -777,7 +796,7 @@ export function StaffWorkerDirectoryPage({ mode }: { mode: StaffWorkerDirectoryM
             open={cccdExportOpen}
             onClose={() => setCccdExportOpen(false)}
             histories={workers.flatMap((worker) => worker.histories)}
-            users={workers.map((worker) => worker.user)}
+            users={workers.map((worker) => workerAsUserRecord(worker.user))}
             factories={factories}
           />
 
