@@ -1,0 +1,47 @@
+[
+  {
+    "address": "https://maps.app.goo.gl/HcUSGKUxdKWqeDzx5",
+    "advance_limit": 3000000,
+    "attendance_cutoff_day": 0,
+    "code": "",
+    "collectionId": "pbc_3609425106",
+    "collectionName": "factories",
+    "created": "2026-05-21 18:27:55.363Z",
+    "hotline": "",
+    "id": "2q3368fz13r0g3l",
+    "name": "GoerTek",
+    "note": "",
+    "status": "active",
+    "updated": "2026-07-28 12:42:35.922Z"
+  },
+  {
+    "address": "https://maps.app.goo.gl/ubqPamP2Pfb8iDRt9",
+    "advance_limit": 2000000,
+    "attendance_cutoff_day": 0,
+    "code": "",
+    "collectionId": "pbc_3609425106",
+    "collectionName": "factories",
+    "created": "2026-05-21 18:28:21.504Z",
+    "hotline": "",
+    "id": "wmw07mfjcwrm0ir",
+    "name": "Compal",
+    "note": "",
+    "status": "active",
+    "updated": "2026-07-28 12:26:01.054Z"
+  },
+  {
+    "address": "https://maps.app.goo.gl/ApdFtwqajjM3aJbc7?g_st=ac",
+    "advance_limit": 2000000,
+    "attendance_cutoff_day": 0,
+    "code": "",
+    "collectionId": "pbc_3609425106",
+    "collectionName": "factories",
+    "created": "2026-05-27 13:56:55.350Z",
+    "hotline": "",
+    "id": "xg0voj6mdnmfn4i",
+    "name": "TK Tech",
+    "note": "",
+    "status": "active",
+    "updated": "2026-07-28 12:26:01.138Z"
+  }
+]

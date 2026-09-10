@@ -1,0 +1,23 @@
+[
+  {
+    "admins": [
+      "77uartyi6rhbl85"
+    ],
+    "amount": 0,
+    "collectionId": "pbc_approval_req",
+    "collectionName": "approval_requests",
+    "completed_at": "",
+    "content": "Giải ngân ứng",
+    "created": "2026-07-24 03:09:19.801Z",
+    "creator": "dwinxx6g4tvph9b",
+    "excel_files": [],
+    "id": "mievis25degh0ft",
+    "images": [
+      "672uecm6qzy_enhofgur7e.jpg",
+      "logo_3q5zt6agcn.png"
+    ],
+    "status": "pending",
+    "title": "abc",
+    "updated": "2026-07-24 03:09:19.801Z"
+  }
+]

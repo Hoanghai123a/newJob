@@ -3,6 +3,8 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant desktop (&:where(html[data-ui-device="desktop"] *));
+@custom-variant mobile (&:where(html[data-ui-device="mobile"] *));
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -88,7 +90,8 @@
   --status-danger-bg: oklch(0.95 0.05 27);
   --status-danger-fg: oklch(0.42 0.15 27);
 
-  --header-h: 3.25rem;
+  --header-h: 3.5rem;
+  --mobile-nav-h: 4.75rem;
 }
 
 .dark {
@@ -155,6 +158,22 @@
   button {
     font-family: inherit;
   }
+  /* Form fields use a white surface so they stay distinct from the app background. */
+  :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not(
+        [type="file"]
+      ):not([type="hidden"]),
+    textarea,
+    select,
+    [role="combobox"]
+  ) {
+    background-color: #fff;
+    color: #0f172a;
+  }
+  :where(input, textarea)::placeholder {
+    color: #64748b;
+    opacity: 1;
+  }
   /* Prevent iOS Safari zoom on input focus */
   input,
   textarea,
@@ -170,6 +189,18 @@
 }
 
 @layer utilities {
+  /* Keep desktop content fixed when Radix temporarily locks document scrolling. */
+  @media (min-width: 961px) {
+    html {
+      scrollbar-gutter: stable;
+    }
+
+    body[data-scroll-locked] {
+      margin-right: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+
   .app-shell {
     max-width: 30rem;
     margin-inline: auto;
@@ -178,6 +209,165 @@
     position: relative;
     /* Respect notch / status bar on mobile when content goes edge-to-edge */
   }
+  html[data-ui-device="desktop"] .app-shell {
+    max-width: none;
+    margin-inline: 0;
+    min-height: 100dvh;
+    background:
+      radial-gradient(
+        circle at top right,
+        color-mix(in oklab, var(--color-primary) 10%, transparent),
+        transparent 35%
+      ),
+      var(--color-background);
+  }
+  html[data-ui-device="desktop"] .pb-nav {
+    padding-bottom: 2rem;
+  }
+
+  html[data-ui-device="desktop"] .desktop-shell[data-desktop-role="user"] [data-ui-card="card"] {
+    border-radius: 0.875rem;
+    box-shadow: var(--shadow-soft);
+  }
+
+  html[data-ui-device="desktop"] .desktop-shell[data-desktop-role="user"] [data-ui-card="stat"] {
+    min-height: 4.5rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.875rem;
+  }
+
+  html[data-ui-device="desktop"]
+    .desktop-shell[data-desktop-role="user"]
+    [data-ui-card="stat"]
+    > div:first-child {
+    min-height: 1.5rem;
+    align-items: center;
+  }
+
+  html[data-ui-device="desktop"]
+    .desktop-shell[data-desktop-role="user"]
+    [data-ui-card="stat"]
+    > div:first-child
+    > div:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px;
+  }
+
+  html[data-ui-device="desktop"]
+    .desktop-shell[data-desktop-role="user"]
+    [data-ui-card="stat"]
+    > div:nth-child(2) {
+    margin-top: 0.125rem;
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+
+  html[data-ui-device="desktop"] .desktop-shell[data-desktop-role="user"] .list-card {
+    border-radius: 0.875rem;
+    padding: 0.625rem 0.75rem;
+  }
+
+  html[data-ui-device="desktop"] .desktop-shell[data-desktop-role="user"] .worker-payroll-view {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+
+  html[data-ui-device="desktop"]
+    .desktop-shell[data-desktop-role="user"]
+    .worker-check-attendance-layout {
+    display: grid;
+    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+  }
+
+  html[data-ui-device="desktop"]
+    .desktop-shell[data-desktop-role="user"]
+    .worker-check-attendance-summary {
+    position: sticky;
+    top: 6rem;
+    min-width: 0;
+  }
+
+  html[data-ui-device="desktop"]
+    .desktop-shell[data-desktop-role="user"]
+    .worker-salary-card
+    > .gradient-accent {
+    padding: 0.75rem 0.875rem;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-card {
+    width: min(100%, 26.25rem);
+    margin-inline: auto;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-card > .gradient-accent {
+    padding: 0.75rem 0.875rem;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-details,
+  html[data-ui-device="desktop"] .worker-salary-personal {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-personal-grid {
+    gap: 0.375rem;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-personal-grid > div,
+  html[data-ui-device="desktop"] .worker-salary-line,
+  html[data-ui-device="desktop"] .worker-salary-total,
+  html[data-ui-device="desktop"] .worker-salary-net {
+    min-width: 0;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.625rem;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-personal-grid > div > div:last-child,
+  html[data-ui-device="desktop"] .worker-salary-line > div:first-child,
+  html[data-ui-device="desktop"] .worker-salary-total > div:first-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-line > div:last-child,
+  html[data-ui-device="desktop"] .worker-salary-total > div:last-child {
+    flex-shrink: 0;
+  }
+
+  html[data-ui-device="desktop"] .worker-salary-card > .gradient-accent .text-xl {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 960px) {
+    html[data-ui-device="desktop"] .desktop-shell {
+      --desktop-sidebar-width: 5.5rem !important;
+    }
+    html[data-ui-device="desktop"] .desktop-sidebar-label {
+      display: none;
+    }
+    html[data-ui-device="desktop"] .desktop-sidebar-brand,
+    html[data-ui-device="desktop"] .desktop-sidebar-link,
+    html[data-ui-device="desktop"] .desktop-sidebar-user {
+      justify-content: center;
+      padding-inline: 0;
+    }
+  }
+
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }
@@ -185,7 +375,64 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
   .pb-nav {
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom));
+  }
+  .pb-form-action {
+    padding-bottom: calc(var(--mobile-nav-h) + 5.25rem + env(safe-area-inset-bottom));
+  }
+  .page-action-shell {
+    display: flex;
+    min-height: 100dvh;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .page-action-main {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: calc(var(--mobile-nav-h) + 6.5rem + env(safe-area-inset-bottom));
+  }
+  html[data-ui-device="desktop"] .page-action-shell {
+    min-height: calc(100dvh - 5rem);
+  }
+  html[data-ui-device="desktop"] .page-action-main {
+    padding-bottom: 6rem;
+  }
+  .mobile-page {
+    min-height: calc(100dvh - var(--header-h));
+  }
+  .mobile-section {
+    scroll-margin-top: calc(var(--header-h) + 0.75rem);
+  }
+  .sticky-form-actions {
+    position: fixed;
+    inset-inline: 0;
+    bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom));
+    z-index: 35;
+    box-sizing: border-box;
+    margin-inline: auto;
+    width: min(100%, 30rem);
+    border-top: 1px solid var(--color-border);
+    background: color-mix(in oklab, var(--color-card) 94%, transparent);
+    padding: 0.75rem 1rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    backdrop-filter: blur(16px);
+  }
+  html[data-ui-device="desktop"] .sticky-form-actions {
+    right: 0;
+    bottom: 0;
+    left: var(--desktop-sidebar-width, 0rem);
+    width: auto;
+    max-width: none;
+    padding: 0.75rem 2rem;
+  }
+  .mobile-bottom-nav a,
+  .mobile-bottom-nav button {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-bottom-nav {
+    min-height: var(--mobile-nav-h);
   }
   .card-soft {
     background: var(--color-card);
@@ -220,14 +467,28 @@
     display: none;
   }
 
+  html[data-ui-device="mobile"] .app-shell [class~="text-[8px]"],
+  html[data-ui-device="mobile"] .app-shell [class~="text-[9px]"],
+  html[data-ui-device="mobile"] .app-shell [class~="text-[10px]"],
+  html[data-ui-device="mobile"] .app-shell [class~="text-[11px]"] {
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
+  html[data-ui-device="mobile"] .app-shell input,
+  html[data-ui-device="mobile"] .app-shell textarea,
+  html[data-ui-device="mobile"] .app-shell select {
+    line-height: 1.45;
+  }
+
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
     padding: 0.125rem 0.5rem;
     border-radius: 9999px;
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 600;
     line-height: 1.25;
     white-space: nowrap;
   }
@@ -271,9 +532,77 @@
     border-left-width: 4px;
     padding: 0.75rem 0.875rem;
     box-shadow: var(--shadow-soft);
-    transition: transform 0.15s ease;
   }
-  .list-card:active {
-    transform: scale(0.99);
+
+  body:has([role="dialog"][data-state="open"]) [data-install-banner="visible"] {
+    display: none;
+  }
+
+  html[data-ui-device="mobile"] [data-responsive-overlay="true"] {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    max-height: 92dvh;
+    transform: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 1.5rem;
+    border-top-right-radius: 1.5rem;
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    box-shadow: 0 -18px 50px -24px rgb(15 23 42 / 48%);
+  }
+
+  html[data-ui-device="mobile"] [data-responsive-overlay="true"]::before {
+    content: "";
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    width: 2.5rem;
+    height: 0.25rem;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+    background: var(--color-muted);
+  }
+
+  html[data-ui-device="mobile"] [data-responsive-overlay="true"][data-presentation="full"] {
+    height: 96dvh;
+    max-height: 96dvh;
+  }
+
+  html[data-ui-device="mobile"] [data-responsive-overlay="true"][data-presentation="dialog"] {
+    left: 50%;
+    right: auto;
+    top: 50%;
+    bottom: auto;
+    width: calc(100% - 2rem);
+    max-width: 26rem;
+    max-height: 88dvh;
+    transform: translate(-50%, -50%);
+    border-radius: 1rem;
+    padding-bottom: 1.25rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  html[data-ui-device="mobile"]
+    [data-responsive-overlay="true"][data-presentation="dialog"]::before {
+    display: none;
+  }
+
+  [data-sonner-toaster] {
+    z-index: 100 !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

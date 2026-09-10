@@ -7,6 +7,7 @@ Keep apparent pet scale and baseline stable within the row unless the state itse
 Action: Greeting loop: paw or limb down, raised, tilted, and returning in a friendly attention gesture.
 
 State requirements:
+
 - Show the greeting through paw, hand, wing, or limb pose only.
 - Do not draw wave marks, motion arcs, lines, sparkles, symbols, or floating effects around the gesture.
 

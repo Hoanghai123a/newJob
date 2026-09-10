@@ -1,7 +1,7 @@
 {
-  "name": "Chấm công",
-  "short_name": "Chấm công",
-  "description": "Chấm công, bảng tin và hỗ trợ người lao động.",
+  "name": "Tuyển dụng 4.0",
+  "short_name": "Tuyển dụng",
+  "description": "Tuyển dụng 4.0, bảng tin và hỗ trợ người lao động.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,16 +11,28 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/pwa-icon.svg",
+      "src": "/icons/app-icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/pwa-icon.svg",
+      "src": "/icons/app-icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

@@ -12,7 +12,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
+      "inline-flex max-w-full items-center justify-center gap-1 rounded-lg bg-muted p-1 text-muted-foreground desktop:flex desktop:w-full desktop:justify-start desktop:gap-2 desktop:rounded-none desktop:bg-transparent desktop:p-0",
       className,
     )}
     {...props}
@@ -27,7 +27,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow",
+      "inline-flex min-h-9 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow desktop:min-h-12 desktop:min-w-[9rem] desktop:flex-1 desktop:rounded-xl desktop:border desktop:border-border/70 desktop:bg-card desktop:px-5 desktop:py-3 desktop:text-base desktop:font-semibold desktop:shadow-sm desktop:hover:border-primary/50 desktop:hover:bg-muted/60 desktop:data-[state=active]:border-primary desktop:data-[state=active]:bg-primary/10 desktop:data-[state=active]:text-primary desktop:data-[state=active]:shadow-md",
       className,
     )}
     {...props}

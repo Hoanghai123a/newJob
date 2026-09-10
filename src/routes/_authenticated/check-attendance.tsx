@@ -1,12 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { fileUrl, pb } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
-import { AppHeader } from "@/components/layout/BottomNav";
+import { companyFilter, companyIdOf } from "@/lib/tenant";
+import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { WorkerPayrollView } from "@/components/payroll/WorkerPayrollView";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DataLoadingState } from "@/components/ui/data-loading-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +23,8 @@ import {
 import { formatVND, type AttendanceRow, type RateBuckets, type Shift } from "@/lib/salary";
 import { exportToExcel } from "@/lib/excel";
 import { escapePb } from "@/lib/delegations";
+import { accountIdentityKey } from "@/lib/account-identity";
+import { fetchEmploymentHistories, type EmploymentHistoryRecord } from "@/lib/employment";
 import { markSeen } from "@/lib/seen";
 import {
   buildPayrollCalendarCells,
@@ -38,9 +43,13 @@ import {
   Upload,
   Wallet,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import { getUserErrorMessage } from "@/lib/toast";
 
 export const Route = createFileRoute("/_authenticated/check-attendance")({
+  beforeLoad: () => {
+    throw redirect({ to: "/staff/workers" });
+  },
   component: CheckAttendancePage,
 });
 
@@ -63,6 +72,7 @@ type CheckItemRecord = {
   user: string;
   month: string;
   round_no: number;
+  full_name?: string;
   rows: CheckAttendanceRow[];
   summary?: Partial<RateBuckets>;
   created?: string;
@@ -72,6 +82,7 @@ type CheckItemRecord = {
 type SalaryPersonalInfo = {
   employee_code: string;
   company: string;
+  full_name?: string;
   start_date: string;
   end_date: string;
   base_salary: number;
@@ -113,28 +124,30 @@ type SalaryItemRecord = {
 
 type UserRecord = {
   id: string;
+  uid?: string;
   full_name?: string;
   username?: string;
   phone?: string;
-  company?: string;
-  employee_code?: string;
 };
 
 type CheckAttendanceRow = AttendanceRow;
 
 type ParsedRow = CheckAttendanceRow & {
+  uid: string;
   employeeCode: string;
   company: string;
+  fullName: string;
   rates: RateBuckets;
 };
 
 type ParsedSalaryRow = {
+  uid: string;
   employeeCode: string;
   company: string;
   personal: SalaryPersonalInfo;
-  wageLine?: SalaryWageLine;
-  allowanceLine?: SalaryMoneyLine;
-  deductionLine?: SalaryMoneyLine;
+  wageLines: SalaryWageLine[];
+  allowanceLines: SalaryMoneyLine[];
+  deductionLines: SalaryMoneyLine[];
 };
 
 const EMPTY_CHECK_BUCKETS = (): RateBuckets => ({
@@ -288,7 +301,12 @@ async function readAttendanceExcel(file: File): Promise<ParsedRow[]> {
 
   return rawRows
     .map((row) => {
-      const employeeCode = String(pick(row, ["Mã NV", "Ma NV", "employee_code"])).trim();
+      const uid = String(
+        pick(row, ["Mã tài khoản (UID)", "uid", "UID", "userId", "user_id"]),
+      ).trim();
+      const employeeCode = String(
+        pick(row, ["Mã nhân viên", "Mã NV", "Ma NV", "employee_code"]),
+      ).trim();
       const rates = {
         r100: parseNumber(pick(row, ["100%", "100", "r100"])),
         r130: parseNumber(pick(row, ["130%", "130", "r130"])),
@@ -299,8 +317,10 @@ async function readAttendanceExcel(file: File): Promise<ParsedRow[]> {
         r390: parseNumber(pick(row, ["390%", "390", "r390"])),
       };
       return {
+        uid,
         employeeCode,
         company: String(pick(row, ["Nhà máy", "Công ty", "company", "factory"])).trim(),
+        fullName: String(pick(row, ["Họ tên", "Họ và tên", "full_name"])).trim(),
         rates,
         date: parseExcelDate(pick(row, ["Ngày", "date", "Ngày công"])),
         shift: parseShift(pick(row, ["Ca", "shift"])),
@@ -309,7 +329,23 @@ async function readAttendanceExcel(file: File): Promise<ParsedRow[]> {
         ot_hours: parseNumber(pick(row, ["Giờ TC", "TC", "ot_hours", "Giờ tăng ca"])),
       };
     })
-    .filter((row) => row.employeeCode && row.company && (row.date || hasRateValues(row.rates)));
+    .filter(
+      (row) =>
+        (row.uid || (row.employeeCode && row.company)) && (row.date || hasRateValues(row.rates)),
+    );
+}
+
+function parseRateNumber(rate: string) {
+  const match = rate.replace(/\s/g, "").match(/-?\d+(?:[.,]\d+)?/);
+  if (!match) return 0;
+  const value = Number(match[0].replace(",", "."));
+  return Number.isFinite(value) ? value : 0;
+}
+
+function stripPrefix(key: string, prefix: "HC" | "PC" | "KT") {
+  const pattern = new RegExp(`^${prefix}[_\\s-]+(.+)$`, "i");
+  const match = key.trim().match(pattern);
+  return match ? match[1].trim() : null;
 }
 
 async function readSalaryExcel(file: File): Promise<ParsedSalaryRow[]> {
@@ -321,50 +357,73 @@ async function readSalaryExcel(file: File): Promise<ParsedSalaryRow[]> {
 
   return rawRows
     .map((row) => {
-      const employeeCode = String(pick(row, ["Mã NV", "Ma NV", "employee_code"])).trim();
+      const uid = String(
+        pick(row, ["Mã tài khoản (UID)", "uid", "UID", "userId", "user_id"]),
+      ).trim();
+      const employeeCode = String(
+        pick(row, ["Mã nhân viên", "Mã NV", "Ma NV", "employee_code"]),
+      ).trim();
       const company = String(pick(row, ["Nhà máy", "Công ty", "company", "factory"])).trim();
-      const wageLine = {
-        rate: formatSalaryRate(pick(row, ["Hệ số", "He so", "rate", "coefficient"])),
-        hours: parseNumber(pick(row, ["Số giờ", "So gio", "hours"])),
-        amount: parseNumber(pick(row, ["Thành tiền", "Thanh tien", "Tiền lương", "wage_amount"])),
-      };
-      const allowanceLine = {
-        label: String(
-          pick(row, ["Loại phụ cấp", "Loai phu cap", "Phụ cấp", "allowance_type"]),
-        ).trim(),
-        amount: parseNumber(
-          pick(row, ["Tiền phụ cấp", "Tien phu cap", "Số tiền phụ cấp", "allowance_amount"]),
-        ),
-      };
-      const deductionLine = {
-        label: String(
-          pick(row, ["Loại khấu trừ", "Loai khau tru", "Khấu trừ", "deduction_type"]),
-        ).trim(),
-        amount: parseNumber(
-          pick(row, ["Tiền khấu trừ", "Tien khau tru", "Số tiền khấu trừ", "deduction_amount"]),
-        ),
-      };
+      const fullName = String(pick(row, ["Họ tên", "Họ và tên", "full_name"])).trim();
+      const baseSalary = parseNumber(pick(row, ["Lương cơ bản", "Luong co ban", "base_salary"]));
+      const unit = baseSalary / 26 / 8;
+
+      const wageLines: SalaryWageLine[] = [];
+      const allowanceLines: SalaryMoneyLine[] = [];
+      const deductionLines: SalaryMoneyLine[] = [];
+
+      for (const [key, value] of Object.entries(row)) {
+        const hcLabel = stripPrefix(key, "HC");
+        if (hcLabel) {
+          const hours = parseNumber(value);
+          if (hours > 0) {
+            const rate = formatSalaryRate(hcLabel);
+            const ratePercent = parseRateNumber(rate);
+            wageLines.push({
+              rate,
+              hours,
+              amount: Math.round(unit * (ratePercent / 100) * hours),
+            });
+          }
+          continue;
+        }
+        const pcLabel = stripPrefix(key, "PC");
+        if (pcLabel) {
+          const amount = parseNumber(value);
+          if (amount > 0) allowanceLines.push({ label: pcLabel, amount });
+          continue;
+        }
+        const ktLabel = stripPrefix(key, "KT");
+        if (ktLabel) {
+          const amount = parseNumber(value);
+          if (amount > 0) deductionLines.push({ label: ktLabel, amount });
+        }
+      }
+
       return {
+        uid,
         employeeCode,
         company,
         personal: {
           employee_code: employeeCode,
           company,
+          full_name: fullName,
           start_date: parseExcelDate(pick(row, ["Ngày vào làm", "Ngay vao lam", "start_date"])),
           end_date: parseExcelDate(pick(row, ["Ngày nghỉ", "Ngay nghi", "end_date"])),
-          base_salary: parseNumber(pick(row, ["Lương cơ bản", "Luong co ban", "base_salary"])),
+          base_salary: baseSalary,
           standard_workdays: parseNumber(
             pick(row, ["Số công HC", "So cong HC", "standard_workdays"]),
           ),
         },
-        wageLine: wageLine.rate || wageLine.hours || wageLine.amount ? wageLine : undefined,
-        allowanceLine: allowanceLine.label || allowanceLine.amount ? allowanceLine : undefined,
-        deductionLine: deductionLine.label || deductionLine.amount ? deductionLine : undefined,
+        wageLines,
+        allowanceLines,
+        deductionLines,
       };
     })
     .filter(
       (row) =>
-        row.employeeCode && row.company && (row.wageLine || row.allowanceLine || row.deductionLine),
+        (row.uid || (row.employeeCode && row.company)) &&
+        (row.wageLines.length || row.allowanceLines.length || row.deductionLines.length),
     );
 }
 
@@ -375,11 +434,15 @@ function employeeCompanyKey(employeeCode?: string, company?: string) {
 }
 
 function CheckAttendancePage() {
-  const { isAdmin } = useAuth();
-  return isAdmin ? <AdminCheckAttendance /> : <UserCheckAttendance />;
+  const { isAdmin, user } = useAuth();
+  return isAdmin ? <AdminCheckAttendance viewer={user} /> : <UserCheckAttendance />;
 }
 
-function AdminCheckAttendance() {
+function AdminCheckAttendance({
+  viewer,
+}: {
+  viewer: import("@/lib/pocketbase").UserRecord | null;
+}) {
   const [month, setMonth] = useState(todayMonth());
   const [note, setNote] = useState("");
   const [salaryMonth, setSalaryMonth] = useState(todayMonth());
@@ -387,21 +450,30 @@ function AdminCheckAttendance() {
   const [batches, setBatches] = useState<BatchRecord[]>([]);
   const [salaryBatches, setSalaryBatches] = useState<BatchRecord[]>([]);
   const [users, setUsers] = useState<UserRecord[]>([]);
+  const [histories, setHistories] = useState<EmploymentHistoryRecord[]>([]);
   const [uploading, setUploading] = useState(false);
   const [salaryUploading, setSalaryUploading] = useState(false);
 
   const load = async () => {
-    const [batchRes, userRes] = await Promise.all([
-      pb.collection("check_attendance_batches").getFullList({ sort: "-created" }),
-      pb.collection("users").getFullList({ sort: "full_name" }),
+    const [batchRes, userRes, historyRows] = await Promise.all([
+      pb.collection("check_attendance_batches").getList(1, 100, {
+        filter: `${companyFilter(viewer)} && month="${month}"`,
+        sort: "-created",
+      }),
+      pb
+        .collection("workers")
+        .getList(1, 500, { filter: companyFilter(viewer, "tenant_company"), sort: "full_name" }),
+      fetchEmploymentHistories(),
     ]);
-    setBatches(batchRes as unknown as BatchRecord[]);
-    setUsers(userRes as unknown as UserRecord[]);
+    setBatches(batchRes.items as unknown as BatchRecord[]);
+    setUsers(userRes.items as unknown as UserRecord[]);
+    setHistories(historyRows);
     try {
-      const salaryBatchRes = await pb
-        .collection("check_salary_batches")
-        .getFullList({ sort: "-created" });
-      setSalaryBatches(salaryBatchRes as unknown as BatchRecord[]);
+      const salaryBatchRes = await pb.collection("check_salary_batches").getList(1, 100, {
+        filter: `${companyFilter(viewer)} && month="${salaryMonth}"`,
+        sort: "-created",
+      });
+      setSalaryBatches(salaryBatchRes.items as unknown as BatchRecord[]);
     } catch {
       setSalaryBatches([]);
     }
@@ -409,7 +481,7 @@ function AdminCheckAttendance() {
 
   useEffect(() => {
     load().catch((error) => toast.error(error?.message || "Không tải được dữ liệu check công"));
-  }, []);
+  }, [month, salaryMonth]);
 
   const monthBatches = batches.filter((batch) => batch.month === month);
   const nextRound =
@@ -420,18 +492,22 @@ function AdminCheckAttendance() {
 
   const downloadTemplate = () => {
     const sampleUser = users[0];
+    const sampleHistory = sampleUser
+      ? histories.find((history) => history.worker === sampleUser.id)
+      : null;
     exportToExcel(`mau_check_cong_${month}`, {
-      "Check công": [
+      "Bảng kiểm công": [
         {
-          "Mã NV": sampleUser?.employee_code || "NV001",
-          "Nhà máy": sampleUser?.company || "Nhà máy A",
-          SĐT: sampleUser?.phone || "0900000000",
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
+          "Số điện thoại": sampleUser?.phone || "0900000000",
           "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
           Ngày: formatTemplateDate(month, 1),
           Ca: "Ngày",
           Lễ: "",
-          "Giờ HC": 8,
-          "Giờ TC": 2,
+          "Giờ hành chính": 8,
+          "Giờ tăng ca": 2,
           "100%": 10,
           "130%": 6,
           "150%": 2,
@@ -441,15 +517,16 @@ function AdminCheckAttendance() {
           "390%": 0,
         },
         {
-          "Mã NV": sampleUser?.employee_code || "NV001",
-          "Nhà máy": sampleUser?.company || "Nhà máy A",
-          SĐT: sampleUser?.phone || "0900000000",
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
+          "Số điện thoại": sampleUser?.phone || "0900000000",
           "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
           Ngày: formatTemplateDate(month, 2),
           Ca: "Đêm",
           Lễ: "",
-          "Giờ HC": 8,
-          "Giờ TC": 1,
+          "Giờ hành chính": 8,
+          "Giờ tăng ca": 1,
           "100%": "",
           "130%": "",
           "150%": "",
@@ -459,15 +536,16 @@ function AdminCheckAttendance() {
           "390%": "",
         },
         {
-          "Mã NV": sampleUser?.employee_code || "NV001",
-          "Nhà máy": sampleUser?.company || "Nhà máy A",
-          SĐT: sampleUser?.phone || "0900000000",
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
+          "Số điện thoại": sampleUser?.phone || "0900000000",
           "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
           Ngày: formatTemplateDate(month, 3),
           Ca: "Ngày",
           Lễ: "x",
-          "Giờ HC": 8,
-          "Giờ TC": 0,
+          "Giờ hành chính": 8,
+          "Giờ tăng ca": 0,
           "100%": "",
           "130%": "",
           "150%": "",
@@ -490,25 +568,56 @@ function AdminCheckAttendance() {
         return;
       }
 
-      const employeeMap = new Map<string, UserRecord>();
-      for (const user of users) {
-        const employeeKey = employeeCompanyKey(user.employee_code, user.company);
-        if (employeeKey) employeeMap.set(employeeKey, user);
+      const [allUsers, allHistories] = await Promise.all([
+        pb.collection("workers").getFullList<UserRecord>({
+          filter: companyFilter(viewer, "tenant_company"),
+          sort: "full_name",
+        }),
+        fetchEmploymentHistories(),
+      ]);
+      const userById = new Map(allUsers.map((user) => [user.id, user]));
+      const employeeMap = new Map<string, UserRecord | null>();
+      const userIdMap = new Map<string, UserRecord>();
+      for (const user of allUsers) {
+        if (user.uid) userIdMap.set(accountIdentityKey(user.uid), user);
+      }
+      for (const history of allHistories) {
+        const user = userById.get(history.worker);
+        const employeeKey = employeeCompanyKey(
+          history.employee_code,
+          history.expand?.factory?.name,
+        );
+        if (!user || !employeeKey) continue;
+        employeeMap.set(employeeKey, employeeMap.has(employeeKey) ? null : user);
       }
 
       const grouped = new Map<
         string,
-        { user: UserRecord; rows: CheckAttendanceRow[]; summary: RateBuckets }
+        { user: UserRecord; fullName: string; rows: CheckAttendanceRow[]; summary: RateBuckets }
       >();
-      const unmatched = new Set<string>();
+      const unmatchedRows: Array<Record<string, unknown>> = [];
 
       for (const row of parsedRows) {
-        const user = employeeMap.get(employeeCompanyKey(row.employeeCode, row.company));
+        const user = row.uid
+          ? userIdMap.get(accountIdentityKey(row.uid))
+          : employeeMap.get(employeeCompanyKey(row.employeeCode, row.company));
         if (!user) {
-          unmatched.add(`${row.employeeCode} - ${row.company}`);
+          unmatchedRows.push({
+            "Lý do lỗi": "Không khớp được nhân sự theo UID hoặc mã nhân viên + nhà máy",
+            "Mã tài khoản (UID)": row.uid,
+            "Mã nhân viên": row.employeeCode,
+            "Nhà máy": row.company,
+            Ngày: formatDisplayDate(row.date),
+          });
           continue;
         }
-        const current = grouped.get(user.id) || { user, rows: [], summary: EMPTY_CHECK_BUCKETS() };
+        const current = grouped.get(user.id) || {
+          user,
+          fullName: "",
+          rows: [],
+          summary: EMPTY_CHECK_BUCKETS(),
+        };
+        if (!current.fullName && row.fullName) current.fullName = row.fullName;
         if (!hasRateValues(current.summary) && hasRateValues(row.rates)) {
           current.summary = row.rates;
         }
@@ -530,6 +639,7 @@ function AdminCheckAttendance() {
       }
 
       const formData = new FormData();
+      formData.append("tenant_company", companyIdOf(viewer));
       formData.append("month", month);
       formData.append("round_no", String(nextRound));
       formData.append("note", note);
@@ -541,13 +651,15 @@ function AdminCheckAttendance() {
         .collection("check_attendance_batches")
         .create(formData)) as unknown as BatchRecord;
 
-      for (const { user, rows, summary } of grouped.values()) {
+      for (const { user, fullName, rows, summary } of grouped.values()) {
         rows.sort((a, b) => a.date.localeCompare(b.date));
         await pb.collection("check_attendance_items").create({
+          tenant_company: companyIdOf(viewer),
           batch: batch.id,
           user: user.id,
           month,
           round_no: nextRound,
+          full_name: fullName,
           rows,
           summary,
         });
@@ -555,13 +667,17 @@ function AdminCheckAttendance() {
 
       toast.success(
         `Đã gửi check công lần ${nextRound} cho ${grouped.size} nhân sự${
-          unmatched.size ? `, ${unmatched.size} dòng chưa khớp` : ""
+          unmatchedRows.length ? `, ${unmatchedRows.length} dòng chưa khớp` : ""
         }`,
       );
+      if (unmatchedRows.length) {
+        exportToExcel(`check_cong_loi_${month}_${Date.now()}`, { "Dòng lỗi": unmatchedRows });
+        toast.warning("Đã xuất file các dòng check công chưa khớp");
+      }
       setNote("");
       await load();
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : "Không nhập được file check công");
+      toast.error(getUserErrorMessage(error, "Không nhập được file check công"));
     } finally {
       setUploading(false);
     }
@@ -569,39 +685,31 @@ function AdminCheckAttendance() {
 
   const downloadSalaryTemplate = () => {
     const sampleUser = users[0];
+    const sampleHistory = sampleUser
+      ? histories.find((history) => history.worker === sampleUser.id)
+      : null;
     exportToExcel(`mau_check_luong_${salaryMonth}`, {
-      "Check lương": [
+      "Bảng kiểm lương": [
         {
-          "Mã NV": sampleUser?.employee_code || "NV001",
-          "Nhà máy": sampleUser?.company || "Nhà máy A",
+          "Mã tài khoản (UID)": sampleUser?.uid || "HL000000",
+          "Mã nhân viên": sampleHistory?.employee_code || "NV001",
+          "Nhà máy": sampleHistory?.expand?.factory?.name || "Nhà máy A",
           "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
           "Ngày vào làm": formatTemplateDate(salaryMonth, 1),
           "Ngày nghỉ": "",
           "Lương cơ bản": 5000000,
           "Số công HC": 26,
-          "Hệ số": "100%",
-          "Số giờ": 208,
-          "Thành tiền": 5000000,
-          "Loại phụ cấp": "Chuyên cần",
-          "Tiền phụ cấp": 500000,
-          "Loại khấu trừ": "BHXH",
-          "Tiền khấu trừ": 525000,
-        },
-        {
-          "Mã NV": sampleUser?.employee_code || "NV001",
-          "Nhà máy": sampleUser?.company || "Nhà máy A",
-          "Họ tên": sampleUser?.full_name || "Nguyễn Văn A",
-          "Ngày vào làm": "",
-          "Ngày nghỉ": "",
-          "Lương cơ bản": "",
-          "Số công HC": "",
-          "Hệ số": "150%",
-          "Số giờ": 10,
-          "Thành tiền": 360577,
-          "Loại phụ cấp": "Đời sống",
-          "Tiền phụ cấp": 300000,
-          "Loại khấu trừ": "Tạm ứng",
-          "Tiền khấu trừ": 200000,
+          "HC_100%": 208,
+          "HC_130%": 12,
+          "HC_150%": 10,
+          "HC_200%": "",
+          "HC_270%": "",
+          "HC_300%": "",
+          "HC_390%": "",
+          "PC_Đời sống": 300000,
+          "PC_Chuyên cần": 500000,
+          KT_BHXH: 525000,
+          KT_Ứng: 200000,
         },
       ],
     });
@@ -617,10 +725,27 @@ function AdminCheckAttendance() {
         return;
       }
 
-      const employeeMap = new Map<string, UserRecord>();
-      for (const user of users) {
-        const employeeKey = employeeCompanyKey(user.employee_code, user.company);
-        if (employeeKey) employeeMap.set(employeeKey, user);
+      const [allUsers, allHistories] = await Promise.all([
+        pb.collection("workers").getFullList<UserRecord>({
+          filter: companyFilter(viewer, "tenant_company"),
+          sort: "full_name",
+        }),
+        fetchEmploymentHistories(),
+      ]);
+      const userById = new Map(allUsers.map((user) => [user.id, user]));
+      const employeeMap = new Map<string, UserRecord | null>();
+      const userIdMap = new Map<string, UserRecord>();
+      for (const user of allUsers) {
+        if (user.uid) userIdMap.set(accountIdentityKey(user.uid), user);
+      }
+      for (const history of allHistories) {
+        const user = userById.get(history.worker);
+        const employeeKey = employeeCompanyKey(
+          history.employee_code,
+          history.expand?.factory?.name,
+        );
+        if (!user || !employeeKey) continue;
+        employeeMap.set(employeeKey, employeeMap.has(employeeKey) ? null : user);
       }
 
       const grouped = new Map<
@@ -633,12 +758,21 @@ function AdminCheckAttendance() {
           deductionLines: SalaryMoneyLine[];
         }
       >();
-      const unmatched = new Set<string>();
+      const unmatchedRows: Array<Record<string, unknown>> = [];
 
       for (const row of parsedRows) {
-        const user = employeeMap.get(employeeCompanyKey(row.employeeCode, row.company));
+        const user = row.uid
+          ? userIdMap.get(accountIdentityKey(row.uid))
+          : employeeMap.get(employeeCompanyKey(row.employeeCode, row.company));
         if (!user) {
-          unmatched.add(`${row.employeeCode} - ${row.company}`);
+          unmatchedRows.push({
+            "Lý do lỗi": "Không khớp được nhân sự theo UID hoặc mã nhân viên + nhà máy",
+            "Mã tài khoản (UID)": row.uid,
+            "Mã nhân viên": row.employeeCode,
+            "Nhà máy": row.company,
+            "Ngày vào làm": formatDisplayDate(row.personal.start_date),
+            "Ngày nghỉ": formatDisplayDate(row.personal.end_date),
+          });
           continue;
         }
         const current =
@@ -660,14 +794,15 @@ function AdminCheckAttendance() {
         current.personal = {
           employee_code: current.personal.employee_code || row.personal.employee_code,
           company: current.personal.company || row.personal.company,
+          full_name: current.personal.full_name || row.personal.full_name,
           start_date: current.personal.start_date || row.personal.start_date,
           end_date: current.personal.end_date || row.personal.end_date,
           base_salary: current.personal.base_salary || row.personal.base_salary,
           standard_workdays: current.personal.standard_workdays || row.personal.standard_workdays,
         };
-        if (row.wageLine) current.wageLines.push(row.wageLine);
-        if (row.allowanceLine) current.allowanceLines.push(row.allowanceLine);
-        if (row.deductionLine) current.deductionLines.push(row.deductionLine);
+        current.wageLines.push(...row.wageLines);
+        current.allowanceLines.push(...row.allowanceLines);
+        current.deductionLines.push(...row.deductionLines);
         grouped.set(user.id, current);
       }
 
@@ -677,6 +812,7 @@ function AdminCheckAttendance() {
       }
 
       const formData = new FormData();
+      formData.append("tenant_company", companyIdOf(viewer));
       formData.append("month", salaryMonth);
       formData.append("round_no", String(nextSalaryRound));
       formData.append("note", salaryNote);
@@ -696,7 +832,7 @@ function AdminCheckAttendance() {
         });
         await pb.collection("check_salary_items").create({
           batch: batch.id,
-          user: item.user.id,
+          user: item.worker.id,
           month: salaryMonth,
           round_no: nextSalaryRound,
           personal: item.personal,
@@ -709,260 +845,274 @@ function AdminCheckAttendance() {
 
       toast.success(
         `Đã gửi check lương lần ${nextSalaryRound} cho ${grouped.size} nhân sự${
-          unmatched.size ? `, ${unmatched.size} dòng chưa khớp` : ""
+          unmatchedRows.length ? `, ${unmatchedRows.length} dòng chưa khớp` : ""
         }`,
       );
+      if (unmatchedRows.length) {
+        exportToExcel(`check_luong_loi_${salaryMonth}_${Date.now()}`, {
+          "Dòng lỗi": unmatchedRows,
+        });
+        toast.warning("Đã xuất file các dòng check lương chưa khớp");
+      }
       setSalaryNote("");
       await load();
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : "Không nhập được file check lương");
+      toast.error(getUserErrorMessage(error, "Không nhập được file check lương"));
     } finally {
       setSalaryUploading(false);
     }
   };
 
   return (
-    <div>
-      <AppHeader title="Check công/lương" subtitle="Gửi bảng check công từ Excel" back />
-      <div className="p-4">
-        <Tabs defaultValue="attendance" className="space-y-4">
-          <TabsList className="grid h-10 w-full grid-cols-2 rounded-xl">
-            <TabsTrigger value="attendance" className="rounded-lg text-xs">
-              Check công
-            </TabsTrigger>
-            <TabsTrigger value="salary" className="rounded-lg text-xs">
-              Check lương
-            </TabsTrigger>
-          </TabsList>
+    <PageContainer title="Check công/lương" subtitle="Gửi bảng check công từ Excel">
+      <Tabs defaultValue="attendance" className="space-y-4">
+        <TabsList className="sticky top-[calc(env(safe-area-inset-top)+3.25rem)] z-20 grid w-full grid-cols-2 gap-1">
+          <TabsTrigger
+            value="attendance"
+            className="min-w-0 w-full rounded-lg bg-muted text-xs shadow-sm"
+          >
+            Check công
+          </TabsTrigger>
+          <TabsTrigger
+            value="salary"
+            className="min-w-0 w-full rounded-lg bg-muted text-xs shadow-sm"
+          >
+            Check lương
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="attendance" className="mt-0 space-y-4">
-            <Card className="space-y-3 p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <FileSpreadsheet className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">Gửi check công</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Tháng {month} · lần gửi tiếp theo: {nextRound}
-                  </div>
+        <TabsContent value="attendance" className="mt-0 space-y-4">
+          <Card className="space-y-3 p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <FileSpreadsheet className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold">Gửi check công</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Tháng {month} · lần gửi tiếp theo: {nextRound}
                 </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Tháng</Label>
-                  <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Ghi chú</Label>
-                  <Input
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    placeholder="Tuỳ chọn"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-                <label className="block">
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    className="hidden"
-                    disabled={uploading}
-                    onChange={(event) => {
-                      onUpload(event.target.files?.[0]);
-                      event.currentTarget.value = "";
-                    }}
-                  />
-                  <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
-                    <Upload className="h-4 w-4" />
-                    {uploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
-                  </span>
-                </label>
-                <Button type="button" variant="outline" onClick={downloadTemplate}>
-                  <FileDown className="h-4 w-4" />
-                  Tải mẫu
-                </Button>
-              </div>
-            </Card>
-
-            <AdminBatchHistory
-              batches={batches}
-              icon={CalendarCheck}
-              title="Lịch sử gửi"
-              emptyTitle="Chưa có lần gửi check công"
-              emptyDescription="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
-            />
-          </TabsContent>
-
-          <TabsContent value="salary" className="mt-0 space-y-4">
-            <Card className="space-y-3 p-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Wallet className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold">Gửi check lương</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Tháng {salaryMonth} · lần gửi tiếp theo: {nextSalaryRound}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Tháng</Label>
-                  <Input
-                    type="month"
-                    value={salaryMonth}
-                    onChange={(e) => setSalaryMonth(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Ghi chú</Label>
-                  <Input
-                    value={salaryNote}
-                    onChange={(e) => setSalaryNote(e.target.value)}
-                    placeholder="Tuỳ chọn"
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-                <label className="block">
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls"
-                    className="hidden"
-                    disabled={salaryUploading}
-                    onChange={(event) => {
-                      onSalaryUpload(event.target.files?.[0]);
-                      event.currentTarget.value = "";
-                    }}
-                  />
-                  <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
-                    <Upload className="h-4 w-4" />
-                    {salaryUploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
-                  </span>
-                </label>
-                <Button type="button" variant="outline" onClick={downloadSalaryTemplate}>
-                  <FileDown className="h-4 w-4" />
-                  Tải mẫu
-                </Button>
-              </div>
-            </Card>
-
-            <div className="hidden">
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Lịch sử gửi
-              </div>
-              {batches.length === 0 ? (
-                <EmptyState
-                  icon={CalendarCheck}
-                  title="Chưa có lần gửi check công"
-                  description="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
-                />
-              ) : (
-                batches.map((batch) => (
-                  <Card key={batch.id} className="p-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
-                        <Send className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-sm font-semibold">
-                            {batch.month} · Lần {batch.round_no}
-                          </div>
-                          <span className="chip chip-info">{batch.total_users || 0} người</span>
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
-                          {batch.created && (
-                            <span className="chip chip-neutral">
-                              {new Date(batch.created).toLocaleDateString("vi-VN")}
-                            </span>
-                          )}
-                          {batch.source_file && (
-                            <a
-                              href={fileUrl(batch, batch.source_file)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="chip chip-info"
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              File Excel
-                            </a>
-                          )}
-                        </div>
-                        {batch.note && (
-                          <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))
-              )}
             </div>
 
-            <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Lịch sử gửi lương
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Tháng</Label>
+                <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
               </div>
-              {salaryBatches.length === 0 ? (
-                <EmptyState
-                  icon={Wallet}
-                  title="Chưa có lần gửi check lương"
-                  description="Sau khi admin nhập Excel lương, lịch sử gửi sẽ hiển thị tại đây."
+              <div className="space-y-1">
+                <Label className="text-xs">Ghi chú</Label>
+                <Input
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Tuỳ chọn"
                 />
-              ) : (
-                salaryBatches.map((batch) => (
-                  <Card key={batch.id} className="p-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
-                        <Send className="h-4 w-4" />
+              </div>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+              <label className="block">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={(event) => {
+                    onUpload(event.target.files?.[0]);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
+                  <Upload className="h-4 w-4" />
+                  {uploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
+                </span>
+              </label>
+              <Button type="button" variant="outline" onClick={downloadTemplate}>
+                <FileDown className="h-4 w-4" />
+                Tải mẫu
+              </Button>
+            </div>
+          </Card>
+
+          <AdminBatchHistory
+            batches={batches}
+            icon={CalendarCheck}
+            title="Lịch sử gửi"
+            emptyTitle="Chưa có lần gửi check công"
+            emptyDescription="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
+          />
+        </TabsContent>
+
+        <TabsContent value="salary" className="mt-0 space-y-4">
+          <Card className="space-y-3 p-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Wallet className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold">Gửi check lương</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Tháng {salaryMonth} · lần gửi tiếp theo: {nextSalaryRound}
+                </div>
+                <div className="mt-1 text-[11px] text-muted-foreground">
+                  Cột động: <code>HC_&lt;hệ số&gt;</code> (số giờ), <code>PC_&lt;tên&gt;</code>{" "}
+                  (tiền phụ cấp), <code>KT_&lt;tên&gt;</code> (tiền khấu trừ). Thành tiền tự tính =
+                  Lương cơ bản / 26 / 8 × hệ số × số giờ.
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Tháng</Label>
+                <Input
+                  type="month"
+                  value={salaryMonth}
+                  onChange={(e) => setSalaryMonth(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Ghi chú</Label>
+                <Input
+                  value={salaryNote}
+                  onChange={(e) => setSalaryNote(e.target.value)}
+                  placeholder="Tuỳ chọn"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
+              <label className="block">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  className="hidden"
+                  disabled={salaryUploading}
+                  onChange={(event) => {
+                    onSalaryUpload(event.target.files?.[0]);
+                    event.currentTarget.value = "";
+                  }}
+                />
+                <span className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground shadow active:scale-[0.98]">
+                  <Upload className="h-4 w-4" />
+                  {salaryUploading ? "Đang gửi..." : "Chọn file Excel và gửi"}
+                </span>
+              </label>
+              <Button type="button" variant="outline" onClick={downloadSalaryTemplate}>
+                <FileDown className="h-4 w-4" />
+                Tải mẫu
+              </Button>
+            </div>
+          </Card>
+
+          <div className="hidden">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Lịch sử gửi
+            </div>
+            {batches.length === 0 ? (
+              <EmptyState
+                icon={CalendarCheck}
+                title="Chưa có lần gửi check công"
+                description="Sau khi admin nhập Excel, lịch sử gửi sẽ hiển thị tại đây."
+              />
+            ) : (
+              batches.map((batch) => (
+                <Card key={batch.id} className="p-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
+                      <Send className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold">
+                          {batch.month} · Lần {batch.round_no}
+                        </div>
+                        <span className="chip chip-info">{batch.total_users || 0} người</span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-sm font-semibold">
-                            {batch.month} · Lần {batch.round_no}
-                          </div>
-                          <span className="chip chip-info">{batch.total_users || 0} người</span>
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
-                          {batch.created && (
-                            <span className="chip chip-neutral">
-                              {new Date(batch.created).toLocaleDateString("vi-VN")}
-                            </span>
-                          )}
-                          {batch.source_file && (
-                            <a
-                              href={fileUrl(batch, batch.source_file)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="chip chip-info"
-                              onClick={(event) => event.stopPropagation()}
-                            >
-                              File Excel
-                            </a>
-                          )}
-                        </div>
-                        {batch.note && (
-                          <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
+                        {batch.created && (
+                          <span className="chip chip-neutral">
+                            {new Date(batch.created).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                        {batch.source_file && (
+                          <a
+                            href={fileUrl(batch, batch.source_file)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="chip chip-info"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            File Excel
+                          </a>
                         )}
                       </div>
+                      {batch.note && (
+                        <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
+                      )}
                     </div>
-                  </Card>
-                ))
-              )}
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Lịch sử gửi lương
             </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+            {salaryBatches.length === 0 ? (
+              <EmptyState
+                icon={Wallet}
+                title="Chưa có lần gửi check lương"
+                description="Sau khi admin nhập Excel lương, lịch sử gửi sẽ hiển thị tại đây."
+              />
+            ) : (
+              salaryBatches.map((batch) => (
+                <Card key={batch.id} className="p-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-secondary text-primary">
+                      <Send className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-semibold">
+                          {batch.month} · Lần {batch.round_no}
+                        </div>
+                        <span className="chip chip-info">{batch.total_users || 0} người</span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="chip chip-neutral">{batch.total_rows || 0} dòng</span>
+                        {batch.created && (
+                          <span className="chip chip-neutral">
+                            {new Date(batch.created).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                        {batch.source_file && (
+                          <a
+                            href={fileUrl(batch, batch.source_file)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="chip chip-info"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            File Excel
+                          </a>
+                        )}
+                      </div>
+                      {batch.note && (
+                        <div className="mt-1 text-[11px] text-muted-foreground">{batch.note}</div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </PageContainer>
   );
 }
 
@@ -1046,36 +1196,32 @@ function AdminBatchHistory({
 function UserCheckAttendance() {
   const { user } = useAuth();
   const [items, setItems] = useState<CheckItemRecord[]>([]);
-  const [selected, setSelected] = useState<CheckItemRecord | null>(null);
   const [salaryItems, setSalaryItems] = useState<SalaryItemRecord[]>([]);
-  const [selectedSalary, setSelectedSalary] = useState<SalaryItemRecord | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [factoryCutoffDay, setFactoryCutoffDay] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
     try {
-      const res = await pb.collection("check_attendance_items").getFullList({
-        filter: `user="${escapePb(user.id)}"`,
+      const attendanceRes = await pb.collection("check_attendance_items").getList(1, 100, {
+        filter: `worker="${escapePb(user.id)}"`,
         sort: "-created",
         expand: "batch",
       });
-      let salaryRes: unknown[] = [];
-      try {
-        salaryRes = await pb.collection("check_salary_items").getFullList({
-          filter: `user="${escapePb(user.id)}"`,
+      const salaryRes = await pb
+        .collection("check_salary_items")
+        .getList(1, 100, {
+          filter: `worker="${escapePb(user.id)}"`,
           sort: "-created",
           expand: "batch",
-        });
-      } catch {
-        salaryRes = [];
-      }
-      const normalized = (res as unknown as CheckItemRecord[]).map((item) => ({
+        })
+        .catch(() => ({ items: [] }));
+
+      const normalized = (attendanceRes.items as unknown as CheckItemRecord[]).map((item) => ({
         ...item,
         rows: Array.isArray(item.rows) ? item.rows : [],
       }));
-      const normalizedSalary = (salaryRes as unknown as SalaryItemRecord[]).map((item) => ({
+      const normalizedSalary = (salaryRes.items as unknown as SalaryItemRecord[]).map((item) => ({
         ...item,
         wage_lines: Array.isArray(item.wage_lines) ? item.wage_lines : [],
         allowance_lines: Array.isArray(item.allowance_lines) ? item.allowance_lines : [],
@@ -1084,465 +1230,35 @@ function UserCheckAttendance() {
       }));
       setItems(normalized);
       setSalaryItems(normalizedSalary);
-      setSelected(normalized.find((item) => item.user === user.id) || null);
-      setSelectedSalary(normalizedSalary.find((item) => item.user === user.id) || null);
+
       const latest = [...normalized, ...normalizedSalary].reduce(
         (max, item) => Math.max(max, item.created ? new Date(item.created).getTime() : 0),
         0,
       );
       markSeen("check-attendance", user.id, latest || Date.now());
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : "Không tải được check công");
+      toast.error(getUserErrorMessage(error, "Không tải Được check công/lương"));
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  const activeItems = useMemo(
-    () => items.filter((item) => item.user === user?.id),
-    [items, user?.id],
-  );
-  const activeSalaryItems = useMemo(
-    () => salaryItems.filter((item) => item.user === user?.id),
-    [salaryItems, user?.id],
-  );
-  const activeCheckUser = user as UserRecord | null;
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchFactoryAttendanceCutoffDay(activeCheckUser?.company).then((day) => {
-      if (!cancelled) setFactoryCutoffDay(day);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [activeCheckUser?.company]);
-
-  useEffect(() => {
-    setSelected(activeItems[0] || null);
-    setSelectedSalary(activeSalaryItems[0] || null);
-  }, [activeItems, activeSalaryItems]);
-
-  const buckets = useMemo(() => normalizeBuckets(selected?.summary), [selected]);
-  const visibleRateCells = useMemo(
-    () =>
-      [
-        { label: "100%", hours: buckets.r100 },
-        { label: "130%", hours: buckets.r130 },
-        { label: "150%", hours: buckets.r150 },
-        { label: "200%", hours: buckets.r200 },
-        { label: "270%", hours: buckets.r270 },
-        { label: "300%", hours: buckets.r300 },
-        { label: "390%", hours: buckets.r390 },
-      ].filter((cell) => cell.hours > 0),
-    [buckets],
-  );
-  const selectedPeriod = useMemo(
-    () => getPayrollPeriod(monthStringToDate(selected?.month || todayMonth()), factoryCutoffDay),
-    [selected?.month, factoryCutoffDay],
-  );
-
   return (
-    <div>
-      <AppHeader title="Check công/lương" subtitle="Bảng check công admin gửi" back />
-      <div className="space-y-4 p-4">
-        {loading && <div className="p-4 text-sm text-muted-foreground">Đang tải...</div>}
-
-        <Tabs defaultValue="attendance" className="space-y-4">
-          <TabsList className="grid h-10 w-full grid-cols-2 rounded-xl">
-            <TabsTrigger value="attendance" className="rounded-lg text-xs">
-              Check công
-            </TabsTrigger>
-            <TabsTrigger value="salary" className="rounded-lg text-xs">
-              Check lương
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="attendance" className="mt-0 space-y-4">
-            {activeItems.length === 0 && !loading ? (
-              <EmptyState
-                icon={CalendarCheck}
-                title="Chưa có bảng check công"
-                description="Khi admin gửi bảng check công, bạn sẽ xem được từng lần gửi tại đây."
-              />
-            ) : (
-              <>
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {activeItems.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setSelected(item)}
-                      className={cn(
-                        "flex-none rounded-full border px-3 py-1.5 text-xs font-medium transition",
-                        selected?.id === item.id
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-card text-muted-foreground",
-                      )}
-                    >
-                      {item.month} · Lần {item.round_no}
-                    </button>
-                  ))}
-                </div>
-
-                {selected && (
-                  <>
-                    <Card className="overflow-hidden">
-                      <div className="gradient-accent p-4 text-accent-foreground">
-                        <div className="text-xs uppercase opacity-80">Bảng check công</div>
-                        <div className="mt-0.5 text-xl font-bold">
-                          {selected.month} · Lần {selected.round_no}
-                        </div>
-                        {selected.expand?.batch?.note && (
-                          <div className="mt-1 text-xs opacity-80">
-                            {selected.expand.batch.note}
-                          </div>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-4 gap-1.5 bg-card p-3 text-[10px] sm:gap-2 sm:text-sm">
-                        {visibleRateCells.map((cell) => (
-                          <RateCell key={cell.label} label={cell.label} hours={cell.hours} />
-                        ))}
-                        <RateCell label={"Ngày"} hours={selected.rows.length} suffix="" />
-                      </div>
-                    </Card>
-
-                    <CheckMonthCalendar rows={selected.rows} period={selectedPeriod} />
-                  </>
-                )}
-              </>
-            )}
-          </TabsContent>
-
-          <TabsContent value="salary" className="mt-0">
-            <SalaryCheckPanel
-              items={activeSalaryItems}
-              selected={selectedSalary}
-              onSelect={setSelectedSalary}
-              loading={loading}
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
-}
-
-function SalaryCheckPanel({
-  items,
-  selected,
-  onSelect,
-  loading,
-}: {
-  items: SalaryItemRecord[];
-  selected: SalaryItemRecord | null;
-  onSelect: (item: SalaryItemRecord) => void;
-  loading: boolean;
-}) {
-  if (items.length === 0 && !loading) {
-    return (
-      <EmptyState
-        icon={Wallet}
-        title="Chưa có bảng check lương"
-        description="Khi admin gửi bảng check lương, bạn sẽ xem được từng lần gửi tại đây."
-      />
-    );
-  }
-
-  const selectedTotals = selected
-    ? calculateSalaryTotals({
-        wageLines: selected.wage_lines,
-        allowanceLines: selected.allowance_lines,
-        deductionLines: selected.deduction_lines,
-      })
-    : null;
-
-  return (
-    <div className="space-y-3">
-      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Check lương
-      </div>
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {items.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => onSelect(item)}
-            className={cn(
-              "flex-none rounded-full border px-3 py-1.5 text-xs font-medium transition",
-              selected?.id === item.id
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card text-muted-foreground",
-            )}
-          >
-            {item.month} · Lần {item.round_no}
-          </button>
-        ))}
-      </div>
-
-      {selected && (
-        <Card className="overflow-hidden">
-          <div className="gradient-accent p-4 text-accent-foreground">
-            <div className="text-xs uppercase opacity-80">Bảng check lương</div>
-            <div className="mt-0.5 text-xl font-bold">{formatVND(selectedTotals?.net || 0)}</div>
-            <div className="mt-1 text-xs opacity-80">
-              {selected.month} · Lần {selected.round_no}
-            </div>
-            {selected.expand?.batch?.note && (
-              <div className="mt-1 text-xs opacity-80">{selected.expand.batch.note}</div>
-            )}
-          </div>
-
-          <div className="space-y-4 p-3">
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <InfoCell label="Mã NV" value={selected.personal.employee_code || "—"} />
-              <InfoCell label="Nhà máy" value={selected.personal.company || "—"} />
-              <InfoCell
-                label="Ngày vào làm"
-                value={formatDisplayDate(selected.personal.start_date)}
-              />
-              <InfoCell label="Ngày nghỉ" value={formatDisplayDate(selected.personal.end_date)} />
-              <InfoCell label="Lương cơ bản" value={formatVND(selected.personal.base_salary)} />
-              <InfoCell label="Số công HC" value={`${selected.personal.standard_workdays || 0}`} />
-            </div>
-
-            <SalaryWageSection lines={selected.wage_lines} total={selectedTotals?.wage || 0} />
-            <SalaryMoneySection
-              title="Phụ cấp"
-              lines={selected.allowance_lines}
-              total={selectedTotals?.allowance || 0}
-            />
-            <SalaryMoneySection
-              title="Khấu trừ"
-              lines={selected.deduction_lines}
-              total={selectedTotals?.deduction || 0}
-            />
-
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-3">
-              <div className="text-[11px] uppercase text-muted-foreground">Thực nhận</div>
-              <div className="mt-1 text-xl font-bold text-primary">
-                {formatVND(selectedTotals?.net || 0)}
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-    </div>
-  );
-}
-
-function SalaryWageSection({ lines, total }: { lines: SalaryWageLine[]; total: number }) {
-  return (
-    <div className="space-y-2">
-      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Thông tin lương
-      </div>
-      <div className="space-y-2">
-        {lines.length === 0 ? (
-          <div className="rounded-xl border bg-card p-3 text-sm text-muted-foreground">
-            Chưa có dòng lương
-          </div>
-        ) : (
-          lines.map((line, index) => (
-            <div
-              key={`${line.rate}-${index}`}
-              className="grid grid-cols-3 gap-2 rounded-xl border bg-card p-3 text-sm"
-            >
-              <div>
-                <div className="text-[11px] text-muted-foreground">Hệ số</div>
-                <div className="font-semibold">{line.rate || "—"}</div>
-              </div>
-              <div>
-                <div className="text-[11px] text-muted-foreground">Số giờ</div>
-                <div className="font-semibold">{line.hours || 0}h</div>
-              </div>
-              <div className="text-right">
-                <div className="text-[11px] text-muted-foreground">Thành tiền</div>
-                <div className="font-semibold">{formatVND(line.amount)}</div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-      <TotalRow label="Tổng lương" value={total} />
-    </div>
-  );
-}
-
-function SalaryMoneySection({
-  title,
-  lines,
-  total,
-}: {
-  title: string;
-  lines: SalaryMoneyLine[];
-  total: number;
-}) {
-  return (
-    <div className="space-y-2">
-      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {title}
-      </div>
-      <div className="space-y-2">
-        {lines.length === 0 ? (
-          <div className="rounded-xl border bg-card p-3 text-sm text-muted-foreground">
-            Chưa có dữ liệu
-          </div>
-        ) : (
-          lines.map((line, index) => (
-            <div
-              key={`${line.label}-${index}`}
-              className="flex items-center justify-between gap-3 rounded-xl border bg-card p-3 text-sm"
-            >
-              <div className="font-medium">{line.label || "—"}</div>
-              <div className="font-semibold">{formatVND(line.amount)}</div>
-            </div>
-          ))
-        )}
-      </div>
-      <TotalRow label={`Tổng ${title.toLowerCase()}`} value={total} />
-    </div>
-  );
-}
-
-function TotalRow({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex items-center justify-between rounded-xl border bg-secondary/40 p-3 text-sm">
-      <div className="font-medium">{label}</div>
-      <div className="font-bold">{formatVND(value)}</div>
-    </div>
-  );
-}
-
-function CheckMonthCalendar({
-  rows,
-  period,
-}: {
-  rows: CheckAttendanceRow[];
-  period: PayrollPeriod;
-}) {
-  const [detail, setDetail] = useState<CheckAttendanceRow | null>(null);
-  const map = useMemo(() => {
-    const result = new Map<string, CheckAttendanceRow>();
-    for (const row of rows) result.set(row.date, row);
-    return result;
-  }, [rows]);
-
-  const cells = buildPayrollCalendarCells(period);
-
-  return (
-    <>
-      <Card className="overflow-hidden rounded-2xl p-3">
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <div className="text-sm font-semibold">{period.title}</div>
-          <span className="chip chip-info">{rows.length} ngày</span>
-        </div>
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase text-muted-foreground">
-          {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map((d, i) => (
-            <div key={d} className={i === 6 ? "text-[color:var(--status-danger)]" : ""}>
-              {d}
-            </div>
-          ))}
-        </div>
-        <div className="mt-1 grid grid-cols-7 gap-1">
-          {cells.map((cell, idx) => {
-            if (!cell) return <div key={`empty-${idx}`} className="aspect-square" />;
-            const row = map.get(cell.key);
-            const isSun = idx % 7 === 6;
-            const total = row ? row.hc_hours + row.ot_hours : 0;
-            return (
-              <button
-                key={cell.key}
-                type="button"
-                onClick={() => row && setDetail(row)}
-                className={cn(
-                  "relative flex aspect-square flex-col items-center justify-start rounded-lg border p-1 text-left transition active:scale-95",
-                  row
-                    ? row.is_holiday
-                      ? "border-[color:var(--status-danger)]/40 bg-[color:var(--status-danger-bg)]"
-                      : row.shift === "day"
-                        ? "border-[color:var(--status-warning)]/40 bg-[color:var(--status-warning-bg)]"
-                        : "border-primary/40 bg-primary/10"
-                    : "border-border bg-card",
-                )}
-              >
-                <div
-                  className={`text-[11px] font-semibold leading-none ${
-                    isSun ? "text-[color:var(--status-danger)]" : ""
-                  }`}
-                >
-                  {cell.day}
-                </div>
-                {row && (
-                  <div className="mt-0.5 flex flex-1 flex-col items-center justify-center gap-0.5">
-                    {row.shift === "day" ? (
-                      <Sun className="h-3 w-3 text-[color:var(--status-warning-fg)]" />
-                    ) : (
-                      <Moon className="h-3 w-3 text-primary" />
-                    )}
-                    <div className="text-[9px] font-semibold leading-none">{total}h</div>
-                    {row.is_holiday && (
-                      <span className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-[color:var(--status-danger)]" />
-                    )}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </Card>
-
-      <Dialog open={!!detail} onOpenChange={(open) => !open && setDetail(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{detail?.date}</DialogTitle>
-            <DialogDescription className="sr-only">
-              Chi tiết giờ công của ngày trong bảng check công.
-            </DialogDescription>
-          </DialogHeader>
-          {detail && (
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <InfoCell label="Ca" value={detail.shift === "day" ? "Ngày" : "Đêm"} />
-              <InfoCell label="Ngày lễ" value={detail.is_holiday ? "Có" : "Không"} />
-              <InfoCell label="Giờ HC" value={`${detail.hc_hours}h`} />
-              <InfoCell label="Giờ TC" value={`${detail.ot_hours}h`} />
-            </div>
+    <PageContainer title="Check công/lương" subtitle="Bảng check công admin gửi">
+      {loading && items.length === 0 && salaryItems.length === 0 ? (
+        <DataLoadingState variant="list" label="Đang tải bảng check công và lương..." rows={3} />
+      ) : (
+        <>
+          {loading && (
+            <DataLoadingState variant="inline" label="Đang cập nhật bảng check công và lương..." />
           )}
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-}
-
-function InfoCell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border bg-card p-3">
-      <div className="text-[11px] text-muted-foreground">{label}</div>
-      <div className="mt-0.5 text-sm font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function RateCell({
-  label,
-  hours,
-  suffix = "h",
-}: {
-  label: string;
-  hours: number;
-  suffix?: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border/80 bg-background p-2 text-center shadow-sm">
-      <div className="text-[9px] uppercase text-muted-foreground">{label}</div>
-      <div className="text-xs font-semibold sm:text-sm">
-        {hours}
-        {suffix}
-      </div>
-    </div>
+          <WorkerPayrollView attendanceItems={items} salaryItems={salaryItems} loading={loading} />
+        </>
+      )}
+    </PageContainer>
   );
 }

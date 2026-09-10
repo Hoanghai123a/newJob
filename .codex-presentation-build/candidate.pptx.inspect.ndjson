@@ -1,0 +1,226 @@
+{"kind":"deck","id":"pr/tgi98m","name":"Deck"}
+{"kind":"layout","layoutId":"13213cdf-9d7c-419f-8e11-c677fa76b822","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"c963ffc4-fe12-4b38-b0eb-d39e8c3fbe8c","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/wcl1gt","slide":1,"title":"Tuyển dụng 4.0","textShapes":5}
+{"kind":"shape","id":"sh/obq18jm9","slide":1,"bbox":[0,0,1280,9]}
+{"kind":"shape","id":"sh/nah0zelo","slide":1,"bbox":[910,0,370,720]}
+{"kind":"shape","id":"sh/298j694j","slide":1,"bbox":[964,86,226,226]}
+{"kind":"textbox","id":"sh/0nq14zmd","slide":1,"text":"Tuyển dụng 4.0","textPreview":"Tuyển dụng 4.0","textChars":14,"textLines":1,"bbox":[90,144,740,70]}
+{"kind":"textbox","id":"sh/fmh0vels","slide":1,"text":"Từ file Excel rời rạc đến một nguồn dữ liệu điều hành thống nhất","textPreview":"Từ file Excel rời rạc đến một nguồn dữ liệu điều hành thống nhất","textChars":64,"textLines":1,"bbox":[92,244,700,86]}
+{"kind":"shape","id":"sh/eloz2947","slide":1,"bbox":[92,378,260,42]}
+{"kind":"textbox","id":"sh/dkfit43m","slide":1,"text":"ĐỀ XUẤT THƯƠNG MẠI HÓA","textPreview":"ĐỀ XUẤT THƯƠNG MẠI HÓA","textChars":22,"textLines":1,"bbox":[112,388,220,22]}
+{"kind":"textbox","id":"sh/sj6h0zm1","slide":1,"text":"Dành cho giám đốc, quản trị nhân sự và đội ngũ vận hành nhà máy","textPreview":"Dành cho giám đốc, quản trị nhân sự và đội ngũ vận hành nhà máy","textChars":63,"textLines":1,"bbox":[92,560,740,34]}
+{"kind":"textbox","id":"sh/ax4nqhc7","slide":1,"text":"04.09.2026","textPreview":"04.09.2026","textChars":10,"textLines":1,"bbox":[92,626,200,24]}
+{"kind":"image","id":"im/w7mls7q9","slide":1,"name":"","alt":"Biểu tượng ứng dụng","bbox":[1000,122,154,154]}
+{"kind":"notes","id":"nt/wcl1gt","slide":1,"text":"Nguồn nội bộ: nhận diện ứng dụng từ public/icons/app-icon-512.png. Nội dung tính năng đối chiếu PROJECT_MAP.md và mã nguồn hiện tại."}
+{"kind":"slide","id":"sl/cmoisq","slide":2,"title":"BỐI CẢNH VẬN HÀNH","textShapes":22}
+{"kind":"textbox","id":"sh/mxojap0z","slide":2,"text":"BỐI CẢNH VẬN HÀNH","textPreview":"BỐI CẢNH VẬN HÀNH","textChars":17,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/90f254zq","slide":2,"text":"Excel tạo ra khoảng trống thông tin","textPreview":"Excel tạo ra khoảng trống thông tin","textChars":35,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"textbox","id":"sh/oz61czi5","slide":2,"text":"Khi mỗi bộ phận giữ một file, người ra quyết định phải ghép dữ liệu bằng tay trước khi hiểu chuyện gì đang xảy ra.","textPreview":"Khi mỗi bộ phận giữ một file, người ra quyết định phải ghép dữ liệu bằng tay trước khi hiểu chuyện gì đang xảy ra.","textChars":114,"textLines":1,"bbox":[72,136,850,52]}
+{"kind":"shape","id":"sh/b2hk7ehw","slide":2,"bbox":[72,226,520,340]}
+{"kind":"textbox","id":"sh/a18je9gb","slide":2,"text":"5 hệ quả thường gặp","textPreview":"5 hệ quả thường gặp","textChars":19,"textLines":1,"bbox":[104,255,420,32]}
+{"kind":"shape","id":"sh/xoz294z2","slide":2,"bbox":[104,312,10,10]}
+{"kind":"textbox","id":"sh/wnq1gzyh","slide":2,"text":"Sai khác tên, mã NV, nhà máy giữa các file","textPreview":"Sai khác tên, mã NV, nhà máy giữa các file","textChars":42,"textLines":1,"bbox":[128,305,426,47]}
+{"kind":"shape","id":"sh/jqhkbehs","slide":2,"bbox":[104,359,10,10]}
+{"kind":"textbox","id":"sh/yp8ji9g7","slide":2,"text":"Không biết bản ghi nào là mới nhất","textPreview":"Không biết bản ghi nào là mới nhất","textChars":34,"textLines":1,"bbox":[128,352,426,47]}
+{"kind":"shape","id":"sh/sbydczix","slide":2,"bbox":[104,406,10,10]}
+{"kind":"textbox","id":"sh/tc7e54ji","slide":2,"text":"Đối soát tuyển nội bộ và đối tác chậm","textPreview":"Đối soát tuyển nội bộ và đối tác chậm","textChars":37,"textLines":1,"bbox":[128,399,426,47]}
+{"kind":"shape","id":"sh/69gva90r","slide":2,"bbox":[104,453,10,10]}
+{"kind":"textbox","id":"sh/7apc3e1c","slide":2,"text":"Phê duyệt và trách nhiệm xử lý bị đứt quãng","textPreview":"Phê duyệt và trách nhiệm xử lý bị đứt quãng","textChars":43,"textLines":1,"bbox":[128,446,426,47]}
+{"kind":"shape","id":"sh/gzidgjit","slide":2,"bbox":[104,500,10,10]}
+{"kind":"textbox","id":"sh/h0re9oje","slide":2,"text":"Báo cáo lãnh đạo phụ thuộc một người tổng hợp","textPreview":"Báo cáo lãnh đạo phụ thuộc một người tổng hợp","textChars":45,"textLines":1,"bbox":[128,493,426,47]}
+{"kind":"shape","id":"sh/udgve90n","slide":2,"bbox":[660,226,548,340]}
+{"kind":"textbox","id":"sh/fepw7e18","slide":2,"text":"Một vòng lặp thủ công","textPreview":"Một vòng lặp thủ công","textChars":21,"textLines":1,"bbox":[700,255,440,32]}
+{"kind":"shape","id":"sh/43idkji5","slide":2,"bbox":[700,312,200,42]}
+{"kind":"textbox","id":"sh/p4redoja","slide":2,"text":"File tuyển dụng","textPreview":"File tuyển dụng","textChars":15,"textLines":1,"bbox":[710,323,180,20]}
+{"kind":"textbox","id":"sh/d8nmh47i","slide":2,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[905,320,28,24]}
+{"kind":"shape","id":"sh/cnul8z6x","slide":2,"bbox":[935,312,200,42]}
+{"kind":"textbox","id":"sh/rml4fupc","slide":2,"text":"File NLĐ","textPreview":"File NLĐ","textChars":8,"textLines":1,"bbox":[945,323,180,20]}
+{"kind":"textbox","id":"sh/qlc36por","slide":2,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[1140,320,28,24]}
+{"kind":"shape","id":"sh/1cnml47e","slide":2,"bbox":[700,384,200,42]}
+{"kind":"textbox","id":"sh/0be5cz6t","slide":2,"text":"File nhà máy","textPreview":"File nhà máy","textChars":12,"textLines":1,"bbox":[710,395,180,20]}
+{"kind":"textbox","id":"sh/za54jupo","slide":2,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[905,392,28,24]}
+{"kind":"shape","id":"sh/e9wnapo3","slide":2,"bbox":[935,384,200,42]}
+{"kind":"textbox","id":"sh/hgjm9k7a","slide":2,"text":"File công/lương","textPreview":"File công/lương","textChars":15,"textLines":1,"bbox":[945,395,180,20]}
+{"kind":"textbox","id":"sh/gfal0f6p","slide":2,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[1140,392,28,24]}
+{"kind":"shape","id":"sh/6l8ja14n","slide":2,"bbox":[700,456,200,42]}
+{"kind":"textbox","id":"sh/7mhkj658","slide":2,"text":"Báo cáo tổng hợp","textPreview":"Báo cáo tổng hợp","textChars":16,"textLines":1,"bbox":[710,467,180,20]}
+{"kind":"textbox","id":"sh/8nq1cbmt","slide":2,"text":"Mất thời gian không chỉ ở nhập liệu, mà ở việc xác định đâu là sự thật.","textPreview":"Mất thời gian không chỉ ở nhập liệu, mà ở việc xác định đâu là sự thật.","textChars":71,"textLines":1,"bbox":[700,500,430,46]}
+{"kind":"textbox","id":"sh/toz2lgny","slide":2,"text":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textPreview":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textChars":67,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/upsjel4j","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"notes","id":"nt/cmoisq","slide":2,"text":"Các hệ quả là tổng hợp vấn đề vận hành được mô tả trong yêu cầu thương mại hóa. Đây là framing bán hàng, không phải số liệu khảo sát thị trường."}
+{"kind":"slide","id":"sl/uvg1oy","slide":3,"title":"GIẢI PHÁP CỐT LÕI","textShapes":20}
+{"kind":"textbox","id":"sh/v2x4zmpw","slide":3,"text":"GIẢI PHÁP CỐT LÕI","textPreview":"GIẢI PHÁP CỐT LÕI","textChars":17,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/w3658r6h","slide":3,"text":"Một hồ sơ, một nguồn dữ liệu","textPreview":"Một hồ sơ, một nguồn dữ liệu","textChars":28,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"textbox","id":"sh/xofm1w72","slide":3,"text":"Ứng dụng nối liền vòng đời người lao động từ lúc tuyển đến khi tính công, ứng lương và lưu vết xử lý.","textPreview":"Ứng dụng nối liền vòng đời người lao động từ lúc tuyển đến khi tính công, ứng lương và lưu vết xử lý.","textChars":101,"textLines":1,"bbox":[72,136,900,45]}
+{"kind":"shape","id":"sh/mx432hof","slide":3,"bbox":[72,270,184,128]}
+{"kind":"shape","id":"sh/nyd4v2pk","slide":3,"bbox":[72,270,8,128]}
+{"kind":"textbox","id":"sh/8zml4765","slide":3,"text":"Hồ sơ NLĐ","textPreview":"Hồ sơ NLĐ","textChars":9,"textLines":1,"bbox":[94,298,150,30]}
+{"kind":"textbox","id":"sh/90fmxc7q","slide":3,"text":"UID · CCCD · tài khoản","textPreview":"UID · CCCD · tài khoản","textChars":22,"textLines":1,"bbox":[94,342,150,36]}
+{"kind":"textbox","id":"sh/6t8ne1oj","slide":3,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[263,318,28,26]}
+{"kind":"shape","id":"sh/ruh476p4","slide":3,"bbox":[292,270,200,128]}
+{"kind":"shape","id":"sh/rqpgzulc","slide":3,"bbox":[292,270,8,128]}
+{"kind":"textbox","id":"sh/6pgf6p4r","slide":3,"text":"Lịch sử đi làm","textPreview":"Lịch sử đi làm","textChars":14,"textLines":1,"bbox":[314,298,166,30]}
+{"kind":"textbox","id":"sh/tc7y143i","slide":3,"text":"mã NV · ngày vào/nghỉ","textPreview":"mã NV · ngày vào/nghỉ","textChars":21,"textLines":1,"bbox":[314,342,166,36]}
+{"kind":"textbox","id":"sh/sbyh8zmx","slide":3,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[499,318,28,26]}
+{"kind":"shape","id":"sh/fepg3elo","slide":3,"bbox":[528,270,184,128]}
+{"kind":"shape","id":"sh/edgzu943","slide":3,"bbox":[528,270,8,128]}
+{"kind":"textbox","id":"sh/1gry5o3e","slide":3,"text":"Nhà máy & đối tác","textPreview":"Nhà máy & đối tác","textChars":17,"textLines":1,"bbox":[550,298,150,30]}
+{"kind":"textbox","id":"sh/gfihwjmt","slide":3,"text":"nguồn tuyển · phạm vi","textPreview":"nguồn tuyển · phạm vi","textChars":21,"textLines":1,"bbox":[550,342,150,36]}
+{"kind":"textbox","id":"sh/3i9g7elk","slide":3,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[719,318,28,26]}
+{"kind":"shape","id":"sh/2h0zy94z","slide":3,"bbox":[748,270,184,128]}
+{"kind":"shape","id":"sh/yp4rmhsj","slide":3,"bbox":[748,270,8,128]}
+{"kind":"textbox","id":"sh/jqdsfm94","slide":3,"text":"Công & lương","textPreview":"Công & lương","textChars":12,"textLines":1,"bbox":[770,298,150,30]}
+{"kind":"textbox","id":"sh/kr6torap","slide":3,"text":"giờ · phụ cấp · khấu trừ","textPreview":"giờ · phụ cấp · khấu trừ","textChars":24,"textLines":1,"bbox":[770,342,150,36]}
+{"kind":"textbox","id":"sh/lcfahcra","slide":3,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[939,318,28,26]}
+{"kind":"shape","id":"sh/al4rixsn","slide":3,"bbox":[968,270,240,128]}
+{"kind":"shape","id":"sh/bmdsb29s","slide":3,"bbox":[968,270,8,128]}
+{"kind":"textbox","id":"sh/wnm9k7ad","slide":3,"text":"Phê duyệt & nhật ký","textPreview":"Phê duyệt & nhật ký","textChars":19,"textLines":1,"bbox":[990,298,206,30]}
+{"kind":"textbox","id":"sh/xovadcry","slide":3,"text":"ai làm · lúc nào · thay đổi gì","textPreview":"ai làm · lúc nào · thay đổi gì","textChars":30,"textLines":1,"bbox":[990,342,206,36]}
+{"kind":"shape","id":"sh/uhobu1sr","slide":3,"bbox":[72,472,1136,94]}
+{"kind":"textbox","id":"sh/vixsn69c","slide":3,"text":"Khi một dữ liệu thay đổi, các vai trò liên quan nhìn thấy cùng một trạng thái đã được phân quyền.","textPreview":"Khi một dữ liệu thay đổi, các vai trò liên quan nhìn thấy cùng một trạng thái đã được phân quyền.","textChars":97,"textLines":1,"bbox":[108,501,1050,38]}
+{"kind":"textbox","id":"sh/5cjut0be","slide":3,"text":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textPreview":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textChars":67,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/4badkvut","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"notes","id":"nt/uvg1oy","slide":3,"text":"Nguồn nội bộ: src/lib/employment.ts, src/lib/recruiters.ts, src/lib/staff-log.ts, src/lib/salary.ts và PROJECT_MAP.md."}
+{"kind":"slide","id":"sl/zcyngn","slide":4,"title":"NĂNG LỰC SẢN PHẨM","textShapes":20}
+{"kind":"textbox","id":"sh/hk3qdg36","slide":4,"text":"NĂNG LỰC SẢN PHẨM","textPreview":"NĂNG LỰC SẢN PHẨM","textChars":17,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/uxcrilkf","slide":4,"text":"Những gì ứng dụng đã sẵn sàng","textPreview":"Những gì ứng dụng đã sẵn sàng","textChars":29,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"shape","id":"sh/fyl8bql0","slide":4,"bbox":[72,160,252,112]}
+{"kind":"textbox","id":"sh/4ne9ov2x","slide":4,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[90,178,216,38]}
+{"kind":"textbox","id":"sh/ponah032","slide":4,"text":"Dashboard nhân lực cho admin","textPreview":"Dashboard nhân lực cho admin","textChars":28,"textLines":1,"bbox":[90,223,216,30]}
+{"kind":"shape","id":"sh/2lcrmlkr","slide":4,"bbox":[344,160,252,112]}
+{"kind":"textbox","id":"sh/3m5sfqlc","slide":4,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[362,178,216,38]}
+{"kind":"textbox","id":"sh/cre9sf2t","slide":4,"text":"Nhóm vai trò: admin và staff","textPreview":"Nhóm vai trò: admin và staff","textChars":28,"textLines":1,"bbox":[362,223,216,30]}
+{"kind":"shape","id":"sh/dsnal03e","slide":4,"bbox":[616,160,252,112]}
+{"kind":"textbox","id":"sh/dk3q1wn6","slide":4,"text":"Nhiều","textPreview":"Nhiều","textChars":5,"textLines":1,"bbox":[634,178,216,38]}
+{"kind":"textbox","id":"sh/cju98b6l","slide":4,"text":"Nhà máy, nhà chính, đối tác","textPreview":"Nhà máy, nhà chính, đối tác","textChars":27,"textLines":1,"bbox":[634,223,216,30]}
+{"kind":"shape","id":"sh/ril8z650","slide":4,"bbox":[888,160,320,112]}
+{"kind":"textbox","id":"sh/qxcr61ov","slide":4,"text":"500+","textPreview":"500+","textChars":4,"textLines":1,"bbox":[906,178,284,38]}
+{"kind":"textbox","id":"sh/1o3q5gni","slide":4,"text":"Bản ghi mỗi lần tải dữ liệu","textPreview":"Bản ghi mỗi lần tải dữ liệu","textChars":27,"textLines":1,"bbox":[906,223,284,30]}
+{"kind":"shape","id":"sh/0nu9cb6x","slide":4,"bbox":[72,310,1136,56]}
+{"kind":"textbox","id":"sh/zml8365c","slide":4,"text":"Theo dõi nhân lực","textPreview":"Theo dõi nhân lực","textChars":17,"textLines":1,"bbox":[96,326,250,24]}
+{"kind":"textbox","id":"sh/elcra1or","slide":4,"text":"Lọc theo nhà máy, người tuyển, đang làm/nghỉ; xem chi tiết từng NLĐ.","textPreview":"Lọc theo nhà máy, người tuyển, đang làm/nghỉ; xem chi tiết từng NLĐ.","textChars":68,"textLines":1,"bbox":[360,326,815,28]}
+{"kind":"shape","id":"sh/hsjqtcny","slide":4,"bbox":[72,382,1136,56]}
+{"kind":"textbox","id":"sh/grap0r6d","slide":4,"text":"Nhập và xuất Excel","textPreview":"Nhập và xuất Excel","textChars":18,"textLines":1,"bbox":[96,398,250,24]}
+{"kind":"textbox","id":"sh/8be9gre9","slide":4,"text":"Nhập mới/cập nhật theo UID; dòng lỗi được tách để sửa, không làm dừng dòng hợp lệ.","textPreview":"Nhập mới/cập nhật theo UID; dòng lỗi được tách để sửa, không làm dừng dòng hợp lệ.","textChars":82,"textLines":1,"bbox":[360,398,815,28]}
+{"kind":"shape","id":"sh/tcnq9wvu","slide":4,"bbox":[72,454,1136,56]}
+{"kind":"textbox","id":"sh/69crehwj","slide":4,"text":"Tài chính vận hành","textPreview":"Tài chính vận hành","textChars":18,"textLines":1,"bbox":[96,470,250,24]}
+{"kind":"textbox","id":"sh/7al87mdo","slide":4,"text":"Bảng công, bảng lương, ứng lương, giữ lương và quy trình phê duyệt.","textPreview":"Bảng công, bảng lương, ứng lương, giữ lương và quy trình phê duyệt.","textChars":67,"textLines":1,"bbox":[360,470,815,28]}
+{"kind":"shape","id":"sh/gze9krel","slide":4,"bbox":[72,526,1136,56]}
+{"kind":"textbox","id":"sh/h0nqdwv6","slide":4,"text":"Kiểm soát dữ liệu","textPreview":"Kiểm soát dữ liệu","textChars":17,"textLines":1,"bbox":[96,542,250,24]}
+{"kind":"textbox","id":"sh/udwrihwf","slide":4,"text":"Chặn lịch sử đang làm trùng, theo dõi CCCD phiên bản và lưu nhật ký thao tác.","textPreview":"Chặn lịch sử đang làm trùng, theo dõi CCCD phiên bản và lưu nhật ký thao tác.","textChars":77,"textLines":1,"bbox":[360,542,815,28]}
+{"kind":"textbox","id":"sh/vy58bmd0","slide":4,"text":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textPreview":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textChars":67,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/43y9obeh","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"notes","id":"nt/zcyngn","slide":4,"text":"Nguồn nội bộ: PROJECT_MAP.md; src/routes/_authenticated/admin/workforce.tsx; src/routes/_authenticated/admin/imports.tsx; src/lib/salary.ts; src/lib/uid-counter.ts; src/components/admin/AccountActivityStats.tsx."}
+{"kind":"slide","id":"sl/5yfo4z","slide":5,"title":"GIÁ TRỊ TRỰC TIẾP","textShapes":5}
+{"kind":"textbox","id":"sh/n65872tc","slide":5,"text":"GIÁ TRỊ TRỰC TIẾP","textPreview":"GIÁ TRỊ TRỰC TIẾP","textChars":17,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/o7e9g7ax","slide":5,"text":"5 điểm đau được khắc phục","textPreview":"5 điểm đau được khắc phục","textChars":25,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"textbox","id":"sh/a9wrixs3","slide":5,"text":"Mục tiêu thương mại hóa: biến dữ liệu vận hành thành tài sản dùng chung, không phải file của riêng một người.","textPreview":"Mục tiêu thương mại hóa: biến dữ liệu vận hành thành tài sản dùng chung, không phải file của riêng một người.","textChars":109,"textLines":1,"bbox":[72,603,1136,38]}
+{"kind":"textbox","id":"sh/bapsb2to","slide":5,"text":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textPreview":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textChars":67,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/cby9k7a9","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"table","id":"tb/o7u9kfyh","slide":5,"name":"","rows":6,"cols":3,"preview":"Nỗi đau với Excel | Ảnh hưởng | Ứng dụng khắc phục bằng cách","bbox":[72,155,1136,415]}
+{"kind":"notes","id":"nt/5yfo4z","slide":5,"text":"Bảng tổng hợp lợi ích định tính từ các luồng tính năng hiện có. Không gắn số liệu năng suất chưa được đo tại khách hàng."}
+{"kind":"slide","id":"sl/kww0a3","slide":6,"title":"GÓC NHÌN ĐIỀU HÀNH","textShapes":20}
+{"kind":"textbox","id":"sh/10jyh0jq","slide":6,"text":"GÓC NHÌN ĐIỀU HÀNH","textPreview":"GÓC NHÌN ĐIỀU HÀNH","textChars":18,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/exsf6l0z","slide":6,"text":"Giám đốc thấy gì trong 5 phút?","textPreview":"Giám đốc thấy gì trong 5 phút?","textChars":30,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"textbox","id":"sh/fy1gfq1k","slide":6,"text":"Một màn hình tốt phải trả lời được câu hỏi tiếp theo, không chỉ hiển thị thêm dữ liệu.","textPreview":"Một màn hình tốt phải trả lời được câu hỏi tiếp theo, không chỉ hiển thị thêm dữ liệu.","textChars":86,"textLines":1,"bbox":[72,136,850,40]}
+{"kind":"shape","id":"sh/o3uxcvi1","slide":6,"bbox":[72,210,500,360]}
+{"kind":"textbox","id":"sh/p43yl0jm","slide":6,"text":"Câu hỏi điều hành","textPreview":"Câu hỏi điều hành","textChars":17,"textLines":1,"bbox":[108,244,410,32]}
+{"kind":"shape","id":"sh/21cfa50b","slide":6,"bbox":[108,305,10,10]}
+{"kind":"textbox","id":"sh/n2lgjq1w","slide":6,"text":"Hôm nay có bao nhiêu NLĐ đang làm?","textPreview":"Hôm nay có bao nhiêu NLĐ đang làm?","textChars":34,"textLines":1,"bbox":[132,298,396,58]}
+{"kind":"shape","id":"sh/cruxgfid","slide":6,"bbox":[108,363,10,10]}
+{"kind":"textbox","id":"sh/xs3ypkjy","slide":6,"text":"Nhà máy nào tuyển mới hoặc rời việc nhiều?","textPreview":"Nhà máy nào tuyển mới hoặc rời việc nhiều?","textChars":42,"textLines":1,"bbox":[132,356,396,58]}
+{"kind":"shape","id":"sh/xcrepoze","slide":6,"bbox":[108,421,10,10]}
+{"kind":"textbox","id":"sh/wbixgjy9","slide":6,"text":"Nguồn tuyển nội bộ hay đối tác hiệu quả hơn?","textPreview":"Nguồn tuyển nội bộ hay đối tác hiệu quả hơn?","textChars":44,"textLines":1,"bbox":[132,414,396,58]}
+{"kind":"shape","id":"sh/va9wneho","slide":6,"bbox":[108,479,10,10]}
+{"kind":"textbox","id":"sh/a90ve9g3","slide":6,"text":"Có yêu cầu nào đang chờ phê duyệt?","textPreview":"Có yêu cầu nào đang chờ phê duyệt?","textChars":34,"textLines":1,"bbox":[132,472,396,58]}
+{"kind":"shape","id":"sh/5gbet8zq","slide":6,"bbox":[620,210,588,360]}
+{"kind":"textbox","id":"sh/kf2xk3y5","slide":6,"text":"Câu trả lời từ hệ thống","textPreview":"Câu trả lời từ hệ thống","textChars":23,"textLines":1,"bbox":[656,244,490,32]}
+{"kind":"shape","id":"sh/je9wryhk","slide":6,"bbox":[656,301,10,34]}
+{"kind":"textbox","id":"sh/id0fitgz","slide":6,"text":"Trạng thái làm việc","textPreview":"Trạng thái làm việc","textChars":19,"textLines":1,"bbox":[680,298,188,26]}
+{"kind":"textbox","id":"sh/lk7eh4zm","slide":6,"text":"Đang làm / đã nghỉ / theo kỳ","textPreview":"Đang làm / đã nghỉ / theo kỳ","textChars":28,"textLines":1,"bbox":[876,298,280,26]}
+{"kind":"shape","id":"sh/0jyd8zy1","slide":6,"bbox":[656,356,10,34]}
+{"kind":"textbox","id":"sh/cn2xoz6x","slide":6,"text":"Hiệu quả tuyển","textPreview":"Hiệu quả tuyển","textChars":14,"textLines":1,"bbox":[680,353,188,26]}
+{"kind":"textbox","id":"sh/dobex472","slide":6,"text":"Theo nhà máy và người tuyển","textPreview":"Theo nhà máy và người tuyển","textChars":27,"textLines":1,"bbox":[876,353,280,26]}
+{"kind":"shape","id":"sh/qlkfm9or","slide":6,"bbox":[656,411,10,34]}
+{"kind":"textbox","id":"sh/rmtwvepc","slide":6,"text":"Công lương","textPreview":"Công lương","textChars":10,"textLines":1,"bbox":[680,408,188,26]}
+{"kind":"textbox","id":"sh/0r2xsj6t","slide":6,"text":"Bảng công, lương, số giờ","textPreview":"Bảng công, lương, số giờ","textChars":24,"textLines":1,"bbox":[876,408,280,26]}
+{"kind":"shape","id":"sh/1sbe1o7e","slide":6,"bbox":[656,466,10,34]}
+{"kind":"textbox","id":"sh/epkfq9on","slide":6,"text":"Kiểm soát","textPreview":"Kiểm soát","textChars":9,"textLines":1,"bbox":[680,463,188,26]}
+{"kind":"textbox","id":"sh/zqtwzep8","slide":6,"text":"Phê duyệt, log, cảnh báo trùng","textPreview":"Phê duyệt, log, cảnh báo trùng","textChars":30,"textLines":1,"bbox":[876,463,280,26]}
+{"kind":"textbox","id":"sh/ovmxwj6p","slide":6,"text":"Kết quả: cuộc họp bắt đầu từ quyết định, không bắt đầu từ việc hỏi “file nào mới nhất?”.","textPreview":"Kết quả: cuộc họp bắt đầu từ quyết định, không bắt đầu từ việc hỏi “file nào mới nhất?”.","textChars":88,"textLines":1,"bbox":[72,612,1136,30]}
+{"kind":"textbox","id":"sh/9gve5o7a","slide":6,"text":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textPreview":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textChars":67,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/jmh8bmdo","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"notes","id":"nt/kww0a3","slide":6,"text":"Nguồn nội bộ: dashboard nhân lực và các component workforce / approval / hour-stats trong PROJECT_MAP.md."}
+{"kind":"slide","id":"sl/ikbmpv","slide":7,"title":"ĐỀ XUẤT GIÁ NIÊM YẾT","textShapes":6}
+{"kind":"textbox","id":"sh/bmt8rup0","slide":7,"text":"ĐỀ XUẤT GIÁ NIÊM YẾT","textPreview":"ĐỀ XUẤT GIÁ NIÊM YẾT","textChars":20,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/wn2pkfql","slide":7,"text":"Gói giá theo quy mô vận hành","textPreview":"Gói giá theo quy mô vận hành","textChars":28,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"textbox","id":"sh/xobqtk76","slide":7,"text":"Đơn vị tính theo dữ liệu cần quản lý. Mỗi gói gồm một công ty, hỗ trợ onboarding từ xa và cập nhật tính năng nền tảng.","textPreview":"Đơn vị tính theo dữ liệu cần quản lý. Mỗi gói gồm một công ty, hỗ trợ onboarding từ xa và cập nhật tính năng nền tảng.","textChars":118,"textLines":1,"bbox":[72,136,1050,40]}
+{"kind":"shape","id":"sh/jat8vupc","slide":7,"bbox":[72,558,1136,58]}
+{"kind":"textbox","id":"sh/kbm9ozqh","slide":7,"text":"Nguyên tắc mở rộng: nâng gói khi chạm 80% hạn mức; không cần thay đổi quy trình hay di chuyển dữ liệu.","textPreview":"Nguyên tắc mở rộng: nâng gói khi chạm 80% hạn mức; không cần thay đổi quy trình hay di chuyển dữ liệu.","textChars":102,"textLines":1,"bbox":[94,575,1090,26]}
+{"kind":"textbox","id":"sh/lcvqx472","slide":7,"text":"Đề xuất giá tham khảo | Có thể điều chỉnh theo số công ty, SLA và nhu cầu tích hợp","textPreview":"Đề xuất giá tham khảo | Có thể điều chỉnh theo số công ty, SLA và nhu cầu tích hợp","textChars":82,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/6d4rq98n","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"table","id":"tb/bq5gfe98","slide":7,"name":"","rows":5,"cols":5,"preview":"Gói | Giá / tháng | Lịch sử đi làm | Tài khoản staff | Đối tác / Nhà máy","bbox":[72,204,1136,320]}
+{"kind":"notes","id":"nt/ikbmpv","slide":7,"text":"Đây là đề xuất giá tham khảo theo yêu cầu người dùng, không phải bảng giá đã được phê duyệt. Hạn mức minh họa: lịch sử đi làm, tài khoản staff, đối tác và nhà máy."}
+{"kind":"slide","id":"sl/n77d4q","slide":8,"title":"LẬP LUẬN GIÁ TRỊ","textShapes":11}
+{"kind":"textbox","id":"sh/zud0r6dc","slide":8,"text":"LẬP LUẬN GIÁ TRỊ","textPreview":"LẬP LUẬN GIÁ TRỊ","textChars":16,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/kvmh0bex","slide":8,"text":"Chi phí nhỏ hơn một lỗi vận hành","textPreview":"Chi phí nhỏ hơn một lỗi vận hành","textChars":32,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"textbox","id":"sh/lwfitgvi","slide":8,"text":"Mô hình minh họa: chỉ cần giảm một phần thời gian đối soát mỗi tháng, gói phần mềm đã có thể tự hoàn vốn.","textPreview":"Mô hình minh họa: chỉ cần giảm một phần thời gian đối soát mỗi tháng, gói phần mềm đã có thể tự hoàn vốn.","textChars":105,"textLines":1,"bbox":[72,136,1080,40]}
+{"kind":"shape","id":"sh/b6dgn6dg","slide":8,"bbox":[900,218,308,350]}
+{"kind":"textbox","id":"sh/c7mhwre1","slide":8,"text":"Giả định minh họa","textPreview":"Giả định minh họa","textChars":17,"textLines":1,"bbox":[932,250,245,28]}
+{"kind":"shape","id":"sh/x8vipwvm","slide":8,"bbox":[932,312,10,10]}
+{"kind":"textbox","id":"sh/21kzqhwj","slide":8,"text":"10 giờ đối soát giảm mỗi tháng","textPreview":"10 giờ đối soát giảm mỗi tháng","textChars":30,"textLines":1,"bbox":[956,305,221,55]}
+{"kind":"shape","id":"sh/32tgjmx4","slide":8,"bbox":[932,367,10,10]}
+{"kind":"textbox","id":"sh/7i50ny10","slide":8,"text":"120.000 đ / giờ chi phí thời gian","textPreview":"120.000 đ / giờ chi phí thời gian","textChars":33,"textLines":1,"bbox":[956,360,221,55]}
+{"kind":"shape","id":"sh/6hwzet0f","slide":8,"bbox":[932,422,10,10]}
+{"kind":"textbox","id":"sh/tknip8z6","slide":8,"text":"Giá trị trực tiếp: 1,2 triệu đ","textPreview":"Giá trị trực tiếp: 1,2 triệu đ","textChars":30,"textLines":1,"bbox":[956,415,221,55]}
+{"kind":"shape","id":"sh/sjehg3il","slide":8,"bbox":[932,477,10,10]}
+{"kind":"textbox","id":"sh/f6p0ryhc","slide":8,"text":"Chưa tính lỗi dữ liệu và quyết định chậm","textPreview":"Chưa tính lỗi dữ liệu và quyết định chậm","textChars":40,"textLines":1,"bbox":[956,470,221,55]}
+{"kind":"shape","id":"sh/u5gzid0r","slide":8,"bbox":[932,526,244,32]}
+{"kind":"textbox","id":"sh/h87it8z2","slide":8,"text":"Khởi động: 2,4×","textPreview":"Khởi động: 2,4×","textChars":15,"textLines":1,"bbox":[944,534,220,16]}
+{"kind":"textbox","id":"sh/g7y1k3ih","slide":8,"text":"Giả định minh họa, cần đo lại trong pilot 30 ngày","textPreview":"Giả định minh họa, cần đo lại trong pilot 30 ngày","textChars":49,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/val0fe1s","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"chart","id":"ch/2t03u5k7","slide":8,"name":"","chartType":"bar","bbox":[72,218,770,350]}
+{"kind":"notes","id":"nt/n77d4q","slide":8,"text":"Biểu đồ không phải số liệu khách hàng. Giả định minh họa: 10 giờ đối soát giảm mỗi tháng x 120.000 đ/giờ = 1,2 triệu đ; các gói lớn dùng giả định thời gian tiết kiệm cao hơn để minh họa logic định giá."}
+{"kind":"slide","id":"sl/dg2yfo","slide":9,"title":"CÁCH BÁN VÀ TRIỂN KHAI","textShapes":21}
+{"kind":"textbox","id":"sh/3658v2p8","slide":9,"text":"CÁCH BÁN VÀ TRIỂN KHAI","textPreview":"CÁCH BÁN VÀ TRIỂN KHAI","textChars":22,"textLines":1,"bbox":[72,42,900,24]}
+{"kind":"textbox","id":"sh/o7y94n6t","slide":9,"text":"Lộ trình thí điểm 30 ngày","textPreview":"Lộ trình thí điểm 30 ngày","textChars":25,"textLines":1,"bbox":[72,68,1100,62]}
+{"kind":"textbox","id":"sh/p87axs7e","slide":9,"text":"Bắt đầu nhỏ, đo được, và chỉ mở rộng khi người dùng đã nhìn thấy dữ liệu của chính họ.","textPreview":"Bắt đầu nhỏ, đo được, và chỉ mở rộng khi người dùng đã nhìn thấy dữ liệu của chính họ.","textChars":86,"textLines":1,"bbox":[72,136,920,40]}
+{"kind":"shape","id":"sh/a9gr6xoj","slide":9,"bbox":[72,240,248,255]}
+{"kind":"shape","id":"sh/bupsz2p4","slide":9,"bbox":[72,240,248,12]}
+{"kind":"textbox","id":"sh/cvy9876p","slide":9,"text":"Tuần 1","textPreview":"Tuần 1","textChars":6,"textLines":1,"bbox":[96,274,200,22]}
+{"kind":"textbox","id":"sh/xw7a1cna","slide":9,"text":"Thiết lập","textPreview":"Thiết lập","textChars":9,"textLines":1,"bbox":[96,314,200,32]}
+{"kind":"textbox","id":"sh/6dcrudof","slide":9,"text":"Chốt công ty, nhà máy, staff, đối tác và quyền truy cập.","textPreview":"Chốt công ty, nhà máy, staff, đối tác và quyền truy cập.","textChars":56,"textLines":1,"bbox":[96,372,200,86]}
+{"kind":"textbox","id":"sh/rel8nyp0","slide":9,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[324,350,30,28]}
+{"kind":"shape","id":"sh/jml4re18","slide":9,"bbox":[356,240,248,255]}
+{"kind":"shape","id":"sh/ylc3i9kn","slide":9,"bbox":[356,240,248,12]}
+{"kind":"textbox","id":"sh/lonmtoje","slide":9,"text":"Tuần 2","textPreview":"Tuần 2","textChars":6,"textLines":1,"bbox":[380,274,200,22]}
+{"kind":"textbox","id":"sh/kne5kj2t","slide":9,"text":"Di chuyển dữ liệu","textPreview":"Di chuyển dữ liệu","textChars":17,"textLines":1,"bbox":[380,314,200,32]}
+{"kind":"textbox","id":"sh/bil4nu1c","slide":9,"text":"Nhập Excel theo template; xử lý các dòng lỗi còn lại.","textPreview":"Nhập Excel theo template; xử lý các dòng lỗi còn lại.","textChars":53,"textLines":1,"bbox":[380,372,200,86]}
+{"kind":"textbox","id":"sh/axc3epkr","slide":9,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[608,350,30,28]}
+{"kind":"shape","id":"sh/xk3mp4j2","slide":9,"bbox":[640,240,248,255]}
+{"kind":"shape","id":"sh/wjulgz2h","slide":9,"bbox":[640,240,248,12]}
+{"kind":"textbox","id":"sh/nu14ju10","slide":9,"text":"Tuần 3","textPreview":"Tuần 3","textChars":6,"textLines":1,"bbox":[664,274,200,22]}
+{"kind":"textbox","id":"sh/mts3apkf","slide":9,"text":"Đưa vào nhịp","textPreview":"Đưa vào nhịp","textChars":12,"textLines":1,"bbox":[664,314,200,32]}
+{"kind":"textbox","id":"sh/qpsn2p47","slide":9,"text":"Chạy luồng hồ sơ, lịch sử đi làm, phê duyệt và công/lương.","textPreview":"Chạy luồng hồ sơ, lịch sử đi làm, phê duyệt và công/lương.","textChars":58,"textLines":1,"bbox":[664,372,200,86]}
+{"kind":"textbox","id":"sh/rq14vu5s","slide":9,"text":"→","textPreview":"→","textChars":1,"textLines":1,"bbox":[892,350,30,28]}
+{"kind":"shape","id":"sh/cra54zmd","slide":9,"bbox":[924,240,248,255]}
+{"kind":"shape","id":"sh/dsjmxkny","slide":9,"bbox":[924,240,248,12]}
+{"kind":"textbox","id":"sh/etsn6p4j","slide":9,"text":"Tuần 4","textPreview":"Tuần 4","textChars":6,"textLines":1,"bbox":[948,274,200,22]}
+{"kind":"textbox","id":"sh/zu1ozu54","slide":9,"text":"Đo và mở rộng","textPreview":"Đo và mở rộng","textChars":13,"textLines":1,"bbox":[948,314,200,32]}
+{"kind":"textbox","id":"sh/0va58zmp","slide":9,"text":"Đo giờ đối soát, lỗi dữ liệu, thời gian ra báo cáo; chọn gói phù hợp.","textPreview":"Đo giờ đối soát, lỗi dữ liệu, thời gian ra báo cáo; chọn gói phù hợp.","textChars":69,"textLines":1,"bbox":[948,372,200,86]}
+{"kind":"shape","id":"sh/1w3614nu","slide":9,"bbox":[72,548,1136,66]}
+{"kind":"textbox","id":"sh/mhcna94f","slide":9,"text":"Đầu ra sau pilot: số liệu trước/sau, danh sách lỗi đã giảm và đề xuất gói theo quy mô thật.","textPreview":"Đầu ra sau pilot: số liệu trước/sau, danh sách lỗi đã giảm và đề xuất gói theo quy mô thật.","textChars":91,"textLines":1,"bbox":[100,568,1080,28]}
+{"kind":"textbox","id":"sh/nilo3e50","slide":9,"text":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textPreview":"Đề xuất thương mại hóa | Dữ liệu tính năng lấy từ sản phẩm hiện tại","textChars":67,"textLines":1,"bbox":[72,682,930,18]}
+{"kind":"textbox","id":"sh/xcnqt872","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1160,678,48,24]}
+{"kind":"notes","id":"nt/dg2yfo","slide":9,"text":"Lộ trình là đề xuất triển khai thương mại, không phải tính năng đã có sẵn trong ứng dụng."}
+{"kind":"slide","id":"sl/01plrq","slide":10,"title":"Bắt đầu với gói Khởi động","textShapes":6}
+{"kind":"shape","id":"sh/c369cr6h","slide":10,"bbox":[0,0,1280,9]}
+{"kind":"textbox","id":"sh/b2xsjm5w","slide":10,"text":"Bắt đầu với gói Khởi động","textPreview":"Bắt đầu với gói Khởi động","textChars":25,"textLines":1,"bbox":[92,142,850,64]}
+{"kind":"textbox","id":"sh/a1orahob","slide":10,"text":"500.000 đ / tháng","textPreview":"500.000 đ / tháng","textChars":17,"textLines":1,"bbox":[94,238,500,52]}
+{"kind":"textbox","id":"sh/p0fahwnq","slide":10,"text":"500 lịch sử đi làm · 5 staff · 5 đối tác · 5 nhà máy","textPreview":"500 lịch sử đi làm · 5 staff · 5 đối tác · 5 nhà máy","textChars":52,"textLines":1,"bbox":[94,312,760,34]}
+{"kind":"shape","id":"sh/oz698r65","slide":10,"bbox":[94,408,540,76]}
+{"kind":"textbox","id":"sh/nyxsfm5k","slide":10,"text":"Mục tiêu đầu tiên: một nguồn dữ liệu mà cả công ty cùng tin.","textPreview":"Mục tiêu đầu tiên: một nguồn dữ liệu mà cả công ty cùng tin.","textChars":60,"textLines":1,"bbox":[122,430,485,32]}
+{"kind":"textbox","id":"sh/2xor6hof","slide":10,"text":"Đề xuất tiếp theo: chọn một công ty hoặc một cụm nhà máy để chạy pilot 30 ngày.","textPreview":"Đề xuất tiếp theo: chọn một công ty hoặc một cụm nhà máy để chạy pilot 30 ngày.","textChars":79,"textLines":1,"bbox":[94,594,850,30]}
+{"kind":"textbox","id":"sh/9wjatgnu","slide":10,"text":"Tuyển dụng 4.0","textPreview":"Tuyển dụng 4.0","textChars":14,"textLines":1,"bbox":[1012,622,170,24]}
+{"kind":"notes","id":"nt/01plrq","slide":10,"text":"Đề xuất CTA cho buổi bán hàng. Giá và pilot cần được phê duyệt trước khi công bố chính thức."}

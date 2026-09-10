@@ -19,12 +19,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20774,
-          "bbox": [
-            26,
-            5,
-            165,
-            203
-          ],
+          "bbox": [26, 5, 165, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 271
         },
@@ -34,12 +29,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20785,
-          "bbox": [
-            26,
-            5,
-            165,
-            203
-          ],
+          "bbox": [26, 5, 165, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 278
         },
@@ -49,12 +39,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20973,
-          "bbox": [
-            26,
-            5,
-            166,
-            203
-          ],
+          "bbox": [26, 5, 166, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 283
         },
@@ -64,12 +49,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20793,
-          "bbox": [
-            26,
-            5,
-            165,
-            203
-          ],
+          "bbox": [26, 5, 165, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 248
         },
@@ -79,12 +59,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20884,
-          "bbox": [
-            26,
-            5,
-            165,
-            203
-          ],
+          "bbox": [26, 5, 165, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 255
         },
@@ -94,12 +69,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20741,
-          "bbox": [
-            26,
-            5,
-            165,
-            203
-          ],
+          "bbox": [26, 5, 165, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 243
         }
@@ -120,12 +90,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14616,
-          "bbox": [
-            25,
-            5,
-            167,
-            203
-          ],
+          "bbox": [25, 5, 167, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 421
         },
@@ -135,12 +100,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14257,
-          "bbox": [
-            31,
-            5,
-            161,
-            203
-          ],
+          "bbox": [31, 5, 161, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 405
         },
@@ -150,12 +110,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13879,
-          "bbox": [
-            33,
-            5,
-            159,
-            203
-          ],
+          "bbox": [33, 5, 159, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 402
         },
@@ -165,12 +120,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13723,
-          "bbox": [
-            33,
-            5,
-            158,
-            203
-          ],
+          "bbox": [33, 5, 158, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 385
         },
@@ -180,12 +130,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13786,
-          "bbox": [
-            31,
-            5,
-            160,
-            203
-          ],
+          "bbox": [31, 5, 160, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 398
         },
@@ -195,12 +140,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13661,
-          "bbox": [
-            32,
-            5,
-            159,
-            203
-          ],
+          "bbox": [32, 5, 159, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 398
         },
@@ -210,12 +150,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14140,
-          "bbox": [
-            30,
-            5,
-            161,
-            203
-          ],
+          "bbox": [30, 5, 161, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 441
         },
@@ -225,12 +160,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13550,
-          "bbox": [
-            32,
-            5,
-            160,
-            203
-          ],
+          "bbox": [32, 5, 160, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 309
         }
@@ -251,12 +181,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14550,
-          "bbox": [
-            27,
-            5,
-            164,
-            203
-          ],
+          "bbox": [27, 5, 164, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 418
         },
@@ -266,12 +191,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14257,
-          "bbox": [
-            31,
-            5,
-            161,
-            203
-          ],
+          "bbox": [31, 5, 161, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 405
         },
@@ -281,12 +201,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14059,
-          "bbox": [
-            25,
-            5,
-            167,
-            203
-          ],
+          "bbox": [25, 5, 167, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 422
         },
@@ -296,12 +211,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13723,
-          "bbox": [
-            33,
-            5,
-            158,
-            203
-          ],
+          "bbox": [33, 5, 158, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 385
         },
@@ -311,12 +221,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13786,
-          "bbox": [
-            31,
-            5,
-            160,
-            203
-          ],
+          "bbox": [31, 5, 160, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 398
         },
@@ -326,12 +231,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13661,
-          "bbox": [
-            32,
-            5,
-            159,
-            203
-          ],
+          "bbox": [32, 5, 159, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 398
         },
@@ -341,12 +241,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14140,
-          "bbox": [
-            30,
-            5,
-            161,
-            203
-          ],
+          "bbox": [30, 5, 161, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 441
         },
@@ -356,12 +251,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13550,
-          "bbox": [
-            32,
-            5,
-            160,
-            203
-          ],
+          "bbox": [32, 5, 160, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 309
         }
@@ -382,12 +272,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15950,
-          "bbox": [
-            39,
-            5,
-            152,
-            203
-          ],
+          "bbox": [39, 5, 152, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 149
         },
@@ -397,12 +282,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 16735,
-          "bbox": [
-            25,
-            5,
-            167,
-            203
-          ],
+          "bbox": [25, 5, 167, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 176
         },
@@ -412,12 +292,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 16887,
-          "bbox": [
-            25,
-            5,
-            166,
-            203
-          ],
+          "bbox": [25, 5, 166, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 141
         },
@@ -427,12 +302,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 16429,
-          "bbox": [
-            25,
-            5,
-            167,
-            203
-          ],
+          "bbox": [25, 5, 167, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 143
         }
@@ -453,12 +323,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 17578,
-          "bbox": [
-            28,
-            5,
-            164,
-            203
-          ],
+          "bbox": [28, 5, 164, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 239
         },
@@ -468,12 +333,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15966,
-          "bbox": [
-            27,
-            5,
-            165,
-            203
-          ],
+          "bbox": [27, 5, 165, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 200
         },
@@ -483,12 +343,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 16832,
-          "bbox": [
-            17,
-            5,
-            174,
-            203
-          ],
+          "bbox": [17, 5, 174, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 257
         },
@@ -498,12 +353,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15843,
-          "bbox": [
-            27,
-            5,
-            164,
-            203
-          ],
+          "bbox": [27, 5, 164, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 225
         },
@@ -513,12 +363,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 17425,
-          "bbox": [
-            28,
-            5,
-            163,
-            203
-          ],
+          "bbox": [28, 5, 163, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 225
         }
@@ -539,12 +384,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14317,
-          "bbox": [
-            47,
-            5,
-            145,
-            203
-          ],
+          "bbox": [47, 5, 145, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 244
         },
@@ -554,12 +394,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14778,
-          "bbox": [
-            42,
-            5,
-            149,
-            203
-          ],
+          "bbox": [42, 5, 149, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 268
         },
@@ -569,12 +404,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15253,
-          "bbox": [
-            42,
-            5,
-            150,
-            203
-          ],
+          "bbox": [42, 5, 150, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 246
         },
@@ -584,12 +414,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 12884,
-          "bbox": [
-            49,
-            5,
-            143,
-            203
-          ],
+          "bbox": [49, 5, 143, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 226
         },
@@ -599,12 +424,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20660,
-          "bbox": [
-            19,
-            5,
-            172,
-            203
-          ],
+          "bbox": [19, 5, 172, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 322
         },
@@ -614,12 +434,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 18224,
-          "bbox": [
-            34,
-            5,
-            157,
-            203
-          ],
+          "bbox": [34, 5, 157, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 292
         },
@@ -629,12 +444,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 20678,
-          "bbox": [
-            15,
-            5,
-            176,
-            203
-          ],
+          "bbox": [15, 5, 176, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 383
         },
@@ -644,12 +454,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13641,
-          "bbox": [
-            47,
-            5,
-            144,
-            203
-          ],
+          "bbox": [47, 5, 144, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 266
         }
@@ -670,12 +475,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15591,
-          "bbox": [
-            38,
-            5,
-            153,
-            203
-          ],
+          "bbox": [38, 5, 153, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 166
         },
@@ -685,12 +485,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14520,
-          "bbox": [
-            42,
-            5,
-            150,
-            203
-          ],
+          "bbox": [42, 5, 150, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 179
         },
@@ -700,12 +495,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14402,
-          "bbox": [
-            42,
-            5,
-            150,
-            203
-          ],
+          "bbox": [42, 5, 150, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 171
         },
@@ -715,12 +505,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15346,
-          "bbox": [
-            40,
-            5,
-            152,
-            203
-          ],
+          "bbox": [40, 5, 152, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 175
         },
@@ -730,12 +515,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15392,
-          "bbox": [
-            39,
-            5,
-            153,
-            203
-          ],
+          "bbox": [39, 5, 153, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 172
         },
@@ -745,12 +525,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14680,
-          "bbox": [
-            41,
-            5,
-            151,
-            203
-          ],
+          "bbox": [41, 5, 151, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 162
         }
@@ -771,12 +546,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14905,
-          "bbox": [
-            44,
-            5,
-            148,
-            203
-          ],
+          "bbox": [44, 5, 148, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 212
         },
@@ -786,12 +556,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14716,
-          "bbox": [
-            43,
-            5,
-            148,
-            203
-          ],
+          "bbox": [43, 5, 148, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 164
         },
@@ -801,12 +566,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 15273,
-          "bbox": [
-            42,
-            5,
-            149,
-            203
-          ],
+          "bbox": [42, 5, 149, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 171
         },
@@ -816,12 +576,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14612,
-          "bbox": [
-            44,
-            5,
-            148,
-            203
-          ],
+          "bbox": [44, 5, 148, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 167
         },
@@ -831,12 +586,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14630,
-          "bbox": [
-            44,
-            5,
-            148,
-            203
-          ],
+          "bbox": [44, 5, 148, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 163
         },
@@ -846,12 +596,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14770,
-          "bbox": [
-            42,
-            5,
-            150,
-            203
-          ],
+          "bbox": [42, 5, 150, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 175
         }
@@ -872,12 +617,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14351,
-          "bbox": [
-            45,
-            5,
-            147,
-            203
-          ],
+          "bbox": [45, 5, 147, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 179
         },
@@ -887,12 +627,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14575,
-          "bbox": [
-            42,
-            5,
-            150,
-            203
-          ],
+          "bbox": [42, 5, 150, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 179
         },
@@ -902,12 +637,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13617,
-          "bbox": [
-            45,
-            5,
-            146,
-            203
-          ],
+          "bbox": [45, 5, 146, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 167
         },
@@ -917,12 +647,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14225,
-          "bbox": [
-            45,
-            5,
-            147,
-            203
-          ],
+          "bbox": [45, 5, 147, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 151
         },
@@ -932,12 +657,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 14707,
-          "bbox": [
-            44,
-            5,
-            147,
-            203
-          ],
+          "bbox": [44, 5, 147, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 175
         },
@@ -947,12 +667,7 @@
           "width": 192,
           "height": 208,
           "nontransparent_pixels": 13676,
-          "bbox": [
-            46,
-            5,
-            146,
-            203
-          ],
+          "bbox": [46, 5, 146, 203],
           "edge_pixels": 0,
           "chroma_adjacent_pixels": 167
         }

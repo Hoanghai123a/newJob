@@ -17,6 +17,14 @@ function setDeferredPrompt(prompt: BeforeInstallPromptEvent | null) {
   emit();
 }
 
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeinstallprompt", (event: Event) => {
+    event.preventDefault();
+    setDeferredPrompt(event as BeforeInstallPromptEvent);
+  });
+  window.addEventListener("appinstalled", () => setDeferredPrompt(null));
+}
+
 export function isStandaloneMode() {
   if (typeof window === "undefined") return false;
   return (
@@ -40,21 +48,7 @@ export function isAndroidDevice() {
 }
 
 export function installPwaPromptListeners() {
-  if (typeof window === "undefined") return () => undefined;
-
-  const onBeforeInstallPrompt = (event: Event) => {
-    event.preventDefault();
-    setDeferredPrompt(event as BeforeInstallPromptEvent);
-  };
-  const onAppInstalled = () => setDeferredPrompt(null);
-
-  window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-  window.addEventListener("appinstalled", onAppInstalled);
-
-  return () => {
-    window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-    window.removeEventListener("appinstalled", onAppInstalled);
-  };
+  return () => undefined;
 }
 
 export function usePwaInstallPrompt() {
@@ -67,11 +61,8 @@ export function usePwaInstallPrompt() {
   useEffect(() => {
     subscribers.add(setInstallPrompt);
     setInstallPrompt(deferredPrompt);
-    const removeListeners = installPwaPromptListeners();
-
     return () => {
       subscribers.delete(setInstallPrompt);
-      removeListeners();
     };
   }, []);
 

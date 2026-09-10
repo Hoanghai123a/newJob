@@ -7,6 +7,7 @@ Keep apparent pet scale and baseline stable within the row unless the state itse
 Action: Hover jump loop: anticipation, lift, airborne peak, descent, and settle through body height.
 
 State requirements:
+
 - Show the jump through pose and vertical body position only: anticipation, lift, airborne peak, descent, settle.
 - Do not draw ground shadows, contact shadows, drop shadows, oval shadows, landing marks, dust, smears, bounce pads, or motion marks under the pet.
 - Keep the background outside the pet perfectly flat chroma key with no darker key-colored patches.

@@ -1,0 +1,293 @@
+[
+  {
+    "id": "pbc_approval_req",
+    "name": "approval_requests",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (creator = @request.auth.id || admins ~ @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (creator = @request.auth.id || admins ~ @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"staff\" || @request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (creator = @request.auth.id || @request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1579384326",
+        "max": 500,
+        "min": 1,
+        "name": "title",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2075248498",
+        "max": 0,
+        "min": 0,
+        "name": "content",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "file2497359498",
+        "maxSelect": 5,
+        "maxSize": 10485760,
+        "mimeTypes": ["image/jpeg", "image/png", "image/webp", "image/gif"],
+        "name": "images",
+        "presentable": false,
+        "protected": false,
+        "required": false,
+        "system": false,
+        "thumbs": ["200x200"],
+        "type": "file"
+      },
+      {
+        "hidden": false,
+        "id": "file3841037923",
+        "maxSelect": 3,
+        "maxSize": 20971520,
+        "mimeTypes": [
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-excel"
+        ],
+        "name": "excel_files",
+        "presentable": false,
+        "protected": false,
+        "required": false,
+        "system": false,
+        "thumbs": [],
+        "type": "file"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation4101229484",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "creator",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation3479551908",
+        "maxSelect": 99,
+        "minSelect": 1,
+        "name": "admins",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "select2063623452",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": true,
+        "required": true,
+        "system": false,
+        "type": "select",
+        "values": ["pending", "approved", "rejected", "completed"]
+      },
+      {
+        "hidden": false,
+        "id": "date1542280102",
+        "max": "",
+        "min": "",
+        "name": "completed_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_approval_requests_tenant_company` ON `approval_requests` (`tenant_company`)"
+    ]
+  },
+  {
+    "id": "pbc_approval_res",
+    "name": "approval_responses",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (admin = @request.auth.id || request.creator = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (admin = @request.auth.id || request.creator = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"staff\" || @request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (admin = @request.auth.id)",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210257",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_approval_req",
+        "hidden": false,
+        "id": "relation2501826821",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "request",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation1097173665",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "admin",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "select3852498282",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": true,
+        "required": true,
+        "system": false,
+        "type": "select",
+        "values": ["pending", "approved", "rejected"]
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1846498765",
+        "max": 0,
+        "min": 0,
+        "name": "note",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "date2890374982",
+        "max": "",
+        "min": "",
+        "name": "responded_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389177",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085496",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_approval_responses_tenant_company` ON `approval_responses` (`tenant_company`)"
+    ]
+  }
+]

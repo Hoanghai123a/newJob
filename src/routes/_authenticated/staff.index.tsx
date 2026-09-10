@@ -1,14 +1,40 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { BriefcaseBusiness, Building2, Download, NotebookPen, ShieldCheck, Users } from "lucide-react";
+import {
+  Banknote,
+  BadgeDollarSign,
+  BarChart3,
+  CalendarCheck,
+  CalendarClock,
+  Building2,
+  ChevronRight,
+  ClipboardCheck,
+  Download,
+  LayoutGrid,
+  ListOrdered,
+  MessagesSquare,
+  Newspaper,
+  NotebookPen,
+  QrCode,
+  RefreshCw,
+  UserCheck,
+  Users,
+} from "lucide-react";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { StatCard } from "@/components/ui/stat-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DataLoadingState } from "@/components/ui/data-loading-state";
 import { StatusChip } from "@/components/ui/status-chip";
+import { FeatureTile } from "@/components/dashboard/FeatureTile";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { fetchFactoryManagers, type FactoryManagerRecord } from "@/lib/factories";
-import { fetchStaffWorkspace } from "@/lib/staff-permissions";
 import { useAuth } from "@/lib/auth";
-import type { UserRecord } from "@/lib/pocketbase";
+import { useStaffExcelExport } from "@/components/staff/staff-excel-export-context";
 
 export const Route = createFileRoute("/_authenticated/staff/")({
   component: StaffDashboardPage,
@@ -16,10 +42,21 @@ export const Route = createFileRoute("/_authenticated/staff/")({
 
 function StaffDashboardPage() {
   const { user } = useAuth();
+  const { openStaffExcelExport } = useStaffExcelExport();
   const [loading, setLoading] = useState(true);
-  const [workersCount, setWorkersCount] = useState(0);
-  const [operableCount, setOperableCount] = useState(0);
   const [assignments, setAssignments] = useState<FactoryManagerRecord[]>([]);
+  const [utilOpen, setUtilOpen] = useState(false);
+  const [reloading, setReloading] = useState(false);
+
+  const handleReload = async () => {
+    if (reloading) return;
+    setReloading(true);
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    window.location.reload();
+  };
 
   useEffect(() => {
     if (!user?.id) return;
@@ -27,15 +64,9 @@ function StaffDashboardPage() {
     let alive = true;
     setLoading(true);
 
-    Promise.all([fetchStaffWorkspace(user as UserRecord), fetchFactoryManagers(user.id)])
-      .then(([workspace, managerRows]) => {
+    fetchFactoryManagers(user.id)
+      .then((managerRows) => {
         if (!alive) return;
-        setWorkersCount(workspace.workers.length);
-        setOperableCount(
-          workspace.workers.filter(
-            (item) => item.canReportAdvance || item.canReportLeave || item.canReportJoin,
-          ).length,
-        );
         setAssignments(managerRows);
       })
       .finally(() => {
@@ -71,38 +102,129 @@ function StaffDashboardPage() {
                 : "Bạn xem lao động theo nhà máy phụ trách và người tuyển của mình."}
             </div>
           </div>
-          <div className="rounded-2xl bg-white/15 p-3 backdrop-blur">
-            {user?.role === "admin" ? <ShieldCheck className="h-6 w-6" /> : <BriefcaseBusiness className="h-6 w-6" />}
-          </div>
+          <button
+            type="button"
+            onClick={handleReload}
+            disabled={reloading}
+            aria-label="Tải lại trang"
+            title="Tải lại trang"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-white shadow-sm backdrop-blur transition hover:bg-white/30 active:scale-95 disabled:opacity-70"
+          >
+            <RefreshCw className={reloading ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
+          </button>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2.5">
-        <StatCard label="Nhà máy phụ trách" value={activeAssignments.length} icon={Building2} tone="info" />
-        <StatCard label="Lao động trong quyền" value={workersCount} icon={Users} tone="primary" />
-        <StatCard label="Có thể cập nhật" value={operableCount} icon={NotebookPen} tone="success" />
-        <StatCard label="Xuất dữ liệu" value={1} icon={Download} tone="warning" />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <DashboardLink
           to="/staff/workers"
           title="Danh sách lao động"
+          mobileTitle="Lao động trong quyền"
           description="Tìm kiếm, xem lịch sử và xử lý nghiệp vụ."
           icon={Users}
         />
         <DashboardLink
-          to="/staff/export"
-          title="Xuất dữ liệu"
-          description="Lọc 90 ngày gần đây và xuất Excel nhanh."
-          icon={Download}
+          to="/staff/recruited"
+          title="Người tôi tuyển"
+          description="Xem và xử lý lao động bạn trực tiếp tuyển."
+          icon={UserCheck}
+        />
+        <DashboardLink
+          to="/staff/advances"
+          title="Ứng lương"
+          description="Duyệt ứng NLĐ và tạo yêu cầu ứng của staff."
+          icon={Banknote}
+        />
+        <DashboardLink
+          to="/staff/salary-holds"
+          title="Giữ lương"
+          description="Tạo và theo dõi yêu cầu giữ lương cho NLĐ."
+          icon={Banknote}
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-2">
+        <Link
+          to="/staff/workforce"
+          className="flex min-h-12 items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-3 text-sm font-semibold text-primary shadow-soft active:scale-[0.99]"
+        >
+          <span className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Dashboard
+          </span>
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+        <button
+          type="button"
+          onClick={() => setUtilOpen(true)}
+          className="flex min-h-12 items-center justify-between rounded-2xl border border-border/70 bg-card px-3 text-sm font-semibold shadow-soft active:scale-[0.99]"
+        >
+          <span className="flex items-center gap-2">
+            <LayoutGrid className="h-4 w-4 text-primary" />
+            Tiện ích
+          </span>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+
+      <Dialog open={utilOpen} onOpenChange={setUtilOpen}>
+        <DialogContent className="rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="gradient-primary flex h-8 w-8 items-center justify-center rounded-xl text-primary-foreground shadow-sm">
+                <LayoutGrid className="h-4 w-4" />
+              </div>
+              Tiện ích
+            </DialogTitle>
+            <DialogDescription>Các tiện ích dành cho staff</DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-3 gap-2" onClick={() => setUtilOpen(false)}>
+            <FeatureTile to="/news" label="Bảng tin" icon={Newspaper} size="compact" />
+            <FeatureTile to="/chat" label="Trò chuyện" icon={MessagesSquare} size="compact" />
+            <FeatureTile to="/notebook" label="Sổ tay" icon={NotebookPen} size="compact" />
+            <FeatureTile to="/staff/tools/qr" label="Tạo mã QR" icon={QrCode} size="compact" />
+            <FeatureTile
+              to="/staff/money-to-text"
+              label="Đọc số tiền"
+              icon={BadgeDollarSign}
+              size="compact"
+            />
+            <FeatureTile
+              to="/staff/hour-stats"
+              label="Thống kê giờ"
+              icon={CalendarCheck}
+              size="compact"
+            />
+            <FeatureTile
+              to="/last-working-day"
+              label="Ngày Công Cuối"
+              icon={CalendarClock}
+              size="compact"
+            />
+            <FeatureTile
+              to="/staff/export"
+              onClick={openStaffExcelExport}
+              label="Xuất dữ liệu"
+              icon={Download}
+              size="compact"
+            />
+            {user?.role === "staff" && (
+              <div className="contents desktop:hidden">
+                <FeatureTile to="/counter" label="Bộ đếm" icon={ListOrdered} size="compact" />
+              </div>
+            )}
+            <FeatureTile
+              to="/staff/approvals"
+              label="Phê duyệt"
+              icon={ClipboardCheck}
+              size="compact"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {loading ? (
-        <div className="rounded-2xl border border-border/60 bg-card p-4 text-sm text-muted-foreground">
-          Đang tải dữ liệu staff...
-        </div>
+        <DataLoadingState variant="grid" label="Đang tải dữ liệu staff..." rows={4} />
       ) : activeAssignments.length === 0 && user?.role !== "admin" ? (
         <EmptyState
           icon={Building2}
@@ -132,11 +254,13 @@ function StaffDashboardPage() {
 function DashboardLink({
   to,
   title,
+  mobileTitle,
   description,
   icon: Icon,
 }: {
   to: string;
   title: string;
+  mobileTitle?: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
 }) {
@@ -148,7 +272,16 @@ function DashboardLink({
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-5 w-5" />
       </div>
-      <div className="mt-3 text-sm font-semibold">{title}</div>
+      <div className="mt-3 text-sm font-semibold">
+        {mobileTitle ? (
+          <>
+            <span className="desktop:hidden">{mobileTitle}</span>
+            <span className="hidden desktop:inline">{title}</span>
+          </>
+        ) : (
+          title
+        )}
+      </div>
       <div className="mt-1 text-xs leading-5 text-muted-foreground">{description}</div>
     </Link>
   );

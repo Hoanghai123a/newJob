@@ -1,6 +1,5 @@
 import { CheckCircle2, Smartphone } from "lucide-react";
 import { useAppSettings } from "@/lib/app-settings";
-import { fileUrl } from "@/lib/pocketbase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const IOS_GUIDE_STEPS = [
@@ -33,22 +32,16 @@ interface IosInstallGuideDialogProps {
 
 export function IosInstallGuideDialog({ open, onOpenChange }: IosInstallGuideDialogProps) {
   const { data: settings, logoUrl } = useAppSettings();
-  const guideImages = Array.isArray(settings.install_guide_images)
-    ? settings.install_guide_images
-    : [];
-  const uploadedGuideImageUrls = guideImages
-    .map((image) => fileUrl(settings, image))
-    .filter(Boolean);
-  const guideSteps = IOS_GUIDE_STEPS.map((step, index) => ({
-    ...step,
-    imageUrl: uploadedGuideImageUrls[index] || step.imageUrl,
-  }));
+  const guideSteps = IOS_GUIDE_STEPS;
   const appName = settings.company_name?.trim() || "app";
   const appIconUrl = logoUrl || "/pwa-icon.svg";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bottom-0 top-auto grid max-h-[92dvh] w-full max-w-[30rem] translate-y-0 grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden rounded-b-none rounded-t-3xl border-x-0 border-b-0 bg-background p-0 shadow-[0_-18px_50px_-24px_rgba(15,23,42,0.48)] sm:rounded-t-3xl [&>button]:hidden">
+      <DialogContent
+        layout="raw"
+        className="bottom-0 top-auto grid max-h-[92dvh] w-full max-w-[30rem] translate-y-0 grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden rounded-b-none rounded-t-3xl border-x-0 border-b-0 bg-background p-0 shadow-[0_-18px_50px_-24px_rgba(15,23,42,0.48)] sm:rounded-t-3xl [&>button]:hidden"
+      >
         <DialogHeader className="flex-row items-center justify-between space-y-0 border-b border-border/60 px-4 py-3 text-left">
           <DialogTitle className="text-[15px] font-semibold leading-6">
             Cài {appName} ra màn hình chính

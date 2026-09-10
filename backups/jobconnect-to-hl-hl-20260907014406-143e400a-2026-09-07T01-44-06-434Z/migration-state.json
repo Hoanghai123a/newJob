@@ -1,0 +1,222 @@
+{
+  "migration_run_id": "hl-20260907014406-143e400a",
+  "status": "completed",
+  "checkpoint": "work_progress_tasks",
+  "checkpoints": [
+    {
+      "name": "preflight",
+      "status": "completed",
+      "at": "2026-09-07T01:44:06.789Z"
+    },
+    {
+      "name": "company",
+      "status": "completed",
+      "at": "2026-09-07T01:44:06.795Z"
+    },
+    {
+      "name": "users-workers",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.631Z"
+    },
+    {
+      "name": "complaints",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.637Z"
+    },
+    {
+      "name": "app_settings",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.697Z"
+    },
+    {
+      "name": "advances",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.705Z"
+    },
+    {
+      "name": "attendance",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.746Z"
+    },
+    {
+      "name": "guides",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.750Z"
+    },
+    {
+      "name": "factories",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.753Z"
+    },
+    {
+      "name": "recruitments",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.793Z"
+    },
+    {
+      "name": "check_attendance_batches",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.814Z"
+    },
+    {
+      "name": "check_salary_batches",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.841Z"
+    },
+    {
+      "name": "transport_contacts",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.844Z"
+    },
+    {
+      "name": "recruitment_areas",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.850Z"
+    },
+    {
+      "name": "staff_action_logs",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.052Z"
+    },
+    {
+      "name": "recruitment_entities",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.054Z"
+    },
+    {
+      "name": "chat_rooms",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.056Z"
+    },
+    {
+      "name": "cccd_versions",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.133Z"
+    },
+    {
+      "name": "notebook_categories",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.135Z"
+    },
+    {
+      "name": "approval_requests",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.161Z"
+    },
+    {
+      "name": "push_subscriptions",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.164Z"
+    },
+    {
+      "name": "work_progress_tabs",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.166Z"
+    },
+    {
+      "name": "guide_documents",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.174Z"
+    },
+    {
+      "name": "check_attendance_items",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.186Z"
+    },
+    {
+      "name": "check_salary_items",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.193Z"
+    },
+    {
+      "name": "group_chat_messages",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.210Z"
+    },
+    {
+      "name": "factory_managers",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.212Z"
+    },
+    {
+      "name": "employment_histories",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.242Z"
+    },
+    {
+      "name": "chat_room_members",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.245Z"
+    },
+    {
+      "name": "chat_join_requests",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.247Z"
+    },
+    {
+      "name": "notebook_entries",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.247Z"
+    },
+    {
+      "name": "approval_responses",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.250Z"
+    },
+    {
+      "name": "work_progress_statuses",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.255Z"
+    },
+    {
+      "name": "salary_holds",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.268Z"
+    },
+    {
+      "name": "work_progress_tasks",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.271Z"
+    }
+  ],
+  "created": {
+    "company": 1,
+    "users": 17,
+    "workers": 15,
+    "records": {
+      "complaints": 4,
+      "app_settings": 1,
+      "advances": 6,
+      "attendance": 48,
+      "guides": 4,
+      "factories": 3,
+      "recruitments": 1,
+      "check_attendance_batches": 3,
+      "check_salary_batches": 4,
+      "transport_contacts": 1,
+      "recruitment_areas": 4,
+      "staff_action_logs": 148,
+      "recruitment_entities": 2,
+      "chat_rooms": 1,
+      "cccd_versions": 10,
+      "notebook_categories": 1,
+      "approval_requests": 1,
+      "push_subscriptions": 1,
+      "work_progress_tabs": 1,
+      "guide_documents": 1,
+      "check_attendance_items": 5,
+      "check_salary_items": 4,
+      "group_chat_messages": 14,
+      "factory_managers": 1,
+      "employment_histories": 14,
+      "chat_room_members": 1,
+      "chat_join_requests": 1,
+      "notebook_entries": 0,
+      "approval_responses": 1,
+      "work_progress_statuses": 3,
+      "salary_holds": 7,
+      "work_progress_tasks": 2
+    }
+  },
+  "companyId": "1bt550mb5w7v6zm"
+}

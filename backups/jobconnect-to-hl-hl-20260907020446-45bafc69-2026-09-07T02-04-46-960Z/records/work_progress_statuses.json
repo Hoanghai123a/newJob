@@ -1,0 +1,35 @@
+[
+  {
+    "collectionId": "pbc_workstats01",
+    "collectionName": "work_progress_statuses",
+    "created": "2026-08-08 01:40:37.466Z",
+    "created_by": "77uartyi6rhbl85",
+    "id": "uysrwkhnaf4qag2",
+    "name": "Nhận BTT",
+    "position": 1,
+    "tab": "35sszvnhcuqnybx",
+    "updated": "2026-08-08 01:40:37.466Z"
+  },
+  {
+    "collectionId": "pbc_workstats01",
+    "collectionName": "work_progress_statuses",
+    "created": "2026-08-08 01:40:50.046Z",
+    "created_by": "77uartyi6rhbl85",
+    "id": "aws9nckajdl3dgj",
+    "name": "Tách Ven",
+    "position": 2,
+    "tab": "35sszvnhcuqnybx",
+    "updated": "2026-08-08 01:40:50.046Z"
+  },
+  {
+    "collectionId": "pbc_workstats01",
+    "collectionName": "work_progress_statuses",
+    "created": "2026-08-08 01:41:06.266Z",
+    "created_by": "77uartyi6rhbl85",
+    "id": "bnwfmz0hacylej5",
+    "name": "Làm lương",
+    "position": 3,
+    "tab": "35sszvnhcuqnybx",
+    "updated": "2026-08-08 01:41:06.266Z"
+  }
+]

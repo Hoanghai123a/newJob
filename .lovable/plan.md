@@ -7,15 +7,15 @@
 
 ### 1) Collection `app_settings` (Base) — cập nhật / tạo lại
 
-| Field          | Type   | Ghi chú |
-|----------------|--------|---------|
-| `company_name` | text   | Tên công ty |
-| `slogan`       | text   | |
-| `address`      | text   | Có thể dán URL Google Maps |
-| `hotline`      | text   | |
-| `email`        | email  | |
-| `about`        | editor / text (multi-line) | Giới thiệu |
-| `logo`         | file (single, image, maxSize ~5MB) | |
+| Field          | Type                               | Ghi chú                    |
+| -------------- | ---------------------------------- | -------------------------- |
+| `company_name` | text                               | Tên công ty                |
+| `slogan`       | text                               |                            |
+| `address`      | text                               | Có thể dán URL Google Maps |
+| `hotline`      | text                               |                            |
+| `email`        | email                              |                            |
+| `about`        | editor / text (multi-line)         | Giới thiệu                 |
+| `logo`         | file (single, image, maxSize ~5MB) |                            |
 
 API Rules: `listRule` & `viewRule` = `""` (public read, để trang Về chúng tôi đọc được khi chưa đăng nhập). `createRule` / `updateRule` / `deleteRule` = `@request.auth.role = "admin"`.
 
@@ -23,14 +23,15 @@ API Rules: `listRule` & `viewRule` = `""` (public read, để trang Về chúng 
 
 ### 2) Collection `factories` (Base) — tạo mới
 
-| Field     | Type | Ghi chú |
-|-----------|------|---------|
-| `name`    | text (required, min 1) | Tên nhà máy |
-| `address` | text | Có thể dán URL Google Maps |
-| `hotline` | text | |
-| `note`    | text (multi-line) | Ghi chú |
+| Field     | Type                   | Ghi chú                    |
+| --------- | ---------------------- | -------------------------- |
+| `name`    | text (required, min 1) | Tên nhà máy                |
+| `address` | text                   | Có thể dán URL Google Maps |
+| `hotline` | text                   |                            |
+| `note`    | text (multi-line)      | Ghi chú                    |
 
 API Rules:
+
 - `listRule` / `viewRule` = `@request.auth.id != ""` (user đã đăng nhập đều xem được — dùng cho dropdown chọn nhà máy ở trang Tài khoản).
 - `createRule` / `updateRule` / `deleteRule` = `@request.auth.role = "admin"`.
 

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useDebouncedSearch } from "@/hooks/use-debounced-search";
 import {
   ArrowLeft,
   Building2,
@@ -11,13 +12,16 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DataLoadingState } from "@/components/ui/data-loading-state";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/ui/date-input";
 import { Label } from "@/components/ui/label";
+import { FactoryPicker, UserPicker } from "@/components/workforce/UserPicker";
 import { StatusChip } from "@/components/ui/status-chip";
 import {
   Dialog,
@@ -42,8 +46,11 @@ import {
   type FactoryManagerRecord,
   type FactoryRecord,
   type FactoryStatus,
+  factoryManagerTenantPayload,
 } from "@/lib/factories";
 import { createStaffActionLog } from "@/lib/staff-log";
+import { escapePb } from "@/lib/delegations";
+import { companyFilter, companyIdOf } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/admin/accounts/factories")({
   beforeLoad: () => {
@@ -51,12 +58,19 @@ export const Route = createFileRoute("/_authenticated/admin/accounts/factories")
     if (!currentUser || currentUser.role !== "admin") {
       throw redirect({ to: "/account", search: {} as any });
     }
-    throw redirect({ to: "/account", search: {} as any });
   },
   component: AccountStaffFactoriesPage,
 });
 
 type EditingAssignment = Partial<FactoryManagerRecord> & { staff?: string };
+
+function staffSearchFilter(search: string) {
+  const q = escapePb(search.trim());
+  const searchFilter = q
+    ? `(${["full_name", "username", "phone"].map((field) => `${field}~"${q}"`).join(" || ")})`
+    : "";
+  return ['role="staff"', searchFilter].filter(Boolean).join(" && ");
+}
 
 function formatDateRange(record: FactoryManagerRecord) {
   const from = record.active_from || "Ngay lập tức";
@@ -64,10 +78,32 @@ function formatDateRange(record: FactoryManagerRecord) {
   return `${from} -> ${to}`;
 }
 
+function buildAssignmentErrorMessage(error: any): string {
+  const data = error?.response?.data;
+  const fieldDetails =
+    data && typeof data === "object"
+      ? Object.entries(data)
+          .map(([field, value]: [string, any]) =>
+            value?.message ? `${field}: ${value.message}` : "",
+          )
+          .filter(Boolean)
+          .join("; ")
+      : "";
+  if (fieldDetails) return fieldDetails;
+
+  const rawMessage = error?.response?.message || error?.message || "";
+  if (/unique|Failed to create record|Failed to update record/i.test(rawMessage)) {
+    return "Nhà máy này đã được gán cho staff (trùng thời điểm hiệu lực). Hãy chỉnh 'Từ ngày' hoặc gỡ phân công cũ.";
+  }
+  if (rawMessage && rawMessage !== "Failed to create record.") return rawMessage;
+  return "Không lưu được phân công. Vui lòng kiểm tra staff, nhà máy và thời điểm hiệu lực.";
+}
+
 function AccountStaffFactoriesPage() {
   const currentUser = pb.authStore.record as UserRecord;
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [staffUsers, setStaffUsers] = useState<UserRecord[]>([]);
   const [factories, setFactories] = useState<FactoryRecord[]>([]);
   const [assignments, setAssignments] = useState<FactoryManagerRecord[]>([]);
@@ -79,12 +115,15 @@ function AccountStaffFactoriesPage() {
     setLoading(true);
     try {
       const [userRows, factoryRows, assignmentRows] = await Promise.all([
-        pb.collection("users").getFullList<UserRecord>({
-          filter: `role="staff"`,
-          sort: "full_name,username",
-        }),
-        fetchFactories(),
-        fetchFactoryManagers(),
+        pb
+          .collection("users")
+          .getList<UserRecord>(1, 200, {
+            filter: `${companyFilter(currentUser, "tenant_company")} && (${staffSearchFilter(debouncedSearch)})`,
+            sort: "full_name,username",
+          })
+          .then((res) => res.items),
+        fetchFactories(currentUser),
+        fetchFactoryManagers(undefined, currentUser),
       ]);
       setStaffUsers(userRows);
       setFactories(factoryRows);
@@ -98,7 +137,8 @@ function AccountStaffFactoriesPage() {
 
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
   const assignmentsByStaff = useMemo(() => {
     const map = new Map<string, FactoryManagerRecord[]>();
@@ -110,17 +150,7 @@ function AccountStaffFactoriesPage() {
     return map;
   }, [assignments]);
 
-  const filteredStaff = useMemo(() => {
-    const keyword = search.trim().toLowerCase();
-    if (!keyword) return staffUsers;
-    return staffUsers.filter((item) => {
-      const haystack = [item.full_name, item.username, item.phone, item.role]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(keyword);
-    });
-  }, [search, staffUsers]);
+  const filteredStaff = staffUsers;
 
   const totalAssignments = assignments.length;
   const activeAssignments = assignments.filter((item) => isFactoryAssignmentActive(item)).length;
@@ -162,49 +192,61 @@ function AccountStaffFactoriesPage() {
     const payload = {
       staff: editingAssignment.staff,
       factory: editingAssignment.factory,
-      active_from: editingAssignment.active_from || null,
-      active_to: editingAssignment.active_to || null,
+      active_from: editingAssignment.active_from || "",
+      active_to: editingAssignment.active_to || "",
       status: (editingAssignment.status as FactoryStatus) || "active",
       note: editingAssignment.note || "",
     };
 
+    const duplicate = assignments.find(
+      (assignment) =>
+        assignment.id !== editingAssignment.id &&
+        assignment.staff === payload.staff &&
+        assignment.factory === payload.factory &&
+        (assignment.active_from || "") === payload.active_from,
+    );
+    if (duplicate) {
+      toast.warning("Staff này đã được gán nhà máy với cùng thời điểm hiệu lực.");
+      return;
+    }
+
     try {
-      if (editingAssignment.id) {
-        await pb.collection("factory_managers").update(editingAssignment.id, payload);
-        await createStaffActionLog({
-          actor: currentUser,
-          targetCollection: "factory_managers",
-          targetRecord: editingAssignment.id,
-          action: "update",
-          after: payload,
-          note: "Admin cập nhật phân công nhà máy cho staff",
-        });
+      let recordId = editingAssignment.id;
+      if (recordId) {
+        await pb.collection("factory_managers").update(recordId, payload);
       } else {
-        const created = await pb.collection("factory_managers").create(payload);
-        await createStaffActionLog({
-          actor: currentUser,
-          targetCollection: "factory_managers",
-          targetRecord: created.id,
-          action: "create",
-          after: payload,
-          note: "Admin gán nhà máy cho staff",
-        });
+        const created = await pb
+          .collection("factory_managers")
+          .create({ ...payload, ...factoryManagerTenantPayload(currentUser) });
+        recordId = created.id;
       }
 
-      toast.success(
-        editingAssignment.id
-          ? "Đã cập nhật phân công"
-          : "Đã gán nhà máy cho staff",
-      );
+      toast.success(editingAssignment.id ? "Đã cập nhật phân công" : "Đã gán nhà máy cho staff");
       closePicker();
-      await load();
+      void load();
+
+      createStaffActionLog({
+        actor: currentUser,
+        targetCollection: "factory_managers",
+        targetRecord: recordId,
+        action: editingAssignment.id ? "update" : "create",
+        after: payload,
+        note: editingAssignment.id
+          ? "Admin cập nhật phân công nhà máy cho staff"
+          : "Admin gán nhà máy cho staff",
+      }).catch((logError) => console.warn("[factory-managers] audit log failed", logError));
     } catch (error: any) {
-      toast.error(error?.message || "Không lưu được phân công");
+      console.error("[factory-managers] save assignment failed", error);
+      toast.error(buildAssignmentErrorMessage(error));
     }
   };
 
   const deleteAssignment = async (assignment: FactoryManagerRecord) => {
-    if (!confirm(`Xóa quyền quản lý nhà máy "${assignment.expand?.factory?.name || assignment.factory}"?`)) {
+    if (
+      !confirm(
+        `Xóa quyền quản lý nhà máy "${assignment.expand?.factory?.name || assignment.factory}"?`,
+      )
+    ) {
       return;
     }
 
@@ -261,7 +303,7 @@ function AccountStaffFactoriesPage() {
       </div>
 
       {loading ? (
-        <Card className="rounded-2xl p-4 text-sm text-muted-foreground">Đang tải phân công...</Card>
+        <DataLoadingState variant="list" label="Đang tải phân công nhà máy..." rows={4} />
       ) : staffUsers.length === 0 ? (
         <EmptyState
           icon={Building2}
@@ -283,7 +325,9 @@ function AccountStaffFactoriesPage() {
         <div className="space-y-3">
           {filteredStaff.map((staff) => {
             const staffAssignments = assignmentsByStaff.get(staff.id) || [];
-            const activeCount = staffAssignments.filter((item) => isFactoryAssignmentActive(item)).length;
+            const activeCount = staffAssignments.filter((item) =>
+              isFactoryAssignmentActive(item),
+            ).length;
 
             return (
               <Card key={staff.id} className="space-y-3 rounded-2xl p-4 shadow-soft">
@@ -293,7 +337,8 @@ function AccountStaffFactoriesPage() {
                       {staff.full_name || staff.username || "Chưa có tên"}
                     </div>
                     <div className="mt-0.5 text-[11px] text-muted-foreground">
-                      @{staff.username || "chưa có username"} · {staff.phone || "chưa có số điện thoại"}
+                      @{staff.username || "chưa có username"} ·{" "}
+                      {staff.phone || "chưa có số điện thoại"}
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
@@ -402,63 +447,45 @@ function AccountStaffFactoriesPage() {
               {editingAssignment?.id ? "Sửa phân công nhà máy" : "Gán nhà máy cho staff"}
             </DialogTitle>
             <DialogDescription>
-              Mỗi staff có thể được gán nhiều nhà máy. Phạm vi quyền hạn chi tiết sẽ được nâng cấp sau.
+              Mỗi staff có thể được gán nhiều nhà máy. Phạm vi quyền hạn chi tiết sẽ được nâng cấp
+              sau.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3">
             <div className="space-y-1.5">
               <Label className="text-xs">Staff</Label>
-              <Select
+              <UserPicker
+                users={staffUsers}
                 value={editingAssignment?.staff || selectedStaffId || ""}
-                onValueChange={(value) =>
+                onChange={(value) =>
                   setEditingAssignment((current) => ({ ...(current || {}), staff: value }))
                 }
-              >
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Chọn staff" />
-                </SelectTrigger>
-                <SelectContent>
-                  {staffUsers.map((staff) => (
-                    <SelectItem key={staff.id} value={staff.id}>
-                      {staff.full_name || staff.username || staff.id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Chọn staff"
+              />
             </div>
 
             <div className="space-y-1.5">
               <Label className="text-xs">Nhà máy</Label>
-              <Select
+              <FactoryPicker
+                factories={factories}
                 value={editingAssignment?.factory || ""}
-                onValueChange={(value) =>
+                onChange={(value) =>
                   setEditingAssignment((current) => ({ ...(current || {}), factory: value }))
                 }
-              >
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Chọn nhà máy" />
-                </SelectTrigger>
-                <SelectContent>
-                  {factories.map((factory) => (
-                    <SelectItem key={factory.id} value={factory.id}>
-                      {factory.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                triggerClassName="rounded-xl"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Từ ngày</Label>
-                <Input
-                  type="date"
+                <DateInput
                   value={editingAssignment?.active_from || ""}
-                  onChange={(event) =>
+                  onChange={(v) =>
                     setEditingAssignment((current) => ({
                       ...(current || {}),
-                      active_from: event.target.value,
+                      active_from: v,
                     }))
                   }
                   className="rounded-xl"
@@ -466,13 +493,12 @@ function AccountStaffFactoriesPage() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Đến ngày</Label>
-                <Input
-                  type="date"
+                <DateInput
                   value={editingAssignment?.active_to || ""}
-                  onChange={(event) =>
+                  onChange={(v) =>
                     setEditingAssignment((current) => ({
                       ...(current || {}),
-                      active_to: event.target.value,
+                      active_to: v,
                     }))
                   }
                   className="rounded-xl"
@@ -506,7 +532,10 @@ function AccountStaffFactoriesPage() {
               <Input
                 value={editingAssignment?.note || ""}
                 onChange={(event) =>
-                  setEditingAssignment((current) => ({ ...(current || {}), note: event.target.value }))
+                  setEditingAssignment((current) => ({
+                    ...(current || {}),
+                    note: event.target.value,
+                  }))
                 }
                 className="rounded-xl"
                 placeholder="Ví dụ: phụ trách ca sáng, phụ trách tạm thời..."

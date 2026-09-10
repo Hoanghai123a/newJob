@@ -10,45 +10,90 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as PendingRouteImport } from './routes/pending'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedTransportRouteImport } from './routes/_authenticated/transport'
+import { Route as ApiUidCounterRouteImport } from './routes/api/uid-counter'
+import { Route as ApiTenantCompanyRouteImport } from './routes/api/tenant-company'
+import { Route as ApiEmploymentHistoriesRouteImport } from './routes/api/employment-histories'
+import { Route as AuthenticatedWorkHistoryRouteImport } from './routes/_authenticated/work-history'
+import { Route as AuthenticatedWorkRouteImport } from './routes/_authenticated/work'
+import { Route as AuthenticatedUserGuideRouteImport } from './routes/_authenticated/user-guide'
+import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
+import { Route as AuthenticatedNotebookRouteImport } from './routes/_authenticated/notebook'
 import { Route as AuthenticatedNewsRouteImport } from './routes/_authenticated/news'
-import { Route as AuthenticatedGuidesRouteImport } from './routes/_authenticated/guides'
-import { Route as AuthenticatedComplaintsRouteImport } from './routes/_authenticated/complaints'
+import { Route as AuthenticatedLastWorkingDayRouteImport } from './routes/_authenticated/last-working-day'
+import { Route as AuthenticatedForceChangePasswordRouteImport } from './routes/_authenticated/force-change-password'
+import { Route as AuthenticatedExchangeRouteImport } from './routes/_authenticated/exchange'
+import { Route as AuthenticatedCounterRouteImport } from './routes/_authenticated/counter'
 import { Route as AuthenticatedCheckAttendanceRouteImport } from './routes/_authenticated/check-attendance'
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
-import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedAdvancesRouteImport } from './routes/_authenticated/advances'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedStaffIndexRouteImport } from './routes/_authenticated/staff.index'
+import { Route as ApiWorkforceLookupsRouteImport } from './routes/api/workforce/lookups'
+import { Route as ApiWorkforceDashboardRouteImport } from './routes/api/workforce/dashboard'
+import { Route as ApiSuperAdminSystemLogoRouteImport } from './routes/api/super-admin/system-logo'
+import { Route as ApiSuperAdminCompaniesRouteImport } from './routes/api/super-admin/companies'
+import { Route as ApiStaffExportRouteImport } from './routes/api/staff/export'
+import { Route as ApiPublicTenantStatusRouteImport } from './routes/api/public/tenant-status'
 import { Route as ApiPublicPocketbaseAuthRouteImport } from './routes/api/public/pocketbase-auth'
+import { Route as ApiPublicForceChangePasswordRouteImport } from './routes/api/public/force-change-password'
+import { Route as ApiPublicCompanyCodeRouteImport } from './routes/api/public/company-code'
 import { Route as ApiPublicAppLogoRouteImport } from './routes/api/public/app-logo'
+import { Route as ApiPublicAppIcon512RouteImport } from './routes/api/public/app-icon-512'
+import { Route as ApiPublicAppIcon192RouteImport } from './routes/api/public/app-icon-192'
 import { Route as ApiPublicAppIconRouteImport } from './routes/api/public/app-icon'
-import { Route as AuthenticatedStaffWorkersRouteImport } from './routes/_authenticated/staff.workers'
+import { Route as ApiEmploymentHistoriesCapacityRouteImport } from './routes/api/employment-histories.capacity'
+import { Route as ApiCompanyLoginContextRouteImport } from './routes/api/company/login-context'
+import { Route as ApiAdvancesHydrateRequestersRouteImport } from './routes/api/advances/hydrate-requesters'
+import { Route as ApiAdminCompanyRecordsRouteImport } from './routes/api/admin/company-records'
+import { Route as AuthenticatedStaffWorkforceRouteImport } from './routes/_authenticated/staff.workforce'
+import { Route as AuthenticatedStaffToolsRouteImport } from './routes/_authenticated/staff.tools'
+import { Route as AuthenticatedStaffSalaryHoldsRouteImport } from './routes/_authenticated/staff.salary-holds'
+import { Route as AuthenticatedStaffRecruitedRouteImport } from './routes/_authenticated/staff.recruited'
+import { Route as AuthenticatedStaffMoneyToTextRouteImport } from './routes/_authenticated/staff.money-to-text'
+import { Route as AuthenticatedStaffHourStatsRouteImport } from './routes/_authenticated/staff.hour-stats'
 import { Route as AuthenticatedStaffExportRouteImport } from './routes/_authenticated/staff.export'
+import { Route as AuthenticatedStaffApprovalsRouteImport } from './routes/_authenticated/staff.approvals'
+import { Route as AuthenticatedStaffAdvancesRouteImport } from './routes/_authenticated/staff.advances'
+import { Route as AuthenticatedAdminWorkforceRouteImport } from './routes/_authenticated/admin/workforce'
+import { Route as AuthenticatedAdminWorkProgressRouteImport } from './routes/_authenticated/admin/work-progress'
+import { Route as AuthenticatedAdminStaffRouteImport } from './routes/_authenticated/admin/staff'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminManageRouteImport } from './routes/_authenticated/admin/manage'
+import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin/logs'
 import { Route as AuthenticatedAdminImportsRouteImport } from './routes/_authenticated/admin/imports'
 import { Route as AuthenticatedAdminApprovalsRouteImport } from './routes/_authenticated/admin/approvals'
 import { Route as AuthenticatedAdminAccountsRouteImport } from './routes/_authenticated/admin/accounts'
+import { Route as AuthenticatedStaffWorkersIndexRouteImport } from './routes/_authenticated/staff.workers.index'
+import { Route as AuthenticatedStaffToolsIndexRouteImport } from './routes/_authenticated/staff.tools.index'
+import { Route as AuthenticatedAdminStaffIndexRouteImport } from './routes/_authenticated/admin/staff.index'
+import { Route as AuthenticatedAdminAccountsIndexRouteImport } from './routes/_authenticated/admin/accounts.index'
+import { Route as ApiSuperAdminCompaniesImportRouteImport } from './routes/api/super-admin/companies.import'
+import { Route as ApiSuperAdminCompaniesCompanyIdRouteImport } from './routes/api/super-admin/companies.$companyId'
 import { Route as ApiPublicPbSplatRouteImport } from './routes/api/public/pb.$'
 import { Route as ApiPublicManifestWebmanifestRouteImport } from './routes/api/public/manifest.webmanifest'
 import { Route as AuthenticatedStaffWorkersWorkerIdRouteImport } from './routes/_authenticated/staff.workers.$workerId'
+import { Route as AuthenticatedStaffToolsQrRouteImport } from './routes/_authenticated/staff.tools.qr'
+import { Route as AuthenticatedAdminAccountsStatsRouteImport } from './routes/_authenticated/admin/accounts.stats'
 import { Route as AuthenticatedAdminAccountsLogsRouteImport } from './routes/_authenticated/admin/accounts.logs'
 import { Route as AuthenticatedAdminAccountsFactoriesRouteImport } from './routes/_authenticated/admin/accounts.factories'
+import { Route as ApiSuperAdminCompaniesImportPreviewRouteImport } from './routes/api/super-admin/companies.import.preview'
+import { Route as ApiSuperAdminCompaniesCompanyIdPurgeRouteImport } from './routes/api/super-admin/companies.$companyId.purge'
+import { Route as ApiSuperAdminCompaniesCompanyIdLogoRouteImport } from './routes/api/super-admin/companies.$companyId.logo'
+import { Route as ApiSuperAdminCompaniesCompanyIdExportRouteImport } from './routes/api/super-admin/companies.$companyId.export'
+import { Route as ApiSuperAdminCompaniesCompanyIdAdminsRouteImport } from './routes/api/super-admin/companies.$companyId.admins'
+import { Route as ApiAdminWorkersWorkerIdDeleteRouteImport } from './routes/api/admin/workers.$workerId.delete'
+import { Route as ApiAdminStaffStaffIdPromoteRouteImport } from './routes/api/admin/staff.$staffId.promote'
+import { Route as AuthenticatedStaffWorkersWorkerIdPayrollRouteImport } from './routes/_authenticated/staff.workers.$workerId_.payroll'
+import { Route as ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRouteImport } from './routes/api/super-admin/companies.$companyId.admins.$adminId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PendingRoute = PendingRouteImport.update({
-  id: '/pending',
-  path: '/pending',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -70,9 +115,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedTransportRoute = AuthenticatedTransportRouteImport.update({
-  id: '/transport',
-  path: '/transport',
+const ApiUidCounterRoute = ApiUidCounterRouteImport.update({
+  id: '/api/uid-counter',
+  path: '/api/uid-counter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTenantCompanyRoute = ApiTenantCompanyRouteImport.update({
+  id: '/api/tenant-company',
+  path: '/api/tenant-company',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEmploymentHistoriesRoute = ApiEmploymentHistoriesRouteImport.update({
+  id: '/api/employment-histories',
+  path: '/api/employment-histories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWorkHistoryRoute =
+  AuthenticatedWorkHistoryRouteImport.update({
+    id: '/work-history',
+    path: '/work-history',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedWorkRoute = AuthenticatedWorkRouteImport.update({
+  id: '/work',
+  path: '/work',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedUserGuideRoute = AuthenticatedUserGuideRouteImport.update({
+  id: '/user-guide',
+  path: '/user-guide',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSuperAdminRoute = AuthenticatedSuperAdminRouteImport.update({
+  id: '/super-admin',
+  path: '/super-admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
@@ -80,19 +156,36 @@ const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
   path: '/staff',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedNotebookRoute = AuthenticatedNotebookRouteImport.update({
+  id: '/notebook',
+  path: '/notebook',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedNewsRoute = AuthenticatedNewsRouteImport.update({
   id: '/news',
   path: '/news',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedGuidesRoute = AuthenticatedGuidesRouteImport.update({
-  id: '/guides',
-  path: '/guides',
+const AuthenticatedLastWorkingDayRoute =
+  AuthenticatedLastWorkingDayRouteImport.update({
+    id: '/last-working-day',
+    path: '/last-working-day',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedForceChangePasswordRoute =
+  AuthenticatedForceChangePasswordRouteImport.update({
+    id: '/force-change-password',
+    path: '/force-change-password',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedExchangeRoute = AuthenticatedExchangeRouteImport.update({
+  id: '/exchange',
+  path: '/exchange',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedComplaintsRoute = AuthenticatedComplaintsRouteImport.update({
-  id: '/complaints',
-  path: '/complaints',
+const AuthenticatedCounterRoute = AuthenticatedCounterRouteImport.update({
+  id: '/counter',
+  path: '/counter',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCheckAttendanceRoute =
@@ -104,11 +197,6 @@ const AuthenticatedCheckAttendanceRoute =
 const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
   id: '/chat',
   path: '/chat',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
-  id: '/attendance',
-  path: '/attendance',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAdvancesRoute = AuthenticatedAdvancesRouteImport.update({
@@ -126,9 +214,50 @@ const AuthenticatedStaffIndexRoute = AuthenticatedStaffIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedStaffRoute,
 } as any)
+const ApiWorkforceLookupsRoute = ApiWorkforceLookupsRouteImport.update({
+  id: '/api/workforce/lookups',
+  path: '/api/workforce/lookups',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWorkforceDashboardRoute = ApiWorkforceDashboardRouteImport.update({
+  id: '/api/workforce/dashboard',
+  path: '/api/workforce/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSuperAdminSystemLogoRoute = ApiSuperAdminSystemLogoRouteImport.update({
+  id: '/api/super-admin/system-logo',
+  path: '/api/super-admin/system-logo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSuperAdminCompaniesRoute = ApiSuperAdminCompaniesRouteImport.update({
+  id: '/api/super-admin/companies',
+  path: '/api/super-admin/companies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStaffExportRoute = ApiStaffExportRouteImport.update({
+  id: '/api/staff/export',
+  path: '/api/staff/export',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTenantStatusRoute = ApiPublicTenantStatusRouteImport.update({
+  id: '/api/public/tenant-status',
+  path: '/api/public/tenant-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPocketbaseAuthRoute = ApiPublicPocketbaseAuthRouteImport.update({
   id: '/api/public/pocketbase-auth',
   path: '/api/public/pocketbase-auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicForceChangePasswordRoute =
+  ApiPublicForceChangePasswordRouteImport.update({
+    id: '/api/public/force-change-password',
+    path: '/api/public/force-change-password',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCompanyCodeRoute = ApiPublicCompanyCodeRouteImport.update({
+  id: '/api/public/company-code',
+  path: '/api/public/company-code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAppLogoRoute = ApiPublicAppLogoRouteImport.update({
@@ -136,15 +265,76 @@ const ApiPublicAppLogoRoute = ApiPublicAppLogoRouteImport.update({
   path: '/api/public/app-logo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAppIcon512Route = ApiPublicAppIcon512RouteImport.update({
+  id: '/api/public/app-icon-512',
+  path: '/api/public/app-icon-512',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAppIcon192Route = ApiPublicAppIcon192RouteImport.update({
+  id: '/api/public/app-icon-192',
+  path: '/api/public/app-icon-192',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicAppIconRoute = ApiPublicAppIconRouteImport.update({
   id: '/api/public/app-icon',
   path: '/api/public/app-icon',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedStaffWorkersRoute =
-  AuthenticatedStaffWorkersRouteImport.update({
-    id: '/workers',
-    path: '/workers',
+const ApiEmploymentHistoriesCapacityRoute =
+  ApiEmploymentHistoriesCapacityRouteImport.update({
+    id: '/capacity',
+    path: '/capacity',
+    getParentRoute: () => ApiEmploymentHistoriesRoute,
+  } as any)
+const ApiCompanyLoginContextRoute = ApiCompanyLoginContextRouteImport.update({
+  id: '/api/company/login-context',
+  path: '/api/company/login-context',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdvancesHydrateRequestersRoute =
+  ApiAdvancesHydrateRequestersRouteImport.update({
+    id: '/api/advances/hydrate-requesters',
+    path: '/api/advances/hydrate-requesters',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminCompanyRecordsRoute = ApiAdminCompanyRecordsRouteImport.update({
+  id: '/api/admin/company-records',
+  path: '/api/admin/company-records',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedStaffWorkforceRoute =
+  AuthenticatedStaffWorkforceRouteImport.update({
+    id: '/workforce',
+    path: '/workforce',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedStaffToolsRoute = AuthenticatedStaffToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => AuthenticatedStaffRoute,
+} as any)
+const AuthenticatedStaffSalaryHoldsRoute =
+  AuthenticatedStaffSalaryHoldsRouteImport.update({
+    id: '/salary-holds',
+    path: '/salary-holds',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedStaffRecruitedRoute =
+  AuthenticatedStaffRecruitedRouteImport.update({
+    id: '/recruited',
+    path: '/recruited',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedStaffMoneyToTextRoute =
+  AuthenticatedStaffMoneyToTextRouteImport.update({
+    id: '/money-to-text',
+    path: '/money-to-text',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedStaffHourStatsRoute =
+  AuthenticatedStaffHourStatsRouteImport.update({
+    id: '/hour-stats',
+    path: '/hour-stats',
     getParentRoute: () => AuthenticatedStaffRoute,
   } as any)
 const AuthenticatedStaffExportRoute =
@@ -153,12 +343,52 @@ const AuthenticatedStaffExportRoute =
     path: '/export',
     getParentRoute: () => AuthenticatedStaffRoute,
   } as any)
+const AuthenticatedStaffApprovalsRoute =
+  AuthenticatedStaffApprovalsRouteImport.update({
+    id: '/approvals',
+    path: '/approvals',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedStaffAdvancesRoute =
+  AuthenticatedStaffAdvancesRouteImport.update({
+    id: '/advances',
+    path: '/advances',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedAdminWorkforceRoute =
+  AuthenticatedAdminWorkforceRouteImport.update({
+    id: '/admin/workforce',
+    path: '/admin/workforce',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminWorkProgressRoute =
+  AuthenticatedAdminWorkProgressRouteImport.update({
+    id: '/admin/work-progress',
+    path: '/admin/work-progress',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminStaffRoute = AuthenticatedAdminStaffRouteImport.update({
+  id: '/admin/staff',
+  path: '/admin/staff',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/admin/settings',
     path: '/admin/settings',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAdminManageRoute =
+  AuthenticatedAdminManageRouteImport.update({
+    id: '/admin/manage',
+    path: '/admin/manage',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminLogsRoute = AuthenticatedAdminLogsRouteImport.update({
+  id: '/admin/logs',
+  path: '/admin/logs',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAdminImportsRoute =
   AuthenticatedAdminImportsRouteImport.update({
     id: '/admin/imports',
@@ -177,6 +407,42 @@ const AuthenticatedAdminAccountsRoute =
     path: '/admin/accounts',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedStaffWorkersIndexRoute =
+  AuthenticatedStaffWorkersIndexRouteImport.update({
+    id: '/workers/',
+    path: '/workers/',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedStaffToolsIndexRoute =
+  AuthenticatedStaffToolsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedStaffToolsRoute,
+  } as any)
+const AuthenticatedAdminStaffIndexRoute =
+  AuthenticatedAdminStaffIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminStaffRoute,
+  } as any)
+const AuthenticatedAdminAccountsIndexRoute =
+  AuthenticatedAdminAccountsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminAccountsRoute,
+  } as any)
+const ApiSuperAdminCompaniesImportRoute =
+  ApiSuperAdminCompaniesImportRouteImport.update({
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => ApiSuperAdminCompaniesRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdRoute =
+  ApiSuperAdminCompaniesCompanyIdRouteImport.update({
+    id: '/$companyId',
+    path: '/$companyId',
+    getParentRoute: () => ApiSuperAdminCompaniesRoute,
+  } as any)
 const ApiPublicPbSplatRoute = ApiPublicPbSplatRouteImport.update({
   id: '/api/public/pb/$',
   path: '/api/public/pb/$',
@@ -190,9 +456,21 @@ const ApiPublicManifestWebmanifestRoute =
   } as any)
 const AuthenticatedStaffWorkersWorkerIdRoute =
   AuthenticatedStaffWorkersWorkerIdRouteImport.update({
-    id: '/$workerId',
-    path: '/$workerId',
-    getParentRoute: () => AuthenticatedStaffWorkersRoute,
+    id: '/workers/$workerId',
+    path: '/workers/$workerId',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const AuthenticatedStaffToolsQrRoute =
+  AuthenticatedStaffToolsQrRouteImport.update({
+    id: '/qr',
+    path: '/qr',
+    getParentRoute: () => AuthenticatedStaffToolsRoute,
+  } as any)
+const AuthenticatedAdminAccountsStatsRoute =
+  AuthenticatedAdminAccountsStatsRouteImport.update({
+    id: '/stats',
+    path: '/stats',
+    getParentRoute: () => AuthenticatedAdminAccountsRoute,
   } as any)
 const AuthenticatedAdminAccountsLogsRoute =
   AuthenticatedAdminAccountsLogsRouteImport.update({
@@ -206,69 +484,220 @@ const AuthenticatedAdminAccountsFactoriesRoute =
     path: '/factories',
     getParentRoute: () => AuthenticatedAdminAccountsRoute,
   } as any)
+const ApiSuperAdminCompaniesImportPreviewRoute =
+  ApiSuperAdminCompaniesImportPreviewRouteImport.update({
+    id: '/preview',
+    path: '/preview',
+    getParentRoute: () => ApiSuperAdminCompaniesImportRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdPurgeRoute =
+  ApiSuperAdminCompaniesCompanyIdPurgeRouteImport.update({
+    id: '/purge',
+    path: '/purge',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdLogoRoute =
+  ApiSuperAdminCompaniesCompanyIdLogoRouteImport.update({
+    id: '/logo',
+    path: '/logo',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdExportRoute =
+  ApiSuperAdminCompaniesCompanyIdExportRouteImport.update({
+    id: '/export',
+    path: '/export',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdAdminsRoute =
+  ApiSuperAdminCompaniesCompanyIdAdminsRouteImport.update({
+    id: '/admins',
+    path: '/admins',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdRoute,
+  } as any)
+const ApiAdminWorkersWorkerIdDeleteRoute =
+  ApiAdminWorkersWorkerIdDeleteRouteImport.update({
+    id: '/api/admin/workers/$workerId/delete',
+    path: '/api/admin/workers/$workerId/delete',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminStaffStaffIdPromoteRoute =
+  ApiAdminStaffStaffIdPromoteRouteImport.update({
+    id: '/api/admin/staff/$staffId/promote',
+    path: '/api/admin/staff/$staffId/promote',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedStaffWorkersWorkerIdPayrollRoute =
+  AuthenticatedStaffWorkersWorkerIdPayrollRouteImport.update({
+    id: '/workers/$workerId_/payroll',
+    path: '/workers/$workerId/payroll',
+    getParentRoute: () => AuthenticatedStaffRoute,
+  } as any)
+const ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute =
+  ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRouteImport.update({
+    id: '/$adminId',
+    path: '/$adminId',
+    getParentRoute: () => ApiSuperAdminCompaniesCompanyIdAdminsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pending': typeof PendingRoute
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
   '/advances': typeof AuthenticatedAdvancesRoute
-  '/attendance': typeof AuthenticatedAttendanceRoute
   '/chat': typeof AuthenticatedChatRoute
   '/check-attendance': typeof AuthenticatedCheckAttendanceRoute
-  '/complaints': typeof AuthenticatedComplaintsRoute
-  '/guides': typeof AuthenticatedGuidesRoute
+  '/counter': typeof AuthenticatedCounterRoute
+  '/exchange': typeof AuthenticatedExchangeRoute
+  '/force-change-password': typeof AuthenticatedForceChangePasswordRoute
+  '/last-working-day': typeof AuthenticatedLastWorkingDayRoute
   '/news': typeof AuthenticatedNewsRoute
+  '/notebook': typeof AuthenticatedNotebookRoute
   '/staff': typeof AuthenticatedStaffRouteWithChildren
-  '/transport': typeof AuthenticatedTransportRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
+  '/user-guide': typeof AuthenticatedUserGuideRoute
+  '/work': typeof AuthenticatedWorkRoute
+  '/work-history': typeof AuthenticatedWorkHistoryRoute
+  '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
+  '/api/tenant-company': typeof ApiTenantCompanyRoute
+  '/api/uid-counter': typeof ApiUidCounterRoute
   '/admin/accounts': typeof AuthenticatedAdminAccountsRouteWithChildren
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/imports': typeof AuthenticatedAdminImportsRoute
+  '/admin/logs': typeof AuthenticatedAdminLogsRoute
+  '/admin/manage': typeof AuthenticatedAdminManageRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/staff': typeof AuthenticatedAdminStaffRouteWithChildren
+  '/admin/work-progress': typeof AuthenticatedAdminWorkProgressRoute
+  '/admin/workforce': typeof AuthenticatedAdminWorkforceRoute
+  '/staff/advances': typeof AuthenticatedStaffAdvancesRoute
+  '/staff/approvals': typeof AuthenticatedStaffApprovalsRoute
   '/staff/export': typeof AuthenticatedStaffExportRoute
-  '/staff/workers': typeof AuthenticatedStaffWorkersRouteWithChildren
+  '/staff/hour-stats': typeof AuthenticatedStaffHourStatsRoute
+  '/staff/money-to-text': typeof AuthenticatedStaffMoneyToTextRoute
+  '/staff/recruited': typeof AuthenticatedStaffRecruitedRoute
+  '/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
+  '/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
+  '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
+  '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
+  '/api/company/login-context': typeof ApiCompanyLoginContextRoute
+  '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
+  '/api/public/app-icon-192': typeof ApiPublicAppIcon192Route
+  '/api/public/app-icon-512': typeof ApiPublicAppIcon512Route
   '/api/public/app-logo': typeof ApiPublicAppLogoRoute
+  '/api/public/company-code': typeof ApiPublicCompanyCodeRoute
+  '/api/public/force-change-password': typeof ApiPublicForceChangePasswordRoute
   '/api/public/pocketbase-auth': typeof ApiPublicPocketbaseAuthRoute
+  '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
+  '/api/staff/export': typeof ApiStaffExportRoute
+  '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
+  '/api/super-admin/system-logo': typeof ApiSuperAdminSystemLogoRoute
+  '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
+  '/api/workforce/lookups': typeof ApiWorkforceLookupsRoute
   '/staff/': typeof AuthenticatedStaffIndexRoute
   '/admin/accounts/factories': typeof AuthenticatedAdminAccountsFactoriesRoute
   '/admin/accounts/logs': typeof AuthenticatedAdminAccountsLogsRoute
+  '/admin/accounts/stats': typeof AuthenticatedAdminAccountsStatsRoute
+  '/staff/tools/qr': typeof AuthenticatedStaffToolsQrRoute
   '/staff/workers/$workerId': typeof AuthenticatedStaffWorkersWorkerIdRoute
   '/api/public/manifest/webmanifest': typeof ApiPublicManifestWebmanifestRoute
   '/api/public/pb/$': typeof ApiPublicPbSplatRoute
+  '/api/super-admin/companies/$companyId': typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  '/api/super-admin/companies/import': typeof ApiSuperAdminCompaniesImportRouteWithChildren
+  '/admin/accounts/': typeof AuthenticatedAdminAccountsIndexRoute
+  '/admin/staff/': typeof AuthenticatedAdminStaffIndexRoute
+  '/staff/tools/': typeof AuthenticatedStaffToolsIndexRoute
+  '/staff/workers/': typeof AuthenticatedStaffWorkersIndexRoute
+  '/staff/workers/$workerId/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
+  '/api/admin/staff/$staffId/promote': typeof ApiAdminStaffStaffIdPromoteRoute
+  '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
+  '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/logo': typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
+  '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
+  '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
+  '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pending': typeof PendingRoute
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
   '/advances': typeof AuthenticatedAdvancesRoute
-  '/attendance': typeof AuthenticatedAttendanceRoute
   '/chat': typeof AuthenticatedChatRoute
   '/check-attendance': typeof AuthenticatedCheckAttendanceRoute
-  '/complaints': typeof AuthenticatedComplaintsRoute
-  '/guides': typeof AuthenticatedGuidesRoute
+  '/counter': typeof AuthenticatedCounterRoute
+  '/exchange': typeof AuthenticatedExchangeRoute
+  '/force-change-password': typeof AuthenticatedForceChangePasswordRoute
+  '/last-working-day': typeof AuthenticatedLastWorkingDayRoute
   '/news': typeof AuthenticatedNewsRoute
-  '/transport': typeof AuthenticatedTransportRoute
-  '/admin/accounts': typeof AuthenticatedAdminAccountsRouteWithChildren
+  '/notebook': typeof AuthenticatedNotebookRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
+  '/user-guide': typeof AuthenticatedUserGuideRoute
+  '/work': typeof AuthenticatedWorkRoute
+  '/work-history': typeof AuthenticatedWorkHistoryRoute
+  '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
+  '/api/tenant-company': typeof ApiTenantCompanyRoute
+  '/api/uid-counter': typeof ApiUidCounterRoute
   '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/imports': typeof AuthenticatedAdminImportsRoute
+  '/admin/logs': typeof AuthenticatedAdminLogsRoute
+  '/admin/manage': typeof AuthenticatedAdminManageRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/work-progress': typeof AuthenticatedAdminWorkProgressRoute
+  '/admin/workforce': typeof AuthenticatedAdminWorkforceRoute
+  '/staff/advances': typeof AuthenticatedStaffAdvancesRoute
+  '/staff/approvals': typeof AuthenticatedStaffApprovalsRoute
   '/staff/export': typeof AuthenticatedStaffExportRoute
-  '/staff/workers': typeof AuthenticatedStaffWorkersRouteWithChildren
+  '/staff/hour-stats': typeof AuthenticatedStaffHourStatsRoute
+  '/staff/money-to-text': typeof AuthenticatedStaffMoneyToTextRoute
+  '/staff/recruited': typeof AuthenticatedStaffRecruitedRoute
+  '/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
+  '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
+  '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
+  '/api/company/login-context': typeof ApiCompanyLoginContextRoute
+  '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
+  '/api/public/app-icon-192': typeof ApiPublicAppIcon192Route
+  '/api/public/app-icon-512': typeof ApiPublicAppIcon512Route
   '/api/public/app-logo': typeof ApiPublicAppLogoRoute
+  '/api/public/company-code': typeof ApiPublicCompanyCodeRoute
+  '/api/public/force-change-password': typeof ApiPublicForceChangePasswordRoute
   '/api/public/pocketbase-auth': typeof ApiPublicPocketbaseAuthRoute
+  '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
+  '/api/staff/export': typeof ApiStaffExportRoute
+  '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
+  '/api/super-admin/system-logo': typeof ApiSuperAdminSystemLogoRoute
+  '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
+  '/api/workforce/lookups': typeof ApiWorkforceLookupsRoute
   '/staff': typeof AuthenticatedStaffIndexRoute
   '/admin/accounts/factories': typeof AuthenticatedAdminAccountsFactoriesRoute
   '/admin/accounts/logs': typeof AuthenticatedAdminAccountsLogsRoute
+  '/admin/accounts/stats': typeof AuthenticatedAdminAccountsStatsRoute
+  '/staff/tools/qr': typeof AuthenticatedStaffToolsQrRoute
   '/staff/workers/$workerId': typeof AuthenticatedStaffWorkersWorkerIdRoute
   '/api/public/manifest/webmanifest': typeof ApiPublicManifestWebmanifestRoute
   '/api/public/pb/$': typeof ApiPublicPbSplatRoute
+  '/api/super-admin/companies/$companyId': typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  '/api/super-admin/companies/import': typeof ApiSuperAdminCompaniesImportRouteWithChildren
+  '/admin/accounts': typeof AuthenticatedAdminAccountsIndexRoute
+  '/admin/staff': typeof AuthenticatedAdminStaffIndexRoute
+  '/staff/tools': typeof AuthenticatedStaffToolsIndexRoute
+  '/staff/workers': typeof AuthenticatedStaffWorkersIndexRoute
+  '/staff/workers/$workerId/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
+  '/api/admin/staff/$staffId/promote': typeof ApiAdminStaffStaffIdPromoteRoute
+  '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
+  '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/logo': typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
+  '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
+  '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
+  '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -276,33 +705,83 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
-  '/pending': typeof PendingRoute
   '/register': typeof RegisterRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/advances': typeof AuthenticatedAdvancesRoute
-  '/_authenticated/attendance': typeof AuthenticatedAttendanceRoute
   '/_authenticated/chat': typeof AuthenticatedChatRoute
   '/_authenticated/check-attendance': typeof AuthenticatedCheckAttendanceRoute
-  '/_authenticated/complaints': typeof AuthenticatedComplaintsRoute
-  '/_authenticated/guides': typeof AuthenticatedGuidesRoute
+  '/_authenticated/counter': typeof AuthenticatedCounterRoute
+  '/_authenticated/exchange': typeof AuthenticatedExchangeRoute
+  '/_authenticated/force-change-password': typeof AuthenticatedForceChangePasswordRoute
+  '/_authenticated/last-working-day': typeof AuthenticatedLastWorkingDayRoute
   '/_authenticated/news': typeof AuthenticatedNewsRoute
+  '/_authenticated/notebook': typeof AuthenticatedNotebookRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRouteWithChildren
-  '/_authenticated/transport': typeof AuthenticatedTransportRoute
+  '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
+  '/_authenticated/user-guide': typeof AuthenticatedUserGuideRoute
+  '/_authenticated/work': typeof AuthenticatedWorkRoute
+  '/_authenticated/work-history': typeof AuthenticatedWorkHistoryRoute
+  '/api/employment-histories': typeof ApiEmploymentHistoriesRouteWithChildren
+  '/api/tenant-company': typeof ApiTenantCompanyRoute
+  '/api/uid-counter': typeof ApiUidCounterRoute
   '/_authenticated/admin/accounts': typeof AuthenticatedAdminAccountsRouteWithChildren
   '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/_authenticated/admin/imports': typeof AuthenticatedAdminImportsRoute
+  '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
+  '/_authenticated/admin/manage': typeof AuthenticatedAdminManageRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/staff': typeof AuthenticatedAdminStaffRouteWithChildren
+  '/_authenticated/admin/work-progress': typeof AuthenticatedAdminWorkProgressRoute
+  '/_authenticated/admin/workforce': typeof AuthenticatedAdminWorkforceRoute
+  '/_authenticated/staff/advances': typeof AuthenticatedStaffAdvancesRoute
+  '/_authenticated/staff/approvals': typeof AuthenticatedStaffApprovalsRoute
   '/_authenticated/staff/export': typeof AuthenticatedStaffExportRoute
-  '/_authenticated/staff/workers': typeof AuthenticatedStaffWorkersRouteWithChildren
+  '/_authenticated/staff/hour-stats': typeof AuthenticatedStaffHourStatsRoute
+  '/_authenticated/staff/money-to-text': typeof AuthenticatedStaffMoneyToTextRoute
+  '/_authenticated/staff/recruited': typeof AuthenticatedStaffRecruitedRoute
+  '/_authenticated/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
+  '/_authenticated/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
+  '/_authenticated/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
+  '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
+  '/api/company/login-context': typeof ApiCompanyLoginContextRoute
+  '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
   '/api/public/app-icon': typeof ApiPublicAppIconRoute
+  '/api/public/app-icon-192': typeof ApiPublicAppIcon192Route
+  '/api/public/app-icon-512': typeof ApiPublicAppIcon512Route
   '/api/public/app-logo': typeof ApiPublicAppLogoRoute
+  '/api/public/company-code': typeof ApiPublicCompanyCodeRoute
+  '/api/public/force-change-password': typeof ApiPublicForceChangePasswordRoute
   '/api/public/pocketbase-auth': typeof ApiPublicPocketbaseAuthRoute
+  '/api/public/tenant-status': typeof ApiPublicTenantStatusRoute
+  '/api/staff/export': typeof ApiStaffExportRoute
+  '/api/super-admin/companies': typeof ApiSuperAdminCompaniesRouteWithChildren
+  '/api/super-admin/system-logo': typeof ApiSuperAdminSystemLogoRoute
+  '/api/workforce/dashboard': typeof ApiWorkforceDashboardRoute
+  '/api/workforce/lookups': typeof ApiWorkforceLookupsRoute
   '/_authenticated/staff/': typeof AuthenticatedStaffIndexRoute
   '/_authenticated/admin/accounts/factories': typeof AuthenticatedAdminAccountsFactoriesRoute
   '/_authenticated/admin/accounts/logs': typeof AuthenticatedAdminAccountsLogsRoute
+  '/_authenticated/admin/accounts/stats': typeof AuthenticatedAdminAccountsStatsRoute
+  '/_authenticated/staff/tools/qr': typeof AuthenticatedStaffToolsQrRoute
   '/_authenticated/staff/workers/$workerId': typeof AuthenticatedStaffWorkersWorkerIdRoute
   '/api/public/manifest/webmanifest': typeof ApiPublicManifestWebmanifestRoute
   '/api/public/pb/$': typeof ApiPublicPbSplatRoute
+  '/api/super-admin/companies/$companyId': typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  '/api/super-admin/companies/import': typeof ApiSuperAdminCompaniesImportRouteWithChildren
+  '/_authenticated/admin/accounts/': typeof AuthenticatedAdminAccountsIndexRoute
+  '/_authenticated/admin/staff/': typeof AuthenticatedAdminStaffIndexRoute
+  '/_authenticated/staff/tools/': typeof AuthenticatedStaffToolsIndexRoute
+  '/_authenticated/staff/workers/': typeof AuthenticatedStaffWorkersIndexRoute
+  '/_authenticated/staff/workers/$workerId_/payroll': typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
+  '/api/admin/staff/$staffId/promote': typeof ApiAdminStaffStaffIdPromoteRoute
+  '/api/admin/workers/$workerId/delete': typeof ApiAdminWorkersWorkerIdDeleteRoute
+  '/api/super-admin/companies/$companyId/admins': typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  '/api/super-admin/companies/$companyId/export': typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  '/api/super-admin/companies/$companyId/logo': typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
+  '/api/super-admin/companies/$companyId/purge': typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
+  '/api/super-admin/companies/import/preview': typeof ApiSuperAdminCompaniesImportPreviewRoute
+  '/api/super-admin/companies/$companyId/admins/$adminId': typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -310,97 +789,244 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/login'
-    | '/pending'
     | '/register'
     | '/account'
     | '/advances'
-    | '/attendance'
     | '/chat'
     | '/check-attendance'
-    | '/complaints'
-    | '/guides'
+    | '/counter'
+    | '/exchange'
+    | '/force-change-password'
+    | '/last-working-day'
     | '/news'
+    | '/notebook'
     | '/staff'
-    | '/transport'
+    | '/super-admin'
+    | '/user-guide'
+    | '/work'
+    | '/work-history'
+    | '/api/employment-histories'
+    | '/api/tenant-company'
+    | '/api/uid-counter'
     | '/admin/accounts'
     | '/admin/approvals'
     | '/admin/imports'
+    | '/admin/logs'
+    | '/admin/manage'
     | '/admin/settings'
+    | '/admin/staff'
+    | '/admin/work-progress'
+    | '/admin/workforce'
+    | '/staff/advances'
+    | '/staff/approvals'
     | '/staff/export'
-    | '/staff/workers'
+    | '/staff/hour-stats'
+    | '/staff/money-to-text'
+    | '/staff/recruited'
+    | '/staff/salary-holds'
+    | '/staff/tools'
+    | '/staff/workforce'
+    | '/api/admin/company-records'
+    | '/api/advances/hydrate-requesters'
+    | '/api/company/login-context'
+    | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
+    | '/api/public/app-icon-192'
+    | '/api/public/app-icon-512'
     | '/api/public/app-logo'
+    | '/api/public/company-code'
+    | '/api/public/force-change-password'
     | '/api/public/pocketbase-auth'
+    | '/api/public/tenant-status'
+    | '/api/staff/export'
+    | '/api/super-admin/companies'
+    | '/api/super-admin/system-logo'
+    | '/api/workforce/dashboard'
+    | '/api/workforce/lookups'
     | '/staff/'
     | '/admin/accounts/factories'
     | '/admin/accounts/logs'
+    | '/admin/accounts/stats'
+    | '/staff/tools/qr'
     | '/staff/workers/$workerId'
     | '/api/public/manifest/webmanifest'
     | '/api/public/pb/$'
+    | '/api/super-admin/companies/$companyId'
+    | '/api/super-admin/companies/import'
+    | '/admin/accounts/'
+    | '/admin/staff/'
+    | '/staff/tools/'
+    | '/staff/workers/'
+    | '/staff/workers/$workerId/payroll'
+    | '/api/admin/staff/$staffId/promote'
+    | '/api/admin/workers/$workerId/delete'
+    | '/api/super-admin/companies/$companyId/admins'
+    | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/logo'
+    | '/api/super-admin/companies/$companyId/purge'
+    | '/api/super-admin/companies/import/preview'
+    | '/api/super-admin/companies/$companyId/admins/$adminId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/login'
-    | '/pending'
     | '/register'
     | '/account'
     | '/advances'
-    | '/attendance'
     | '/chat'
     | '/check-attendance'
-    | '/complaints'
-    | '/guides'
+    | '/counter'
+    | '/exchange'
+    | '/force-change-password'
+    | '/last-working-day'
     | '/news'
-    | '/transport'
-    | '/admin/accounts'
+    | '/notebook'
+    | '/super-admin'
+    | '/user-guide'
+    | '/work'
+    | '/work-history'
+    | '/api/employment-histories'
+    | '/api/tenant-company'
+    | '/api/uid-counter'
     | '/admin/approvals'
     | '/admin/imports'
+    | '/admin/logs'
+    | '/admin/manage'
     | '/admin/settings'
+    | '/admin/work-progress'
+    | '/admin/workforce'
+    | '/staff/advances'
+    | '/staff/approvals'
     | '/staff/export'
-    | '/staff/workers'
+    | '/staff/hour-stats'
+    | '/staff/money-to-text'
+    | '/staff/recruited'
+    | '/staff/salary-holds'
+    | '/staff/workforce'
+    | '/api/admin/company-records'
+    | '/api/advances/hydrate-requesters'
+    | '/api/company/login-context'
+    | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
+    | '/api/public/app-icon-192'
+    | '/api/public/app-icon-512'
     | '/api/public/app-logo'
+    | '/api/public/company-code'
+    | '/api/public/force-change-password'
     | '/api/public/pocketbase-auth'
+    | '/api/public/tenant-status'
+    | '/api/staff/export'
+    | '/api/super-admin/companies'
+    | '/api/super-admin/system-logo'
+    | '/api/workforce/dashboard'
+    | '/api/workforce/lookups'
     | '/staff'
     | '/admin/accounts/factories'
     | '/admin/accounts/logs'
+    | '/admin/accounts/stats'
+    | '/staff/tools/qr'
     | '/staff/workers/$workerId'
     | '/api/public/manifest/webmanifest'
     | '/api/public/pb/$'
+    | '/api/super-admin/companies/$companyId'
+    | '/api/super-admin/companies/import'
+    | '/admin/accounts'
+    | '/admin/staff'
+    | '/staff/tools'
+    | '/staff/workers'
+    | '/staff/workers/$workerId/payroll'
+    | '/api/admin/staff/$staffId/promote'
+    | '/api/admin/workers/$workerId/delete'
+    | '/api/super-admin/companies/$companyId/admins'
+    | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/logo'
+    | '/api/super-admin/companies/$companyId/purge'
+    | '/api/super-admin/companies/import/preview'
+    | '/api/super-admin/companies/$companyId/admins/$adminId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/about'
     | '/login'
-    | '/pending'
     | '/register'
     | '/_authenticated/account'
     | '/_authenticated/advances'
-    | '/_authenticated/attendance'
     | '/_authenticated/chat'
     | '/_authenticated/check-attendance'
-    | '/_authenticated/complaints'
-    | '/_authenticated/guides'
+    | '/_authenticated/counter'
+    | '/_authenticated/exchange'
+    | '/_authenticated/force-change-password'
+    | '/_authenticated/last-working-day'
     | '/_authenticated/news'
+    | '/_authenticated/notebook'
     | '/_authenticated/staff'
-    | '/_authenticated/transport'
+    | '/_authenticated/super-admin'
+    | '/_authenticated/user-guide'
+    | '/_authenticated/work'
+    | '/_authenticated/work-history'
+    | '/api/employment-histories'
+    | '/api/tenant-company'
+    | '/api/uid-counter'
     | '/_authenticated/admin/accounts'
     | '/_authenticated/admin/approvals'
     | '/_authenticated/admin/imports'
+    | '/_authenticated/admin/logs'
+    | '/_authenticated/admin/manage'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/staff'
+    | '/_authenticated/admin/work-progress'
+    | '/_authenticated/admin/workforce'
+    | '/_authenticated/staff/advances'
+    | '/_authenticated/staff/approvals'
     | '/_authenticated/staff/export'
-    | '/_authenticated/staff/workers'
+    | '/_authenticated/staff/hour-stats'
+    | '/_authenticated/staff/money-to-text'
+    | '/_authenticated/staff/recruited'
+    | '/_authenticated/staff/salary-holds'
+    | '/_authenticated/staff/tools'
+    | '/_authenticated/staff/workforce'
+    | '/api/admin/company-records'
+    | '/api/advances/hydrate-requesters'
+    | '/api/company/login-context'
+    | '/api/employment-histories/capacity'
     | '/api/public/app-icon'
+    | '/api/public/app-icon-192'
+    | '/api/public/app-icon-512'
     | '/api/public/app-logo'
+    | '/api/public/company-code'
+    | '/api/public/force-change-password'
     | '/api/public/pocketbase-auth'
+    | '/api/public/tenant-status'
+    | '/api/staff/export'
+    | '/api/super-admin/companies'
+    | '/api/super-admin/system-logo'
+    | '/api/workforce/dashboard'
+    | '/api/workforce/lookups'
     | '/_authenticated/staff/'
     | '/_authenticated/admin/accounts/factories'
     | '/_authenticated/admin/accounts/logs'
+    | '/_authenticated/admin/accounts/stats'
+    | '/_authenticated/staff/tools/qr'
     | '/_authenticated/staff/workers/$workerId'
     | '/api/public/manifest/webmanifest'
     | '/api/public/pb/$'
+    | '/api/super-admin/companies/$companyId'
+    | '/api/super-admin/companies/import'
+    | '/_authenticated/admin/accounts/'
+    | '/_authenticated/admin/staff/'
+    | '/_authenticated/staff/tools/'
+    | '/_authenticated/staff/workers/'
+    | '/_authenticated/staff/workers/$workerId_/payroll'
+    | '/api/admin/staff/$staffId/promote'
+    | '/api/admin/workers/$workerId/delete'
+    | '/api/super-admin/companies/$companyId/admins'
+    | '/api/super-admin/companies/$companyId/export'
+    | '/api/super-admin/companies/$companyId/logo'
+    | '/api/super-admin/companies/$companyId/purge'
+    | '/api/super-admin/companies/import/preview'
+    | '/api/super-admin/companies/$companyId/admins/$adminId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -408,13 +1034,30 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
-  PendingRoute: typeof PendingRoute
   RegisterRoute: typeof RegisterRoute
+  ApiEmploymentHistoriesRoute: typeof ApiEmploymentHistoriesRouteWithChildren
+  ApiTenantCompanyRoute: typeof ApiTenantCompanyRoute
+  ApiUidCounterRoute: typeof ApiUidCounterRoute
+  ApiAdminCompanyRecordsRoute: typeof ApiAdminCompanyRecordsRoute
+  ApiAdvancesHydrateRequestersRoute: typeof ApiAdvancesHydrateRequestersRoute
+  ApiCompanyLoginContextRoute: typeof ApiCompanyLoginContextRoute
   ApiPublicAppIconRoute: typeof ApiPublicAppIconRoute
+  ApiPublicAppIcon192Route: typeof ApiPublicAppIcon192Route
+  ApiPublicAppIcon512Route: typeof ApiPublicAppIcon512Route
   ApiPublicAppLogoRoute: typeof ApiPublicAppLogoRoute
+  ApiPublicCompanyCodeRoute: typeof ApiPublicCompanyCodeRoute
+  ApiPublicForceChangePasswordRoute: typeof ApiPublicForceChangePasswordRoute
   ApiPublicPocketbaseAuthRoute: typeof ApiPublicPocketbaseAuthRoute
+  ApiPublicTenantStatusRoute: typeof ApiPublicTenantStatusRoute
+  ApiStaffExportRoute: typeof ApiStaffExportRoute
+  ApiSuperAdminCompaniesRoute: typeof ApiSuperAdminCompaniesRouteWithChildren
+  ApiSuperAdminSystemLogoRoute: typeof ApiSuperAdminSystemLogoRoute
+  ApiWorkforceDashboardRoute: typeof ApiWorkforceDashboardRoute
+  ApiWorkforceLookupsRoute: typeof ApiWorkforceLookupsRoute
   ApiPublicManifestWebmanifestRoute: typeof ApiPublicManifestWebmanifestRoute
   ApiPublicPbSplatRoute: typeof ApiPublicPbSplatRoute
+  ApiAdminStaffStaffIdPromoteRoute: typeof ApiAdminStaffStaffIdPromoteRoute
+  ApiAdminWorkersWorkerIdDeleteRoute: typeof ApiAdminWorkersWorkerIdDeleteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -424,13 +1067,6 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pending': {
-      id: '/pending'
-      path: '/pending'
-      fullPath: '/pending'
-      preLoaderRoute: typeof PendingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -461,11 +1097,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/transport': {
-      id: '/_authenticated/transport'
-      path: '/transport'
-      fullPath: '/transport'
-      preLoaderRoute: typeof AuthenticatedTransportRouteImport
+    '/api/uid-counter': {
+      id: '/api/uid-counter'
+      path: '/api/uid-counter'
+      fullPath: '/api/uid-counter'
+      preLoaderRoute: typeof ApiUidCounterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tenant-company': {
+      id: '/api/tenant-company'
+      path: '/api/tenant-company'
+      fullPath: '/api/tenant-company'
+      preLoaderRoute: typeof ApiTenantCompanyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/employment-histories': {
+      id: '/api/employment-histories'
+      path: '/api/employment-histories'
+      fullPath: '/api/employment-histories'
+      preLoaderRoute: typeof ApiEmploymentHistoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/work-history': {
+      id: '/_authenticated/work-history'
+      path: '/work-history'
+      fullPath: '/work-history'
+      preLoaderRoute: typeof AuthenticatedWorkHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/work': {
+      id: '/_authenticated/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof AuthenticatedWorkRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/user-guide': {
+      id: '/_authenticated/user-guide'
+      path: '/user-guide'
+      fullPath: '/user-guide'
+      preLoaderRoute: typeof AuthenticatedUserGuideRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/super-admin': {
+      id: '/_authenticated/super-admin'
+      path: '/super-admin'
+      fullPath: '/super-admin'
+      preLoaderRoute: typeof AuthenticatedSuperAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/staff': {
@@ -475,6 +1153,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/notebook': {
+      id: '/_authenticated/notebook'
+      path: '/notebook'
+      fullPath: '/notebook'
+      preLoaderRoute: typeof AuthenticatedNotebookRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/news': {
       id: '/_authenticated/news'
       path: '/news'
@@ -482,18 +1167,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNewsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/guides': {
-      id: '/_authenticated/guides'
-      path: '/guides'
-      fullPath: '/guides'
-      preLoaderRoute: typeof AuthenticatedGuidesRouteImport
+    '/_authenticated/last-working-day': {
+      id: '/_authenticated/last-working-day'
+      path: '/last-working-day'
+      fullPath: '/last-working-day'
+      preLoaderRoute: typeof AuthenticatedLastWorkingDayRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/complaints': {
-      id: '/_authenticated/complaints'
-      path: '/complaints'
-      fullPath: '/complaints'
-      preLoaderRoute: typeof AuthenticatedComplaintsRouteImport
+    '/_authenticated/force-change-password': {
+      id: '/_authenticated/force-change-password'
+      path: '/force-change-password'
+      fullPath: '/force-change-password'
+      preLoaderRoute: typeof AuthenticatedForceChangePasswordRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/exchange': {
+      id: '/_authenticated/exchange'
+      path: '/exchange'
+      fullPath: '/exchange'
+      preLoaderRoute: typeof AuthenticatedExchangeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/counter': {
+      id: '/_authenticated/counter'
+      path: '/counter'
+      fullPath: '/counter'
+      preLoaderRoute: typeof AuthenticatedCounterRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/check-attendance': {
@@ -508,13 +1207,6 @@ declare module '@tanstack/react-router' {
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof AuthenticatedChatRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/attendance': {
-      id: '/_authenticated/attendance'
-      path: '/attendance'
-      fullPath: '/attendance'
-      preLoaderRoute: typeof AuthenticatedAttendanceRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/advances': {
@@ -538,11 +1230,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffIndexRouteImport
       parentRoute: typeof AuthenticatedStaffRoute
     }
+    '/api/workforce/lookups': {
+      id: '/api/workforce/lookups'
+      path: '/api/workforce/lookups'
+      fullPath: '/api/workforce/lookups'
+      preLoaderRoute: typeof ApiWorkforceLookupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workforce/dashboard': {
+      id: '/api/workforce/dashboard'
+      path: '/api/workforce/dashboard'
+      fullPath: '/api/workforce/dashboard'
+      preLoaderRoute: typeof ApiWorkforceDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/super-admin/system-logo': {
+      id: '/api/super-admin/system-logo'
+      path: '/api/super-admin/system-logo'
+      fullPath: '/api/super-admin/system-logo'
+      preLoaderRoute: typeof ApiSuperAdminSystemLogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/super-admin/companies': {
+      id: '/api/super-admin/companies'
+      path: '/api/super-admin/companies'
+      fullPath: '/api/super-admin/companies'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/staff/export': {
+      id: '/api/staff/export'
+      path: '/api/staff/export'
+      fullPath: '/api/staff/export'
+      preLoaderRoute: typeof ApiStaffExportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/tenant-status': {
+      id: '/api/public/tenant-status'
+      path: '/api/public/tenant-status'
+      fullPath: '/api/public/tenant-status'
+      preLoaderRoute: typeof ApiPublicTenantStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/pocketbase-auth': {
       id: '/api/public/pocketbase-auth'
       path: '/api/public/pocketbase-auth'
       fullPath: '/api/public/pocketbase-auth'
       preLoaderRoute: typeof ApiPublicPocketbaseAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/force-change-password': {
+      id: '/api/public/force-change-password'
+      path: '/api/public/force-change-password'
+      fullPath: '/api/public/force-change-password'
+      preLoaderRoute: typeof ApiPublicForceChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/company-code': {
+      id: '/api/public/company-code'
+      path: '/api/public/company-code'
+      fullPath: '/api/public/company-code'
+      preLoaderRoute: typeof ApiPublicCompanyCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/app-logo': {
@@ -552,6 +1300,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAppLogoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/app-icon-512': {
+      id: '/api/public/app-icon-512'
+      path: '/api/public/app-icon-512'
+      fullPath: '/api/public/app-icon-512'
+      preLoaderRoute: typeof ApiPublicAppIcon512RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/app-icon-192': {
+      id: '/api/public/app-icon-192'
+      path: '/api/public/app-icon-192'
+      fullPath: '/api/public/app-icon-192'
+      preLoaderRoute: typeof ApiPublicAppIcon192RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/app-icon': {
       id: '/api/public/app-icon'
       path: '/api/public/app-icon'
@@ -559,11 +1321,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAppIconRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/staff/workers': {
-      id: '/_authenticated/staff/workers'
-      path: '/workers'
-      fullPath: '/staff/workers'
-      preLoaderRoute: typeof AuthenticatedStaffWorkersRouteImport
+    '/api/employment-histories/capacity': {
+      id: '/api/employment-histories/capacity'
+      path: '/capacity'
+      fullPath: '/api/employment-histories/capacity'
+      preLoaderRoute: typeof ApiEmploymentHistoriesCapacityRouteImport
+      parentRoute: typeof ApiEmploymentHistoriesRoute
+    }
+    '/api/company/login-context': {
+      id: '/api/company/login-context'
+      path: '/api/company/login-context'
+      fullPath: '/api/company/login-context'
+      preLoaderRoute: typeof ApiCompanyLoginContextRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/advances/hydrate-requesters': {
+      id: '/api/advances/hydrate-requesters'
+      path: '/api/advances/hydrate-requesters'
+      fullPath: '/api/advances/hydrate-requesters'
+      preLoaderRoute: typeof ApiAdvancesHydrateRequestersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/company-records': {
+      id: '/api/admin/company-records'
+      path: '/api/admin/company-records'
+      fullPath: '/api/admin/company-records'
+      preLoaderRoute: typeof ApiAdminCompanyRecordsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/staff/workforce': {
+      id: '/_authenticated/staff/workforce'
+      path: '/workforce'
+      fullPath: '/staff/workforce'
+      preLoaderRoute: typeof AuthenticatedStaffWorkforceRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/tools': {
+      id: '/_authenticated/staff/tools'
+      path: '/tools'
+      fullPath: '/staff/tools'
+      preLoaderRoute: typeof AuthenticatedStaffToolsRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/salary-holds': {
+      id: '/_authenticated/staff/salary-holds'
+      path: '/salary-holds'
+      fullPath: '/staff/salary-holds'
+      preLoaderRoute: typeof AuthenticatedStaffSalaryHoldsRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/recruited': {
+      id: '/_authenticated/staff/recruited'
+      path: '/recruited'
+      fullPath: '/staff/recruited'
+      preLoaderRoute: typeof AuthenticatedStaffRecruitedRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/money-to-text': {
+      id: '/_authenticated/staff/money-to-text'
+      path: '/money-to-text'
+      fullPath: '/staff/money-to-text'
+      preLoaderRoute: typeof AuthenticatedStaffMoneyToTextRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/hour-stats': {
+      id: '/_authenticated/staff/hour-stats'
+      path: '/hour-stats'
+      fullPath: '/staff/hour-stats'
+      preLoaderRoute: typeof AuthenticatedStaffHourStatsRouteImport
       parentRoute: typeof AuthenticatedStaffRoute
     }
     '/_authenticated/staff/export': {
@@ -573,11 +1398,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffExportRouteImport
       parentRoute: typeof AuthenticatedStaffRoute
     }
+    '/_authenticated/staff/approvals': {
+      id: '/_authenticated/staff/approvals'
+      path: '/approvals'
+      fullPath: '/staff/approvals'
+      preLoaderRoute: typeof AuthenticatedStaffApprovalsRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/advances': {
+      id: '/_authenticated/staff/advances'
+      path: '/advances'
+      fullPath: '/staff/advances'
+      preLoaderRoute: typeof AuthenticatedStaffAdvancesRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/admin/workforce': {
+      id: '/_authenticated/admin/workforce'
+      path: '/admin/workforce'
+      fullPath: '/admin/workforce'
+      preLoaderRoute: typeof AuthenticatedAdminWorkforceRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/work-progress': {
+      id: '/_authenticated/admin/work-progress'
+      path: '/admin/work-progress'
+      fullPath: '/admin/work-progress'
+      preLoaderRoute: typeof AuthenticatedAdminWorkProgressRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/staff': {
+      id: '/_authenticated/admin/staff'
+      path: '/admin/staff'
+      fullPath: '/admin/staff'
+      preLoaderRoute: typeof AuthenticatedAdminStaffRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin/settings': {
       id: '/_authenticated/admin/settings'
       path: '/admin/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/manage': {
+      id: '/_authenticated/admin/manage'
+      path: '/admin/manage'
+      fullPath: '/admin/manage'
+      preLoaderRoute: typeof AuthenticatedAdminManageRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/logs': {
+      id: '/_authenticated/admin/logs'
+      path: '/admin/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AuthenticatedAdminLogsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/imports': {
@@ -601,6 +1475,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAccountsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/staff/workers/': {
+      id: '/_authenticated/staff/workers/'
+      path: '/workers'
+      fullPath: '/staff/workers/'
+      preLoaderRoute: typeof AuthenticatedStaffWorkersIndexRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/tools/': {
+      id: '/_authenticated/staff/tools/'
+      path: '/'
+      fullPath: '/staff/tools/'
+      preLoaderRoute: typeof AuthenticatedStaffToolsIndexRouteImport
+      parentRoute: typeof AuthenticatedStaffToolsRoute
+    }
+    '/_authenticated/admin/staff/': {
+      id: '/_authenticated/admin/staff/'
+      path: '/'
+      fullPath: '/admin/staff/'
+      preLoaderRoute: typeof AuthenticatedAdminStaffIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminStaffRoute
+    }
+    '/_authenticated/admin/accounts/': {
+      id: '/_authenticated/admin/accounts/'
+      path: '/'
+      fullPath: '/admin/accounts/'
+      preLoaderRoute: typeof AuthenticatedAdminAccountsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminAccountsRoute
+    }
+    '/api/super-admin/companies/import': {
+      id: '/api/super-admin/companies/import'
+      path: '/import'
+      fullPath: '/api/super-admin/companies/import'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesImportRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesRoute
+    }
+    '/api/super-admin/companies/$companyId': {
+      id: '/api/super-admin/companies/$companyId'
+      path: '/$companyId'
+      fullPath: '/api/super-admin/companies/$companyId'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesRoute
+    }
     '/api/public/pb/$': {
       id: '/api/public/pb/$'
       path: '/api/public/pb/$'
@@ -617,10 +1533,24 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/staff/workers/$workerId': {
       id: '/_authenticated/staff/workers/$workerId'
-      path: '/$workerId'
+      path: '/workers/$workerId'
       fullPath: '/staff/workers/$workerId'
       preLoaderRoute: typeof AuthenticatedStaffWorkersWorkerIdRouteImport
-      parentRoute: typeof AuthenticatedStaffWorkersRoute
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/_authenticated/staff/tools/qr': {
+      id: '/_authenticated/staff/tools/qr'
+      path: '/qr'
+      fullPath: '/staff/tools/qr'
+      preLoaderRoute: typeof AuthenticatedStaffToolsQrRouteImport
+      parentRoute: typeof AuthenticatedStaffToolsRoute
+    }
+    '/_authenticated/admin/accounts/stats': {
+      id: '/_authenticated/admin/accounts/stats'
+      path: '/stats'
+      fullPath: '/admin/accounts/stats'
+      preLoaderRoute: typeof AuthenticatedAdminAccountsStatsRouteImport
+      parentRoute: typeof AuthenticatedAdminAccountsRoute
     }
     '/_authenticated/admin/accounts/logs': {
       id: '/_authenticated/admin/accounts/logs'
@@ -636,34 +1566,120 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAccountsFactoriesRouteImport
       parentRoute: typeof AuthenticatedAdminAccountsRoute
     }
+    '/api/super-admin/companies/import/preview': {
+      id: '/api/super-admin/companies/import/preview'
+      path: '/preview'
+      fullPath: '/api/super-admin/companies/import/preview'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesImportPreviewRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesImportRoute
+    }
+    '/api/super-admin/companies/$companyId/purge': {
+      id: '/api/super-admin/companies/$companyId/purge'
+      path: '/purge'
+      fullPath: '/api/super-admin/companies/$companyId/purge'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdPurgeRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
+    }
+    '/api/super-admin/companies/$companyId/logo': {
+      id: '/api/super-admin/companies/$companyId/logo'
+      path: '/logo'
+      fullPath: '/api/super-admin/companies/$companyId/logo'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdLogoRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
+    }
+    '/api/super-admin/companies/$companyId/export': {
+      id: '/api/super-admin/companies/$companyId/export'
+      path: '/export'
+      fullPath: '/api/super-admin/companies/$companyId/export'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdExportRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
+    }
+    '/api/super-admin/companies/$companyId/admins': {
+      id: '/api/super-admin/companies/$companyId/admins'
+      path: '/admins'
+      fullPath: '/api/super-admin/companies/$companyId/admins'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdRoute
+    }
+    '/api/admin/workers/$workerId/delete': {
+      id: '/api/admin/workers/$workerId/delete'
+      path: '/api/admin/workers/$workerId/delete'
+      fullPath: '/api/admin/workers/$workerId/delete'
+      preLoaderRoute: typeof ApiAdminWorkersWorkerIdDeleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/staff/$staffId/promote': {
+      id: '/api/admin/staff/$staffId/promote'
+      path: '/api/admin/staff/$staffId/promote'
+      fullPath: '/api/admin/staff/$staffId/promote'
+      preLoaderRoute: typeof ApiAdminStaffStaffIdPromoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/staff/workers/$workerId_/payroll': {
+      id: '/_authenticated/staff/workers/$workerId_/payroll'
+      path: '/workers/$workerId/payroll'
+      fullPath: '/staff/workers/$workerId/payroll'
+      preLoaderRoute: typeof AuthenticatedStaffWorkersWorkerIdPayrollRouteImport
+      parentRoute: typeof AuthenticatedStaffRoute
+    }
+    '/api/super-admin/companies/$companyId/admins/$adminId': {
+      id: '/api/super-admin/companies/$companyId/admins/$adminId'
+      path: '/$adminId'
+      fullPath: '/api/super-admin/companies/$companyId/admins/$adminId'
+      preLoaderRoute: typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRouteImport
+      parentRoute: typeof ApiSuperAdminCompaniesCompanyIdAdminsRoute
+    }
   }
 }
 
-interface AuthenticatedStaffWorkersRouteChildren {
-  AuthenticatedStaffWorkersWorkerIdRoute: typeof AuthenticatedStaffWorkersWorkerIdRoute
+interface AuthenticatedStaffToolsRouteChildren {
+  AuthenticatedStaffToolsQrRoute: typeof AuthenticatedStaffToolsQrRoute
+  AuthenticatedStaffToolsIndexRoute: typeof AuthenticatedStaffToolsIndexRoute
 }
 
-const AuthenticatedStaffWorkersRouteChildren: AuthenticatedStaffWorkersRouteChildren =
+const AuthenticatedStaffToolsRouteChildren: AuthenticatedStaffToolsRouteChildren =
   {
-    AuthenticatedStaffWorkersWorkerIdRoute:
-      AuthenticatedStaffWorkersWorkerIdRoute,
+    AuthenticatedStaffToolsQrRoute: AuthenticatedStaffToolsQrRoute,
+    AuthenticatedStaffToolsIndexRoute: AuthenticatedStaffToolsIndexRoute,
   }
 
-const AuthenticatedStaffWorkersRouteWithChildren =
-  AuthenticatedStaffWorkersRoute._addFileChildren(
-    AuthenticatedStaffWorkersRouteChildren,
+const AuthenticatedStaffToolsRouteWithChildren =
+  AuthenticatedStaffToolsRoute._addFileChildren(
+    AuthenticatedStaffToolsRouteChildren,
   )
 
 interface AuthenticatedStaffRouteChildren {
+  AuthenticatedStaffAdvancesRoute: typeof AuthenticatedStaffAdvancesRoute
+  AuthenticatedStaffApprovalsRoute: typeof AuthenticatedStaffApprovalsRoute
   AuthenticatedStaffExportRoute: typeof AuthenticatedStaffExportRoute
-  AuthenticatedStaffWorkersRoute: typeof AuthenticatedStaffWorkersRouteWithChildren
+  AuthenticatedStaffHourStatsRoute: typeof AuthenticatedStaffHourStatsRoute
+  AuthenticatedStaffMoneyToTextRoute: typeof AuthenticatedStaffMoneyToTextRoute
+  AuthenticatedStaffRecruitedRoute: typeof AuthenticatedStaffRecruitedRoute
+  AuthenticatedStaffSalaryHoldsRoute: typeof AuthenticatedStaffSalaryHoldsRoute
+  AuthenticatedStaffToolsRoute: typeof AuthenticatedStaffToolsRouteWithChildren
+  AuthenticatedStaffWorkforceRoute: typeof AuthenticatedStaffWorkforceRoute
   AuthenticatedStaffIndexRoute: typeof AuthenticatedStaffIndexRoute
+  AuthenticatedStaffWorkersWorkerIdRoute: typeof AuthenticatedStaffWorkersWorkerIdRoute
+  AuthenticatedStaffWorkersIndexRoute: typeof AuthenticatedStaffWorkersIndexRoute
+  AuthenticatedStaffWorkersWorkerIdPayrollRoute: typeof AuthenticatedStaffWorkersWorkerIdPayrollRoute
 }
 
 const AuthenticatedStaffRouteChildren: AuthenticatedStaffRouteChildren = {
+  AuthenticatedStaffAdvancesRoute: AuthenticatedStaffAdvancesRoute,
+  AuthenticatedStaffApprovalsRoute: AuthenticatedStaffApprovalsRoute,
   AuthenticatedStaffExportRoute: AuthenticatedStaffExportRoute,
-  AuthenticatedStaffWorkersRoute: AuthenticatedStaffWorkersRouteWithChildren,
+  AuthenticatedStaffHourStatsRoute: AuthenticatedStaffHourStatsRoute,
+  AuthenticatedStaffMoneyToTextRoute: AuthenticatedStaffMoneyToTextRoute,
+  AuthenticatedStaffRecruitedRoute: AuthenticatedStaffRecruitedRoute,
+  AuthenticatedStaffSalaryHoldsRoute: AuthenticatedStaffSalaryHoldsRoute,
+  AuthenticatedStaffToolsRoute: AuthenticatedStaffToolsRouteWithChildren,
+  AuthenticatedStaffWorkforceRoute: AuthenticatedStaffWorkforceRoute,
   AuthenticatedStaffIndexRoute: AuthenticatedStaffIndexRoute,
+  AuthenticatedStaffWorkersWorkerIdRoute:
+    AuthenticatedStaffWorkersWorkerIdRoute,
+  AuthenticatedStaffWorkersIndexRoute: AuthenticatedStaffWorkersIndexRoute,
+  AuthenticatedStaffWorkersWorkerIdPayrollRoute:
+    AuthenticatedStaffWorkersWorkerIdPayrollRoute,
 }
 
 const AuthenticatedStaffRouteWithChildren =
@@ -672,6 +1688,8 @@ const AuthenticatedStaffRouteWithChildren =
 interface AuthenticatedAdminAccountsRouteChildren {
   AuthenticatedAdminAccountsFactoriesRoute: typeof AuthenticatedAdminAccountsFactoriesRoute
   AuthenticatedAdminAccountsLogsRoute: typeof AuthenticatedAdminAccountsLogsRoute
+  AuthenticatedAdminAccountsStatsRoute: typeof AuthenticatedAdminAccountsStatsRoute
+  AuthenticatedAdminAccountsIndexRoute: typeof AuthenticatedAdminAccountsIndexRoute
 }
 
 const AuthenticatedAdminAccountsRouteChildren: AuthenticatedAdminAccountsRouteChildren =
@@ -679,6 +1697,8 @@ const AuthenticatedAdminAccountsRouteChildren: AuthenticatedAdminAccountsRouteCh
     AuthenticatedAdminAccountsFactoriesRoute:
       AuthenticatedAdminAccountsFactoriesRoute,
     AuthenticatedAdminAccountsLogsRoute: AuthenticatedAdminAccountsLogsRoute,
+    AuthenticatedAdminAccountsStatsRoute: AuthenticatedAdminAccountsStatsRoute,
+    AuthenticatedAdminAccountsIndexRoute: AuthenticatedAdminAccountsIndexRoute,
   }
 
 const AuthenticatedAdminAccountsRouteWithChildren =
@@ -686,56 +1706,193 @@ const AuthenticatedAdminAccountsRouteWithChildren =
     AuthenticatedAdminAccountsRouteChildren,
   )
 
+interface AuthenticatedAdminStaffRouteChildren {
+  AuthenticatedAdminStaffIndexRoute: typeof AuthenticatedAdminStaffIndexRoute
+}
+
+const AuthenticatedAdminStaffRouteChildren: AuthenticatedAdminStaffRouteChildren =
+  {
+    AuthenticatedAdminStaffIndexRoute: AuthenticatedAdminStaffIndexRoute,
+  }
+
+const AuthenticatedAdminStaffRouteWithChildren =
+  AuthenticatedAdminStaffRoute._addFileChildren(
+    AuthenticatedAdminStaffRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAdvancesRoute: typeof AuthenticatedAdvancesRoute
-  AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRoute
   AuthenticatedChatRoute: typeof AuthenticatedChatRoute
   AuthenticatedCheckAttendanceRoute: typeof AuthenticatedCheckAttendanceRoute
-  AuthenticatedComplaintsRoute: typeof AuthenticatedComplaintsRoute
-  AuthenticatedGuidesRoute: typeof AuthenticatedGuidesRoute
+  AuthenticatedCounterRoute: typeof AuthenticatedCounterRoute
+  AuthenticatedExchangeRoute: typeof AuthenticatedExchangeRoute
+  AuthenticatedForceChangePasswordRoute: typeof AuthenticatedForceChangePasswordRoute
+  AuthenticatedLastWorkingDayRoute: typeof AuthenticatedLastWorkingDayRoute
   AuthenticatedNewsRoute: typeof AuthenticatedNewsRoute
+  AuthenticatedNotebookRoute: typeof AuthenticatedNotebookRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRouteWithChildren
-  AuthenticatedTransportRoute: typeof AuthenticatedTransportRoute
+  AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
+  AuthenticatedUserGuideRoute: typeof AuthenticatedUserGuideRoute
+  AuthenticatedWorkRoute: typeof AuthenticatedWorkRoute
+  AuthenticatedWorkHistoryRoute: typeof AuthenticatedWorkHistoryRoute
   AuthenticatedAdminAccountsRoute: typeof AuthenticatedAdminAccountsRouteWithChildren
   AuthenticatedAdminApprovalsRoute: typeof AuthenticatedAdminApprovalsRoute
   AuthenticatedAdminImportsRoute: typeof AuthenticatedAdminImportsRoute
+  AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
+  AuthenticatedAdminManageRoute: typeof AuthenticatedAdminManageRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminStaffRoute: typeof AuthenticatedAdminStaffRouteWithChildren
+  AuthenticatedAdminWorkProgressRoute: typeof AuthenticatedAdminWorkProgressRoute
+  AuthenticatedAdminWorkforceRoute: typeof AuthenticatedAdminWorkforceRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAdvancesRoute: AuthenticatedAdvancesRoute,
-  AuthenticatedAttendanceRoute: AuthenticatedAttendanceRoute,
   AuthenticatedChatRoute: AuthenticatedChatRoute,
   AuthenticatedCheckAttendanceRoute: AuthenticatedCheckAttendanceRoute,
-  AuthenticatedComplaintsRoute: AuthenticatedComplaintsRoute,
-  AuthenticatedGuidesRoute: AuthenticatedGuidesRoute,
+  AuthenticatedCounterRoute: AuthenticatedCounterRoute,
+  AuthenticatedExchangeRoute: AuthenticatedExchangeRoute,
+  AuthenticatedForceChangePasswordRoute: AuthenticatedForceChangePasswordRoute,
+  AuthenticatedLastWorkingDayRoute: AuthenticatedLastWorkingDayRoute,
   AuthenticatedNewsRoute: AuthenticatedNewsRoute,
+  AuthenticatedNotebookRoute: AuthenticatedNotebookRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRouteWithChildren,
-  AuthenticatedTransportRoute: AuthenticatedTransportRoute,
+  AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
+  AuthenticatedUserGuideRoute: AuthenticatedUserGuideRoute,
+  AuthenticatedWorkRoute: AuthenticatedWorkRoute,
+  AuthenticatedWorkHistoryRoute: AuthenticatedWorkHistoryRoute,
   AuthenticatedAdminAccountsRoute: AuthenticatedAdminAccountsRouteWithChildren,
   AuthenticatedAdminApprovalsRoute: AuthenticatedAdminApprovalsRoute,
   AuthenticatedAdminImportsRoute: AuthenticatedAdminImportsRoute,
+  AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
+  AuthenticatedAdminManageRoute: AuthenticatedAdminManageRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminStaffRoute: AuthenticatedAdminStaffRouteWithChildren,
+  AuthenticatedAdminWorkProgressRoute: AuthenticatedAdminWorkProgressRoute,
+  AuthenticatedAdminWorkforceRoute: AuthenticatedAdminWorkforceRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface ApiEmploymentHistoriesRouteChildren {
+  ApiEmploymentHistoriesCapacityRoute: typeof ApiEmploymentHistoriesCapacityRoute
+}
+
+const ApiEmploymentHistoriesRouteChildren: ApiEmploymentHistoriesRouteChildren =
+  {
+    ApiEmploymentHistoriesCapacityRoute: ApiEmploymentHistoriesCapacityRoute,
+  }
+
+const ApiEmploymentHistoriesRouteWithChildren =
+  ApiEmploymentHistoriesRoute._addFileChildren(
+    ApiEmploymentHistoriesRouteChildren,
+  )
+
+interface ApiSuperAdminCompaniesCompanyIdAdminsRouteChildren {
+  ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute: typeof ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute
+}
+
+const ApiSuperAdminCompaniesCompanyIdAdminsRouteChildren: ApiSuperAdminCompaniesCompanyIdAdminsRouteChildren =
+  {
+    ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute:
+      ApiSuperAdminCompaniesCompanyIdAdminsAdminIdRoute,
+  }
+
+const ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren =
+  ApiSuperAdminCompaniesCompanyIdAdminsRoute._addFileChildren(
+    ApiSuperAdminCompaniesCompanyIdAdminsRouteChildren,
+  )
+
+interface ApiSuperAdminCompaniesCompanyIdRouteChildren {
+  ApiSuperAdminCompaniesCompanyIdAdminsRoute: typeof ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren
+  ApiSuperAdminCompaniesCompanyIdExportRoute: typeof ApiSuperAdminCompaniesCompanyIdExportRoute
+  ApiSuperAdminCompaniesCompanyIdLogoRoute: typeof ApiSuperAdminCompaniesCompanyIdLogoRoute
+  ApiSuperAdminCompaniesCompanyIdPurgeRoute: typeof ApiSuperAdminCompaniesCompanyIdPurgeRoute
+}
+
+const ApiSuperAdminCompaniesCompanyIdRouteChildren: ApiSuperAdminCompaniesCompanyIdRouteChildren =
+  {
+    ApiSuperAdminCompaniesCompanyIdAdminsRoute:
+      ApiSuperAdminCompaniesCompanyIdAdminsRouteWithChildren,
+    ApiSuperAdminCompaniesCompanyIdExportRoute:
+      ApiSuperAdminCompaniesCompanyIdExportRoute,
+    ApiSuperAdminCompaniesCompanyIdLogoRoute:
+      ApiSuperAdminCompaniesCompanyIdLogoRoute,
+    ApiSuperAdminCompaniesCompanyIdPurgeRoute:
+      ApiSuperAdminCompaniesCompanyIdPurgeRoute,
+  }
+
+const ApiSuperAdminCompaniesCompanyIdRouteWithChildren =
+  ApiSuperAdminCompaniesCompanyIdRoute._addFileChildren(
+    ApiSuperAdminCompaniesCompanyIdRouteChildren,
+  )
+
+interface ApiSuperAdminCompaniesImportRouteChildren {
+  ApiSuperAdminCompaniesImportPreviewRoute: typeof ApiSuperAdminCompaniesImportPreviewRoute
+}
+
+const ApiSuperAdminCompaniesImportRouteChildren: ApiSuperAdminCompaniesImportRouteChildren =
+  {
+    ApiSuperAdminCompaniesImportPreviewRoute:
+      ApiSuperAdminCompaniesImportPreviewRoute,
+  }
+
+const ApiSuperAdminCompaniesImportRouteWithChildren =
+  ApiSuperAdminCompaniesImportRoute._addFileChildren(
+    ApiSuperAdminCompaniesImportRouteChildren,
+  )
+
+interface ApiSuperAdminCompaniesRouteChildren {
+  ApiSuperAdminCompaniesCompanyIdRoute: typeof ApiSuperAdminCompaniesCompanyIdRouteWithChildren
+  ApiSuperAdminCompaniesImportRoute: typeof ApiSuperAdminCompaniesImportRouteWithChildren
+}
+
+const ApiSuperAdminCompaniesRouteChildren: ApiSuperAdminCompaniesRouteChildren =
+  {
+    ApiSuperAdminCompaniesCompanyIdRoute:
+      ApiSuperAdminCompaniesCompanyIdRouteWithChildren,
+    ApiSuperAdminCompaniesImportRoute:
+      ApiSuperAdminCompaniesImportRouteWithChildren,
+  }
+
+const ApiSuperAdminCompaniesRouteWithChildren =
+  ApiSuperAdminCompaniesRoute._addFileChildren(
+    ApiSuperAdminCompaniesRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
-  PendingRoute: PendingRoute,
   RegisterRoute: RegisterRoute,
+  ApiEmploymentHistoriesRoute: ApiEmploymentHistoriesRouteWithChildren,
+  ApiTenantCompanyRoute: ApiTenantCompanyRoute,
+  ApiUidCounterRoute: ApiUidCounterRoute,
+  ApiAdminCompanyRecordsRoute: ApiAdminCompanyRecordsRoute,
+  ApiAdvancesHydrateRequestersRoute: ApiAdvancesHydrateRequestersRoute,
+  ApiCompanyLoginContextRoute: ApiCompanyLoginContextRoute,
   ApiPublicAppIconRoute: ApiPublicAppIconRoute,
+  ApiPublicAppIcon192Route: ApiPublicAppIcon192Route,
+  ApiPublicAppIcon512Route: ApiPublicAppIcon512Route,
   ApiPublicAppLogoRoute: ApiPublicAppLogoRoute,
+  ApiPublicCompanyCodeRoute: ApiPublicCompanyCodeRoute,
+  ApiPublicForceChangePasswordRoute: ApiPublicForceChangePasswordRoute,
   ApiPublicPocketbaseAuthRoute: ApiPublicPocketbaseAuthRoute,
+  ApiPublicTenantStatusRoute: ApiPublicTenantStatusRoute,
+  ApiStaffExportRoute: ApiStaffExportRoute,
+  ApiSuperAdminCompaniesRoute: ApiSuperAdminCompaniesRouteWithChildren,
+  ApiSuperAdminSystemLogoRoute: ApiSuperAdminSystemLogoRoute,
+  ApiWorkforceDashboardRoute: ApiWorkforceDashboardRoute,
+  ApiWorkforceLookupsRoute: ApiWorkforceLookupsRoute,
   ApiPublicManifestWebmanifestRoute: ApiPublicManifestWebmanifestRoute,
   ApiPublicPbSplatRoute: ApiPublicPbSplatRoute,
+  ApiAdminStaffStaffIdPromoteRoute: ApiAdminStaffStaffIdPromoteRoute,
+  ApiAdminWorkersWorkerIdDeleteRoute: ApiAdminWorkersWorkerIdDeleteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

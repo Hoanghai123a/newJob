@@ -1,0 +1,2425 @@
+{
+  "apply": false,
+  "direct": false,
+  "created_at": "2026-09-07T02:04:46.960Z",
+  "migration_run_id": "hl-20260907020446-45bafc69",
+  "sourceUrl": "http://127.0.0.1:8090",
+  "targetUrl": "http://localhost:8290",
+  "backupDir": "D:\\My App\\newApp\\backups\\jobconnect-to-hl-hl-20260907020446-45bafc69-2026-09-07T02-04-46-960Z",
+  "excludedCollections": [
+    "garden_foods",
+    "garden_exchange_tiers",
+    "garden_balances",
+    "garden_exchange_requests",
+    "garden_visit_saves",
+    "garden_game_sessions",
+    "garden_gem_rewards",
+    "garden_duels",
+    "garden_coin_logs",
+    "gems",
+    "gem_transactions",
+    "minesweeper",
+    "minesweeper_scores",
+    "counter",
+    "counters",
+    "game_sessions",
+    "game_scores"
+  ],
+  "unresolved": [
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "77uartyi6rhbl85",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "uiv0bjbth0h2nhx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "dwinxx6g4tvph9b",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "mcuithhgvxq1oer",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "7zgadkco1qi6rb8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "u7i50k0teemm3mb",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "7205g1uzun0c3zz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "9ghuzvtqudvfboa",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "poivcpvlkym5av1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "830sc5qnu867t86",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "bo85ujxgoa4m62c",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "e1e5az09dfop723",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "m9ukni4c390eaa4",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "1ahxwxyhp7fll9i",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "mtvfk5bviaew5vd",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "k7ggk76o5tin1ov",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "users",
+      "sourceId": "t1gk7bk6l6gqi91",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "complaints",
+      "sourceId": "max65rl3pfr3ihz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "complaints",
+      "sourceId": "yfbpgyzfdnpoknr",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "complaints",
+      "sourceId": "4tvn52ei0u9qorq",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "complaints",
+      "sourceId": "pivdctcbxi7lrlj",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "app_settings",
+      "sourceId": "kba9wyoiyhkt406",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "advances",
+      "sourceId": "iwymyo6reo6h9kx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "advances",
+      "sourceId": "fjw30ravn1uo9uy",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "advances",
+      "sourceId": "s1hot6tzob8qzn5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "advances",
+      "sourceId": "1ev3rkuekrs5g8n",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "advances",
+      "sourceId": "lbbvip7b6vj38gd",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "advances",
+      "sourceId": "j7lb0jmtqq4761x",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "7tdg2yuguebbbza",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "7veui3fkcl04lql",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "r6fygkp992zq3ho",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "l3gq0rnp5d0059z",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "2qjci3g3zwce3tp",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "dd7lrot2ansq1om",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "0d4e8zy1kg9ewkh",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "bmr3g3am3wva19e",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "2zv5x8ao8amtup5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "4byo26apr3cm5na",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "vmatk54wi4fizs8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "ln2fuszkes74ch7",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "vh3sohk6y1h8tgj",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "pcvrkrehhlpcubz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "egirp7kmz6jrkpz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "oqzys7t3gmuwve9",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "1rn5a9rtv5q2ilk",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "hcbm63f7cd3sgce",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "bma1dkm6i7kevir",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "4sz08p3z3ub4msj",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "373e7hspjzo4tr3",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "d871wpqde8sfr1w",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "uenp1yxcc49jinl",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "ggwqdlnzvu553sn",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "8h45jiww45xwlm1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "3iyzqxxm3xqaqd8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "649iarrc8231hgk",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "uw68egopbpf513g",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "ce8dq6kgqgpnd8a",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "ufo2k42la2ov4lo",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "up7sz82kgfedfji",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "jehmhdcf1r2y8ct",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "q3qznatutia1xwx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "1nt14q2n43p86jg",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "400zpnkvyrxa96o",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "fpnrs3oq8wtcrmf",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "xgnxxc3k5mimds0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "lmguy0eftwa1821",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "mhze8v0eobvme6m",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "1cnmpigtj9y8sla",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "lsmfh56z1v97fa5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "kpgk5q4uua2qd7a",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "578bna36in1nzk1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "yhxjajdkahpxz9a",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "44ou8r7bcceleej",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "qvasca03fsymajj",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "qyqptxd6uwyeuon",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "attendance",
+      "sourceId": "ihogo8jr5vsr2t9",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "guides",
+      "sourceId": "n9k95eups6sekf0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "guides",
+      "sourceId": "rqs6ls4urp9rm6r",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "guides",
+      "sourceId": "489v48mzs1ez4b1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "guides",
+      "sourceId": "k32zq4koqenqzgk",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "factories",
+      "sourceId": "2q3368fz13r0g3l",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "factories",
+      "sourceId": "wmw07mfjcwrm0ir",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "factories",
+      "sourceId": "xg0voj6mdnmfn4i",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "recruitments",
+      "sourceId": "uqonp7d2zre6d7t",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_batches",
+      "sourceId": "nglrcjq3cpt2ohe",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_batches",
+      "sourceId": "qlp8m5h6jqcm95l",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_batches",
+      "sourceId": "rxf73kqq6qbmzq5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_items",
+      "sourceId": "q0vw3natx54sje8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_items",
+      "sourceId": "ef1qgd1qc8qhazc",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_items",
+      "sourceId": "esc6n14n41znxk2",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_items",
+      "sourceId": "tl19ktgd7yq5xmm",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_attendance_items",
+      "sourceId": "gqklo701fp6uvvo",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_batches",
+      "sourceId": "3u2d3l1jdejtsar",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_batches",
+      "sourceId": "y2slwtg27yc7uef",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_batches",
+      "sourceId": "bymbmalk6kihap4",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_batches",
+      "sourceId": "uq3pjooailhz6s3",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_items",
+      "sourceId": "cqy6poxyr9lfcos",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_items",
+      "sourceId": "jhat1klx0zliian",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_items",
+      "sourceId": "wzy9gsa6l7bgzad",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "check_salary_items",
+      "sourceId": "341sb3zp3rvaerf",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "rnaw7r738jb1aoe",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "9voimkt675tvcg0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "2l8zob0ry4flwg1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "hruo88bu2igbfce",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "txuxx1t22wtzmzf",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "unanfuo09pf37gy",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "p1c2jov21qh65nd",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "ltl2g9w3z8yps7c",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "s6zjj8954njwtrt",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "rmqxf5xfolghnqc",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "7rdbxt2lg3homww",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "zbb2plp0emev3gn",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "72nl844pybsty2z",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "group_chat_messages",
+      "sourceId": "28ouvghlfowlw0b",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "transport_contacts",
+      "sourceId": "7ol540y6fh0jftk",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "recruitment_areas",
+      "sourceId": "18n89ml7w683v0j",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "recruitment_areas",
+      "sourceId": "wnbkrbba7onaewu",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "recruitment_areas",
+      "sourceId": "tvzh8o013e04k3j",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "recruitment_areas",
+      "sourceId": "ihq16j9k47e9shs",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "factory_managers",
+      "sourceId": "51ft0ty8i4pp07a",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "edxw0hb2252h6ci",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "06jmm3xf3nhw88r",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "a0s8wcowqzj7hco",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "y4ygkod50aypj3p",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "3lpu9qlcm3a2xlo",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "132a2namvaawqlr",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "e6pfozcbvsseq6m",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "gwk8fdwybtbzcx7",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "rt66a2z1fpcx2f0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "nd3twpu2ixxxqph",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "bk8rudo62ahfwe6",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "ev6aw2cmucph3ga",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "uqthsfspb7kup8p",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "employment_histories",
+      "sourceId": "5vpyqupf0o0z20d",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "6ur4q28t6ddh6h5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "zc6cwv282rdessk",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "icqdhsgurunbqig",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "actskmg3pr02vx8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "kwmjrw0ua33baly",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "0wm5dyblve7r39k",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "2lefnxfxe99w5p6",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "wbbmwemgblis916",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ccvpol24ltdpr7c",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "fq9r2ni4rhlqgvp",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "5voc99a0ya20cog",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ve2jhhowl0x55ag",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "vvjqtxlr7hj9qda",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "34fbghkqx79g9jf",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "bv16g8yk6znqmbt",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "gdo8kwy6sv6vs26",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "wdpxqygqcm4fnw3",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "wsbbyoag8ayopov",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "by2u5xyd42kjs83",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "a4j13ujbjejib3i",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ff5ugpktm4ufd55",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "re8kyicidpkqhjb",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "aix7634uf8zmq7d",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "4rnxjeuk7up7rfs",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "t3j62n5oz58cw4j",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "nd695e12dba2vhm",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "gygl82yfkw4fi7t",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "vfnk7g30uffpgr0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "h40e94ugljaju69",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "q8g6j2hbleheskf",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "wk9bwtzun2kks59",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "uoeujtya4ltxfwc",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "gstjoaxi2brajxr",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "abr3ofk25amxdks",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "p7krb6zrvsi1azn",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "4kcnjit3xg9nmif",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "kx9to8vsmq5wxav",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "en5svtf46lhllzg",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "yzpnrkb7f1c6iaa",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "xf8omkct7nwvhjx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "l55c9n2yg8qykok",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "mo8kkhks75il2je",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "x3whcu6numv99oz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "xe1blsgcik7abof",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "el6g2lpn596rzv8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "c612qav8s36oecb",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "3m092u8gjcitpf8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "gveysn1uko7f6tz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "jkobdrhlcdknzyw",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "h62q3sgx4bqx228",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "25k4pzhfxneikto",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "rig0audvf08nr31",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "snxrsa7oa2ibp4o",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "splut2mxcgq14k9",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "bmhbxjh9cxb9m7b",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ufn0ftuglzlcybb",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "sos2q9ypgzs0ysy",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "je3dipm8rurlohz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "kryfpa71ga7tifi",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "3jb36y2do50srk9",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "3jfojkfalzdybq8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "c2sj1t5p1ew6qvc",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "knl9dsafnlp8yqx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "jfs5jsmbmjsf1uz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "hmmg4ntvhpjzvfm",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "urwatafkiq6rwig",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "wcjf03tjcft5ign",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "eg5risz0zu9mhd9",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "t5cklphvt2qs0ck",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "vr8sy5yzinxqadm",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "xcc6wcwedxww42e",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "r4u1o6f0kxgpm0d",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "les5q5djh0rdrob",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "hnx6alpsabh8eat",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "kr75mp3d5w8c8so",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "a1b3ad4il29hzoa",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "knopi7b5bcqy61z",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "vqbof0itlowc6nk",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "9avuflckqu3zf31",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "1abl45frybudipi",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "sva8kyyhm186hvi",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "1gt34n1txd33qwn",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "01jlqyp7sj4lfqu",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "5xcsh4mm1f072uv",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "se17ufepv4uns9s",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "4ow6fr43wr2o0ag",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "q1xa61w0iv0p9sc",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "s44casatixa2bsu",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ru79vdc9y00573r",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "awsi91n6yjxez5f",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "xwuoyii4rhwflbz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "cqdxpchjnu2g9bu",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "1osjl274iaiu29y",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "51n9axphfelwj1w",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "jn0f8gy3bd0ohxl",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "29h6541tc3g6lu5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "jw147l6g12zcdrn",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "bk6gp8gw4t5dv2t",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "h91pgf56k3yi5p2",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "0641fv3mqqn8a47",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "hnn8etnzpumkkjx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "wbsng3n0r5dakrp",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "zupboq2fdntnj7r",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "3dfhhz560b1ihy3",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "yizeuo8jcbm1oxm",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "29renvnfj5m8qi4",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "c9n65x55ysjny65",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "n9e1y3tcagi0vc5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "4u2izk93eo7owv8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "wv56ex9pi5zcbcb",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "j2xggcqyr0nw94r",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "jcd5tltknbj8rmm",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "rs8d715u3qacvvt",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "4vy18na2jben06u",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "w2jcn0e7knr7a86",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "4d0xta1ep8v9c7c",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "a0iok8ld7w0zecc",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "s1i06rge7vjyidf",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "c6d2u4y3r4v9j4t",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "cmwvx91t4oa0tv0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "3s5m05larghkk69",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "q4v0kkj0u1rm0uj",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "cw3ncqufqfj6xe3",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "miya7nbx422vhh1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "qhm42kchct7uhe2",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "v7tdxr7hvlb1ctx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "abub06jgy01chy8",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "hgn6yv8ngw090qg",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "zt4p159rl8pyu4b",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "6plmj1xk5i3d4e3",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ksvw9dm7hdvgnmj",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "4a5ocdoxnpw2jse",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ecw4cdgimq3xnr7",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "rhwjcii6faa0h10",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "w7cfkvayg4edc7i",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "f8a7ifwx188f4tu",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "za6ed32rrgpuh83",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "mybke1mm9x1rfn5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "h52cxse768ph95k",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ir0ni8ojd9izjf0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "cledugw8228gcpp",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "6u3lvbd4n70odzq",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "eo9bl3lvse5vzwn",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "ipv0v2z4antxm7e",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "hvjxod7y5174mhv",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "jp2m27smfx53c86",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "t23htqmhtro24vq",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "staff_action_logs",
+      "sourceId": "vxdrvaxqh6vbowr",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "recruitment_entities",
+      "sourceId": "goqiby2k6y918es",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "recruitment_entities",
+      "sourceId": "90y06r7rvq1reu7",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "chat_rooms",
+      "sourceId": "jjlenxg4m4fvh5t",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "chat_room_members",
+      "sourceId": "22luwdpms0naa5h",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "chat_join_requests",
+      "sourceId": "0ml7o8ju8bxvr86",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "qccf72nq9ox7se4",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "rq4u2jdd0do035b",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "n0c3jyaumawmsrz",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "2nu42ch1gm3z6sk",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "biir830wg6m5c9k",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "yk3j4l5p8f2hqzo",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "0ruync3vzq9clrp",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "1c5reui6ils6ol1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "cf6d8w9ebm3av0v",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "cccd_versions",
+      "sourceId": "9m0u2ja85utbnh9",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "notebook_categories",
+      "sourceId": "eor5bvh7drk2ocb",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "approval_requests",
+      "sourceId": "mievis25degh0ft",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "approval_responses",
+      "sourceId": "m1nj7tmew7ybagd",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "push_subscriptions",
+      "sourceId": "sfa4a4oqzbqwaw1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "salary_holds",
+      "sourceId": "wd2coqdeotqcsv1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "salary_holds",
+      "sourceId": "jyw8k2psuxgyu6a",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "salary_holds",
+      "sourceId": "ge2fs3fu53ri3s0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "salary_holds",
+      "sourceId": "d7whauguupsncls",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "salary_holds",
+      "sourceId": "jwlx14gpye8epr2",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "salary_holds",
+      "sourceId": "838r6vo1mrhbor1",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "salary_holds",
+      "sourceId": "1em34a83bua0az0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "work_progress_tabs",
+      "sourceId": "35sszvnhcuqnybx",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "work_progress_statuses",
+      "sourceId": "uysrwkhnaf4qag2",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "work_progress_statuses",
+      "sourceId": "aws9nckajdl3dgj",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "work_progress_statuses",
+      "sourceId": "bnwfmz0hacylej5",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "work_progress_tasks",
+      "sourceId": "rqs2egpdq12hkx0",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "work_progress_tasks",
+      "sourceId": "xhpwjeqogm2md61",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "id",
+      "collection": "guide_documents",
+      "sourceId": "bi97g63k00t85ze",
+      "reason": "ID nguồn đã tồn tại ngoài tenant test; cần mapping thủ công trước khi apply."
+    },
+    {
+      "scope": "uid",
+      "targetId": "77uartyi6rhbl85",
+      "uid": "HL000001",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "uiv0bjbth0h2nhx",
+      "uid": "HL000002",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "dwinxx6g4tvph9b",
+      "uid": "HL000003",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "mcuithhgvxq1oer",
+      "uid": "HL000004",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "7zgadkco1qi6rb8",
+      "uid": "HL000005",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "u7i50k0teemm3mb",
+      "uid": "HL000006",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "7205g1uzun0c3zz",
+      "uid": "HL000007",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "9ghuzvtqudvfboa",
+      "uid": "HL000008",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "poivcpvlkym5av1",
+      "uid": "HL000009",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "830sc5qnu867t86",
+      "uid": "HL000010",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "bo85ujxgoa4m62c",
+      "uid": "HL000011",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "e1e5az09dfop723",
+      "uid": "HL000012",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "m9ukni4c390eaa4",
+      "uid": "HL000013",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "1ahxwxyhp7fll9i",
+      "uid": "HL000014",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "mtvfk5bviaew5vd",
+      "uid": "HL000015",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "k7ggk76o5tin1ov",
+      "uid": "HL000016",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "t1gk7bk6l6gqi91",
+      "uid": "HL000017",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "uiv0bjbth0h2nhx",
+      "uid": "HL000002",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "dwinxx6g4tvph9b",
+      "uid": "HL000003",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "mcuithhgvxq1oer",
+      "uid": "HL000004",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "7zgadkco1qi6rb8",
+      "uid": "HL000005",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "u7i50k0teemm3mb",
+      "uid": "HL000006",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "7205g1uzun0c3zz",
+      "uid": "HL000007",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "9ghuzvtqudvfboa",
+      "uid": "HL000008",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "poivcpvlkym5av1",
+      "uid": "HL000009",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "830sc5qnu867t86",
+      "uid": "HL000010",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "e1e5az09dfop723",
+      "uid": "HL000012",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "m9ukni4c390eaa4",
+      "uid": "HL000013",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "1ahxwxyhp7fll9i",
+      "uid": "HL000014",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "mtvfk5bviaew5vd",
+      "uid": "HL000015",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "k7ggk76o5tin1ov",
+      "uid": "HL000016",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "uid",
+      "targetId": "t1gk7bk6l6gqi91",
+      "uid": "HL000017",
+      "reason": "UID nguồn đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "77uartyi6rhbl85",
+      "reason": "Username hl__admin đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "uiv0bjbth0h2nhx",
+      "reason": "Username hl__nv02 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "dwinxx6g4tvph9b",
+      "reason": "Username hl__nv04 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "mcuithhgvxq1oer",
+      "reason": "Username hl__nv05 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "7zgadkco1qi6rb8",
+      "reason": "Username hl__nv06 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "u7i50k0teemm3mb",
+      "reason": "Username hl__chamchikiemtiem đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "7205g1uzun0c3zz",
+      "reason": "Username hl__codexui2355 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "9ghuzvtqudvfboa",
+      "reason": "Username hl__nv02_2 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "poivcpvlkym5av1",
+      "reason": "Username hl__nv99 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "830sc5qnu867t86",
+      "reason": "Username hl__nvhl đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "bo85ujxgoa4m62c",
+      "reason": "Username hl__nvtest đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "e1e5az09dfop723",
+      "reason": "Username hl__nldtest đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "m9ukni4c390eaa4",
+      "reason": "Username hl__0855536618 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "1ahxwxyhp7fll9i",
+      "reason": "Username hl__0343733777 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "mtvfk5bviaew5vd",
+      "reason": "Username hl__0343751753 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "k7ggk76o5tin1ov",
+      "reason": "Username hl__0225365254 đã tồn tại ngoài tenant test."
+    },
+    {
+      "scope": "user",
+      "sourceId": "t1gk7bk6l6gqi91",
+      "reason": "Username hl__codextest0823072302 đã tồn tại ngoài tenant test."
+    }
+  ],
+  "warnings": [
+    {
+      "scope": "company",
+      "reason": "Mã HL đã tồn tại; sẽ tái sử dụng để chạy idempotent."
+    },
+    {
+      "scope": "company",
+      "reason": "Không tìm thấy tenant test HOANGLONGDJC; tiếp tục vì migration không tự động purge tenant test."
+    }
+  ],
+  "counts": {
+    "users": 17,
+    "complaints": 4,
+    "app_settings": 1,
+    "advances": 6,
+    "attendance": 48,
+    "guides": 4,
+    "factories": 3,
+    "recruitments": 1,
+    "check_attendance_batches": 3,
+    "check_attendance_items": 5,
+    "check_salary_batches": 4,
+    "check_salary_items": 4,
+    "group_chat_messages": 14,
+    "transport_contacts": 1,
+    "recruitment_areas": 4,
+    "factory_managers": 1,
+    "employment_histories": 14,
+    "staff_action_logs": 148,
+    "recruitment_entities": 2,
+    "chat_rooms": 1,
+    "chat_room_members": 1,
+    "chat_join_requests": 1,
+    "cccd_versions": 10,
+    "notebook_categories": 1,
+    "notebook_entries": 0,
+    "approval_requests": 1,
+    "approval_responses": 1,
+    "push_subscriptions": 1,
+    "salary_holds": 7,
+    "work_progress_tabs": 1,
+    "work_progress_statuses": 3,
+    "work_progress_tasks": 2,
+    "guide_documents": 1
+  },
+  "mapping": {
+    "users": {
+      "77uartyi6rhbl85": {
+        "id": "new",
+        "username": "hl__admin",
+        "role": "admin"
+      },
+      "uiv0bjbth0h2nhx": {
+        "id": "new",
+        "username": "hl__nv02",
+        "role": "user"
+      },
+      "dwinxx6g4tvph9b": {
+        "id": "new",
+        "username": "hl__nv04",
+        "role": "staff"
+      },
+      "mcuithhgvxq1oer": {
+        "id": "new",
+        "username": "hl__nv05",
+        "role": "user"
+      },
+      "7zgadkco1qi6rb8": {
+        "id": "new",
+        "username": "hl__nv06",
+        "role": "user"
+      },
+      "u7i50k0teemm3mb": {
+        "id": "new",
+        "username": "hl__chamchikiemtiem",
+        "role": "user"
+      },
+      "7205g1uzun0c3zz": {
+        "id": "new",
+        "username": "hl__codexui2355",
+        "role": "user"
+      },
+      "9ghuzvtqudvfboa": {
+        "id": "new",
+        "username": "hl__nv02_2",
+        "role": "user"
+      },
+      "poivcpvlkym5av1": {
+        "id": "new",
+        "username": "hl__nv99",
+        "role": "user"
+      },
+      "830sc5qnu867t86": {
+        "id": "new",
+        "username": "hl__nvhl",
+        "role": "staff"
+      },
+      "bo85ujxgoa4m62c": {
+        "id": "new",
+        "username": "hl__nvtest",
+        "role": "admin"
+      },
+      "e1e5az09dfop723": {
+        "id": "new",
+        "username": "hl__nldtest",
+        "role": "user"
+      },
+      "m9ukni4c390eaa4": {
+        "id": "new",
+        "username": "hl__0855536618",
+        "role": "user"
+      },
+      "1ahxwxyhp7fll9i": {
+        "id": "new",
+        "username": "hl__0343733777",
+        "role": "user"
+      },
+      "mtvfk5bviaew5vd": {
+        "id": "new",
+        "username": "hl__0343751753",
+        "role": "user"
+      },
+      "k7ggk76o5tin1ov": {
+        "id": "new",
+        "username": "hl__0225365254",
+        "role": "user"
+      },
+      "t1gk7bk6l6gqi91": {
+        "id": "new",
+        "username": "hl__codextest0823072302",
+        "role": "user"
+      }
+    },
+    "workers": {
+      "uiv0bjbth0h2nhx": {
+        "sourceUserId": "uiv0bjbth0h2nhx"
+      },
+      "dwinxx6g4tvph9b": {
+        "sourceUserId": "dwinxx6g4tvph9b"
+      },
+      "mcuithhgvxq1oer": {
+        "sourceUserId": "mcuithhgvxq1oer"
+      },
+      "7zgadkco1qi6rb8": {
+        "sourceUserId": "7zgadkco1qi6rb8"
+      },
+      "u7i50k0teemm3mb": {
+        "sourceUserId": "u7i50k0teemm3mb"
+      },
+      "7205g1uzun0c3zz": {
+        "sourceUserId": "7205g1uzun0c3zz"
+      },
+      "9ghuzvtqudvfboa": {
+        "sourceUserId": "9ghuzvtqudvfboa"
+      },
+      "poivcpvlkym5av1": {
+        "sourceUserId": "poivcpvlkym5av1"
+      },
+      "830sc5qnu867t86": {
+        "sourceUserId": "830sc5qnu867t86"
+      },
+      "e1e5az09dfop723": {
+        "sourceUserId": "e1e5az09dfop723"
+      },
+      "m9ukni4c390eaa4": {
+        "sourceUserId": "m9ukni4c390eaa4"
+      },
+      "1ahxwxyhp7fll9i": {
+        "sourceUserId": "1ahxwxyhp7fll9i"
+      },
+      "mtvfk5bviaew5vd": {
+        "sourceUserId": "mtvfk5bviaew5vd"
+      },
+      "k7ggk76o5tin1ov": {
+        "sourceUserId": "k7ggk76o5tin1ov"
+      },
+      "t1gk7bk6l6gqi91": {
+        "sourceUserId": "t1gk7bk6l6gqi91"
+      }
+    },
+    "collections": {
+      "users": "users",
+      "complaints": "complaints",
+      "app_settings": "app_settings",
+      "advances": "advances",
+      "attendance": "attendance",
+      "guides": "guides",
+      "factories": "factories",
+      "recruitments": "recruitments",
+      "check_attendance_batches": "check_attendance_batches",
+      "check_attendance_items": "check_attendance_items",
+      "check_salary_batches": "check_salary_batches",
+      "check_salary_items": "check_salary_items",
+      "group_chat_messages": "group_chat_messages",
+      "transport_contacts": "transport_contacts",
+      "recruitment_areas": "recruitment_areas",
+      "factory_managers": "factory_managers",
+      "employment_histories": "employment_histories",
+      "staff_action_logs": "staff_action_logs",
+      "recruitment_entities": "recruitment_entities",
+      "chat_rooms": "chat_rooms",
+      "chat_room_members": "chat_room_members",
+      "chat_join_requests": "chat_join_requests",
+      "cccd_versions": "cccd_versions",
+      "notebook_categories": "notebook_categories",
+      "notebook_entries": "notebook_entries",
+      "approval_requests": "approval_requests",
+      "approval_responses": "approval_responses",
+      "push_subscriptions": "push_subscriptions",
+      "salary_holds": "salary_holds",
+      "work_progress_tabs": "work_progress_tabs",
+      "work_progress_statuses": "work_progress_statuses",
+      "work_progress_tasks": "work_progress_tasks",
+      "guide_documents": "guide_documents"
+    }
+  },
+  "purgePreview": null,
+  "checkpoints": [],
+  "created_ids": {
+    "companies": [],
+    "users": [],
+    "workers": [],
+    "records": {}
+  },
+  "sourceFiles": {
+    "count": 34,
+    "sha256": "69a57d7143eda9e0b882695c68212587165a6a85360ffd7e1d3b2d3040e8db7d"
+  }
+}

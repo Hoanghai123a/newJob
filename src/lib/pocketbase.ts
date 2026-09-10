@@ -4,34 +4,34 @@ import { PB_URL } from "./pocketbase-config";
 export const pb = new PocketBase(PB_URL);
 pb.autoCancellation(false);
 
-
-export type Role = "admin" | "user" | "staff";
+/** Roles for authenticated internal accounts only. */
+export type Role = "super_admin" | "admin" | "staff" | "user";
 
 export interface UserRecord {
   id: string;
   username?: string;
+  login_name?: string;
   email?: string;
   phone?: string;
   full_name?: string;
   cccd?: string;
+  cccd_issue_date?: string;
+  uid?: string;
   role?: Role;
-  approved?: boolean | string;
-  approvalStatus?: "pending" | "approved" | "rejected";
+  tenant_company?: string;
   status?: "active" | "disabled";
-  default_hc_hours?: number;
-  default_ot_hours?: number;
-  company?: string;
-  employee_code?: string;
-  lcb?: number;
-  chuyen_can?: number;
-  doi_song?: number;
-  tham_nien?: number;
   bank_name?: string;
   bank_account_number?: string;
   bank_account_name?: string;
+  bank_account_note?: string;
   collectionId?: string;
   collectionName?: string;
   avatar?: string;
+  gender?: string;
+  date_of_birth?: string;
+  address?: string;
+  must_change_password?: boolean;
+  last_login?: string;
 }
 
 /** Convert base64 dataURL to File (per HRJob skill rule #1) */

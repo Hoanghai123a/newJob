@@ -1,0 +1,161 @@
+[
+  {
+    "id": "pbc_mainhouses001",
+    "name": "recruitment_entities",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "createRule": null,
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text_mainhouses_id",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_mainhouses_name",
+        "max": 0,
+        "min": 0,
+        "name": "name",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_mainhouses_address",
+        "max": 0,
+        "min": 0,
+        "name": "address",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_mainhouses_hotline",
+        "max": 0,
+        "min": 0,
+        "name": "hotline",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_mainhouses_note",
+        "max": 0,
+        "min": 0,
+        "name": "note",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select_mainhouses_status",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": ["active", "inactive"]
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_mainhouses_legacyuid",
+        "max": 0,
+        "min": 0,
+        "name": "legacy_user_id",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_mainhouses_legacyname",
+        "max": 0,
+        "min": 0,
+        "name": "legacy_username",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_mainhouses_created",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_mainhouses_updated",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_recruitment_entities_tenant_company` ON `recruitment_entities` (`tenant_company`)",
+      "CREATE UNIQUE INDEX `idx_recruitment_entities_legacy_user` ON `recruitment_entities` (`legacy_user_id`) WHERE `legacy_user_id` != ''",
+      "CREATE INDEX `idx_recruitment_entities_name` ON `recruitment_entities` (`name`)",
+      "CREATE INDEX `idx_recruitment_entities_status` ON `recruitment_entities` (`status`)"
+    ]
+  }
+]

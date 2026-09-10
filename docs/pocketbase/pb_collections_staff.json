@@ -1,14 +1,163 @@
 [
   {
+    "id": "pbc_workers00001",
+    "name": "workers",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || auth_user = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || auth_user = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text_workers_id",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation_workers_auth",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "auth_user",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_companies",
+        "hidden": false,
+        "id": "relation_workers_tenant",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "tenant_company",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_workers_name",
+        "max": 0,
+        "min": 0,
+        "name": "full_name",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_workers_phone",
+        "max": 0,
+        "min": 0,
+        "name": "phone",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_workers_uid",
+        "max": 0,
+        "min": 0,
+        "name": "uid",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_workers_cccd",
+        "max": 0,
+        "min": 0,
+        "name": "cccd",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "date_workers_cccd_issue",
+        "max": "",
+        "min": "",
+        "name": "cccd_issue_date",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_workers_address",
+        "max": 0,
+        "min": 0,
+        "name": "address",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select_workers_status",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "select",
+        "values": ["active", "inactive"]
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_workers_auth_user` ON `workers` (`auth_user`) WHERE `auth_user` != ''",
+      "CREATE INDEX `idx_workers_tenant_company` ON `workers` (`tenant_company`)"
+    ]
+  },
+  {
     "id": "pbc_factories001",
     "name": "factories",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.role = \"admin\"",
-    "updateRule": "@request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "createRule": null,
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -23,6 +172,28 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "company",
+        "type": "relation",
+        "required": false,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "autogeneratePattern": "",
@@ -101,10 +272,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "inactive"
-        ]
+        "values": ["active", "inactive"]
       },
       {
         "autogeneratePattern": "",
@@ -119,6 +287,18 @@
         "required": false,
         "system": false,
         "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number_factories_advance_limit",
+        "max": null,
+        "min": 0,
+        "name": "advance_limit",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
       },
       {
         "hidden": false,
@@ -142,6 +322,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_factories_tenant_company` ON `factories` (`tenant_company`)",
       "CREATE UNIQUE INDEX `idx_factories_code` ON `factories` (`code`) WHERE `code` != ''",
       "CREATE UNIQUE INDEX `idx_factories_name` ON `factories` (`name`)"
     ]
@@ -151,11 +332,11 @@
     "name": "factory_managers",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.id != \"\"",
-    "viewRule": "@request.auth.id != \"\"",
-    "createRule": "@request.auth.role = \"admin\"",
-    "updateRule": "@request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -170,6 +351,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "cascadeDelete": true,
@@ -228,10 +420,7 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "active",
-          "inactive"
-        ]
+        "values": ["active", "inactive"]
       },
       {
         "autogeneratePattern": "",
@@ -269,6 +458,7 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_factory_managers_tenant_company` ON `factory_managers` (`tenant_company`)",
       "CREATE INDEX `idx_factmgrs_factory` ON `factory_managers` (`factory`)",
       "CREATE INDEX `idx_factmgrs_staff` ON `factory_managers` (`staff`)",
       "CREATE UNIQUE INDEX `idx_factmgrs_unique` ON `factory_managers` (`factory`, `staff`, `active_from`)"
@@ -279,11 +469,11 @@
     "name": "employment_histories",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id",
-    "viewRule": "@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id",
-    "createRule": "@request.auth.role = \"admin\" || @request.auth.role = \"staff\"",
-    "updateRule": "@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id)",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -300,8 +490,19 @@
         "type": "text"
       },
       {
-        "cascadeDelete": true,
-        "collectionId": "_pb_users_auth_",
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_workers00001",
         "hidden": false,
         "id": "relation_emphist_user",
         "maxSelect": 1,
@@ -322,6 +523,19 @@
         "name": "factory",
         "presentable": true,
         "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_mainhouses001",
+        "hidden": false,
+        "id": "relation_emphist_mainhouse",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "main_house",
+        "presentable": true,
+        "required": false,
         "system": false,
         "type": "relation"
       },
@@ -349,7 +563,7 @@
         "pattern": "",
         "presentable": true,
         "primaryKey": false,
-        "required": true,
+        "required": false,
         "system": false,
         "type": "text"
       },
@@ -363,7 +577,71 @@
         "pattern": "",
         "presentable": false,
         "primaryKey": false,
-        "required": true,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "date_emphist_birth_snapshot",
+        "max": "",
+        "min": "",
+        "name": "worker_date_of_birth_snapshot",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_emphist_address_snapshot",
+        "max": 0,
+        "min": 0,
+        "name": "worker_address_snapshot",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "date_emphist_cccd_issue",
+        "max": "",
+        "min": "",
+        "name": "cccd_issue_date",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_emphist_hometown",
+        "max": 0,
+        "min": 0,
+        "name": "hometown_snapshot",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_emphist_tax_code",
+        "max": 0,
+        "min": 0,
+        "name": "worker_tax_code_snapshot",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
         "system": false,
         "type": "text"
       },
@@ -376,6 +654,32 @@
         "minSelect": 0,
         "name": "recruiter_staff",
         "presentable": true,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_mainhouses001",
+        "hidden": false,
+        "id": "relation_emphist_partner",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "recruiter_partner",
+        "presentable": true,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_cccdver00001",
+        "hidden": false,
+        "id": "relation_emphist_cccdver",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "cccd_version",
+        "presentable": false,
         "required": false,
         "system": false,
         "type": "relation"
@@ -411,10 +715,19 @@
         "required": true,
         "system": false,
         "type": "select",
-        "values": [
-          "working",
-          "left"
-        ]
+        "values": ["working", "left"]
+      },
+      {
+        "hidden": false,
+        "id": "number_emphist_acc_seniority",
+        "max": null,
+        "min": 0,
+        "name": "accumulated_seniority_days",
+        "onlyInt": true,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
       },
       {
         "autogeneratePattern": "",
@@ -452,11 +765,156 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_employment_histories_tenant_company` ON `employment_histories` (`tenant_company`)",
       "CREATE INDEX `idx_emphist_user` ON `employment_histories` (`user`)",
       "CREATE INDEX `idx_emphist_factory` ON `employment_histories` (`factory`)",
       "CREATE INDEX `idx_emphist_recruiter` ON `employment_histories` (`recruiter_staff`)",
       "CREATE INDEX `idx_emphist_join_date` ON `employment_histories` (`join_date`)",
-      "CREATE UNIQUE INDEX `idx_emphist_one_active` ON `employment_histories` (`user`) WHERE `status` = 'working'"
+      "CREATE INDEX `idx_emphist_lookup_join` ON `employment_histories` (`factory`, `employee_code`, `join_date` DESC, `created` DESC)",
+      "CREATE INDEX `idx_emphist_user_latest` ON `employment_histories` (`user`, `join_date` DESC, `created` DESC)",
+      "CREATE UNIQUE INDEX `idx_emphist_one_active` ON `employment_histories` (`user`) WHERE `status` = 'working'",
+      "CREATE INDEX `idx_emphist_recruiter_partner` ON `employment_histories` (`recruiter_partner`)"
+    ]
+  },
+  {
+    "id": "pbc_cccdver00001",
+    "name": "cccd_versions",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\" || user = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text_cccdver_id",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_workers00001",
+        "hidden": false,
+        "id": "relation_cccdver_user",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "user",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_cccdver_number",
+        "max": 0,
+        "min": 0,
+        "name": "cccd_number",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "file_cccdver_front",
+        "maxSelect": 1,
+        "maxSize": 5242880,
+        "mimeTypes": ["image/jpeg", "image/png", "image/webp"],
+        "name": "front_image",
+        "presentable": false,
+        "protected": false,
+        "required": false,
+        "system": false,
+        "thumbs": ["300x200"],
+        "type": "file"
+      },
+      {
+        "hidden": false,
+        "id": "file_cccdver_back",
+        "maxSelect": 1,
+        "maxSize": 5242880,
+        "mimeTypes": ["image/jpeg", "image/png", "image/webp"],
+        "name": "back_image",
+        "presentable": false,
+        "protected": false,
+        "required": false,
+        "system": false,
+        "thumbs": ["300x200"],
+        "type": "file"
+      },
+      {
+        "hidden": false,
+        "id": "bool_cccdver_current",
+        "name": "is_current",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_cccdver_note",
+        "max": 0,
+        "min": 0,
+        "name": "note",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_cccdver_created",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_cccdver_updated",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_cccd_versions_tenant_company` ON `cccd_versions` (`tenant_company`)",
+      "CREATE INDEX `idx_cccdver_user` ON `cccd_versions` (`user`)",
+      "CREATE UNIQUE INDEX `idx_cccdver_user_cccd` ON `cccd_versions` (`user`, `cccd_number`)"
     ]
   },
   {
@@ -464,11 +922,11 @@
     "name": "staff_action_logs",
     "type": "base",
     "system": false,
-    "listRule": "@request.auth.role = \"admin\"",
-    "viewRule": "@request.auth.role = \"admin\"",
-    "createRule": "@request.auth.id != \"\"",
-    "updateRule": "@request.auth.role = \"admin\"",
-    "deleteRule": "@request.auth.role = \"admin\"",
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || @request.auth.role = \"staff\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.id != \"\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
     "fields": [
       {
         "autogeneratePattern": "[a-z0-9]{15}",
@@ -483,6 +941,17 @@
         "required": true,
         "system": true,
         "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
       },
       {
         "cascadeDelete": false,
@@ -513,7 +982,7 @@
       },
       {
         "cascadeDelete": false,
-        "collectionId": "_pb_users_auth_",
+        "collectionId": "pbc_workers00001",
         "hidden": false,
         "id": "relation_stafflog_target",
         "maxSelect": 1,
@@ -630,10 +1099,347 @@
       }
     ],
     "indexes": [
+      "CREATE INDEX `idx_staff_action_logs_tenant_company` ON `staff_action_logs` (`tenant_company`)",
       "CREATE INDEX `idx_stafflog_actor` ON `staff_action_logs` (`actor`)",
       "CREATE INDEX `idx_stafflog_target_user` ON `staff_action_logs` (`target_user`)",
       "CREATE INDEX `idx_stafflog_action` ON `staff_action_logs` (`action`)",
       "CREATE INDEX `idx_stafflog_created` ON `staff_action_logs` (`created`)"
+    ]
+  },
+  {
+    "id": "pbc_salaryhold001",
+    "name": "salary_holds",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || staff = @request.auth.id)",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\" || staff = @request.auth.id)",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"staff\" && @request.body.staff = @request.auth.id && @request.body.status = \"received\" && employment_history.recruiter_staff = @request.auth.id)",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && ((@request.auth.role = \"admin\" && ((status = \"received\" && (@request.body.status = \"approved\" || (@request.body.status = \"rejected\" && @request.body.rejection_reason:isset = true && @request.body.rejection_reason != \"\"))) || (status = \"approved\" && @request.body.status = \"disbursed\"))) || (@request.auth.role = \"staff\" && staff = @request.auth.id && status = \"received\" && @request.body.status = \"cancelled\"))",
+    "deleteRule": "tenant_company = @request.auth.tenant_company",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text_salaryhold_id",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "rel_salaryhold_worker",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "worker",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_emphist00001",
+        "hidden": false,
+        "id": "rel_salaryhold_history",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "employment_history",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "rel_salaryhold_staff",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "staff",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_factories001",
+        "hidden": false,
+        "id": "rel_salaryhold_factory",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "factory",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_workername",
+        "max": 0,
+        "min": 0,
+        "name": "worker_name",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_employeecode",
+        "max": 0,
+        "min": 0,
+        "name": "employee_code",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_company",
+        "max": 0,
+        "min": 0,
+        "name": "company_name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_bank",
+        "max": 0,
+        "min": 0,
+        "name": "staff_bank_name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_banknumber",
+        "max": 0,
+        "min": 0,
+        "name": "staff_bank_account_number",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_bankaccount",
+        "max": 0,
+        "min": 0,
+        "name": "staff_bank_account_name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number_salaryhold_amount",
+        "max": null,
+        "min": 1,
+        "name": "amount",
+        "onlyInt": true,
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_content",
+        "max": 0,
+        "min": 1,
+        "name": "content",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select_salaryhold_status",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "select",
+        "values": ["received", "approved", "rejected", "disbursed", "cancelled"]
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "rel_salaryhold_approvedby",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "approved_by",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "date_salaryhold_approved",
+        "max": "",
+        "min": "",
+        "name": "approved_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "rel_salaryhold_rejectedby",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "rejected_by",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "date_salaryhold_rejected",
+        "max": "",
+        "min": "",
+        "name": "rejected_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_salaryhold_rejectionreason",
+        "max": 1000,
+        "min": 1,
+        "name": "rejection_reason",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "rel_salaryhold_disbursedby",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "disbursed_by",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "date_salaryhold_disbursed",
+        "max": "",
+        "min": "",
+        "name": "disbursed_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "date_salaryhold_cancelled",
+        "max": "",
+        "min": "",
+        "name": "cancelled_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_salaryhold_created",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_salaryhold_updated",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_salary_holds_tenant_company` ON `salary_holds` (`tenant_company`)",
+      "CREATE INDEX `idx_salaryhold_staff` ON `salary_holds` (`staff`)",
+      "CREATE INDEX `idx_salaryhold_worker` ON `salary_holds` (`worker`)",
+      "CREATE INDEX `idx_salaryhold_factory` ON `salary_holds` (`factory`)",
+      "CREATE INDEX `idx_salaryhold_status` ON `salary_holds` (`status`)",
+      "CREATE INDEX `idx_salaryhold_created` ON `salary_holds` (`created`)"
     ]
   }
 ]

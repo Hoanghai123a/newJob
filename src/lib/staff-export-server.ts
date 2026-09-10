@@ -1,0 +1,472 @@
+import * as XLSX from "xlsx";
+
+import { relationInFilter } from "./delegations";
+import { isCurrentlyWorking, type EmploymentHistoryRecord } from "./employment";
+import { buildExcelWorkbook } from "./excel";
+import { getPBUpstream } from "./pocketbase-config";
+import type { UserRecord } from "./pocketbase";
+import { getRecruiterDisplay } from "./recruiters";
+import { getCompanyForUser } from "./tenant-server";
+import { resolveBankCode } from "./vn-banks";
+
+type ExportMode = "basic" | "full";
+type ExportStatus = "all" | "working" | "left";
+
+type ExportRequestBody = {
+  factoryIds?: unknown;
+  mode?: unknown;
+  status?: unknown;
+  historyFromDate?: unknown;
+};
+
+type FactoryManagerRecord = {
+  factory: string;
+  status?: string;
+  active_from?: string;
+  active_to?: string;
+};
+
+type PocketBaseList<T> = {
+  page: number;
+  totalPages: number;
+  items: T[];
+};
+
+class PocketBaseExportError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly responseBody?: unknown,
+  ) {
+    super(message);
+    this.name = "PocketBaseExportError";
+  }
+}
+
+function jsonError(message: string, status = 400) {
+  return Response.json({ message }, { status });
+}
+
+function bearerToken(request: Request) {
+  return /^Bearer\s+(.+)$/i.exec(request.headers.get("authorization") || "")?.[1] || "";
+}
+
+async function pbFetch(path: string, init: RequestInit = {}, token?: string) {
+  const headers = new Headers(init.headers);
+  headers.set("ngrok-skip-browser-warning", "true");
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  return fetch(`${getPBUpstream()}${path}`, { ...init, headers });
+}
+
+async function readJson(response: Response) {
+  return response.json().catch(() => null);
+}
+
+async function getAuthenticatedStaff(request: Request) {
+  const token = bearerToken(request);
+  if (!token) return null;
+
+  const response = await pbFetch("/api/collections/users/auth-refresh", { method: "POST" }, token);
+  if (!response.ok) return null;
+
+  const body = await readJson(response);
+  const user = body?.record as UserRecord | undefined;
+  if (!user?.id || (user.role !== "admin" && user.role !== "staff")) return null;
+  return { token, user };
+}
+
+function escapePb(value: string) {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function isManagerActive(record: FactoryManagerRecord, referenceDate = new Date()) {
+  if (record.status === "inactive") return false;
+  const now = referenceDate.getTime();
+  const from = record.active_from ? Date.parse(record.active_from) : Number.NEGATIVE_INFINITY;
+  const to = record.active_to ? Date.parse(record.active_to) : Number.POSITIVE_INFINITY;
+  return (Number.isNaN(from) || from <= now) && (Number.isNaN(to) || to >= now);
+}
+
+async function fetchManagedFactoryIds(staffId: string, token: string) {
+  const query = new URLSearchParams({
+    page: "1",
+    perPage: "500",
+    filter: `staff="${escapePb(staffId)}"`,
+    fields: "factory,status,active_from,active_to",
+  });
+  const response = await pbFetch(
+    `/api/collections/factory_managers/records?${query}`,
+    { method: "GET" },
+    token,
+  );
+  if (!response.ok) {
+    const body = await readJson(response);
+    console.error("[staff-export] factory_managers request failed", {
+      status: response.status,
+      staffId,
+      body,
+    });
+    throw new PocketBaseExportError(
+      response.status === 403
+        ? "Tài khoản Staff không có quyền đọc phạm vi nhà máy được phân công trong PocketBase."
+        : "Không tải được phạm vi nhà máy được quản lý từ PocketBase.",
+      response.status,
+      body,
+    );
+  }
+  const body = (await readJson(response)) as PocketBaseList<FactoryManagerRecord> | null;
+  return new Set(
+    (body?.items || []).filter((record) => isManagerActive(record)).map((record) => record.factory),
+  );
+}
+
+function dateOnly(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function timestampForFilename(date = new Date()) {
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}_${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+}
+
+function sanitizeCompanyCode(value: unknown) {
+  return (
+    String(value || "")
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9_.-]/g, "_") || "CONG_TY"
+  );
+}
+
+export function buildStaffHistoryExportFilename(companyCode: unknown, now = new Date()) {
+  return `${sanitizeCompanyCode(companyCode)}_Lich_su_NLD_${timestampForFilename(now)}.xlsx`;
+}
+
+function isValidIsoDate(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+  );
+}
+
+function buildHistoryFilter(
+  user: UserRecord,
+  factoryIds: string[],
+  status: ExportStatus,
+  historyFromDate: string,
+  managedFactoryIds: Set<string>,
+) {
+  const selectedFactoryFilter = `(${relationInFilter("factory", factoryIds)})`;
+  const parts = [selectedFactoryFilter, `(leave_date="" || leave_date>="${historyFromDate}")`];
+
+  if (user.role === "staff") {
+    const permissionParts = [`recruiter_staff="${escapePb(user.id)}"`];
+    if (managedFactoryIds.size) {
+      permissionParts.unshift(`(${relationInFilter("factory", [...managedFactoryIds])})`);
+    }
+    parts.push(`(${permissionParts.join(" || ")})`);
+  }
+
+  const today = dateOnly(new Date());
+  if (status === "working") parts.push(`(leave_date="" || leave_date>"${today}")`);
+  if (status === "left") parts.push(`(leave_date!="" && leave_date<="${today}")`);
+  return parts.join(" && ");
+}
+
+async function fetchAllHistories(filter: string, token: string) {
+  const histories: EmploymentHistoryRecord[] = [];
+  let page = 1;
+  let totalPages = 1;
+
+  do {
+    const query = new URLSearchParams({
+      page: String(page),
+      perPage: "500",
+      filter,
+      sort: "-join_date,-created",
+      expand: "worker,factory,recruiter_staff,recruiter_partner,main_house",
+    });
+    const response = await pbFetch(
+      `/api/collections/employment_histories/records?${query}`,
+      { method: "GET" },
+      token,
+    );
+    if (!response.ok) {
+      const body = await readJson(response);
+      console.error("[staff-export] employment_histories request failed", {
+        status: response.status,
+        filter,
+        body,
+      });
+      throw new PocketBaseExportError(
+        response.status === 403
+          ? "Tài khoản Staff không có quyền đọc lịch sử đi làm trong PocketBase."
+          : "Không tải được lịch sử đi làm từ PocketBase.",
+        response.status,
+        body,
+      );
+    }
+
+    const body = (await readJson(response)) as PocketBaseList<EmploymentHistoryRecord> | null;
+    histories.push(...(body?.items || []));
+    totalPages = Math.max(1, Number(body?.totalPages || 1));
+    page += 1;
+  } while (page <= totalPages);
+
+  return histories;
+}
+
+type LatestWorkerInfo = {
+  isWorking: boolean;
+  leaveDate: string;
+};
+
+async function fetchLatestWorkerInfo(workerIds: string[], token: string) {
+  const infoMap = new Map<string, LatestWorkerInfo>();
+  if (!workerIds.length) return infoMap;
+
+  const uniqueWorkerIds = [...new Set(workerIds)];
+  const chunkSize = 100;
+
+  for (let i = 0; i < uniqueWorkerIds.length; i += chunkSize) {
+    const chunk = uniqueWorkerIds.slice(i, i + chunkSize);
+    const workerFilter = `(${relationInFilter("worker", chunk)})`;
+
+    const query = new URLSearchParams({
+      page: "1",
+      perPage: String(chunk.length),
+      filter: workerFilter,
+      sort: "-join_date,-created",
+      fields: "id,worker,leave_date,join_date",
+    });
+
+    const response = await pbFetch(
+      `/api/collections/employment_histories/records?${query}`,
+      { method: "GET" },
+      token,
+    );
+
+    if (!response.ok) {
+      console.warn("[staff-export] failed to fetch latest worker info", {
+        status: response.status,
+        chunk: chunk.length,
+      });
+      continue;
+    }
+
+    const body = (await readJson(response)) as PocketBaseList<EmploymentHistoryRecord> | null;
+    const records = body?.items || [];
+
+    const workerLatestMap = new Map<string, EmploymentHistoryRecord>();
+    for (const record of records) {
+      if (!record.worker) continue;
+      const existing = workerLatestMap.get(record.worker);
+      if (!existing) {
+        workerLatestMap.set(record.worker, record);
+        continue;
+      }
+
+      const recordJoinDate = record.join_date ? Date.parse(record.join_date) : 0;
+      const existingJoinDate = existing.join_date ? Date.parse(existing.join_date) : 0;
+      if (recordJoinDate > existingJoinDate) {
+        workerLatestMap.set(record.worker, record);
+      } else if (recordJoinDate === existingJoinDate) {
+        const recordCreated = record.created ? Date.parse(record.created) : 0;
+        const existingCreated = existing.created ? Date.parse(existing.created) : 0;
+        if (recordCreated > existingCreated) {
+          workerLatestMap.set(record.worker, record);
+        }
+      }
+    }
+
+    for (const [workerId, latestRecord] of workerLatestMap) {
+      infoMap.set(workerId, {
+        isWorking: isCurrentlyWorking(latestRecord),
+        leaveDate: latestRecord.leave_date || "",
+      });
+    }
+  }
+
+  return infoMap;
+}
+
+async function resolveExportCompanyCode(user: UserRecord) {
+  try {
+    const company = await getCompanyForUser(user);
+    if (company?.code) return company.code;
+  } catch (error) {
+    console.warn("[staff-export] could not resolve company code for filename", error);
+  }
+  return user.username?.split("__", 1)[0] || user.tenant_company || "";
+}
+
+function formatDateOnly(value?: string) {
+  if (!value) return "";
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
+}
+
+function buildBasicRows(histories: EmploymentHistoryRecord[], latestInfoMap: Map<string, LatestWorkerInfo>) {
+  return histories.map((history, index) => {
+    const recruiter = getRecruiterDisplay(history);
+    const workerId = history.worker || "";
+    const latestInfo = latestInfoMap.get(workerId);
+    const latestStatus = latestInfo ? (latestInfo.isWorking ? "Đang làm" : "Đã nghỉ") : "";
+    const latestLeaveDate = latestInfo ? formatDateOnly(latestInfo.leaveDate) : "";
+    return {
+      STT: index + 1,
+      "Mã lịch sử": history.uid || "",
+      "Mã nhân viên": history.employee_code || "",
+      "Họ tên tại thời điểm đi làm": history.worker_name_snapshot || "",
+      "CCCD tại thời điểm đi làm": history.worker_cccd_snapshot || "",
+      "Ngày sinh tại thời điểm đi làm": formatDateOnly(history.worker_date_of_birth_snapshot),
+      "Địa chỉ thường trú tại thời điểm đi làm":
+        history.worker_address_snapshot || history.hometown_snapshot || "",
+      "Ngày cấp CCCD tại thời điểm đi làm": formatDateOnly(history.cccd_issue_date),
+      "Mã số thuế": history.worker_tax_code_snapshot || "",
+      "Người tuyển": recruiter?.name || "",
+      "Loại người tuyển": recruiter?.label || "",
+      "Nhà máy": history.expand?.factory?.name || "",
+      "Nhà chính": history.expand?.main_house?.name || "",
+      "Ngày vào": formatDateOnly(history.join_date),
+      "Ngày nghỉ": formatDateOnly(history.leave_date),
+      "Trạng thái": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
+      "Trạng thái làm việc": latestStatus,
+      "Ngày nghỉ cuối cùng": latestLeaveDate,
+      "Thâm niên tích luỹ (ngày)": history.accumulated_seniority_days ?? 0,
+      "Tài khoản gốc": history.expand?.worker?.full_name || history.expand?.worker?.username || "",
+      "Số điện thoại": history.expand?.worker?.phone || "",
+      "Giới tính": history.expand?.worker?.gender || "",
+    };
+  });
+}
+
+function buildFullRows(histories: EmploymentHistoryRecord[], latestInfoMap: Map<string, LatestWorkerInfo>) {
+  return histories.map((history, index) => {
+    const user = history.expand?.worker;
+    const recruiter = getRecruiterDisplay(history);
+    const workerId = history.worker || "";
+    const latestInfo = latestInfoMap.get(workerId);
+    const latestStatus = latestInfo ? (latestInfo.isWorking ? "Đang làm" : "Đã nghỉ") : "";
+    const latestLeaveDate = latestInfo ? formatDateOnly(latestInfo.leaveDate) : "";
+    return {
+      STT: index + 1,
+      "Mã tài khoản (UID)": user?.uid || "",
+      "Mã lịch sử": history.uid || "",
+      "Mã nhân viên": history.employee_code || "",
+      "Họ tên tại thời điểm đi làm": history.worker_name_snapshot || "",
+      "CCCD tại thời điểm đi làm": history.worker_cccd_snapshot || "",
+      "Số điện thoại": user?.phone || "",
+      "Giới tính": user?.gender || "",
+      "Ngày sinh tại thời điểm đi làm": formatDateOnly(history.worker_date_of_birth_snapshot),
+      "Địa chỉ thường trú tại thời điểm đi làm":
+        history.worker_address_snapshot || history.hometown_snapshot || "",
+      "Nhà máy": history.expand?.factory?.name || "",
+      "Nhà chính": history.expand?.main_house?.name || "",
+      "Ngày vào": formatDateOnly(history.join_date),
+      "Ngày nghỉ": formatDateOnly(history.leave_date),
+      "Người tuyển": recruiter?.name || "",
+      "Loại người tuyển": recruiter?.label || "",
+      "Ngày cấp CCCD tại thời điểm đi làm": formatDateOnly(history.cccd_issue_date),
+      "Thâm niên tích luỹ (ngày)": history.accumulated_seniority_days ?? 0,
+      "Mã số thuế": history.worker_tax_code_snapshot || "",
+      "Trạng thái lịch sử": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
+      "Trạng thái làm việc": latestStatus,
+      "Ngày nghỉ cuối cùng": latestLeaveDate,
+      "Ghi chú": history.note || "",
+      "Ngân hàng": resolveBankCode(user?.bank_name || ""),
+      "Số tài khoản": user?.bank_account_number || "",
+      "Tên chủ tài khoản": user?.bank_account_name || "",
+      "Ghi chú STK": user?.bank_account_note || "",
+      "Tên đăng nhập": user?.username || "",
+      "Vai trò": user?.role || "",
+      "Trạng thái tài khoản": user?.status || "",
+    };
+  });
+}
+
+function createWorkbook(rows: Record<string, unknown>[], mode: ExportMode) {
+  const sheetName = mode === "basic" ? "Lao động cơ bản" : "Lao động đầy đủ";
+  const workbook = buildExcelWorkbook({ [sheetName]: rows });
+  return XLSX.write(workbook, { bookType: "xlsx", type: "buffer" }) as Uint8Array;
+}
+
+export async function handleStaffExcelExport(request: Request) {
+  if (request.method !== "POST") return jsonError("Phương thức không được hỗ trợ.", 405);
+
+  const auth = await getAuthenticatedStaff(request);
+  if (!auth)
+    return jsonError("Phiên đăng nhập không hợp lệ hoặc không có quyền xuất dữ liệu.", 401);
+
+  const body = (await request.json().catch(() => null)) as ExportRequestBody | null;
+  const factoryIds = Array.isArray(body?.factoryIds)
+    ? [
+        ...new Set(
+          body.factoryIds.filter(
+            (value): value is string => typeof value === "string" && value.length > 0,
+          ),
+        ),
+      ]
+    : [];
+  const mode: ExportMode = body?.mode === "basic" ? "basic" : "full";
+  const status: ExportStatus =
+    body?.status === "working" || body?.status === "left" ? body.status : "all";
+  const historyFromDate =
+    typeof body?.historyFromDate === "string" ? body.historyFromDate.trim() : "";
+
+  if (!factoryIds.length) return jsonError("Vui lòng chọn ít nhất một nhà máy.");
+  if (!isValidIsoDate(historyFromDate)) {
+    return jsonError("Vui lòng chọn ngày bắt đầu lịch sử hợp lệ.");
+  }
+  if (factoryIds.length > 200) return jsonError("Số lượng nhà máy được chọn vượt quá giới hạn.");
+
+  try {
+    const managedFactoryIds =
+      auth.user.role === "staff"
+        ? await fetchManagedFactoryIds(auth.user.id, auth.token)
+        : new Set<string>();
+    const filter = buildHistoryFilter(
+      auth.user,
+      factoryIds,
+      status,
+      historyFromDate,
+      managedFactoryIds,
+    );
+    const histories = await fetchAllHistories(filter, auth.token);
+    if (!histories.length) return jsonError("Không có dữ liệu phù hợp để xuất.", 404);
+
+    const workerIds = histories.map((h) => h.worker).filter((id): id is string => Boolean(id));
+    const latestInfoMap = await fetchLatestWorkerInfo(workerIds, auth.token);
+
+    const rows = mode === "basic" ? buildBasicRows(histories, latestInfoMap) : buildFullRows(histories, latestInfoMap);
+    const file = createWorkbook(rows, mode);
+    const companyCode = await resolveExportCompanyCode(auth.user);
+    const filename = buildStaffHistoryExportFilename(companyCode);
+
+    return new Response(file, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store",
+        "X-Export-Row-Count": String(rows.length),
+      },
+    });
+  } catch (error) {
+    console.error("[staff-export]", error);
+    if (error instanceof PocketBaseExportError) {
+      const status = error.status === 403 ? 403 : error.status >= 500 ? 502 : 400;
+      return jsonError(error.message, status);
+    }
+    return jsonError(error instanceof Error ? error.message : "Không thể tạo file Excel.", 500);
+  }
+}

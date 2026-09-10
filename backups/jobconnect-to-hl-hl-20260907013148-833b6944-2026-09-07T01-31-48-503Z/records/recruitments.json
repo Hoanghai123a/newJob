@@ -1,0 +1,37 @@
+[
+  {
+    "admin_phone": "",
+    "allowance": "800.000",
+    "area": "Bá Thiện 1",
+    "bonus_other": "",
+    "collectionId": "pbc_3864782046",
+    "collectionName": "recruitments",
+    "company": "Compal",
+    "created": "2026-05-21 19:46:42.643Z",
+    "documents": "CCCD gốc (nhận hình ảnh), đi giày, chuẩn bị ổ khóa",
+    "employment_type": "official",
+    "environment": "normal_room",
+    "gender": [
+      "male",
+      "female"
+    ],
+    "id": "uqonp7d2zre6d7t",
+    "images": [
+      "compal_h43z4k8fde.png",
+      "compal1_hg7lyas70w.jpg",
+      "compal2_kq29qbfus1.jpg"
+    ],
+    "interview_time": "8:00",
+    "introduction": "Công ty sản xuất linh kiện điện tử cáp sạc, tai nghe, bản mạch laptop",
+    "is_active": true,
+    "map_url": "https://maps.app.goo.gl/ubqPamP2Pfb8iDRt9",
+    "notes": "Không nhận dưới 7 ngày.",
+    "production_qc": "production",
+    "production_qc_note": "",
+    "recruitment_deadline": "10/05",
+    "salary_base": "5.500.000",
+    "short_term_salary": "",
+    "updated": "2026-06-27 10:27:29.740Z",
+    "work_posture": "sitting"
+  }
+]

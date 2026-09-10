@@ -6,7 +6,6 @@ export function isProfileComplete(user: Partial<UserRecord> | null | undefined):
   const required: Array<keyof UserRecord> = [
     "full_name",
     "phone",
-    "employee_code",
     "bank_name",
     "bank_account_number",
     "bank_account_name",

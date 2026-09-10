@@ -1,0 +1,392 @@
+[
+  {
+    "batch": "",
+    "collectionId": "pbc_1979918153",
+    "collectionName": "check_attendance_items",
+    "created": "2026-05-22 09:03:35.954Z",
+    "id": "q0vw3natx54sje8",
+    "month": "2026-05",
+    "round_no": 1,
+    "rows": [
+      {
+        "date": "2026-05-01",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 2,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-02",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 1,
+        "shift": "night"
+      },
+      {
+        "date": "2026-05-03",
+        "hc_hours": 8,
+        "is_holiday": true,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-04",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-05",
+        "hc_hours": 8,
+        "is_holiday": true,
+        "ot_hours": 2,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-06",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-10",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      }
+    ],
+    "summary": {
+      "r100": 26,
+      "r130": 6,
+      "r150": 5,
+      "r200": 12,
+      "r270": 0,
+      "r300": 18,
+      "r390": 0
+    },
+    "updated": "2026-06-30 13:15:26.866Z",
+    "user": "dwinxx6g4tvph9b"
+  },
+  {
+    "batch": "nglrcjq3cpt2ohe",
+    "collectionId": "pbc_1979918153",
+    "collectionName": "check_attendance_items",
+    "created": "2026-05-22 09:19:22.990Z",
+    "id": "ef1qgd1qc8qhazc",
+    "month": "2026-05",
+    "round_no": 2,
+    "rows": [
+      {
+        "date": "2026-05-01",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 2,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-02",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 1,
+        "shift": "night"
+      },
+      {
+        "date": "2026-05-03",
+        "hc_hours": 8,
+        "is_holiday": true,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-05",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-05-08",
+        "hc_hours": 8,
+        "is_holiday": true,
+        "ot_hours": 3,
+        "shift": "night"
+      },
+      {
+        "date": "2026-05-09",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      }
+    ],
+    "summary": {
+      "r100": 20,
+      "r130": 20,
+      "r150": 6,
+      "r200": 0,
+      "r270": 7,
+      "r300": 16,
+      "r390": 0
+    },
+    "updated": "2026-05-22 09:19:22.990Z",
+    "user": "dwinxx6g4tvph9b"
+  },
+  {
+    "batch": "qlp8m5h6jqcm95l",
+    "collectionId": "pbc_1979918153",
+    "collectionName": "check_attendance_items",
+    "created": "2026-06-30 12:06:49.806Z",
+    "id": "esc6n14n41znxk2",
+    "month": "2026-06",
+    "round_no": 1,
+    "rows": [
+      {
+        "date": "2026-06-01",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 2,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-02",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 1,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-03",
+        "hc_hours": 8,
+        "is_holiday": true,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-04",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-05",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-06",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-07",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-08",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "night"
+      },
+      {
+        "date": "2026-06-09",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 0,
+        "shift": "night"
+      }
+    ],
+    "summary": {
+      "r100": 52,
+      "r130": 12,
+      "r150": 16,
+      "r200": 10,
+      "r270": 0,
+      "r300": 8,
+      "r390": 0
+    },
+    "updated": "2026-06-30 12:06:49.806Z",
+    "user": "9ghuzvtqudvfboa"
+  },
+  {
+    "batch": "",
+    "collectionId": "pbc_1979918153",
+    "collectionName": "check_attendance_items",
+    "created": "2026-06-30 13:03:55.645Z",
+    "id": "tl19ktgd7yq5xmm",
+    "month": "2026-06",
+    "round_no": 2,
+    "rows": [
+      {
+        "date": "2026-06-01",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 2,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-02",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 1,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-03",
+        "hc_hours": 8,
+        "is_holiday": true,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-04",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-05",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-06",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-07",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-08",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "night"
+      },
+      {
+        "date": "2026-06-09",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 0,
+        "shift": "night"
+      }
+    ],
+    "summary": {
+      "r100": 52,
+      "r130": 12,
+      "r150": 16,
+      "r200": 10,
+      "r270": 0,
+      "r300": 8,
+      "r390": 0
+    },
+    "updated": "2026-06-30 13:15:26.852Z",
+    "user": "poivcpvlkym5av1"
+  },
+  {
+    "batch": "rxf73kqq6qbmzq5",
+    "collectionId": "pbc_1979918153",
+    "collectionName": "check_attendance_items",
+    "created": "2026-06-30 13:16:23.898Z",
+    "id": "gqklo701fp6uvvo",
+    "month": "2026-06",
+    "round_no": 4,
+    "rows": [
+      {
+        "date": "2026-06-01",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 2,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-02",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 1,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-03",
+        "hc_hours": 8,
+        "is_holiday": true,
+        "ot_hours": 0,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-07",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "day"
+      },
+      {
+        "date": "2026-06-08",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "night"
+      },
+      {
+        "date": "2026-06-09",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 0,
+        "shift": "night"
+      },
+      {
+        "date": "2026-06-10",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "night"
+      },
+      {
+        "date": "2026-06-11",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 3,
+        "shift": "night"
+      },
+      {
+        "date": "2026-06-12",
+        "hc_hours": 8,
+        "is_holiday": false,
+        "ot_hours": 0,
+        "shift": "night"
+      }
+    ],
+    "summary": {
+      "r100": 42,
+      "r130": 20,
+      "r150": 10,
+      "r200": 16,
+      "r270": 0,
+      "r300": 8,
+      "r390": 0
+    },
+    "updated": "2026-06-30 13:16:23.898Z",
+    "user": "poivcpvlkym5av1"
+  }
+]

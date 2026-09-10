@@ -33,18 +33,12 @@
         }
       ],
       "output_path": "decoded/idle.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "no deterministic derivation is configured for this state"
@@ -68,18 +62,12 @@
         }
       ],
       "output_path": "decoded/running-right.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "no deterministic derivation is configured for this state"
@@ -107,20 +95,12 @@
         }
       ],
       "output_path": "decoded/running-left.png",
-      "depends_on": [
-        "base",
-        "running-right"
-      ],
+      "depends_on": ["base", "running-right"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base",
-        "running-right"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base", "running-right"],
       "derivation_policy": {
         "may_derive": true,
         "may_derive_from": "running-right",
@@ -153,18 +133,12 @@
         }
       ],
       "output_path": "decoded/waving.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "state requires its own generated animation semantics"
@@ -188,18 +162,12 @@
         }
       ],
       "output_path": "decoded/jumping.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "state requires its own generated animation semantics"
@@ -223,18 +191,12 @@
         }
       ],
       "output_path": "decoded/failed.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "state requires its own generated animation semantics"
@@ -258,18 +220,12 @@
         }
       ],
       "output_path": "decoded/waiting.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "state requires its own generated animation semantics"
@@ -293,18 +249,12 @@
         }
       ],
       "output_path": "decoded/running.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "state requires its own generated animation semantics"
@@ -328,18 +278,12 @@
         }
       ],
       "output_path": "decoded/review.png",
-      "depends_on": [
-        "base"
-      ],
+      "depends_on": ["base"],
       "generation_skill": "$imagegen",
       "requires_grounded_generation": true,
       "allow_prompt_only_generation": false,
-      "identity_reference_paths": [
-        "references/canonical-base.png"
-      ],
-      "parallelizable_after": [
-        "base"
-      ],
+      "identity_reference_paths": ["references/canonical-base.png"],
+      "parallelizable_after": ["base"],
       "derivation_policy": {
         "may_derive": false,
         "reason": "state requires its own generated animation semantics"

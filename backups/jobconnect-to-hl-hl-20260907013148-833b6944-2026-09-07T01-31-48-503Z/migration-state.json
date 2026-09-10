@@ -1,0 +1,29 @@
+{
+  "migration_run_id": "hl-20260907013148-833b6944",
+  "status": "completed",
+  "checkpoint": "users-workers",
+  "checkpoints": [
+    {
+      "name": "preflight",
+      "status": "completed",
+      "at": "2026-09-07T01:31:48.862Z"
+    },
+    {
+      "name": "company",
+      "status": "completed",
+      "at": "2026-09-07T01:31:48.868Z"
+    },
+    {
+      "name": "users-workers",
+      "status": "completed",
+      "at": "2026-09-07T01:31:50.710Z"
+    }
+  ],
+  "created": {
+    "company": 1,
+    "users": 17,
+    "workers": 13,
+    "records": {}
+  },
+  "companyId": "w1d09xd2s91ivoe"
+}

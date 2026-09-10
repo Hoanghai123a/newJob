@@ -1,0 +1,886 @@
+{
+  "apply": true,
+  "direct": true,
+  "created_at": "2026-09-07T01:44:06.434Z",
+  "migration_run_id": "hl-20260907014406-143e400a",
+  "sourceUrl": "http://127.0.0.1:8090",
+  "targetUrl": "http://localhost:8290",
+  "backupDir": "D:\\My App\\newApp\\backups\\jobconnect-to-hl-hl-20260907014406-143e400a-2026-09-07T01-44-06-434Z",
+  "excludedCollections": [
+    "garden_foods",
+    "garden_exchange_tiers",
+    "garden_balances",
+    "garden_exchange_requests",
+    "garden_visit_saves",
+    "garden_game_sessions",
+    "garden_gem_rewards",
+    "garden_duels",
+    "garden_coin_logs",
+    "gems",
+    "gem_transactions",
+    "minesweeper",
+    "minesweeper_scores",
+    "counter",
+    "counters",
+    "game_sessions",
+    "game_scores"
+  ],
+  "unresolved": [],
+  "warnings": [
+    {
+      "scope": "company",
+      "reason": "Không tìm thấy tenant test HOANGLONGDJC; tiếp tục vì migration không tự động purge tenant test."
+    }
+  ],
+  "counts": {
+    "users": 17,
+    "complaints": 4,
+    "app_settings": 1,
+    "advances": 6,
+    "attendance": 48,
+    "guides": 4,
+    "factories": 3,
+    "recruitments": 1,
+    "check_attendance_batches": 3,
+    "check_attendance_items": 5,
+    "check_salary_batches": 4,
+    "check_salary_items": 4,
+    "group_chat_messages": 14,
+    "transport_contacts": 1,
+    "recruitment_areas": 4,
+    "factory_managers": 1,
+    "employment_histories": 14,
+    "staff_action_logs": 148,
+    "recruitment_entities": 2,
+    "chat_rooms": 1,
+    "chat_room_members": 1,
+    "chat_join_requests": 1,
+    "cccd_versions": 10,
+    "notebook_categories": 1,
+    "notebook_entries": 0,
+    "approval_requests": 1,
+    "approval_responses": 1,
+    "push_subscriptions": 1,
+    "salary_holds": 7,
+    "work_progress_tabs": 1,
+    "work_progress_statuses": 3,
+    "work_progress_tasks": 2,
+    "guide_documents": 1
+  },
+  "mapping": {
+    "users": {
+      "77uartyi6rhbl85": {
+        "id": "77uartyi6rhbl85",
+        "username": "hl__admin",
+        "role": "admin"
+      },
+      "uiv0bjbth0h2nhx": {
+        "id": "uiv0bjbth0h2nhx",
+        "username": "hl__nv02",
+        "role": "user"
+      },
+      "dwinxx6g4tvph9b": {
+        "id": "dwinxx6g4tvph9b",
+        "username": "hl__nv04",
+        "role": "staff"
+      },
+      "mcuithhgvxq1oer": {
+        "id": "mcuithhgvxq1oer",
+        "username": "hl__nv05",
+        "role": "user"
+      },
+      "7zgadkco1qi6rb8": {
+        "id": "7zgadkco1qi6rb8",
+        "username": "hl__nv06",
+        "role": "user"
+      },
+      "u7i50k0teemm3mb": {
+        "id": "u7i50k0teemm3mb",
+        "username": "hl__chamchikiemtiem",
+        "role": "user"
+      },
+      "7205g1uzun0c3zz": {
+        "id": "7205g1uzun0c3zz",
+        "username": "hl__codexui2355",
+        "role": "user"
+      },
+      "9ghuzvtqudvfboa": {
+        "id": "9ghuzvtqudvfboa",
+        "username": "hl__nv02_2",
+        "role": "user"
+      },
+      "poivcpvlkym5av1": {
+        "id": "poivcpvlkym5av1",
+        "username": "hl__nv99",
+        "role": "user"
+      },
+      "830sc5qnu867t86": {
+        "id": "830sc5qnu867t86",
+        "username": "hl__nvhl",
+        "role": "staff"
+      },
+      "bo85ujxgoa4m62c": {
+        "id": "bo85ujxgoa4m62c",
+        "username": "hl__nvtest",
+        "role": "admin"
+      },
+      "e1e5az09dfop723": {
+        "id": "e1e5az09dfop723",
+        "username": "hl__nldtest",
+        "role": "user"
+      },
+      "m9ukni4c390eaa4": {
+        "id": "m9ukni4c390eaa4",
+        "username": "hl__0855536618",
+        "role": "user"
+      },
+      "1ahxwxyhp7fll9i": {
+        "id": "1ahxwxyhp7fll9i",
+        "username": "hl__0343733777",
+        "role": "user"
+      },
+      "mtvfk5bviaew5vd": {
+        "id": "mtvfk5bviaew5vd",
+        "username": "hl__0343751753",
+        "role": "user"
+      },
+      "k7ggk76o5tin1ov": {
+        "id": "k7ggk76o5tin1ov",
+        "username": "hl__0225365254",
+        "role": "user"
+      },
+      "t1gk7bk6l6gqi91": {
+        "id": "t1gk7bk6l6gqi91",
+        "username": "hl__codextest0823072302",
+        "role": "user"
+      }
+    },
+    "workers": {
+      "uiv0bjbth0h2nhx": {
+        "id": "uiv0bjbth0h2nhx",
+        "sourceUserId": "uiv0bjbth0h2nhx"
+      },
+      "dwinxx6g4tvph9b": {
+        "id": "dwinxx6g4tvph9b",
+        "sourceUserId": "dwinxx6g4tvph9b"
+      },
+      "mcuithhgvxq1oer": {
+        "id": "mcuithhgvxq1oer",
+        "sourceUserId": "mcuithhgvxq1oer"
+      },
+      "7zgadkco1qi6rb8": {
+        "id": "7zgadkco1qi6rb8",
+        "sourceUserId": "7zgadkco1qi6rb8"
+      },
+      "u7i50k0teemm3mb": {
+        "id": "u7i50k0teemm3mb",
+        "sourceUserId": "u7i50k0teemm3mb"
+      },
+      "7205g1uzun0c3zz": {
+        "id": "7205g1uzun0c3zz",
+        "sourceUserId": "7205g1uzun0c3zz"
+      },
+      "9ghuzvtqudvfboa": {
+        "id": "9ghuzvtqudvfboa",
+        "sourceUserId": "9ghuzvtqudvfboa"
+      },
+      "poivcpvlkym5av1": {
+        "id": "poivcpvlkym5av1",
+        "sourceUserId": "poivcpvlkym5av1"
+      },
+      "830sc5qnu867t86": {
+        "id": "830sc5qnu867t86",
+        "sourceUserId": "830sc5qnu867t86"
+      },
+      "e1e5az09dfop723": {
+        "id": "e1e5az09dfop723",
+        "sourceUserId": "e1e5az09dfop723"
+      },
+      "m9ukni4c390eaa4": {
+        "id": "m9ukni4c390eaa4",
+        "sourceUserId": "m9ukni4c390eaa4"
+      },
+      "1ahxwxyhp7fll9i": {
+        "id": "1ahxwxyhp7fll9i",
+        "sourceUserId": "1ahxwxyhp7fll9i"
+      },
+      "mtvfk5bviaew5vd": {
+        "id": "mtvfk5bviaew5vd",
+        "sourceUserId": "mtvfk5bviaew5vd"
+      },
+      "k7ggk76o5tin1ov": {
+        "id": "k7ggk76o5tin1ov",
+        "sourceUserId": "k7ggk76o5tin1ov"
+      },
+      "t1gk7bk6l6gqi91": {
+        "id": "t1gk7bk6l6gqi91",
+        "sourceUserId": "t1gk7bk6l6gqi91"
+      }
+    },
+    "collections": {
+      "users": "users",
+      "complaints": "complaints",
+      "app_settings": "app_settings",
+      "advances": "advances",
+      "attendance": "attendance",
+      "guides": "guides",
+      "factories": "factories",
+      "recruitments": "recruitments",
+      "check_attendance_batches": "check_attendance_batches",
+      "check_attendance_items": "check_attendance_items",
+      "check_salary_batches": "check_salary_batches",
+      "check_salary_items": "check_salary_items",
+      "group_chat_messages": "group_chat_messages",
+      "transport_contacts": "transport_contacts",
+      "recruitment_areas": "recruitment_areas",
+      "factory_managers": "factory_managers",
+      "employment_histories": "employment_histories",
+      "staff_action_logs": "staff_action_logs",
+      "recruitment_entities": "recruitment_entities",
+      "chat_rooms": "chat_rooms",
+      "chat_room_members": "chat_room_members",
+      "chat_join_requests": "chat_join_requests",
+      "cccd_versions": "cccd_versions",
+      "notebook_categories": "notebook_categories",
+      "notebook_entries": "notebook_entries",
+      "approval_requests": "approval_requests",
+      "approval_responses": "approval_responses",
+      "push_subscriptions": "push_subscriptions",
+      "salary_holds": "salary_holds",
+      "work_progress_tabs": "work_progress_tabs",
+      "work_progress_statuses": "work_progress_statuses",
+      "work_progress_tasks": "work_progress_tasks",
+      "guide_documents": "guide_documents"
+    }
+  },
+  "purgePreview": null,
+  "checkpoints": [
+    {
+      "name": "preflight",
+      "status": "completed",
+      "at": "2026-09-07T01:44:06.789Z"
+    },
+    {
+      "name": "company",
+      "status": "completed",
+      "at": "2026-09-07T01:44:06.795Z"
+    },
+    {
+      "name": "users-workers",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.631Z"
+    },
+    {
+      "name": "complaints",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.637Z"
+    },
+    {
+      "name": "app_settings",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.697Z"
+    },
+    {
+      "name": "advances",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.705Z"
+    },
+    {
+      "name": "attendance",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.746Z"
+    },
+    {
+      "name": "guides",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.750Z"
+    },
+    {
+      "name": "factories",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.753Z"
+    },
+    {
+      "name": "recruitments",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.793Z"
+    },
+    {
+      "name": "check_attendance_batches",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.814Z"
+    },
+    {
+      "name": "check_salary_batches",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.841Z"
+    },
+    {
+      "name": "transport_contacts",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.844Z"
+    },
+    {
+      "name": "recruitment_areas",
+      "status": "completed",
+      "at": "2026-09-07T01:44:08.850Z"
+    },
+    {
+      "name": "staff_action_logs",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.052Z"
+    },
+    {
+      "name": "recruitment_entities",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.054Z"
+    },
+    {
+      "name": "chat_rooms",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.056Z"
+    },
+    {
+      "name": "cccd_versions",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.133Z"
+    },
+    {
+      "name": "notebook_categories",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.135Z"
+    },
+    {
+      "name": "approval_requests",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.161Z"
+    },
+    {
+      "name": "push_subscriptions",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.164Z"
+    },
+    {
+      "name": "work_progress_tabs",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.166Z"
+    },
+    {
+      "name": "guide_documents",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.174Z"
+    },
+    {
+      "name": "check_attendance_items",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.186Z"
+    },
+    {
+      "name": "check_salary_items",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.193Z"
+    },
+    {
+      "name": "group_chat_messages",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.210Z"
+    },
+    {
+      "name": "factory_managers",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.212Z"
+    },
+    {
+      "name": "employment_histories",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.242Z"
+    },
+    {
+      "name": "chat_room_members",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.245Z"
+    },
+    {
+      "name": "chat_join_requests",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.247Z"
+    },
+    {
+      "name": "notebook_entries",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.247Z"
+    },
+    {
+      "name": "approval_responses",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.250Z"
+    },
+    {
+      "name": "work_progress_statuses",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.255Z"
+    },
+    {
+      "name": "salary_holds",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.268Z"
+    },
+    {
+      "name": "work_progress_tasks",
+      "status": "completed",
+      "at": "2026-09-07T01:44:09.271Z"
+    }
+  ],
+  "created_ids": {
+    "companies": [
+      "1bt550mb5w7v6zm"
+    ],
+    "users": [
+      "77uartyi6rhbl85",
+      "uiv0bjbth0h2nhx",
+      "dwinxx6g4tvph9b",
+      "mcuithhgvxq1oer",
+      "7zgadkco1qi6rb8",
+      "u7i50k0teemm3mb",
+      "7205g1uzun0c3zz",
+      "9ghuzvtqudvfboa",
+      "poivcpvlkym5av1",
+      "830sc5qnu867t86",
+      "bo85ujxgoa4m62c",
+      "e1e5az09dfop723",
+      "m9ukni4c390eaa4",
+      "1ahxwxyhp7fll9i",
+      "mtvfk5bviaew5vd",
+      "k7ggk76o5tin1ov",
+      "t1gk7bk6l6gqi91"
+    ],
+    "workers": [
+      "uiv0bjbth0h2nhx",
+      "dwinxx6g4tvph9b",
+      "mcuithhgvxq1oer",
+      "7zgadkco1qi6rb8",
+      "u7i50k0teemm3mb",
+      "7205g1uzun0c3zz",
+      "9ghuzvtqudvfboa",
+      "poivcpvlkym5av1",
+      "830sc5qnu867t86",
+      "e1e5az09dfop723",
+      "m9ukni4c390eaa4",
+      "1ahxwxyhp7fll9i",
+      "mtvfk5bviaew5vd",
+      "k7ggk76o5tin1ov",
+      "t1gk7bk6l6gqi91"
+    ],
+    "records": {
+      "complaints": [
+        "max65rl3pfr3ihz",
+        "yfbpgyzfdnpoknr",
+        "4tvn52ei0u9qorq",
+        "pivdctcbxi7lrlj"
+      ],
+      "app_settings": [
+        "kba9wyoiyhkt406"
+      ],
+      "advances": [
+        "iwymyo6reo6h9kx",
+        "fjw30ravn1uo9uy",
+        "s1hot6tzob8qzn5",
+        "1ev3rkuekrs5g8n",
+        "lbbvip7b6vj38gd",
+        "j7lb0jmtqq4761x"
+      ],
+      "attendance": [
+        "7tdg2yuguebbbza",
+        "7veui3fkcl04lql",
+        "r6fygkp992zq3ho",
+        "l3gq0rnp5d0059z",
+        "2qjci3g3zwce3tp",
+        "dd7lrot2ansq1om",
+        "0d4e8zy1kg9ewkh",
+        "bmr3g3am3wva19e",
+        "2zv5x8ao8amtup5",
+        "4byo26apr3cm5na",
+        "vmatk54wi4fizs8",
+        "ln2fuszkes74ch7",
+        "vh3sohk6y1h8tgj",
+        "pcvrkrehhlpcubz",
+        "egirp7kmz6jrkpz",
+        "oqzys7t3gmuwve9",
+        "1rn5a9rtv5q2ilk",
+        "hcbm63f7cd3sgce",
+        "bma1dkm6i7kevir",
+        "4sz08p3z3ub4msj",
+        "373e7hspjzo4tr3",
+        "d871wpqde8sfr1w",
+        "uenp1yxcc49jinl",
+        "ggwqdlnzvu553sn",
+        "8h45jiww45xwlm1",
+        "3iyzqxxm3xqaqd8",
+        "649iarrc8231hgk",
+        "uw68egopbpf513g",
+        "ce8dq6kgqgpnd8a",
+        "ufo2k42la2ov4lo",
+        "up7sz82kgfedfji",
+        "jehmhdcf1r2y8ct",
+        "q3qznatutia1xwx",
+        "1nt14q2n43p86jg",
+        "400zpnkvyrxa96o",
+        "fpnrs3oq8wtcrmf",
+        "xgnxxc3k5mimds0",
+        "lmguy0eftwa1821",
+        "mhze8v0eobvme6m",
+        "1cnmpigtj9y8sla",
+        "lsmfh56z1v97fa5",
+        "kpgk5q4uua2qd7a",
+        "578bna36in1nzk1",
+        "yhxjajdkahpxz9a",
+        "44ou8r7bcceleej",
+        "qvasca03fsymajj",
+        "qyqptxd6uwyeuon",
+        "ihogo8jr5vsr2t9"
+      ],
+      "guides": [
+        "n9k95eups6sekf0",
+        "rqs6ls4urp9rm6r",
+        "489v48mzs1ez4b1",
+        "k32zq4koqenqzgk"
+      ],
+      "factories": [
+        "2q3368fz13r0g3l",
+        "wmw07mfjcwrm0ir",
+        "xg0voj6mdnmfn4i"
+      ],
+      "recruitments": [
+        "uqonp7d2zre6d7t"
+      ],
+      "check_attendance_batches": [
+        "nglrcjq3cpt2ohe",
+        "qlp8m5h6jqcm95l",
+        "rxf73kqq6qbmzq5"
+      ],
+      "check_salary_batches": [
+        "3u2d3l1jdejtsar",
+        "y2slwtg27yc7uef",
+        "bymbmalk6kihap4",
+        "uq3pjooailhz6s3"
+      ],
+      "transport_contacts": [
+        "7ol540y6fh0jftk"
+      ],
+      "recruitment_areas": [
+        "18n89ml7w683v0j",
+        "wnbkrbba7onaewu",
+        "tvzh8o013e04k3j",
+        "ihq16j9k47e9shs"
+      ],
+      "staff_action_logs": [
+        "6ur4q28t6ddh6h5",
+        "zc6cwv282rdessk",
+        "icqdhsgurunbqig",
+        "actskmg3pr02vx8",
+        "kwmjrw0ua33baly",
+        "0wm5dyblve7r39k",
+        "2lefnxfxe99w5p6",
+        "wbbmwemgblis916",
+        "ccvpol24ltdpr7c",
+        "fq9r2ni4rhlqgvp",
+        "5voc99a0ya20cog",
+        "ve2jhhowl0x55ag",
+        "vvjqtxlr7hj9qda",
+        "34fbghkqx79g9jf",
+        "bv16g8yk6znqmbt",
+        "gdo8kwy6sv6vs26",
+        "wdpxqygqcm4fnw3",
+        "wsbbyoag8ayopov",
+        "by2u5xyd42kjs83",
+        "a4j13ujbjejib3i",
+        "ff5ugpktm4ufd55",
+        "re8kyicidpkqhjb",
+        "aix7634uf8zmq7d",
+        "4rnxjeuk7up7rfs",
+        "t3j62n5oz58cw4j",
+        "nd695e12dba2vhm",
+        "gygl82yfkw4fi7t",
+        "vfnk7g30uffpgr0",
+        "h40e94ugljaju69",
+        "q8g6j2hbleheskf",
+        "wk9bwtzun2kks59",
+        "uoeujtya4ltxfwc",
+        "gstjoaxi2brajxr",
+        "abr3ofk25amxdks",
+        "p7krb6zrvsi1azn",
+        "4kcnjit3xg9nmif",
+        "kx9to8vsmq5wxav",
+        "en5svtf46lhllzg",
+        "yzpnrkb7f1c6iaa",
+        "xf8omkct7nwvhjx",
+        "l55c9n2yg8qykok",
+        "mo8kkhks75il2je",
+        "x3whcu6numv99oz",
+        "xe1blsgcik7abof",
+        "el6g2lpn596rzv8",
+        "c612qav8s36oecb",
+        "3m092u8gjcitpf8",
+        "gveysn1uko7f6tz",
+        "jkobdrhlcdknzyw",
+        "h62q3sgx4bqx228",
+        "25k4pzhfxneikto",
+        "rig0audvf08nr31",
+        "snxrsa7oa2ibp4o",
+        "splut2mxcgq14k9",
+        "bmhbxjh9cxb9m7b",
+        "ufn0ftuglzlcybb",
+        "sos2q9ypgzs0ysy",
+        "je3dipm8rurlohz",
+        "kryfpa71ga7tifi",
+        "3jb36y2do50srk9",
+        "3jfojkfalzdybq8",
+        "c2sj1t5p1ew6qvc",
+        "knl9dsafnlp8yqx",
+        "jfs5jsmbmjsf1uz",
+        "hmmg4ntvhpjzvfm",
+        "urwatafkiq6rwig",
+        "wcjf03tjcft5ign",
+        "eg5risz0zu9mhd9",
+        "t5cklphvt2qs0ck",
+        "vr8sy5yzinxqadm",
+        "xcc6wcwedxww42e",
+        "r4u1o6f0kxgpm0d",
+        "les5q5djh0rdrob",
+        "hnx6alpsabh8eat",
+        "kr75mp3d5w8c8so",
+        "a1b3ad4il29hzoa",
+        "knopi7b5bcqy61z",
+        "vqbof0itlowc6nk",
+        "9avuflckqu3zf31",
+        "1abl45frybudipi",
+        "sva8kyyhm186hvi",
+        "1gt34n1txd33qwn",
+        "01jlqyp7sj4lfqu",
+        "5xcsh4mm1f072uv",
+        "se17ufepv4uns9s",
+        "4ow6fr43wr2o0ag",
+        "q1xa61w0iv0p9sc",
+        "s44casatixa2bsu",
+        "ru79vdc9y00573r",
+        "awsi91n6yjxez5f",
+        "xwuoyii4rhwflbz",
+        "cqdxpchjnu2g9bu",
+        "1osjl274iaiu29y",
+        "51n9axphfelwj1w",
+        "jn0f8gy3bd0ohxl",
+        "29h6541tc3g6lu5",
+        "jw147l6g12zcdrn",
+        "bk6gp8gw4t5dv2t",
+        "h91pgf56k3yi5p2",
+        "0641fv3mqqn8a47",
+        "hnn8etnzpumkkjx",
+        "wbsng3n0r5dakrp",
+        "zupboq2fdntnj7r",
+        "3dfhhz560b1ihy3",
+        "yizeuo8jcbm1oxm",
+        "29renvnfj5m8qi4",
+        "c9n65x55ysjny65",
+        "n9e1y3tcagi0vc5",
+        "4u2izk93eo7owv8",
+        "wv56ex9pi5zcbcb",
+        "j2xggcqyr0nw94r",
+        "jcd5tltknbj8rmm",
+        "rs8d715u3qacvvt",
+        "4vy18na2jben06u",
+        "w2jcn0e7knr7a86",
+        "4d0xta1ep8v9c7c",
+        "a0iok8ld7w0zecc",
+        "s1i06rge7vjyidf",
+        "c6d2u4y3r4v9j4t",
+        "cmwvx91t4oa0tv0",
+        "3s5m05larghkk69",
+        "q4v0kkj0u1rm0uj",
+        "cw3ncqufqfj6xe3",
+        "miya7nbx422vhh1",
+        "qhm42kchct7uhe2",
+        "v7tdxr7hvlb1ctx",
+        "abub06jgy01chy8",
+        "hgn6yv8ngw090qg",
+        "zt4p159rl8pyu4b",
+        "6plmj1xk5i3d4e3",
+        "ksvw9dm7hdvgnmj",
+        "4a5ocdoxnpw2jse",
+        "ecw4cdgimq3xnr7",
+        "rhwjcii6faa0h10",
+        "w7cfkvayg4edc7i",
+        "f8a7ifwx188f4tu",
+        "za6ed32rrgpuh83",
+        "mybke1mm9x1rfn5",
+        "h52cxse768ph95k",
+        "ir0ni8ojd9izjf0",
+        "cledugw8228gcpp",
+        "6u3lvbd4n70odzq",
+        "eo9bl3lvse5vzwn",
+        "ipv0v2z4antxm7e",
+        "hvjxod7y5174mhv",
+        "jp2m27smfx53c86",
+        "t23htqmhtro24vq",
+        "vxdrvaxqh6vbowr"
+      ],
+      "recruitment_entities": [
+        "goqiby2k6y918es",
+        "90y06r7rvq1reu7"
+      ],
+      "chat_rooms": [
+        "jjlenxg4m4fvh5t",
+        "whw03ka98p04jkn"
+      ],
+      "cccd_versions": [
+        "qccf72nq9ox7se4",
+        "rq4u2jdd0do035b",
+        "n0c3jyaumawmsrz",
+        "2nu42ch1gm3z6sk",
+        "biir830wg6m5c9k",
+        "yk3j4l5p8f2hqzo",
+        "0ruync3vzq9clrp",
+        "1c5reui6ils6ol1",
+        "cf6d8w9ebm3av0v",
+        "9m0u2ja85utbnh9"
+      ],
+      "notebook_categories": [
+        "eor5bvh7drk2ocb"
+      ],
+      "approval_requests": [
+        "mievis25degh0ft"
+      ],
+      "push_subscriptions": [
+        "sfa4a4oqzbqwaw1"
+      ],
+      "work_progress_tabs": [
+        "35sszvnhcuqnybx"
+      ],
+      "guide_documents": [
+        "bi97g63k00t85ze"
+      ],
+      "check_attendance_items": [
+        "q0vw3natx54sje8",
+        "ef1qgd1qc8qhazc",
+        "esc6n14n41znxk2",
+        "tl19ktgd7yq5xmm",
+        "gqklo701fp6uvvo"
+      ],
+      "check_salary_items": [
+        "cqy6poxyr9lfcos",
+        "jhat1klx0zliian",
+        "wzy9gsa6l7bgzad",
+        "341sb3zp3rvaerf"
+      ],
+      "group_chat_messages": [
+        "rnaw7r738jb1aoe",
+        "9voimkt675tvcg0",
+        "2l8zob0ry4flwg1",
+        "hruo88bu2igbfce",
+        "txuxx1t22wtzmzf",
+        "unanfuo09pf37gy",
+        "p1c2jov21qh65nd",
+        "ltl2g9w3z8yps7c",
+        "s6zjj8954njwtrt",
+        "rmqxf5xfolghnqc",
+        "7rdbxt2lg3homww",
+        "zbb2plp0emev3gn",
+        "72nl844pybsty2z",
+        "28ouvghlfowlw0b"
+      ],
+      "factory_managers": [
+        "51ft0ty8i4pp07a"
+      ],
+      "employment_histories": [
+        "edxw0hb2252h6ci",
+        "06jmm3xf3nhw88r",
+        "a0s8wcowqzj7hco",
+        "y4ygkod50aypj3p",
+        "3lpu9qlcm3a2xlo",
+        "132a2namvaawqlr",
+        "e6pfozcbvsseq6m",
+        "gwk8fdwybtbzcx7",
+        "rt66a2z1fpcx2f0",
+        "nd3twpu2ixxxqph",
+        "bk8rudo62ahfwe6",
+        "ev6aw2cmucph3ga",
+        "uqthsfspb7kup8p",
+        "5vpyqupf0o0z20d"
+      ],
+      "chat_room_members": [
+        "22luwdpms0naa5h"
+      ],
+      "chat_join_requests": [
+        "0ml7o8ju8bxvr86"
+      ],
+      "approval_responses": [
+        "m1nj7tmew7ybagd"
+      ],
+      "work_progress_statuses": [
+        "uysrwkhnaf4qag2",
+        "aws9nckajdl3dgj",
+        "bnwfmz0hacylej5"
+      ],
+      "salary_holds": [
+        "wd2coqdeotqcsv1",
+        "jyw8k2psuxgyu6a",
+        "ge2fs3fu53ri3s0",
+        "d7whauguupsncls",
+        "jwlx14gpye8epr2",
+        "838r6vo1mrhbor1",
+        "1em34a83bua0az0"
+      ],
+      "work_progress_tasks": [
+        "rqs2egpdq12hkx0",
+        "xhpwjeqogm2md61"
+      ]
+    }
+  },
+  "sourceFiles": {
+    "count": 34,
+    "sha256": "69a57d7143eda9e0b882695c68212587165a6a85360ffd7e1d3b2d3040e8db7d"
+  },
+  "companyId": "1bt550mb5w7v6zm",
+  "created": {
+    "company": 1,
+    "users": 17,
+    "workers": 15,
+    "records": {
+      "complaints": 4,
+      "app_settings": 1,
+      "advances": 6,
+      "attendance": 48,
+      "guides": 4,
+      "factories": 3,
+      "recruitments": 1,
+      "check_attendance_batches": 3,
+      "check_salary_batches": 4,
+      "transport_contacts": 1,
+      "recruitment_areas": 4,
+      "staff_action_logs": 148,
+      "recruitment_entities": 2,
+      "chat_rooms": 1,
+      "cccd_versions": 10,
+      "notebook_categories": 1,
+      "approval_requests": 1,
+      "push_subscriptions": 1,
+      "work_progress_tabs": 1,
+      "guide_documents": 1,
+      "check_attendance_items": 5,
+      "check_salary_items": 4,
+      "group_chat_messages": 14,
+      "factory_managers": 1,
+      "employment_histories": 14,
+      "chat_room_members": 1,
+      "chat_join_requests": 1,
+      "notebook_entries": 0,
+      "approval_responses": 1,
+      "work_progress_statuses": 3,
+      "salary_holds": 7,
+      "work_progress_tasks": 2
+    }
+  },
+  "postApplyAudit": {
+    "usersMissingPasswordChange": [],
+    "usersOutsideHl": []
+  }
+}

@@ -24,7 +24,7 @@ export function StatCard({
     danger: "bg-[color:var(--status-danger-bg)] text-[color:var(--status-danger-fg)]",
   };
   return (
-    <div className={cn("stat-card", className)}>
+    <div data-ui-card="stat" className={cn("stat-card", className)}>
       <div className="flex items-start justify-between gap-2">
         <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           {label}

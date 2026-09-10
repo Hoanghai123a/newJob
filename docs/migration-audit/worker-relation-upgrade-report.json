@@ -1,0 +1,49 @@
+{
+  "apply": true,
+  "generatedAt": "2026-08-22T11:04:18.065Z",
+  "createdWorkers": [],
+  "reusedWorkers": [
+    "uiv0bjbth0h2nhx",
+    "e1e5az09dfop723",
+    "mcuithhgvxq1oer",
+    "m9ukni4c390eaa4",
+    "1ahxwxyhp7fll9i",
+    "mtvfk5bviaew5vd",
+    "k7ggk76o5tin1ov",
+    "2gi2e3at2xj0ktt",
+    "9ghuzvtqudvfboa",
+    "poivcpvlkym5av1"
+  ],
+  "relationChanges": [
+    "workers.auth_user đã được bổ sung và đồng bộ với tài khoản NLĐ hiện có.",
+    "employment_histories.company đã chuyển thành không bắt buộc; tenant_company là tenant chuẩn."
+  ],
+  "preservedAuthLogTargets": [
+    {
+      "id": "6ur4q28t6ddh6h5",
+      "authId": "dwinxx6g4tvph9b"
+    },
+    {
+      "id": "zc6cwv282rdessk",
+      "authId": "dwinxx6g4tvph9b"
+    },
+    {
+      "id": "icqdhsgurunbqig",
+      "authId": "dwinxx6g4tvph9b"
+    },
+    {
+      "id": "h40e94ugljaju69",
+      "authId": "830sc5qnu867t86"
+    },
+    {
+      "id": "q8g6j2hbleheskf",
+      "authId": "bo85ujxgoa4m62c"
+    },
+    {
+      "id": "yzpnrkb7f1c6iaa",
+      "authId": "bo85ujxgoa4m62c"
+    }
+  ],
+  "unresolved": [],
+  "safetyStop": false
+}

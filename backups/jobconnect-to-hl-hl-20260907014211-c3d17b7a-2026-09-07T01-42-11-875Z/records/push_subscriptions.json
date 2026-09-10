@@ -1,0 +1,17 @@
+[
+  {
+    "auth": "gGekszsB4NemTGkTifX8uA",
+    "collectionId": "pbc_1438754935",
+    "collectionName": "push_subscriptions",
+    "created": "2026-08-09 08:35:46.523Z",
+    "enabled": true,
+    "endpoint": "https://fcm.googleapis.com/fcm/send/eBR2A9cCnfE:APA91bGNL5QNpiwk28mGByHQ4gOU-gXbGSDJDbOozI_G8XPXiB1jB69yrbv0h71sGl5KCrTMhYwgqFVN4LGyoP7kc0xZBcSqKai0Wp7TA2tACrpw7aNaPltZQDpmchYkyUAmCtqoGSXj",
+    "id": "sfa4a4oqzbqwaw1",
+    "lastSeen": "2026-08-09 08:35:46.530Z",
+    "p256dh": "BMQtkyI2aYZl6m_VFrQXk3u2o9Swci8axXsIqnUnyJd5dii4QyN5KqVRmF6n2BK_YgDz5pPn0icomYXQ50jtFn8",
+    "platform": "Win32",
+    "updated": "2026-08-09 08:35:46.523Z",
+    "user": "bo85ujxgoa4m62c",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+  }
+]

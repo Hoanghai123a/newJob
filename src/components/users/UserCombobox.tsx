@@ -3,6 +3,8 @@ import { Check, ChevronDown } from "lucide-react";
 import { userDisplayName } from "@/lib/delegations";
 import type { UserRecord } from "@/lib/pocketbase";
 import { cn } from "@/lib/utils";
+import { useDebouncedSearch } from "@/hooks/use-debounced-search";
+import { normalizeUserPickerSearch } from "@/components/workforce/UserPicker";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -12,6 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { accountLoginName } from "@/lib/login-identity";
 
 export function UserCombobox({
   value,
@@ -29,15 +32,33 @@ export function UserCombobox({
   searchPlaceholder?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedSearch(query);
   const selected = useMemo(() => users.find((item) => item.id === value), [users, value]);
 
+  const filteredUsers = useMemo(() => {
+    const keyword = normalizeUserPickerSearch(debouncedQuery);
+    if (!keyword) return users;
+    return users.filter((item) =>
+      normalizeUserPickerSearch(
+        `${item.full_name || ""} ${accountLoginName(item)} ${item.username || ""} ${item.phone || ""}`,
+      ).includes(keyword),
+    );
+  }, [debouncedQuery, users]);
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) setQuery("");
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           type="button"
           variant="outline"
-          className="h-10 w-full justify-between gap-2 rounded-xl px-3 text-left font-normal"
+          className="h-10 w-full justify-between gap-2 rounded-xl bg-white px-3 text-left font-normal text-slate-900"
         >
           <span className={cn("truncate", !selected && "text-muted-foreground")}>
             {selected
@@ -50,14 +71,14 @@ export function UserCombobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[min(calc(100vw-3rem),24rem)] p-0">
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+        <Command shouldFilter={false}>
+          <CommandInput placeholder={searchPlaceholder} value={query} onValueChange={setQuery} />
           <CommandList className="max-h-72">
             <CommandEmpty>Không tìm thấy user.</CommandEmpty>
-            {users.map((item) => (
+            {filteredUsers.map((item) => (
               <CommandItem
                 key={item.id}
-                value={`${item.full_name || ""} ${item.username || ""} ${item.employee_code || ""} ${item.phone || ""}`}
+                value={`${item.full_name || ""} ${accountLoginName(item)} ${item.username || ""} ${item.phone || ""}`}
                 onSelect={() => {
                   onChange(item.id);
                   setOpen(false);
@@ -70,7 +91,7 @@ export function UserCombobox({
                     {item.id === currentUserId ? "Bạn" : userDisplayName(item)}
                   </div>
                   <div className="truncate text-[11px] text-muted-foreground">
-                    @{item.username || "—"} · {item.employee_code || "—"} · {item.phone || "—"}
+                    @{accountLoginName(item) || "?"} · {item.phone || "?"}
                   </div>
                 </div>
               </CommandItem>

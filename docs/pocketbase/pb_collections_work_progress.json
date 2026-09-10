@@ -1,0 +1,345 @@
+[
+  {
+    "id": "pbc_worktabs001",
+    "name": "work_progress_tabs",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text_worktab_id",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_worktab_name",
+        "max": 80,
+        "min": 1,
+        "name": "name",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number_worktab_position",
+        "max": null,
+        "min": 0,
+        "name": "position",
+        "onlyInt": true,
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation_worktab_creator",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "created_by",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_worktab_created",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_worktab_updated",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_work_progress_tabs_tenant_company` ON `work_progress_tabs` (`tenant_company`)",
+      "CREATE INDEX `idx_work_progress_tabs_position` ON `work_progress_tabs` (`position`)"
+    ]
+  },
+  {
+    "id": "pbc_workstats01",
+    "name": "work_progress_statuses",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text_workstatus_id",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_worktabs001",
+        "hidden": false,
+        "id": "relation_workstatus_tab",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "tab",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_workstatus_name",
+        "max": 60,
+        "min": 1,
+        "name": "name",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number_workstatus_position",
+        "max": null,
+        "min": 0,
+        "name": "position",
+        "onlyInt": true,
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation_workstatus_creator",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "created_by",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_workstatus_created",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_workstatus_updated",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_work_progress_statuses_tenant_company` ON `work_progress_statuses` (`tenant_company`)",
+      "CREATE INDEX `idx_work_progress_statuses_tab_position` ON `work_progress_statuses` (`tab`, `position`)"
+    ]
+  },
+  {
+    "id": "pbc_worktasks01",
+    "name": "work_progress_tasks",
+    "type": "base",
+    "system": false,
+    "listRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "viewRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "createRule": "(@request.body.tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "updateRule": "(tenant_company = @request.auth.tenant_company) && (@request.body.tenant_company:isset = false || @request.body.tenant_company = tenant_company) && (@request.auth.role = \"admin\")",
+    "deleteRule": "(tenant_company = @request.auth.tenant_company) && (@request.auth.role = \"admin\")",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text_worktask_id",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "name": "tenant_company",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "system": false,
+        "collectionId": "pbc_companies",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "minSelect": 0
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_worktabs001",
+        "hidden": false,
+        "id": "relation_worktask_tab",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "tab",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_workstats01",
+        "hidden": false,
+        "id": "relation_worktask_status",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "status",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text_worktask_name",
+        "max": 160,
+        "min": 1,
+        "name": "name",
+        "pattern": "",
+        "presentable": true,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number_worktask_position",
+        "max": null,
+        "min": 0,
+        "name": "position",
+        "onlyInt": true,
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation_worktask_creator",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "created_by",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_worktask_created",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate_worktask_updated",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_work_progress_tasks_tenant_company` ON `work_progress_tasks` (`tenant_company`)",
+      "CREATE INDEX `idx_work_progress_tasks_tab_position` ON `work_progress_tasks` (`tab`, `position`)",
+      "CREATE INDEX `idx_work_progress_tasks_status` ON `work_progress_tasks` (`status`)"
+    ]
+  }
+]

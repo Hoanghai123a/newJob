@@ -1,16 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { pb, fileUrl } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
+import { useDebouncedSearch } from "@/hooks/use-debounced-search";
+import { escapePb } from "@/lib/delegations";
 import { markSeen } from "@/lib/seen";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { ResponsiveOverlay } from "@/components/layout/ResponsiveOverlay";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { toneBorder, ChipTone } from "@/components/ui/status-chip";
 import { EmptyState } from "@/components/ui/empty-state";
+import { DataLoadingState } from "@/components/ui/data-loading-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -28,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   Phone,
   Plus,
@@ -53,13 +58,18 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { companyFilter, companyIdOf, joinTenantFilters } from "@/lib/tenant";
 
 export const Route = createFileRoute("/_authenticated/news")({
+  beforeLoad: () => {
+    throw redirect({ to: "/staff/workers" });
+  },
   component: NewsPage,
 });
 
 interface Recruitment {
   id: string;
+  tenant_company: string;
   company: string;
   area: string;
   images: string[];
@@ -168,17 +178,6 @@ type SelectOption = { value: string; label: string };
 const optionLabel = (options: readonly SelectOption[], value?: string) =>
   options.find((option) => option.value === value)?.label || "";
 
-const matchesInclusiveSelectFilter = (
-  value: string | undefined,
-  selected: string,
-  options: readonly SelectOption[],
-) => {
-  if (selected === "all") return true;
-  if (!value) return false;
-  if (selected === "both") return options.some((option) => option.value === value);
-  return value === selected || value === "both";
-};
-
 type FactoryOption = { id: string; name: string; address?: string; hotline?: string };
 type RecruitmentAreaOption = { id: string; name: string; note?: string };
 
@@ -191,6 +190,39 @@ const recruitmentEmploymentType = (item: Recruitment) => item.employment_type ||
 
 const errorMessage = (error: unknown, fallback: string) =>
   error instanceof Error ? error.message : fallback;
+
+function joinPbFilters(parts: Array<string | false | null | undefined>) {
+  return parts.filter(Boolean).join(" && ");
+}
+
+function inclusiveOptionFilter(field: string, selected: string) {
+  if (selected === "all" || selected === "both") return "";
+  return `(${field}="${escapePb(selected)}" || ${field}="both")`;
+}
+
+function buildRecruitmentFilter(input: {
+  isAdmin: boolean;
+  search: string;
+  gender: string;
+  area: string;
+  employmentType: string;
+  environment: string;
+  posture: string;
+  productionQc: string;
+}) {
+  const q = escapePb(input.search.trim());
+  const searchFilter = q ? `(company~"${q}" || area~"${q}")` : "";
+  return joinPbFilters([
+    input.isAdmin ? "" : "is_active!=false",
+    searchFilter,
+    input.area === "all" ? "" : `area="${escapePb(input.area)}"`,
+    input.gender === "all" ? "" : `gender~"${escapePb(input.gender)}"`,
+    input.employmentType === "all" ? "" : `employment_type="${escapePb(input.employmentType)}"`,
+    inclusiveOptionFilter("environment", input.environment),
+    inclusiveOptionFilter("work_posture", input.posture),
+    inclusiveOptionFilter("production_qc", input.productionQc),
+  ]);
+}
 
 const factoryMapUrl = (factory?: FactoryOption | null) => {
   const query = factory?.address?.trim() || factory?.name?.trim() || "";
@@ -208,16 +240,17 @@ const findFactoryByCompany = (factories: FactoryOption[], company?: string) => {
 };
 
 function useFactoryOptions() {
+  const { user } = useAuth();
   const [factories, setFactories] = useState<FactoryOption[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     pb.collection("factories")
-      .getFullList({ sort: "name" })
+      .getList(1, 300, { filter: companyFilter(user), sort: "name" })
       .then((res) => {
-        if (!cancelled) setFactories(res as unknown as FactoryOption[]);
+        if (!cancelled) setFactories(res.items as unknown as FactoryOption[]);
       })
       .catch(() => {
         if (!cancelled) setFactories([]);
@@ -229,22 +262,23 @@ function useFactoryOptions() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   return { factories, loading };
 }
 
 function useRecruitmentAreaOptions() {
+  const { user } = useAuth();
   const [areas, setAreas] = useState<RecruitmentAreaOption[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     pb.collection("recruitment_areas")
-      .getFullList({ sort: "name" })
+      .getList(1, 300, { filter: companyFilter(user), sort: "name" })
       .then((res) => {
-        if (!cancelled) setAreas(res as unknown as RecruitmentAreaOption[]);
+        if (!cancelled) setAreas(res.items as unknown as RecruitmentAreaOption[]);
       })
       .catch(() => {
         if (!cancelled) setAreas([]);
@@ -256,7 +290,7 @@ function useRecruitmentAreaOptions() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   return { areas, loading };
 }
@@ -272,9 +306,11 @@ function NewsPage() {
   const { areas: configuredAreas, loading: areasLoading } = useRecruitmentAreaOptions();
   const { factories, loading: factoriesLoading } = useFactoryOptions();
   const [items, setItems] = useState<Recruitment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<Recruitment | null>(null);
   const [editing, setEditing] = useState<Recruitment | null>(null);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [filter, setFilter] = useState("all");
   const [areaFilter, setAreaFilter] = useState("all");
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState("all");
@@ -284,9 +320,25 @@ function NewsPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const load = async () => {
+    setLoading(true);
     try {
-      const res = await pb.collection("recruitments").getFullList({ sort: "-created" });
-      const rows = res as unknown as Recruitment[];
+      const res = await pb.collection("recruitments").getList(1, 200, {
+        filter: joinTenantFilters(
+          user,
+          buildRecruitmentFilter({
+            isAdmin,
+            search: debouncedSearch,
+            gender: filter,
+            area: areaFilter,
+            employmentType: employmentTypeFilter,
+            environment: environmentFilter,
+            posture: postureFilter,
+            productionQc: productionQcFilter,
+          }),
+        ),
+        sort: "-created",
+      });
+      const rows = res.items as unknown as Recruitment[];
       setItems(rows);
       const latest = rows.reduce(
         (max, row) => Math.max(max, row.created ? new Date(row.created).getTime() : 0),
@@ -295,51 +347,15 @@ function NewsPage() {
       markSeen("news", user?.id, latest || Date.now());
     } catch (e: unknown) {
       toast.error(errorMessage(e, "Lỗi tải bảng tin"));
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     load();
-  }, []);
-
-  const visibleItems = useMemo(
-    () => (isAdmin ? items : items.filter(isRecruitmentActive)),
-    [items, isAdmin],
-  );
-
-  const remove = async (id: string) => {
-    if (!confirm("Xoá tin tuyển dụng?")) return;
-    await pb.collection("recruitments").delete(id);
-    load();
-  };
-
-  const filtered = useMemo(() => {
-    return visibleItems.filter((r) => {
-      const q = search.toLowerCase();
-      if (search && ![r.company, r.area].some((value) => value?.toLowerCase().includes(q))) {
-        return false;
-      }
-      if (areaFilter !== "all" && normalizeArea(r.area) !== areaFilter) return false;
-      if (filter === "male" && !r.gender?.includes("male")) return false;
-      if (filter === "female" && !r.gender?.includes("female")) return false;
-      if (employmentTypeFilter !== "all" && recruitmentEmploymentType(r) !== employmentTypeFilter) {
-        return false;
-      }
-      if (!matchesInclusiveSelectFilter(r.environment, environmentFilter, ENVIRONMENT_OPTIONS)) {
-        return false;
-      }
-      if (!matchesInclusiveSelectFilter(r.work_posture, postureFilter, WORK_POSTURE_OPTIONS)) {
-        return false;
-      }
-      if (
-        !matchesInclusiveSelectFilter(r.production_qc, productionQcFilter, PRODUCTION_QC_OPTIONS)
-      ) {
-        return false;
-      }
-      return true;
-    });
   }, [
-    visibleItems,
-    search,
+    isAdmin,
+    debouncedSearch,
     filter,
     areaFilter,
     employmentTypeFilter,
@@ -347,6 +363,16 @@ function NewsPage() {
     postureFilter,
     productionQcFilter,
   ]);
+
+  const visibleItems = items;
+
+  const remove = async (id: string) => {
+    if (!confirm("Xoá tin tuyển dụng?")) return;
+    await pb.collection("recruitments").delete(id);
+    load();
+  };
+
+  const filtered = visibleItems;
 
   const areaOptions = useMemo(
     () =>
@@ -376,7 +402,11 @@ function NewsPage() {
   return (
     <PageContainer
       title="Bảng tin tuyển dụng"
-      subtitle={`${visibleItems.length} tin đang đăng`}
+      subtitle={
+        loading && items.length === 0
+          ? "Đang tải dữ liệu..."
+          : `${visibleItems.length} tin đang đăng`
+      }
       right={
         isAdmin && (
           <button
@@ -407,7 +437,7 @@ function NewsPage() {
         chipActions={
           <button
             type="button"
-            onClick={() => setShowAdvancedFilters((value) => !value)}
+            onClick={() => setShowAdvancedFilters(true)}
             aria-expanded={showAdvancedFilters}
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-medium transition",
@@ -424,7 +454,32 @@ function NewsPage() {
           </button>
         }
       />
-      {showAdvancedFilters && (
+      <ResponsiveOverlay
+        open={showAdvancedFilters}
+        onOpenChange={setShowAdvancedFilters}
+        title="Bộ lọc nâng cao"
+        description="Chọn các điều kiện để thu gọn danh sách tuyển dụng."
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setAreaFilter("all");
+                setEmploymentTypeFilter("all");
+                setEnvironmentFilter("all");
+                setPostureFilter("all");
+                setProductionQcFilter("all");
+              }}
+            >
+              Đặt lại
+            </Button>
+            <Button type="button" onClick={() => setShowAdvancedFilters(false)}>
+              Áp dụng
+            </Button>
+          </>
+        }
+      >
         <AdvancedFilters
           area={areaFilter}
           areaOptions={areaOptions}
@@ -438,9 +493,15 @@ function NewsPage() {
           productionQc={productionQcFilter}
           onProductionQcChange={setProductionQcFilter}
         />
+      </ResponsiveOverlay>
+
+      {loading && items.length > 0 && (
+        <DataLoadingState variant="inline" label="Đang cập nhật bảng tin..." />
       )}
 
-      {filtered.length === 0 ? (
+      {loading && items.length === 0 ? (
+        <DataLoadingState variant="list" label="Đang tải bảng tin tuyển dụng..." rows={3} />
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={Building2}
           title="Chưa có tin tuyển dụng"
@@ -744,11 +805,7 @@ function DetailSheet({
                   />
                   <Info icon={MapPin} label={"Khu vực"} value={item.area} />
                   <Info icon={Users} label={"Tuyển"} value={genderLabel(item.gender)} />
-                  <Info
-                    icon={Clock}
-                    label={"Thời gian phỏng vấn"}
-                    value={item.interview_time}
-                  />
+                  <Info icon={Clock} label={"Thời gian phỏng vấn"} value={item.interview_time} />
                   <Info
                     icon={CalendarDays}
                     label={"Thời hạn tuyển dụng"}
@@ -760,19 +817,11 @@ function DetailSheet({
 
               <DetailSection icon={Wallet} title={"Chế độ"}>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Info
-                    icon={Banknote}
-                    label={"Lương cơ bản"}
-                    value={item.salary_base}
-                  />
+                  <Info icon={Banknote} label={"Lương cơ bản"} value={item.salary_base} />
                   <Info icon={Gift} label={"Phụ cấp"} value={item.allowance} />
                 </div>
                 <Info label={"Thưởng khác"} value={item.bonus_other} multiline />
-                <Info
-                  label={"Lương ngắn hạn"}
-                  value={item.short_term_salary}
-                  multiline
-                />
+                <Info label={"Lương ngắn hạn"} value={item.short_term_salary} multiline />
               </DetailSection>
 
               <DetailSection icon={Briefcase} title={"Đặc thù công việc"}>
@@ -802,11 +851,7 @@ function DetailSheet({
               </DetailSection>
 
               <DetailSection icon={FileText} title={"Thủ tục"}>
-                <Info
-                  label={"Giấy tờ yêu cầu"}
-                  value={item.documents}
-                  multiline
-                />
+                <Info label={"Giấy tờ yêu cầu"} value={item.documents} multiline />
                 <Info label={"Ghi chú khác"} value={item.notes} multiline />
               </DetailSection>
 
@@ -952,7 +997,8 @@ function EditDialog({
       const adminPhone = currentFactory?.hotline?.trim() || user?.phone || form.admin_phone || "";
       const mapUrl = factoryMapUrl(currentFactory) || form.map_url || "";
       const fd = new FormData();
-      fd.append("company", form.company);
+      fd.append("tenant_company", companyIdOf(user));
+
       fd.append("area", normalizeArea(form.area));
       fd.append("map_url", mapUrl);
       fd.append("introduction", form.introduction || "");
@@ -1155,7 +1201,7 @@ function EditDialog({
                   </button>
                 </div>
               ))}
-              <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed text-muted-foreground">
+              <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed bg-white text-muted-foreground">
                 <ImagePlus className="h-5 w-5" />
                 <input type="file" accept="image/*" multiple className="hidden" onChange={onFile} />
               </label>
@@ -1233,7 +1279,7 @@ function WorkModeFilter({
 }) {
   return (
     <Select value={value === "all" ? undefined : value} onValueChange={onChange}>
-      <SelectTrigger className="rounded-xl bg-background text-xs">
+      <SelectTrigger className="rounded-xl bg-white text-xs text-slate-900">
         <SelectValue placeholder={label} />
       </SelectTrigger>
       <SelectContent>
@@ -1286,24 +1332,17 @@ function AreaField({
   return (
     <div className="space-y-1">
       <Label>{label}</Label>
-      <Select value={value || ""} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue placeholder={loading ? "Đang tải khu vực..." : "Chọn khu vực"} />
-        </SelectTrigger>
-        <SelectContent className="max-h-72">
-          {!hasMatch && value && <SelectItem value={value}>{value} (cũ)</SelectItem>}
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-          {options.length === 0 && !loading && (
-            <div className="px-2 py-1.5 text-xs text-muted-foreground">
-              Chưa có khu vực. Admin hãy thêm trong Cài đặt hệ thống.
-            </div>
-          )}
-        </SelectContent>
-      </Select>
+      <SearchableSelect
+        value={value || ""}
+        onValueChange={onChange}
+        options={options.map((option) => ({
+          value: option.value,
+          label: option.label,
+        }))}
+        placeholder={loading ? "Đang tải khu vực..." : "Chọn khu vực"}
+        searchPlaceholder="Tìm khu vực..."
+        emptyText={loading ? "Đang tải danh sách khu vực..." : "Không tìm thấy khu vực phù hợp."}
+      />
     </div>
   );
 }
@@ -1325,30 +1364,20 @@ function FactoryField({
   return (
     <div className="space-y-1">
       <Label>{label}</Label>
-      <Select
+      <SearchableSelect
         value={v || ""}
         onValueChange={(value) => {
-          const factory = factories.find((f) => f.name === value) || null;
+          const factory = factories.find((item) => item.name === value) || null;
           on(value, factory);
         }}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder={loading ? "Đang tải..." : "Chọn nhà máy"} />
-        </SelectTrigger>
-        <SelectContent className="max-h-72">
-          {!hasMatch && v && <SelectItem value={v}>{v} (cũ)</SelectItem>}
-          {factories.map((f) => (
-            <SelectItem key={f.id} value={f.name}>
-              {f.name}
-            </SelectItem>
-          ))}
-          {factories.length === 0 && !loading && (
-            <div className="px-2 py-1.5 text-xs text-muted-foreground">
-              Chưa có nhà máy. Admin hãy thêm trong Cài đặt hệ thống.
-            </div>
-          )}
-        </SelectContent>
-      </Select>
+        options={factories.map((factory) => ({
+          value: factory.name,
+          label: factory.name,
+        }))}
+        placeholder={loading ? "Đang tải..." : "Chọn nhà máy"}
+        searchPlaceholder="Tìm nhà máy..."
+        emptyText={loading ? "Đang tải danh sách nhà máy..." : "Không tìm thấy nhà máy phù hợp."}
+      />
     </div>
   );
 }

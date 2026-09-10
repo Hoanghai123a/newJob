@@ -1,9 +1,9 @@
 {
-    "ok":  true,
-    "run_dir":  "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi",
-    "spritesheet":  "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\final\\spritesheet.webp",
-    "validation":  "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\final\\validation.json",
-    "contact_sheet":  "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\qa\\contact-sheet.png",
-    "review":  "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\qa\\review.json",
-    "package":  "C:\\Users\\admin\\.codex\\pets\\tro-ly-ket-noi"
+  "ok": true,
+  "run_dir": "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi",
+  "spritesheet": "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\final\\spritesheet.webp",
+  "validation": "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\final\\validation.json",
+  "contact_sheet": "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\qa\\contact-sheet.png",
+  "review": "D:\\My App\\JobConnect\\hatch-pet-output\\tro-ly-ket-noi\\qa\\review.json",
+  "package": "C:\\Users\\admin\\.codex\\pets\\tro-ly-ket-noi"
 }

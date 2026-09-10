@@ -1,0 +1,30 @@
+[
+  {
+    "address": "Vĩnh Yên",
+    "collectionId": "pbc_4198133417",
+    "collectionName": "recruitment_entities",
+    "created": "2026-06-27 14:23:50.442Z",
+    "hotline": "0268559568",
+    "id": "goqiby2k6y918es",
+    "legacy_user_id": "",
+    "legacy_username": "",
+    "name": "HR Pro",
+    "note": "",
+    "status": "",
+    "updated": "2026-06-27 14:23:50.442Z"
+  },
+  {
+    "address": "Vinh Tiến, Bá Hiến",
+    "collectionId": "pbc_4198133417",
+    "collectionName": "recruitment_entities",
+    "created": "2026-08-07 14:32:09.411Z",
+    "hotline": "0332811982",
+    "id": "90y06r7rvq1reu7",
+    "legacy_user_id": "",
+    "legacy_username": "",
+    "name": "Hoàng Long 2",
+    "note": "",
+    "status": "active",
+    "updated": "2026-08-07 14:32:09.411Z"
+  }
+]

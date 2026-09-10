@@ -1,0 +1,66 @@
+[
+  {
+    "collectionId": "pbc_2053433505",
+    "collectionName": "guides",
+    "content": "Kiểm tra thử nội dung gửi đi lần 1",
+    "created": "2026-05-23 00:48:34.917Z",
+    "font_size": 14,
+    "icon": "BookOpen",
+    "id": "n9k95eups6sekf0",
+    "order": 0,
+    "target_factories": [],
+    "target_type": "all",
+    "target_users": [],
+    "title": "Lần 1",
+    "updated": "2026-05-23 00:48:34.917Z"
+  },
+  {
+    "collectionId": "pbc_2053433505",
+    "collectionName": "guides",
+    "content": "Nội dung lần 2",
+    "created": "2026-05-23 00:48:55.807Z",
+    "font_size": 14,
+    "icon": "Clock",
+    "id": "rqs6ls4urp9rm6r",
+    "order": 1,
+    "target_factories": [],
+    "target_type": "all",
+    "target_users": [],
+    "title": "Lần 2",
+    "updated": "2026-05-23 03:38:39.591Z"
+  },
+  {
+    "collectionId": "pbc_2053433505",
+    "collectionName": "guides",
+    "content": "Thử với GoerTek",
+    "created": "2026-05-23 03:38:17.141Z",
+    "font_size": 14,
+    "icon": "BookOpen",
+    "id": "489v48mzs1ez4b1",
+    "order": 2,
+    "target_factories": [
+      "GoerTek"
+    ],
+    "target_type": "factories",
+    "target_users": [],
+    "title": "Hướng dẫn 3",
+    "updated": "2026-05-23 03:38:17.141Z"
+  },
+  {
+    "collectionId": "pbc_2053433505",
+    "collectionName": "guides",
+    "content": "Đi công tác Đã sửa phần load danh sách user ở mục gửi hướng dẫn theo cá nhân.\n\nNguyên nhân: trang hướng dẫn đang gọi users với sort: \"full_name\" và filter: \"approved=true\", lỗi bị nuốt nên dropdown chỉ hiện “Chưa có user nào”. Mình đã đổi sang cách load ổn định giống trang quản lý tài khoản: lấy danh sách users bằng sort: \"-created\", lọc bỏ admin ở frontend, rồi sắp xếp theo tên.\n\nBackend PocketBase: không cần thay đổi bảng/trường/kiểu dữ liệu.\n\nĐã chạy npm run build thành công. Có cảnh báo Wrangler không ghi được log ngoài workspace, không ảnh hưởng build/app.",
+    "created": "2026-05-23 07:50:52.974Z",
+    "font_size": 14,
+    "icon": "Briefcase",
+    "id": "k32zq4koqenqzgk",
+    "order": 1,
+    "target_factories": [],
+    "target_type": "users",
+    "target_users": [
+      "dwinxx6g4tvph9b"
+    ],
+    "title": "Gửi riêng NV04",
+    "updated": "2026-05-23 07:51:33.510Z"
+  }
+]

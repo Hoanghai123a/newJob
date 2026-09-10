@@ -1,9 +1,21 @@
-import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useEffect } from "react";
 import { pb } from "@/lib/pocketbase";
 import { useAuth } from "@/lib/auth";
-import { isUserApproved } from "@/lib/user-approval";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { InstallFloatingBanner } from "@/components/layout/InstallFloatingBanner";
+import { StaffRealtimeSyncGate } from "@/components/staff/StaffRealtimeSyncGate";
+import { DesktopAppShell } from "@/components/layout/DesktopAppShell";
+import { DataLoadingState } from "@/components/ui/data-loading-state";
+import { StaffExcelExportProvider } from "@/components/staff/StaffExcelExportProvider";
+
+const LOGIN_ROLES = new Set(["super_admin", "admin", "staff"]);
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: ({ location }) => {
@@ -13,8 +25,15 @@ export const Route = createFileRoute("/_authenticated")({
       throw redirect({ to: "/login", search: { redirect: location.href } as any });
     }
     const u = pb.authStore.record as any;
-    if (u && !isUserApproved(u)) {
-      throw redirect({ to: "/pending" });
+    if (u?.status === "disabled" || !LOGIN_ROLES.has(String(u?.role || ""))) {
+      pb.authStore.clear();
+      throw redirect({ to: "/login" });
+    }
+    if (u?.role === "super_admin" && !location.pathname.startsWith("/super-admin")) {
+      throw redirect({ to: "/super-admin" });
+    }
+    if (u?.must_change_password && !location.pathname.includes("force-change-password")) {
+      throw redirect({ to: "/force-change-password" });
     }
   },
   component: AuthLayout,
@@ -26,28 +45,24 @@ function AuthLayout() {
 
   useEffect(() => {
     if (!loading && !user) {
-      nav({ to: "/login" });
+      nav({ to: "/login", search: { redirect: window.location.pathname } as any });
     }
   }, [loading, nav, user]);
 
   if (loading || !user) {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm text-muted-foreground">
-        Đang tải...
-      </div>
-    );
+    return <DataLoadingState variant="page" label="Đang xác thực tài khoản..." rows={4} />;
   }
 
   return (
-    <div className="pb-nav">
-      {loading ? (
-        <div className="flex min-h-[100dvh] items-center justify-center px-4 text-sm text-muted-foreground">
-          Đang tải...
-        </div>
-      ) : (
-        <Outlet />
-      )}
-      <BottomNav />
-    </div>
+    <StaffExcelExportProvider>
+      <div className="pb-nav">
+        {!user.must_change_password && <StaffRealtimeSyncGate />}
+        <DesktopAppShell>
+          <Outlet />
+        </DesktopAppShell>
+        <InstallFloatingBanner />
+        <BottomNav />
+      </div>
+    </StaffExcelExportProvider>
   );
 }

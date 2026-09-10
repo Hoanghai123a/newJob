@@ -11,8 +11,19 @@ import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth";
+import { getUserErrorMessage } from "@/lib/toast";
 import { Toaster } from "@/components/ui/sonner";
 import { installPwaPromptListeners } from "@/lib/pwa-install";
+import { BrandHeadLinks } from "@/components/layout/BrandHeadLinks";
+import { DEVICE_PROFILE_BOOTSTRAP } from "@/lib/device-profile";
+
+const CHUNK_RELOAD_KEY = "jobconnect.chunk-reload-path";
+
+function isChunkLoadError(error: Error) {
+  return /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module|Load failed for module/i.test(
+    error.message,
+  );
+}
 
 function NotFoundComponent() {
   return (
@@ -33,13 +44,34 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
+  const chunkLoadFailed = isChunkLoadError(error);
+  const userMessage = getUserErrorMessage(error);
+
+  useEffect(() => {
+    if (import.meta.env.DEV) console.error("[JobConnect] Lỗi giao diện gốc:", error);
+  }, [error]);
+
+  useEffect(() => {
+    if (!chunkLoadFailed) return;
+
+    const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (sessionStorage.getItem(CHUNK_RELOAD_KEY) === currentPath) return;
+
+    sessionStorage.setItem(CHUNK_RELOAD_KEY, currentPath);
+    window.location.reload();
+  }, [chunkLoadFailed]);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Đã có lỗi xảy ra</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{userMessage}</p>
         <button
           onClick={() => {
+            if (chunkLoadFailed) {
+              window.location.reload();
+              return;
+            }
             router.invalidate();
             reset();
           }}
@@ -58,8 +90,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#0e6b7a" },
-      { title: "Hoàng Long DJC" },
-      { name: "description", content: "Kết nối nhà tuyển dụng và người lao động khu công nghiệp." },
+      { title: "Tuyển dụng 4.0" },
+      { name: "description", content: "Nền tảng tuyển dụng 4.0 và kết nối người lao động." },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -73,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap",
       },
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/api/public/manifest/webmanifest" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/api/public/app-icon" },
       { rel: "icon", href: "/api/public/app-icon" },
     ],
@@ -86,8 +118,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
+    <html lang="vi" data-ui-device="mobile" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: DEVICE_PROFILE_BOOTSTRAP }} />
         <HeadContent />
       </head>
       <body>
@@ -101,6 +134,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useEffect(() => {
+    sessionStorage.removeItem(CHUNK_RELOAD_KEY);
     const removePwaListeners = installPwaPromptListeners();
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => undefined);
@@ -111,6 +145,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <BrandHeadLinks />
         <div className="app-shell">
           <Outlet />
           <Toaster richColors position="top-center" />

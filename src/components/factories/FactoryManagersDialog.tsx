@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus, ShieldCheck, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
+import { DataLoadingState } from "@/components/ui/data-loading-state";
 import { Label } from "@/components/ui/label";
+import { UserPicker } from "@/components/workforce/UserPicker";
 import { StatusChip } from "@/components/ui/status-chip";
 import {
   Dialog,
@@ -12,19 +14,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { pb, type UserRecord } from "@/lib/pocketbase";
 import { createStaffActionLog } from "@/lib/staff-log";
+import { companyFilter, companyPayload } from "@/lib/tenant";
 import {
   fetchFactoryManagers,
   isFactoryAssignmentActive,
   type FactoryManagerRecord,
+  factoryManagerTenantPayload,
 } from "@/lib/factories";
 
 export function FactoryManagersDialog({
@@ -49,10 +46,13 @@ export function FactoryManagersDialog({
     setLoading(true);
     try {
       const [staffRows, assignmentRows] = await Promise.all([
-        pb.collection("users").getFullList<UserRecord>({
-          filter: 'role = "staff"',
-          sort: "full_name,username",
-        }),
+        pb
+          .collection("users")
+          .getList<UserRecord>(1, 200, {
+            filter: `${companyFilter(pb.authStore.record as UserRecord | null)} && (role="staff" || role="admin")`,
+            sort: "full_name,username",
+          })
+          .then((res) => res.items),
         fetchFactoryManagers(),
       ]);
       setStaffUsers(staffRows);
@@ -94,7 +94,10 @@ export function FactoryManagersDialog({
         status: "active",
         note: "",
       };
-      const created = await pb.collection("factory_managers").create(payload);
+      const created = await pb.collection("factory_managers").create({
+        ...payload,
+        ...factoryManagerTenantPayload(pb.authStore.record as UserRecord | null),
+      });
       await createStaffActionLog({
         actor: pb.authStore.record as any,
         targetUserId: selectedStaff,
@@ -173,24 +176,17 @@ export function FactoryManagersDialog({
           <div className="space-y-1.5">
             <Label className="text-xs">Thêm staff phụ trách</Label>
             <div className="flex gap-2">
-              <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Chọn staff" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableStaff.map((staffUser) => (
-                    <SelectItem key={staffUser.id} value={staffUser.id}>
-                      {staffUser.full_name || staffUser.username || staffUser.id}
-                    </SelectItem>
-                  ))}
-                  {availableStaff.length === 0 && (
-                    <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                      Không còn staff nào để thêm. Cấp role staff trong menu Tài khoản trước.
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-              <Button className="rounded-xl" onClick={addManager} disabled={saving || !selectedStaff}>
+              <UserPicker
+                users={availableStaff}
+                value={selectedStaff}
+                onChange={setSelectedStaff}
+                placeholder="Chọn staff"
+              />
+              <Button
+                className="rounded-xl"
+                onClick={addManager}
+                disabled={saving || !selectedStaff}
+              >
                 <Plus className="h-4 w-4" /> Thêm
               </Button>
             </div>
@@ -201,9 +197,7 @@ export function FactoryManagersDialog({
               Đang phụ trách ({assignments.length})
             </div>
             {loading ? (
-              <div className="rounded-2xl border border-border/60 p-3 text-sm text-muted-foreground">
-                Đang tải...
-              </div>
+              <DataLoadingState variant="list" label="Đang tải staff quản lý nhà máy..." rows={2} />
             ) : assignments.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border bg-card/50 p-4 text-center text-sm text-muted-foreground">
                 Chưa có staff nào quản lý nhà máy này.
@@ -220,13 +214,16 @@ export function FactoryManagersDialog({
                       <ShieldCheck className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{staffName(assignment.staff)}</div>
+                      <div className="truncate text-sm font-semibold">
+                        {staffName(assignment.staff)}
+                      </div>
                       <button
                         type="button"
                         onClick={() => toggleStatus(assignment)}
                         className="mt-0.5 text-[11px] text-muted-foreground underline-offset-2 hover:underline"
                       >
-                        {assignment.status === "active" ? "Đang áp dụng" : "Tạm dừng"} · đổi trạng thái
+                        {assignment.status === "active" ? "Đang áp dụng" : "Tạm dừng"} · đổi trạng
+                        thái
                       </button>
                     </div>
                     <StatusChip tone={active ? "success" : "neutral"}>

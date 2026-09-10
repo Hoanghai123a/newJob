@@ -1,4 +1,5 @@
-import { pb } from "./pocketbase";
+import { pb, type UserRecord } from "./pocketbase";
+import { companyFilter, companyIdOf } from "./tenant";
 
 export type PayrollPeriod = {
   start: string;
@@ -102,19 +103,36 @@ export function buildPayrollCalendarCells(period: PayrollPeriod) {
   return cells;
 }
 
+const factoryCutoffCache = new Map<string, number | null>();
+const factoryCutoffPending = new Map<string, Promise<number | null>>();
+
 export async function fetchFactoryAttendanceCutoffDay(company?: string) {
   const currentCompany = normalizeText(company);
   if (!currentCompany) return null;
+  if (factoryCutoffCache.has(currentCompany)) return factoryCutoffCache.get(currentCompany) ?? null;
+  const pending = factoryCutoffPending.get(currentCompany);
+  if (pending) return pending;
 
-  try {
-    const factories = (await pb
-      .collection("factories")
-      .getFullList({ sort: "name" })) as FactoryPayrollSettings[];
-    const factory = factories.find((item) => normalizeText(item.name) === currentCompany);
-    return normalizeCutoffDay(
-      factory?.attendance_cutoff_day ?? factory?.cutoff_day ?? factory?.closing_day,
-    );
-  } catch {
-    return null;
-  }
+  const request = (async () => {
+    try {
+      const user = pb.authStore.record as UserRecord | null;
+      const factoryRes = await pb.collection("factories").getList(1, 300, {
+        sort: "name",
+        ...(companyIdOf(user) ? { filter: companyFilter(user) } : {}),
+      });
+      const factories = factoryRes.items as unknown as FactoryPayrollSettings[];
+      const factory = factories.find((item) => normalizeText(item.name) === currentCompany);
+      const cutoff = normalizeCutoffDay(
+        factory?.attendance_cutoff_day ?? factory?.cutoff_day ?? factory?.closing_day,
+      );
+      factoryCutoffCache.set(currentCompany, cutoff);
+      return cutoff;
+    } catch {
+      return null;
+    } finally {
+      factoryCutoffPending.delete(currentCompany);
+    }
+  })();
+  factoryCutoffPending.set(currentCompany, request);
+  return request;
 }
