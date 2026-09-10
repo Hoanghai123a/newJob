@@ -225,6 +225,80 @@ async function fetchAllHistories(filter: string, token: string) {
   return histories;
 }
 
+type LatestWorkerInfo = {
+  isWorking: boolean;
+  leaveDate: string;
+};
+
+async function fetchLatestWorkerInfo(workerIds: string[], token: string) {
+  const infoMap = new Map<string, LatestWorkerInfo>();
+  if (!workerIds.length) return infoMap;
+
+  const uniqueWorkerIds = [...new Set(workerIds)];
+  const chunkSize = 100;
+
+  for (let i = 0; i < uniqueWorkerIds.length; i += chunkSize) {
+    const chunk = uniqueWorkerIds.slice(i, i + chunkSize);
+    const workerFilter = `(${relationInFilter("worker", chunk)})`;
+
+    const query = new URLSearchParams({
+      page: "1",
+      perPage: String(chunk.length),
+      filter: workerFilter,
+      sort: "-join_date,-created",
+      fields: "id,worker,leave_date,join_date",
+    });
+
+    const response = await pbFetch(
+      `/api/collections/employment_histories/records?${query}`,
+      { method: "GET" },
+      token,
+    );
+
+    if (!response.ok) {
+      console.warn("[staff-export] failed to fetch latest worker info", {
+        status: response.status,
+        chunk: chunk.length,
+      });
+      continue;
+    }
+
+    const body = (await readJson(response)) as PocketBaseList<EmploymentHistoryRecord> | null;
+    const records = body?.items || [];
+
+    const workerLatestMap = new Map<string, EmploymentHistoryRecord>();
+    for (const record of records) {
+      if (!record.worker) continue;
+      const existing = workerLatestMap.get(record.worker);
+      if (!existing) {
+        workerLatestMap.set(record.worker, record);
+        continue;
+      }
+
+      const recordJoinDate = record.join_date ? Date.parse(record.join_date) : 0;
+      const existingJoinDate = existing.join_date ? Date.parse(existing.join_date) : 0;
+      if (recordJoinDate > existingJoinDate) {
+        workerLatestMap.set(record.worker, record);
+      } else if (recordJoinDate === existingJoinDate) {
+        const recordCreated = record.created ? Date.parse(record.created) : 0;
+        const existingCreated = existing.created ? Date.parse(existing.created) : 0;
+        if (recordCreated > existingCreated) {
+          workerLatestMap.set(record.worker, record);
+        }
+      }
+    }
+
+    for (const [workerId, latestRecord] of workerLatestMap) {
+      infoMap.set(workerId, {
+        isWorking: isCurrentlyWorking(latestRecord),
+        leaveDate: latestRecord.leave_date || "",
+      });
+    }
+  }
+
+  return infoMap;
+}
+
 async function resolveExportCompanyCode(user: UserRecord) {
   try {
     const company = await getCompanyForUser(user);
@@ -241,9 +315,13 @@ function formatDateOnly(value?: string) {
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
 }
 
-function buildBasicRows(histories: EmploymentHistoryRecord[]) {
+function buildBasicRows(histories: EmploymentHistoryRecord[], latestInfoMap: Map<string, LatestWorkerInfo>) {
   return histories.map((history, index) => {
     const recruiter = getRecruiterDisplay(history);
+    const workerId = history.worker || "";
+    const latestInfo = latestInfoMap.get(workerId);
+    const latestStatus = latestInfo ? (latestInfo.isWorking ? "Đang làm" : "Đã nghỉ") : "";
+    const latestLeaveDate = latestInfo ? formatDateOnly(latestInfo.leaveDate) : "";
     return {
       STT: index + 1,
       "Mã lịch sử": history.uid || "",
@@ -262,6 +340,8 @@ function buildBasicRows(histories: EmploymentHistoryRecord[]) {
       "Ngày vào": formatDateOnly(history.join_date),
       "Ngày nghỉ": formatDateOnly(history.leave_date),
       "Trạng thái": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
+      "Trạng thái làm việc": latestStatus,
+      "Ngày nghỉ cuối cùng": latestLeaveDate,
       "Thâm niên tích luỹ (ngày)": history.accumulated_seniority_days ?? 0,
       "Tài khoản gốc": history.expand?.worker?.full_name || history.expand?.worker?.username || "",
       "Số điện thoại": history.expand?.worker?.phone || "",
@@ -270,10 +350,14 @@ function buildBasicRows(histories: EmploymentHistoryRecord[]) {
   });
 }
 
-function buildFullRows(histories: EmploymentHistoryRecord[]) {
+function buildFullRows(histories: EmploymentHistoryRecord[], latestInfoMap: Map<string, LatestWorkerInfo>) {
   return histories.map((history, index) => {
     const user = history.expand?.worker;
     const recruiter = getRecruiterDisplay(history);
+    const workerId = history.worker || "";
+    const latestInfo = latestInfoMap.get(workerId);
+    const latestStatus = latestInfo ? (latestInfo.isWorking ? "Đang làm" : "Đã nghỉ") : "";
+    const latestLeaveDate = latestInfo ? formatDateOnly(latestInfo.leaveDate) : "";
     return {
       STT: index + 1,
       "Mã tài khoản (UID)": user?.uid || "",
@@ -296,6 +380,8 @@ function buildFullRows(histories: EmploymentHistoryRecord[]) {
       "Thâm niên tích luỹ (ngày)": history.accumulated_seniority_days ?? 0,
       "Mã số thuế": history.worker_tax_code_snapshot || "",
       "Trạng thái lịch sử": isCurrentlyWorking(history) ? "Đang làm" : "Đã nghỉ",
+      "Trạng thái làm việc": latestStatus,
+      "Ngày nghỉ cuối cùng": latestLeaveDate,
       "Ghi chú": history.note || "",
       "Ngân hàng": resolveBankCode(user?.bank_name || ""),
       "Số tài khoản": user?.bank_account_number || "",
@@ -358,7 +444,10 @@ export async function handleStaffExcelExport(request: Request) {
     const histories = await fetchAllHistories(filter, auth.token);
     if (!histories.length) return jsonError("Không có dữ liệu phù hợp để xuất.", 404);
 
-    const rows = mode === "basic" ? buildBasicRows(histories) : buildFullRows(histories);
+    const workerIds = histories.map((h) => h.worker).filter((id): id is string => Boolean(id));
+    const latestInfoMap = await fetchLatestWorkerInfo(workerIds, auth.token);
+
+    const rows = mode === "basic" ? buildBasicRows(histories, latestInfoMap) : buildFullRows(histories, latestInfoMap);
     const file = createWorkbook(rows, mode);
     const companyCode = await resolveExportCompanyCode(auth.user);
     const filename = buildStaffHistoryExportFilename(companyCode);

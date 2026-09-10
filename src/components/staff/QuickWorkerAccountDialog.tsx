@@ -70,6 +70,7 @@ import { FactoryPicker, MainHousePicker } from "@/components/workforce/UserPicke
 import { RecruiterPicker } from "@/components/employment/RecruiterPicker";
 import { buildRecruiterPayload, type RecruiterSelectionValue } from "@/lib/recruiters";
 import { resolveBankName } from "@/lib/vn-banks";
+import { removeVietnameseTone, normalizeAccountName } from "@/lib/bank-qr";
 import { BankPicker } from "@/components/staff/BankNameInput";
 import { getUserErrorMessage } from "@/lib/toast";
 
@@ -185,6 +186,24 @@ function digitsOnly(value: string) {
 
 function normalizeStoredNumericField(value: string) {
   return value.trim().replace(/[^0-9]+$/, "");
+}
+
+// Capitalize tên: Hoàng Minh Hải (chữ hoa chữ cái đầu mỗi từ)
+function capitalizePersonName(value: string): string {
+  return value
+    .trim()
+    .replace(/\s+/g, ' ')
+    .split(' ')
+    .map(word => {
+      if (!word) return '';
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
+// Normalize văn bản thông thường: trim đầu/cuối, chỉ giữ 1 space ở giữa
+function normalizeTextField(value: string): string {
+  return value.trim().replace(/\s+/g, ' ');
 }
 
 function hasRequiredDigits(value: string, count: number) {
@@ -304,9 +323,30 @@ export function QuickWorkerAccountDialog({
     key: K,
     value: QuickWorkerForm[K],
   ) => {
+    // Normalize theo loại trường
+    let normalizedValue = value;
+
+    // Các trường số: dùng digitsOnly() đã có
+    if (['cccd', 'phone', 'employee_code', 'bank_account_number'].includes(key)) {
+      normalizedValue = digitsOnly(value as string) as QuickWorkerForm[K];
+    }
+    // Họ tên: capitalize chữ cái đầu mỗi từ
+    else if (['real_name', 'worker_name_snapshot'].includes(key)) {
+      normalizedValue = capitalizePersonName(value as string) as QuickWorkerForm[K];
+    }
+    // Chủ tài khoản: bỏ dấu + chữ hoa
+    else if (key === 'bank_account_name') {
+      normalizedValue = normalizeAccountName(value) as QuickWorkerForm[K];
+    }
+    // Các trường văn bản khác: normalize khoảng trắng
+    else if (['address', 'bank_account_note', 'note'].includes(key)) {
+      normalizedValue = normalizeTextField(value as string) as QuickWorkerForm[K];
+    }
+    // Các trường khác (date, select, bank_name, gender) giữ nguyên
+
     setEntries((current) =>
       current.map((entry) =>
-        entry.id === entryId ? { ...entry, form: { ...entry.form, [key]: value } } : entry,
+        entry.id === entryId ? { ...entry, form: { ...entry.form, [key]: normalizedValue } } : entry,
       ),
     );
     clearRecordError(entryId);
@@ -573,12 +613,12 @@ export function QuickWorkerAccountDialog({
 
   const createWorker = async (entry: QuickWorkerEntry, uid: string, historyUid: string) => {
     const { form } = entry;
-    const realName = form.real_name.trim();
-    const workerName = form.worker_name_snapshot.trim() || realName;
+    const realName = capitalizePersonName(form.real_name);
+    const workerName = capitalizePersonName(form.worker_name_snapshot) || realName;
     const cccdRaw = form.cccd;
     const phoneRaw = form.phone;
-    const cccd = normalizeStoredNumericField(cccdRaw);
-    const phone = normalizeStoredNumericField(phoneRaw);
+    const cccd = digitsOnly(cccdRaw);
+    const phone = digitsOnly(phoneRaw);
     const birthForPb = displayDateToPocketBase(form.date_of_birth);
     const issueDateForPb = displayDateToPocketBase(form.cccd_issue_date);
     const [compressedFront, compressedBack] = await Promise.all([
@@ -595,11 +635,11 @@ export function QuickWorkerAccountDialog({
     fd.append("gender", form.gender.trim());
     if (birthForPb) fd.append("date_of_birth", birthForPb);
     if (issueDateForPb) fd.append("cccd_issue_date", issueDateForPb);
-    fd.append("address", form.address.trim());
+    fd.append("address", normalizeTextField(form.address));
     fd.append("bank_name", resolveBankName(form.bank_name.trim()));
-    fd.append("bank_account_number", form.bank_account_number.replace(/\D/g, ""));
-    fd.append("bank_account_name", form.bank_account_name.trim());
-    fd.append("bank_account_note", form.bank_account_note.trim());
+    fd.append("bank_account_number", digitsOnly(form.bank_account_number));
+    fd.append("bank_account_name", normalizeAccountName(form.bank_account_name));
+    fd.append("bank_account_note", normalizeTextField(form.bank_account_note));
 
     const currentActor = pb.authStore.record as UserRecord | null;
     const tenantCompany = companyIdOf(currentActor);
@@ -647,17 +687,17 @@ export function QuickWorkerAccountDialog({
           worker: createdWorker.id,
           factory: form.factory,
           main_house: form.main_house,
-          employee_code: form.employee_code.trim(),
+          employee_code: digitsOnly(form.employee_code),
           worker_name_snapshot: workerName,
           worker_cccd_snapshot: cccd,
           worker_date_of_birth_snapshot: birthForPb,
-          worker_address_snapshot: form.address.trim(),
-          hometown_snapshot: form.address.trim(),
+          worker_address_snapshot: normalizeTextField(form.address),
+          hometown_snapshot: normalizeTextField(form.address),
           cccd_issue_date: issueDateForPb,
           ...buildRecruiterPayload(form.recruiter_staff),
           cccd_version: cccdVersionId,
           join_date: form.join_date,
-          note: form.note.trim(),
+          note: normalizeTextField(form.note),
         },
         { uid: historyUid },
       );
@@ -1157,7 +1197,7 @@ function QuickWorkerEntryFields({
         <TextField
           label="STK"
           value={form.bank_account_number}
-          onChange={(value) => setField("bank_account_number", value.replace(/\D/g, ""))}
+          onChange={(value) => setField("bank_account_number", value)}
           placeholder="STK"
           inputMode="numeric"
           desktopClassName="desktop:col-start-4 desktop:row-start-1"
@@ -1177,10 +1217,10 @@ function QuickWorkerEntryFields({
           desktopClassName="desktop:col-start-6 desktop:row-start-1"
         />
         <TextField
-          label="SĐT (tùy chọn)"
+          label="SĐT"
           value={form.phone}
           onChange={(value) => setField("phone", value)}
-          placeholder="SĐT (tùy chọn)"
+          placeholder="SĐT"
           inputMode="tel"
           desktopClassName="desktop:col-start-1 desktop:row-start-2"
         />
