@@ -99,6 +99,30 @@ export function InstallFloatingBanner() {
     };
   }, []);
 
+  // Auto-trigger install prompt on Android when banner becomes visible
+  useEffect(() => {
+    if (!ready || hidden || !hasUsedEnough || focused || !installPrompt || !isAndroid) return;
+
+    const allowedRoute =
+      pathname === "/" ||
+      pathname === "/login" ||
+      pathname === "/about" ||
+      (pathname === "/account" && forceOpen);
+
+    if (!allowedRoute) return;
+
+    // Auto-show native install prompt on Android
+    const timer = setTimeout(async () => {
+      const choice = await installApp();
+      if (choice === "accepted") {
+        setHidden(true);
+        setForceOpen(false);
+      }
+    }, 500); // Small delay to ensure banner is visible first
+
+    return () => clearTimeout(timer);
+  }, [ready, hidden, hasUsedEnough, focused, installPrompt, isAndroid, pathname, forceOpen, installApp]);
+
   const close = () => {
     window.localStorage.setItem(HIDE_FLAG_KEY, "true");
     window.localStorage.setItem(HIDE_UNTIL_KEY, String(Date.now() + HIDE_MS));
