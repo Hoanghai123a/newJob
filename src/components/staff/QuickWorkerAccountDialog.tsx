@@ -323,30 +323,9 @@ export function QuickWorkerAccountDialog({
     key: K,
     value: QuickWorkerForm[K],
   ) => {
-    // Normalize theo loại trường
-    let normalizedValue = value;
-
-    // Các trường số: dùng digitsOnly() đã có
-    if (['cccd', 'phone', 'employee_code', 'bank_account_number'].includes(key)) {
-      normalizedValue = digitsOnly(value as string) as QuickWorkerForm[K];
-    }
-    // Họ tên: capitalize chữ cái đầu mỗi từ
-    else if (['real_name', 'worker_name_snapshot'].includes(key)) {
-      normalizedValue = capitalizePersonName(value as string) as QuickWorkerForm[K];
-    }
-    // Chủ tài khoản: bỏ dấu + chữ hoa
-    else if (key === 'bank_account_name') {
-      normalizedValue = normalizeAccountName(value) as QuickWorkerForm[K];
-    }
-    // Các trường văn bản khác: normalize khoảng trắng
-    else if (['address', 'bank_account_note', 'note'].includes(key)) {
-      normalizedValue = normalizeTextField(value as string) as QuickWorkerForm[K];
-    }
-    // Các trường khác (date, select, bank_name, gender) giữ nguyên
-
     setEntries((current) =>
       current.map((entry) =>
-        entry.id === entryId ? { ...entry, form: { ...entry.form, [key]: normalizedValue } } : entry,
+        entry.id === entryId ? { ...entry, form: { ...entry.form, [key]: value } } : entry,
       ),
     );
     clearRecordError(entryId);
@@ -637,7 +616,7 @@ export function QuickWorkerAccountDialog({
     if (issueDateForPb) fd.append("cccd_issue_date", issueDateForPb);
     fd.append("address", normalizeTextField(form.address));
     fd.append("bank_name", resolveBankName(form.bank_name.trim()));
-    fd.append("bank_account_number", digitsOnly(form.bank_account_number));
+    fd.append("bank_account_number", form.bank_account_number.replace(/[^a-zA-Z0-9]/g, ""));
     fd.append("bank_account_name", normalizeAccountName(form.bank_account_name));
     fd.append("bank_account_note", normalizeTextField(form.bank_account_note));
 
@@ -687,7 +666,7 @@ export function QuickWorkerAccountDialog({
           worker: createdWorker.id,
           factory: form.factory,
           main_house: form.main_house,
-          employee_code: digitsOnly(form.employee_code),
+          employee_code: form.employee_code.replace(/[^a-zA-Z0-9]/g, ""),
           worker_name_snapshot: workerName,
           worker_cccd_snapshot: cccd,
           worker_date_of_birth_snapshot: birthForPb,

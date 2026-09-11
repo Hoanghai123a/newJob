@@ -1553,7 +1553,7 @@ function StaffWorkerDetailPage() {
                 onChange={(event) =>
                   setBankForm((current) => ({
                     ...current,
-                    bank_account_number: event.target.value.replace(/\D/g, ""),
+                    bank_account_number: event.target.value.replace(/[^a-zA-Z0-9]/g, ""),
                   }))
                 }
                 className="rounded-xl"

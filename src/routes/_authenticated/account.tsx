@@ -502,7 +502,7 @@ function UserProfileForm() {
         <TextField
           label="Số TK"
           value={form.bank_account_number}
-          onChange={(v) => setForm({ ...form, bank_account_number: v.replace(/\D/g, "") })}
+          onChange={(v) => setForm({ ...form, bank_account_number: v.replace(/[^a-zA-Z0-9]/g, "") })}
         />
         <TextField
           label="Tên TK"
@@ -890,10 +890,9 @@ function WorkerAccountsPanel() {
                 onChange={(e) =>
                   setForm((s) => ({
                     ...s,
-                    bank_account_number: e.target.value.replace(/\D/g, ""),
+                    bank_account_number: e.target.value.replace(/[^a-zA-Z0-9]/g, ""),
                   }))
                 }
-                inputMode="numeric"
                 className={DETAIL_EDITOR_CONTROL_CLASS}
               />
             </DetailEditorField>
@@ -2305,10 +2304,9 @@ function AdminUsersPanel() {
                 onChange={(e) =>
                   setDetailBankForm((current) => ({
                     ...current,
-                    bank_account_number: e.target.value.replace(/\D/g, ""),
+                    bank_account_number: e.target.value.replace(/[^a-zA-Z0-9]/g, ""),
                   }))
                 }
-                inputMode="numeric"
                 placeholder="Nhập số tài khoản"
                 className={DETAIL_EDITOR_CONTROL_CLASS}
               />

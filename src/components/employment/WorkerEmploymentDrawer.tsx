@@ -1519,10 +1519,9 @@ export function WorkerEmploymentDrawer({
                             onChange={(e) =>
                               setBankForm((c) => ({
                                 ...c,
-                                bank_account_number: e.target.value.replace(/\D/g, ""),
+                                bank_account_number: e.target.value.replace(/[^a-zA-Z0-9]/g, ""),
                               }))
                             }
-                            inputMode="numeric"
                             placeholder="Nhập số tài khoản"
                           />
                         </div>
@@ -1683,10 +1682,9 @@ export function WorkerEmploymentDrawer({
                                   onChange={(e) =>
                                     setBankForm((c) => ({
                                       ...c,
-                                      bank_account_number: e.target.value.replace(/\D/g, ""),
+                                      bank_account_number: e.target.value.replace(/[^a-zA-Z0-9]/g, ""),
                                     }))
                                   }
-                                  inputMode="numeric"
                                   placeholder="Nhập số tài khoản"
                                 />
                               </div>

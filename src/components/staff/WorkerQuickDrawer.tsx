@@ -868,10 +868,9 @@ export function WorkerQuickDrawer({
                     onChange={(e) =>
                       setBankForm((f) => ({
                         ...f,
-                        bank_account_number: e.target.value.replace(/\D/g, ""),
+                        bank_account_number: e.target.value.replace(/[^a-zA-Z0-9]/g, ""),
                       }))
                     }
-                    inputMode="numeric"
                   />
                 </div>
                 <div className="space-y-1">

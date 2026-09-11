@@ -1169,11 +1169,10 @@ function AdvancesPage() {
                       <Label>Số TK</Label>
                       <Input
                         value={bankForm.bank_account_number}
-                        inputMode="numeric"
                         onChange={(e) =>
                           setBankForm({
                             ...bankForm,
-                            bank_account_number: e.target.value.replace(/\D/g, ""),
+                            bank_account_number: e.target.value.replace(/[^a-zA-Z0-9]/g, ""),
                           })
                         }
                       />
