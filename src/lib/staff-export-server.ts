@@ -1,7 +1,11 @@
 import * as XLSX from "xlsx";
 
 import { relationInFilter } from "./delegations";
-import { isCurrentlyWorking, type EmploymentHistoryRecord } from "./employment";
+import {
+  isCurrentlyWorking,
+  sortEmploymentHistoriesForExport,
+  type EmploymentHistoryRecord,
+} from "./employment";
 import { buildExcelWorkbook } from "./excel";
 import { getPBUpstream } from "./pocketbase-config";
 import type { UserRecord } from "./pocketbase";
@@ -315,7 +319,10 @@ function formatDateOnly(value?: string) {
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
 }
 
-function buildBasicRows(histories: EmploymentHistoryRecord[], latestInfoMap: Map<string, LatestWorkerInfo>) {
+function buildBasicRows(
+  histories: EmploymentHistoryRecord[],
+  latestInfoMap: Map<string, LatestWorkerInfo>,
+) {
   return histories.map((history, index) => {
     const recruiter = getRecruiterDisplay(history);
     const workerId = history.worker || "";
@@ -350,7 +357,10 @@ function buildBasicRows(histories: EmploymentHistoryRecord[], latestInfoMap: Map
   });
 }
 
-function buildFullRows(histories: EmploymentHistoryRecord[], latestInfoMap: Map<string, LatestWorkerInfo>) {
+function buildFullRows(
+  histories: EmploymentHistoryRecord[],
+  latestInfoMap: Map<string, LatestWorkerInfo>,
+) {
   return histories.map((history, index) => {
     const user = history.expand?.worker;
     const recruiter = getRecruiterDisplay(history);
@@ -447,7 +457,11 @@ export async function handleStaffExcelExport(request: Request) {
     const workerIds = histories.map((h) => h.worker).filter((id): id is string => Boolean(id));
     const latestInfoMap = await fetchLatestWorkerInfo(workerIds, auth.token);
 
-    const rows = mode === "basic" ? buildBasicRows(histories, latestInfoMap) : buildFullRows(histories, latestInfoMap);
+    const exportHistories = sortEmploymentHistoriesForExport(histories);
+    const rows =
+      mode === "basic"
+        ? buildBasicRows(exportHistories, latestInfoMap)
+        : buildFullRows(exportHistories, latestInfoMap);
     const file = createWorkbook(rows, mode);
     const companyCode = await resolveExportCompanyCode(auth.user);
     const filename = buildStaffHistoryExportFilename(companyCode);

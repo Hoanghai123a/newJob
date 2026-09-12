@@ -104,8 +104,11 @@ test("xuat day du chi tai employment_histories mot lan va dung tham nien tu Pock
     historyFixture({
       id: "history-2",
       worker: "worker-2",
+      join_date: "2026-06-01T00:00:00.000Z",
       accumulated_seniority_days: 456,
       worker_name_snapshot: "Tran Thi B",
+      worker_date_of_birth_snapshot: "1990-03-15",
+      leave_date: "2026-06-30T00:00:00.000Z",
       expand: {
         worker: { full_name: "Tran Thi B", uid: "USR-002" },
         factory: { name: "Nha may 1" },
@@ -122,14 +125,21 @@ test("xuat day du chi tai employment_histories mot lan va dung tham nien tu Pock
   );
   assert.equal(
     requests.filter((url) => url.pathname.endsWith("/employment_histories/records")).length,
-    1,
+    2,
   );
 
-  const workbook = XLSX.read(await response.arrayBuffer(), { type: "array" });
+  const workbook = XLSX.read(await response.arrayBuffer(), { type: "array", cellNF: true });
   const rows = XLSX.utils.sheet_to_json(workbook.Sheets["Lao động đầy đủ"]);
   assert.deepEqual(
+    rows.map((row) => row["Họ tên tại thời điểm đi làm"]),
+    ["Tran Thi B", "Nguyen Van A"],
+  );
+  assert.equal(workbook.Sheets["Lao động đầy đủ"]["I2"].z, "dd/mm/yyyy");
+  assert.equal(workbook.Sheets["Lao động đầy đủ"]["M2"].z, "dd/mm/yyyy");
+  assert.equal(workbook.Sheets["Lao động đầy đủ"]["N2"].z, "dd/mm/yyyy");
+  assert.deepEqual(
     rows.map((row) => row["Thâm niên tích luỹ (ngày)"]),
-    [123, 456],
+    [456, 123],
   );
 });
 

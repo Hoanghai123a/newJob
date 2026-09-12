@@ -512,6 +512,43 @@ export function sortEmploymentHistories(histories: EmploymentHistoryRecord[]) {
   });
 }
 
+function exportDateTime(value?: string) {
+  const text = String(value || "").trim();
+  const dateOnly = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(text);
+  if (dateOnly) {
+    const time = Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+    return Number.isNaN(time) ? null : time;
+  }
+
+  const time = new Date(text).getTime();
+  return Number.isNaN(time) ? null : time;
+}
+
+export function sortEmploymentHistoriesForExport(histories: EmploymentHistoryRecord[]) {
+  return [...histories].sort((a, b) => {
+    const aTime = exportDateTime(a.join_date);
+    const bTime = exportDateTime(b.join_date);
+    if (aTime === null && bTime === null) return 0;
+    if (aTime === null) return 1;
+    if (bTime === null) return -1;
+    const joinDateOrder = bTime - aTime;
+    if (joinDateOrder) return joinDateOrder;
+
+    const aBirthTime = exportDateTime(a.worker_date_of_birth_snapshot);
+    const bBirthTime = exportDateTime(b.worker_date_of_birth_snapshot);
+    if (aBirthTime === null && bBirthTime !== null) return 1;
+    if (aBirthTime !== null && bBirthTime === null) return -1;
+    if (aBirthTime !== null && bBirthTime !== null && aBirthTime !== bBirthTime) {
+      return aBirthTime - bBirthTime;
+    }
+
+    return (
+      (a.worker_name_snapshot || "").localeCompare(b.worker_name_snapshot || "", "vi") ||
+      a.id.localeCompare(b.id)
+    );
+  });
+}
+
 export function getLatestEmploymentHistory(histories: EmploymentHistoryRecord[]) {
   return sortEmploymentHistories(histories)[0] || null;
 }

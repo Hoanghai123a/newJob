@@ -59,6 +59,7 @@ import {
   getMissingEmploymentEditFields,
   getMissingEmploymentSnapshotFields,
   isCurrentlyWorking,
+  sortEmploymentHistoriesForExport,
   maskCccd,
   updateEmploymentHistory,
   updateUserAndCache,
@@ -493,9 +494,11 @@ function StaffWorkerDetailPage() {
       return;
     }
 
+    const exportHistories = sortEmploymentHistoriesForExport(histories);
+
     const companyCode = await fetchTenantCompanyCode();
     exportToExcel(`${companyCode}_lich_su_NLD_${Date.now()}`, {
-      "Lịch sử đi làm": histories.map((history, index) => {
+      "Lịch sử đi làm": exportHistories.map((history, index) => {
         const recruiter = getRecruiterDisplay(history);
         return {
           STT: index + 1,
