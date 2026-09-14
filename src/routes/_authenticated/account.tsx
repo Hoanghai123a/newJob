@@ -182,13 +182,12 @@ function requireManageableAccount(user?: Pick<UserRecord, "role"> | null) {
 
 function buildUserSearchFilter(search: string, extraFilter = "") {
   const q = escapePb(search.trim());
-  const roleFilter = 'role="staff"';
   const searchFilter = q
     ? `(${["full_name", "username", "phone", "role"]
         .map((field) => `${field}~"${q}"`)
         .join(" || ")})`
     : "";
-  return [extraFilter, roleFilter, searchFilter].filter(Boolean).join(" && ");
+  return [extraFilter, searchFilter].filter(Boolean).join(" && ");
 }
 
 function AccountPage() {
