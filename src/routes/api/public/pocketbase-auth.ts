@@ -141,8 +141,7 @@ export const Route = createFileRoute("/api/public/pocketbase-auth")({
             const result = await findActiveCompany(companyCode);
             if ("error" in result && result.error)
               return deny(result.error.message, result.error.status);
-            if (!("company" in result))
-              return deny("Không tìm thấy công ty.", 500);
+            if (!("company" in result)) return deny("Không tìm thấy công ty.", 500);
             companyId = result.company.id;
             authIdentity = buildTechnicalUsername(
               result.company.code,

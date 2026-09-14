@@ -118,8 +118,7 @@ export const Route = createFileRoute("/api/admin/company-records")({
         const status = String(body?.status || "").trim();
         const hasRole = Boolean(role);
         const hasStatus = Boolean(status);
-        if (!userId || (!hasRole && !hasStatus))
-          return error("Thông tin cập nhật không hợp lệ.");
+        if (!userId || (!hasRole && !hasStatus)) return error("Thông tin cập nhật không hợp lệ.");
         if (hasRole && !["user", "staff", "admin"].includes(role))
           return error("Thông tin phân quyền không hợp lệ.");
         if (hasStatus && !["active", "disabled"].includes(status))

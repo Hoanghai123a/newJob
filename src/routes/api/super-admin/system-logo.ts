@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getPBUpstream } from "@/lib/pocketbase-config";
-import {
-  getServerAuthUser,
-  getPocketBaseAdminToken,
-} from "@/lib/tenant-server";
+import { getServerAuthUser, getPocketBaseAdminToken } from "@/lib/tenant-server";
 
 const CUSTOM_ICON_FILES = ["app-icon.png", "app-icon.jpg", "app-icon.webp", "app-icon.gif"];
 const DEFAULT_ICON = "app-icon.svg";
@@ -43,7 +40,10 @@ export const Route = createFileRoute("/api/super-admin/system-logo")({
         const formData = await request.formData();
         const logo = formData.get("logo");
 
-        console.log("[system-logo] Received file:", logo instanceof File ? `${logo.name} (${logo.type}, ${logo.size} bytes)` : typeof logo);
+        console.log(
+          "[system-logo] Received file:",
+          logo instanceof File ? `${logo.name} (${logo.type}, ${logo.size} bytes)` : typeof logo,
+        );
 
         if (!logo || !(logo instanceof File)) {
           return Response.json({ message: "Thiếu file logo." }, { status: 400 });

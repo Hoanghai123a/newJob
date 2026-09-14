@@ -172,7 +172,9 @@ for (const adv of advances) {
 
 console.log(`\n📈 Kết quả:`);
 console.log(`   Từ backup:              ${updates.filter((u) => u.source === "backup").length}`);
-console.log(`   Từ employment_histories: ${updates.filter((u) => u.source === "employment_histories").length}`);
+console.log(
+  `   Từ employment_histories: ${updates.filter((u) => u.source === "employment_histories").length}`,
+);
 console.log(`   Không tìm được:          ${advances.length - updates.length}`);
 
 if (updates.length === 0) {

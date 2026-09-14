@@ -237,11 +237,16 @@ async function deleteWorkerWithLog(
       const response = await pbFetch(deleteUrl, { method: "DELETE" }, token);
       if (!response.ok) {
         const body = await readJson(response);
-        console.error(`[deleteWorkerWithLog] Failed to delete cascade record ${id} from ${group.collection}:`, {
-          status: response.status,
-          body,
-        });
-        throw new Error(`Không thể xóa bản ghi liên kết trong ${group.collection}: ${body?.message || response.statusText}`);
+        console.error(
+          `[deleteWorkerWithLog] Failed to delete cascade record ${id} from ${group.collection}:`,
+          {
+            status: response.status,
+            body,
+          },
+        );
+        throw new Error(
+          `Không thể xóa bản ghi liên kết trong ${group.collection}: ${body?.message || response.statusText}`,
+        );
       }
     }
   }

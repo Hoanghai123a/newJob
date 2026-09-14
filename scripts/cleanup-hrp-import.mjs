@@ -79,7 +79,9 @@ try {
 
 // Xác định tenant HRP
 console.log(`\n📋 Tìm công ty code="${TARGET_COMPANY_CODE}"...`);
-const companies = await pb.collection("companies").getFullList({ filter: `code="${TARGET_COMPANY_CODE}"` });
+const companies = await pb
+  .collection("companies")
+  .getFullList({ filter: `code="${TARGET_COMPANY_CODE}"` });
 if (companies.length === 0) {
   console.error(`❌ Không tìm thấy công ty có code="${TARGET_COMPANY_CODE}"`);
   process.exit(1);
@@ -202,22 +204,40 @@ if (!APPLY) {
   const summary = {};
 
   console.log(`\n1) employment_histories (${histToDelete.length})...`);
-  summary.histories = await deleteMany("employment_histories", histToDelete.map((h) => h.id));
+  summary.histories = await deleteMany(
+    "employment_histories",
+    histToDelete.map((h) => h.id),
+  );
 
   console.log(`\n2) cccd_versions (${cccdToDelete.length})...`);
-  summary.cccd = await deleteMany("cccd_versions", cccdToDelete.map((c) => c.id));
+  summary.cccd = await deleteMany(
+    "cccd_versions",
+    cccdToDelete.map((c) => c.id),
+  );
 
   console.log(`\n3) workers (${importedWorkers.length})...`);
-  summary.workers = await deleteMany("workers", importedWorkers.map((w) => w.id));
+  summary.workers = await deleteMany(
+    "workers",
+    importedWorkers.map((w) => w.id),
+  );
 
   console.log(`\n4) factories (${factoriesToDelete.length})...`);
-  summary.factories = await deleteMany("factories", factoriesToDelete.map((f) => f.id));
+  summary.factories = await deleteMany(
+    "factories",
+    factoriesToDelete.map((f) => f.id),
+  );
 
   console.log(`\n5) recruitment_entities (${entitiesToDelete.length})...`);
-  summary.entities = await deleteMany("recruitment_entities", entitiesToDelete.map((e) => e.id));
+  summary.entities = await deleteMany(
+    "recruitment_entities",
+    entitiesToDelete.map((e) => e.id),
+  );
 
   console.log(`\n6) users staff (${staffToDelete.length})...`);
-  summary.staff = await deleteMany("users", staffToDelete.map((u) => u.id));
+  summary.staff = await deleteMany(
+    "users",
+    staffToDelete.map((u) => u.id),
+  );
 
   console.log(`\n✨ HOÀN TẤT XÓA`);
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
@@ -227,11 +247,10 @@ if (!APPLY) {
 
   const totalFail = Object.values(summary).reduce((s, x) => s + x.fail, 0);
   if (totalFail > 0) {
-    console.log(`\n⚠️  Có ${totalFail} bản ghi xóa thất bại (có thể do ràng buộc khóa ngoại). Chạy lại script để dọn nốt.`);
+    console.log(
+      `\n⚠️  Có ${totalFail} bản ghi xóa thất bại (có thể do ràng buộc khóa ngoại). Chạy lại script để dọn nốt.`,
+    );
   }
 
   finish(totalFail > 0 ? 1 : 0);
 }
-
-
-

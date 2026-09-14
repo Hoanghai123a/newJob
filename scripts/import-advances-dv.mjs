@@ -35,7 +35,8 @@ function loadEnv() {
   const envPath = path.join(__dirname, "..", ".env");
   if (!fs.existsSync(envPath)) return {};
   return Object.fromEntries(
-    fs.readFileSync(envPath, "utf8")
+    fs
+      .readFileSync(envPath, "utf8")
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter((line) => line && !line.startsWith("#") && line.includes("="))
@@ -114,7 +115,10 @@ function pickStintByDate(histories, dateValue) {
 
   if (contained.length >= 1) {
     const best = contained.sort((a, b) => dayKey(b.join_date) - dayKey(a.join_date))[0];
-    return { stint: best, method: contained.length === 1 ? "date_contained" : "date_contained_multi" };
+    return {
+      stint: best,
+      method: contained.length === 1 ? "date_contained" : "date_contained_multi",
+    };
   }
 
   const before = histories
@@ -162,7 +166,9 @@ await pb
   .catch(() => pb.admins.authWithPassword(PB_EMAIL, PB_PASSWORD));
 console.log("✅ Đã kết nối\n");
 
-const companies = await pb.collection("companies").getFullList({ filter: `code="${TARGET_COMPANY_CODE}"` });
+const companies = await pb
+  .collection("companies")
+  .getFullList({ filter: `code="${TARGET_COMPANY_CODE}"` });
 if (companies.length === 0) {
   console.error(`❌ Không tìm thấy công ty code="${TARGET_COMPANY_CODE}"`);
   process.exitCode = 1;
@@ -195,7 +201,9 @@ if (sharedStringsXml) {
   let sm;
   while ((sm = siRe.exec(sharedStringsXml))) {
     const body = sm[1] || "";
-    const parts = [...body.matchAll(/<t[^>]*\/>|<t[^>]*>([\s\S]*?)<\/t>/g)].map((x) => decodeXml(x[1] || ""));
+    const parts = [...body.matchAll(/<t[^>]*\/>|<t[^>]*>([\s\S]*?)<\/t>/g)].map((x) =>
+      decodeXml(x[1] || ""),
+    );
     sharedStrings.push(parts.join(""));
   }
 }
@@ -217,7 +225,9 @@ while ((rowMatch = rowRe.exec(sheetXml))) {
     const body = cm[3] || "";
     let value = "";
     if (type === "inlineStr") {
-      value = [...body.matchAll(/<t[^>]*\/>|<t[^>]*>([\s\S]*?)<\/t>/g)].map((x) => decodeXml(x[1] || "")).join("");
+      value = [...body.matchAll(/<t[^>]*\/>|<t[^>]*>([\s\S]*?)<\/t>/g)]
+        .map((x) => decodeXml(x[1] || ""))
+        .join("");
     } else {
       const raw = body.match(/<v>([\s\S]*?)<\/v>/)?.[1] ?? "";
       value = type === "s" && raw !== "" ? (sharedStrings[Number(raw)] ?? "") : decodeXml(raw);
@@ -256,9 +266,13 @@ const headerMismatch = Object.entries(EXPECTED_HEADERS).filter(
 if (headerMismatch.length > 0) {
   console.error(`\n⛔ BỐ CỤC FILE KHÔNG ĐÚNG — dừng để tránh ghi sai dữ liệu.`);
   for (const [col, label] of headerMismatch) {
-    console.error(`   Cột ${col}: cần "${label}" nhưng file có "${txt(headerRow[col]) || "(rỗng)"}"`);
+    console.error(
+      `   Cột ${col}: cần "${label}" nhưng file có "${txt(headerRow[col]) || "(rỗng)"}"`,
+    );
   }
-  console.error(`\n   Nếu file xuất đổi cột thật, sửa EXPECTED_HEADERS và phần đọc cột trong script.`);
+  console.error(
+    `\n   Nếu file xuất đổi cột thật, sửa EXPECTED_HEADERS và phần đọc cột trong script.`,
+  );
   process.exitCode = 1;
   process.exit(1);
 }
@@ -427,7 +441,8 @@ for (const { rowNum, cells } of dataRows) {
     const wantFactory = normalizeLabel(excelFactory);
     const wantCode = excelEmployeeCode.toUpperCase();
     const stint = workerHistories.find(
-      (h) => h.employee_code.toUpperCase() === wantCode && normalizeLabel(h.factoryName) === wantFactory,
+      (h) =>
+        h.employee_code.toUpperCase() === wantCode && normalizeLabel(h.factoryName) === wantFactory,
     );
     if (stint) {
       stintId = stint.id;
@@ -481,18 +496,30 @@ for (const { rowNum, cells } of dataRows) {
   const recruiterName = txt(cells.H);
   const recruiter = recruiterName ? staffByName.get(normalizeLabel(recruiterName)) : null;
   if (recruiterName && !recruiter) {
-    warnings.push({ row: rowNum, uid: workerUid, reason: `Không tìm thấy staff "Người tuyển NLĐ" = "${recruiterName}"` });
+    warnings.push({
+      row: rowNum,
+      uid: workerUid,
+      reason: `Không tìm thấy staff "Người tuyển NLĐ" = "${recruiterName}"`,
+    });
   }
 
   const creatorName = txt(cells.F);
   const creator = creatorName ? staffByName.get(normalizeLabel(creatorName)) : null;
   if (creatorName && !creator) {
-    warnings.push({ row: rowNum, uid: workerUid, reason: `Không tìm thấy staff "Người tạo" = "${creatorName}"` });
+    warnings.push({
+      row: rowNum,
+      uid: workerUid,
+      reason: `Không tìm thấy staff "Người tạo" = "${creatorName}"`,
+    });
   }
 
   const amount = Number(txt(cells.B)) || 0;
   if (amount <= 0) {
-    warnings.push({ row: rowNum, uid: workerUid, reason: `Số tiền yêu cầu (cột B) = ${txt(cells.B) || "rỗng"}` });
+    warnings.push({
+      row: rowNum,
+      uid: workerUid,
+      reason: `Số tiền yêu cầu (cột B) = ${txt(cells.B) || "rỗng"}`,
+    });
   }
   totalAmount += amount;
 
@@ -502,7 +529,11 @@ for (const { rowNum, cells } of dataRows) {
   const isDisbursed = mapDisbursed(cells.C);
   const createdDateTime = toDateTime(createdAt);
   if (!createdDateTime) {
-    warnings.push({ row: rowNum, uid: workerUid, reason: `Không đọc được "Ngày tạo" (cột P) = "${createdAt}"` });
+    warnings.push({
+      row: rowNum,
+      uid: workerUid,
+      reason: `Không đọc được "Ngày tạo" (cột P) = "${createdAt}"`,
+    });
   }
 
   prepared.push({
@@ -530,7 +561,9 @@ for (const { rowNum, cells } of dataRows) {
   });
 }
 
-console.log(`✅ Chuẩn bị xong: ${prepared.length} phiếu | ${errors.length} lỗi | ${warnings.length} cảnh báo\n`);
+console.log(
+  `✅ Chuẩn bị xong: ${prepared.length} phiếu | ${errors.length} lỗi | ${warnings.length} cảnh báo\n`,
+);
 
 if (errors.length > 0) {
   console.log(`❌ LỖI (${errors.length}):`);

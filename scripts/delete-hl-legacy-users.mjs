@@ -87,7 +87,9 @@ console.log("-".repeat(80));
 for (let i = 0; i < users.length; i++) {
   const user = users[i];
   console.log(`${String(i + 1).padStart(3)}. ${user.username.padEnd(35)} ${user.full_name}`);
-  console.log(`     ID: ${user.id} | UID: ${user.uid || "N/A"} | Created: ${user.created.slice(0, 10)}`);
+  console.log(
+    `     ID: ${user.id} | UID: ${user.uid || "N/A"} | Created: ${user.created.slice(0, 10)}`,
+  );
 }
 console.log("-".repeat(80));
 console.log();
@@ -162,7 +164,9 @@ if (APPLY) {
         uid: user.uid,
       });
     } catch (err) {
-      console.log(`❌ [${String(i + 1).padStart(2)}/${users.length}] Lỗi xóa ${user.username}: ${err.message}`);
+      console.log(
+        `❌ [${String(i + 1).padStart(2)}/${users.length}] Lỗi xóa ${user.username}: ${err.message}`,
+      );
       report.failed.push({
         id: user.id,
         username: user.username,

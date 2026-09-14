@@ -178,7 +178,10 @@ function pickStintByDate(histories, advanceDateValue) {
   });
   if (contained.length >= 1) {
     const best = contained.sort((a, b) => dayKey(b.join_date) - dayKey(a.join_date))[0];
-    return { stint: best, method: contained.length === 1 ? "date_contained" : "date_contained_multi" };
+    return {
+      stint: best,
+      method: contained.length === 1 ? "date_contained" : "date_contained_multi",
+    };
   }
   const before = histories
     .filter((h) => dayKey(h.join_date) != null && dayKey(h.join_date) <= d)
@@ -334,8 +337,7 @@ for (const { rowNumber, cells } of dataRows) {
     const wantCode = excelEmployeeCode.toUpperCase();
     const stint = workerHistories.find(
       (h) =>
-        h.employee_code.toUpperCase() === wantCode &&
-        normalizeLabel(h.factoryName) === wantFactory,
+        h.employee_code.toUpperCase() === wantCode && normalizeLabel(h.factoryName) === wantFactory,
     );
     if (stint) {
       stintId = stint.id;
@@ -413,7 +415,9 @@ for (const { rowNumber, cells } of dataRows) {
   });
 }
 
-console.log(`✅ Chuẩn bị xong: ${prepared.length} phiếu | ${errors.length} lỗi | ${warnings.length} cảnh báo`);
+console.log(
+  `✅ Chuẩn bị xong: ${prepared.length} phiếu | ${errors.length} lỗi | ${warnings.length} cảnh báo`,
+);
 
 if (!APPLY) {
   console.log(`\n📊 BÁO CÁO DRY-RUN (chưa ghi dữ liệu)`);
@@ -423,7 +427,9 @@ if (!APPLY) {
   console.log(`Tổng dòng  : ${dataRows.length}`);
   console.log(`Sẽ tạo     : ${prepared.length}`);
   console.log(`Lỗi        : ${errors.length}`);
-  console.log(`Tổng tiền  : ${prepared.reduce((s, p) => s + p.payload.amount, 0).toLocaleString("vi-VN")}đ`);
+  console.log(
+    `Tổng tiền  : ${prepared.reduce((s, p) => s + p.payload.amount, 0).toLocaleString("vi-VN")}đ`,
+  );
 
   const tally = (fn) => {
     const out = {};

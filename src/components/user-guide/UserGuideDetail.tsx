@@ -96,9 +96,7 @@ export function UserGuideDetail({ guide, onBack }: UserGuideDetailProps) {
           <Info className="h-5 w-5 shrink-0 text-warning" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-warning-foreground">Lưu ý</p>
-            <p className="mt-1 text-xs leading-relaxed text-warning-foreground/80">
-              {guide.notes}
-            </p>
+            <p className="mt-1 text-xs leading-relaxed text-warning-foreground/80">{guide.notes}</p>
           </div>
         </Card>
       )}
@@ -106,12 +104,7 @@ export function UserGuideDetail({ guide, onBack }: UserGuideDetailProps) {
       {/* Back button */}
       {onBack && (
         <div className="flex justify-center pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBack}
-            className="rounded-full"
-          >
+          <Button type="button" variant="outline" onClick={onBack} className="rounded-full">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại danh sách
           </Button>

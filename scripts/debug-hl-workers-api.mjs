@@ -82,9 +82,7 @@ try {
     });
     const allWorkers = response.items || [];
     workers = allWorkers.filter((w) => w.tenant_company === hlCompany.id);
-    console.log(
-      `   ✅ Cách 2 thành công: ${allWorkers.length} total, ${workers.length} của HL\n`,
-    );
+    console.log(`   ✅ Cách 2 thành công: ${allWorkers.length} total, ${workers.length} của HL\n`);
   } catch (err2) {
     console.log(`   ❌ Cách 2 thất bại: ${err2.message}`);
 
@@ -92,7 +90,10 @@ try {
     console.log("   Thử cách 3: Lấy workers bằng ID từ users...");
     for (const user of users.slice(0, 5)) {
       try {
-        const worker = await pb.collection("workers").getOne(user.id).catch(() => null);
+        const worker = await pb
+          .collection("workers")
+          .getOne(user.id)
+          .catch(() => null);
         if (worker && worker.tenant_company === hlCompany.id) {
           workers.push(worker);
           console.log(`      ✅ ${user.username} → worker found`);
@@ -103,7 +104,9 @@ try {
         console.log(`      ❌ ${user.username} → error: ${err3.message}`);
       }
     }
-    console.log(`   Cách 3: Tìm được ${workers.length} workers từ ${users.slice(0, 5).length} users đầu\n`);
+    console.log(
+      `   Cách 3: Tìm được ${workers.length} workers từ ${users.slice(0, 5).length} users đầu\n`,
+    );
   }
 }
 

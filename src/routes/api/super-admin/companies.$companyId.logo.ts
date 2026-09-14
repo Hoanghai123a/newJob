@@ -1,10 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getPBUpstream } from "@/lib/pocketbase-config";
-import {
-  getServerAuthUser,
-  getPocketBaseAdminToken,
-  escapePb,
-} from "@/lib/tenant-server";
+import { getServerAuthUser, getPocketBaseAdminToken, escapePb } from "@/lib/tenant-server";
 
 async function requireSuperAdmin(request: Request) {
   const auth = await getServerAuthUser(request);
@@ -66,9 +62,12 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId/logo
           payload.append("tenant_company", companyId);
 
           // Lấy tên công ty để đặt company_name
-          const companyRes = await fetch(`${upstream}/api/collections/companies/records/${companyId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const companyRes = await fetch(
+            `${upstream}/api/collections/companies/records/${companyId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
           if (companyRes.ok) {
             const company = await companyRes.json();
             payload.append("company_name", company.name || "");
@@ -108,7 +107,10 @@ export const Route = createFileRoute("/api/super-admin/companies/$companyId/logo
         const existingRecord = listData?.items?.[0];
 
         if (!existingRecord?.id) {
-          return Response.json({ message: "Không tìm thấy app_settings công ty." }, { status: 404 });
+          return Response.json(
+            { message: "Không tìm thấy app_settings công ty." },
+            { status: 404 },
+          );
         }
 
         const payload = new FormData();

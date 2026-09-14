@@ -92,7 +92,7 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
         const requester = byId.get(row.requested_by);
         if (!requester) {
           console.warn(
-            `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`
+            `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`,
           );
           return row;
         }
@@ -113,14 +113,15 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
     const filter = batch.map((id) => `id="${escapePb(id)}"`).join(" || ");
 
     try {
-      const requesters = await pb
-        .collection("users")
-        .getFullList<UserRecord>({
-          filter,
-          fields: "id,full_name,username,phone,role,tenant_company",
-        });
+      const requesters = await pb.collection("users").getFullList<UserRecord>({
+        filter,
+        fields: "id,full_name,username,phone,role,tenant_company",
+      });
       allRequesters.push(...requesters);
-      console.log(`Fetched ${requesters.length} requesters in batch`, requesters.map(r => r.id));
+      console.log(
+        `Fetched ${requesters.length} requesters in batch`,
+        requesters.map((r) => r.id),
+      );
     } catch (error) {
       console.error(`Failed to fetch batch of ${batch.length} advance requesters:`, error);
       console.error(`Filter used: ${filter}`);
@@ -139,7 +140,7 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
     if (!requester) {
       // User not found - likely deleted or in different tenant after migration
       console.warn(
-        `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`
+        `Could not hydrate requester ${row.requested_by} for advance ${row.id} (${row.employee_code || row.full_name})`,
       );
       return row;
     }

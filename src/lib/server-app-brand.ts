@@ -90,7 +90,7 @@ export function buildPocketBaseFileUrl(params: {
 }) {
   const { upstream, collectionIdOrName, recordId, fileName } = params;
   // If upstream already ends with /api/public/pb (client-side proxy), don't add /api again
-  const base = upstream.endsWith('/api/public/pb') ? upstream : `${upstream}/api`;
+  const base = upstream.endsWith("/api/public/pb") ? upstream : `${upstream}/api`;
   return `${base}/files/${encodeURIComponent(collectionIdOrName)}/${encodeURIComponent(recordId)}/${encodeURIComponent(fileName)}`;
 }
 
@@ -195,8 +195,6 @@ export function systemIconResponse(
     return new Response(null, { status: 304, headers });
   }
 
-  const body =
-    typeof icon.buffer === "string" ? icon.buffer : new Uint8Array(icon.buffer);
+  const body = typeof icon.buffer === "string" ? icon.buffer : new Uint8Array(icon.buffer);
   return new Response(body, { status: 200, headers });
 }
-

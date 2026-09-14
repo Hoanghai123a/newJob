@@ -93,9 +93,7 @@ try {
 
 // 4. Kiểm tra mapping giữa users và workers
 const userIds = new Set(hlUsers.map((u) => u.id));
-const workerByAuthUser = new Map(
-  hlWorkers.filter((w) => w.auth_user).map((w) => [w.auth_user, w]),
-);
+const workerByAuthUser = new Map(hlWorkers.filter((w) => w.auth_user).map((w) => [w.auth_user, w]));
 const workerBySourceUser = new Map(
   hlWorkers.filter((w) => w.source_user_id).map((w) => [w.source_user_id, w]),
 );

@@ -49,9 +49,7 @@ async function main() {
     console.log("✅ Đã kết nối superadmin\n");
 
     // Tìm tenant HRP
-    const companies = await pb
-      .collection("companies")
-      .getFullList({ filter: 'code="HRP"' });
+    const companies = await pb.collection("companies").getFullList({ filter: 'code="HRP"' });
 
     if (companies.length === 0) {
       console.error('❌ Không tìm thấy công ty có code="HRP"');
@@ -93,7 +91,7 @@ async function main() {
         fields: "uid,full_name,created",
         sort: "-created",
       });
-      workers = allWorkers.filter(w => w.uid && w.uid.startsWith("HRP"));
+      workers = allWorkers.filter((w) => w.uid && w.uid.startsWith("HRP"));
       console.log(`✅ Tìm được ${workers.length} workers có UID bắt đầu bằng HRP\n`);
     } catch (err) {
       console.error("❌ Thất bại:", err.message);
@@ -118,7 +116,7 @@ async function main() {
     console.log("20 NLĐ mới nhất:");
     workers.slice(0, 20).forEach((w, i) => {
       console.log(
-        `  ${i + 1}. ${w.uid} - ${w.full_name} (${new Date(w.created).toLocaleString("vi-VN")})`
+        `  ${i + 1}. ${w.uid} - ${w.full_name} (${new Date(w.created).toLocaleString("vi-VN")})`,
       );
     });
 

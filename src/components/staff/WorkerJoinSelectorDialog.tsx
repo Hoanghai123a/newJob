@@ -219,7 +219,10 @@ export function WorkerJoinSelectorDialog({
           );
           if (!exactUsers.length) continue;
 
-          const latestByUser = await fetchLatestHistories(exactUsers.map((user) => user.id), viewer);
+          const latestByUser = await fetchLatestHistories(
+            exactUsers.map((user) => user.id),
+            viewer,
+          );
           exactUsers.forEach((user) => {
             const latest = latestByUser.get(user.id);
             if (

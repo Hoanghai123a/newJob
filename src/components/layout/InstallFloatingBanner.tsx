@@ -121,7 +121,17 @@ export function InstallFloatingBanner() {
     }, 500); // Small delay to ensure banner is visible first
 
     return () => clearTimeout(timer);
-  }, [ready, hidden, hasUsedEnough, focused, installPrompt, isAndroid, pathname, forceOpen, installApp]);
+  }, [
+    ready,
+    hidden,
+    hasUsedEnough,
+    focused,
+    installPrompt,
+    isAndroid,
+    pathname,
+    forceOpen,
+    installApp,
+  ]);
 
   const close = () => {
     window.localStorage.setItem(HIDE_FLAG_KEY, "true");

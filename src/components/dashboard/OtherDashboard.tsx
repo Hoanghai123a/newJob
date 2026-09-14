@@ -1,5 +1,13 @@
 import { useMemo, useState } from "react";
-import { Building2, ChevronRight, IdCard, CheckCircle2, RefreshCw, Users } from "lucide-react";
+import {
+  Building2,
+  ChevronRight,
+  IdCard,
+  CheckCircle2,
+  RefreshCw,
+  Users,
+  FileUser,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +23,12 @@ import type { UserRecord } from "@/lib/pocketbase";
 import {
   buildCccdCompletionDays,
   buildCccdDuplicateGroups,
+  buildEmployeeCodeDuplicateGroups,
   getMonthPeriod,
   type CccdCompletionDay,
   type CccdCompletionItem,
   type CccdDuplicateGroup,
+  type EmployeeCodeDuplicateGroup,
 } from "@/lib/workforce-other-stats";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +80,8 @@ export function OtherDashboard({
   const [monthScope, setMonthScope] = useState<MonthScope>("current");
   const [selectedDuplicate, setSelectedDuplicate] = useState<CccdDuplicateGroup | null>(null);
   const [selectedDay, setSelectedDay] = useState<CccdCompletionDay | null>(null);
+  const [selectedEmployeeCodeDuplicate, setSelectedEmployeeCodeDuplicate] =
+    useState<EmployeeCodeDuplicateGroup | null>(null);
   const compactMobile = presentation === "mobile-dialog";
 
   const usersById = useMemo(() => new Map(users.map((user) => [user.id, user])), [users]);
@@ -92,6 +104,10 @@ export function OtherDashboard({
   const completionDays = useMemo(
     () => buildCccdCompletionDays(histories, usersById, factoriesById, versionsById),
     [factoriesById, histories, usersById, versionsById],
+  );
+  const employeeCodeDuplicateGroups = useMemo(
+    () => buildEmployeeCodeDuplicateGroups(histories, usersById, factoriesById),
+    [histories, usersById, factoriesById],
   );
 
   return (
@@ -165,8 +181,8 @@ export function OtherDashboard({
               ))}
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-border/70">
-              <div className="grid min-w-[36rem] grid-cols-[minmax(0,1fr)_11rem_8rem] gap-3 bg-muted/55 px-4 py-2.5 text-xs font-semibold text-muted-foreground">
+            <div className="rounded-2xl border border-border/70">
+              <div className="grid grid-cols-[minmax(0,1fr)_11rem_8rem] gap-3 bg-muted/55 px-4 py-2.5 text-xs font-semibold text-muted-foreground">
                 <span>Họ tên</span>
                 <span>Số CCCD</span>
                 <span className="text-right">Số lượng trùng</span>
@@ -177,7 +193,7 @@ export function OtherDashboard({
                     key={group.cccd}
                     type="button"
                     onClick={() => setSelectedDuplicate(group)}
-                    className="grid min-w-[36rem] w-full grid-cols-[minmax(0,1fr)_11rem_8rem] items-center gap-3 border-t border-border/60 px-4 py-3 text-left transition hover:bg-muted/45 first:border-t-0"
+                    className="grid w-full grid-cols-[minmax(0,1fr)_11rem_8rem] items-center gap-3 border-t border-border/60 px-4 py-3 text-left transition hover:bg-muted/45 first:border-t-0"
                   >
                     <div className="min-w-0">
                       <div className="truncate text-sm font-semibold">{group.fullName}</div>
@@ -197,74 +213,158 @@ export function OtherDashboard({
           )}
         </section>
 
-        <section
-          className={`min-w-0 rounded-3xl border border-border/70 bg-card shadow-soft ${
-            compactMobile ? "p-3" : "p-5"
-          }`}
-        >
-          <div className="mb-4 flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-              <CheckCircle2 className="h-4 w-4" />
-            </span>
-            <div>
-              <h3 className="text-base font-semibold">Tỷ lệ hoàn thành ảnh CCCD trong 7 ngày</h3>
-              <p className="text-xs text-muted-foreground">
-                Nhóm theo ngày vào làm; hoàn thành khi có đủ ảnh mặt trước và mặt sau.
-              </p>
+        <div className="space-y-4">
+          <section
+            className={`min-w-0 rounded-3xl border border-border/70 bg-card shadow-soft ${
+              compactMobile ? "p-3" : "p-5"
+            }`}
+          >
+            <div className="mb-4 flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                <CheckCircle2 className="h-4 w-4" />
+              </span>
+              <div>
+                <h3 className="text-base font-semibold">Tỷ lệ hoàn thành ảnh CCCD trong 7 ngày</h3>
+                <p className="text-xs text-muted-foreground">
+                  Nhóm theo ngày vào làm; hoàn thành khi có đủ ảnh mặt trước và mặt sau.
+                </p>
+              </div>
             </div>
-          </div>
 
-          {loading ? (
-            <SectionLoading />
-          ) : error ? (
-            <ErrorState message={error} onRetry={onRetry} />
-          ) : (
-            <div
-              className={
-                compactMobile
-                  ? "grid grid-cols-2 gap-2"
-                  : "grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7"
-              }
-            >
-              {completionDays.map((day) => {
-                const rateLabel = day.rate === null ? "—" : `${Math.round(day.rate)}%`;
-                return (
-                  <button
-                    key={day.date}
-                    type="button"
-                    onClick={() => setSelectedDay(day)}
-                    className="min-w-0 rounded-2xl border border-border/70 bg-background p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
-                  >
-                    <div className="truncate text-[11px] font-medium capitalize text-muted-foreground">
-                      {formatDayLabel(day.date)}
-                    </div>
-                    <div className="mt-2 text-2xl font-bold tabular-nums">{rateLabel}</div>
-                    <div className="mt-1 text-[11px] text-muted-foreground">
-                      {day.completed}/{day.total} đã có
-                    </div>
-                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all",
-                          day.rate === null
-                            ? "bg-muted"
-                            : day.rate === 100
-                              ? "bg-emerald-500"
-                              : "bg-amber-500",
-                        )}
-                        style={{ width: `${day.rate || 0}%` }}
-                      />
-                    </div>
-                    <div className="mt-2 flex items-center justify-between text-[10px] text-muted-foreground">
-                      <span>Thiếu {day.incomplete}</span>
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </div>
-                  </button>
-                );
-              })}
+            {loading ? (
+              <SectionLoading />
+            ) : error ? (
+              <ErrorState message={error} onRetry={onRetry} />
+            ) : (
+              <div
+                className={
+                  compactMobile
+                    ? "grid grid-cols-2 gap-2"
+                    : "grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7"
+                }
+              >
+                {completionDays.map((day) => {
+                  const rateLabel = day.rate === null ? "—" : `${Math.round(day.rate)}%`;
+                  return (
+                    <button
+                      key={day.date}
+                      type="button"
+                      onClick={() => setSelectedDay(day)}
+                      className="min-w-0 rounded-2xl border border-border/70 bg-background p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft"
+                    >
+                      <div className="truncate text-[11px] font-medium capitalize text-muted-foreground">
+                        {formatDayLabel(day.date)}
+                      </div>
+                      <div className="mt-2 text-2xl font-bold tabular-nums">{rateLabel}</div>
+                      <div className="mt-1 text-[11px] text-muted-foreground">
+                        {day.completed}/{day.total} đã có
+                      </div>
+                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            day.rate === null
+                              ? "bg-muted"
+                              : day.rate === 100
+                                ? "bg-emerald-500"
+                                : "bg-amber-500",
+                          )}
+                          style={{ width: `${day.rate || 0}%` }}
+                        />
+                      </div>
+                      <div className="mt-2 flex items-center justify-between text-[10px] text-muted-foreground">
+                        <span>Thiếu {day.incomplete}</span>
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          <section
+            className={`min-w-0 rounded-3xl border border-border/70 bg-card shadow-soft ${
+              compactMobile ? "p-3" : "p-5"
+            }`}
+          >
+            <div className="mb-4 flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+                <FileUser className="h-4 w-4" />
+              </span>
+              <div>
+                <h3 className="text-base font-semibold">Mã NV trùng nhau trong 3 tháng gần đây</h3>
+                <p className="text-xs text-muted-foreground">
+                  Các lịch sử có cùng mã NV trong 90 ngày gần đây hoặc còn đang đi làm.
+                </p>
+              </div>
             </div>
-          )}
-        </section>
+
+            {loading ? (
+              <SectionLoading />
+            ) : error ? (
+              <ErrorState message={error} onRetry={onRetry} />
+            ) : employeeCodeDuplicateGroups.length === 0 ? (
+              <div className="flex min-h-52 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 px-4 text-center">
+                <FileUser className="mb-2 h-8 w-8 text-muted-foreground" />
+                <p className="text-sm font-medium">Không phát hiện mã NV trùng</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Không có mã nhân viên nào xuất hiện từ hai lần trở lên trong phạm vi 3 tháng.
+                </p>
+              </div>
+            ) : compactMobile ? (
+              <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-0.5">
+                {employeeCodeDuplicateGroups.map((group) => (
+                  <button
+                    key={group.employeeCode}
+                    type="button"
+                    onClick={() => setSelectedEmployeeCodeDuplicate(group)}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-border/70 bg-background p-3 text-left active:bg-muted/50"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">{group.employeeCode}</div>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <span>{group.factoryCount} nhà máy</span>
+                      </div>
+                    </div>
+                    <StatusChip tone="warning">{group.count} lượt</StatusChip>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border/70">
+                <div className="grid grid-cols-[minmax(0,1fr)_8rem_8rem] gap-3 bg-muted/55 px-4 py-2.5 text-xs font-semibold text-muted-foreground">
+                  <span>Mã NV</span>
+                  <span>Nhà máy</span>
+                  <span className="text-right">Số lượng trùng</span>
+                </div>
+                <div className="max-h-[30rem] overflow-y-auto">
+                  {employeeCodeDuplicateGroups.map((group) => (
+                    <button
+                      key={group.employeeCode}
+                      type="button"
+                      onClick={() => setSelectedEmployeeCodeDuplicate(group)}
+                      className="grid w-full grid-cols-[minmax(0,1fr)_8rem_8rem] items-center gap-3 border-t border-border/60 px-4 py-3 text-left transition hover:bg-muted/45 first:border-t-0"
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold">{group.employeeCode}</div>
+                        <div className="mt-0.5 text-xs text-muted-foreground">
+                          {group.factoryCount} nhà máy
+                        </div>
+                      </div>
+                      <span className="text-sm">{group.factoryCount}</span>
+                      <span className="flex items-center justify-end gap-2">
+                        <StatusChip tone="warning">{group.count}</StatusChip>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
 
       <DuplicateDetailDialog
@@ -276,6 +376,11 @@ export function OtherDashboard({
         day={selectedDay}
         open={Boolean(selectedDay)}
         onOpenChange={(open) => !open && setSelectedDay(null)}
+      />
+      <EmployeeCodeDuplicateDialog
+        group={selectedEmployeeCodeDuplicate}
+        open={Boolean(selectedEmployeeCodeDuplicate)}
+        onOpenChange={(open) => !open && setSelectedEmployeeCodeDuplicate(null)}
       />
     </>
   );
@@ -453,6 +558,55 @@ function CompletionDayDialog({
             })}
           </div>
         )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EmployeeCodeDuplicateDialog({
+  group,
+  open,
+  onOpenChange,
+}: {
+  group: EmployeeCodeDuplicateGroup | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-5xl rounded-3xl">
+        <DialogHeader>
+          <DialogTitle>Chi tiết mã NV trùng: {group?.employeeCode || "—"}</DialogTitle>
+          <DialogDescription>
+            {group?.count || 0} lịch sử có cùng mã NV tại {group?.factoryCount || 0} nhà máy.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[65dvh] overflow-auto rounded-2xl border border-border/70">
+          <table className="w-full min-w-[44rem] text-left text-sm">
+            <thead className="sticky top-0 bg-muted/95 text-xs text-muted-foreground backdrop-blur">
+              <tr>
+                <th className="px-4 py-3 font-semibold">Mã NV</th>
+                <th className="px-4 py-3 font-semibold">Họ tên</th>
+                <th className="px-4 py-3 font-semibold">Nhà máy</th>
+                <th className="px-4 py-3 font-semibold">Ngày vào</th>
+                <th className="px-4 py-3 font-semibold">Ngày nghỉ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {group?.details.map((detail) => (
+                <tr key={detail.id} className="border-t border-border/60">
+                  <td className="px-4 py-3 font-medium">{detail.employeeCode}</td>
+                  <td className="px-4 py-3">{detail.fullName}</td>
+                  <td className="px-4 py-3">{detail.factoryName}</td>
+                  <td className="px-4 py-3 tabular-nums">{formatDate(detail.joinDate)}</td>
+                  <td className="px-4 py-3 tabular-nums">
+                    {detail.leaveDate ? formatDate(detail.leaveDate) : "Đang làm"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </DialogContent>
     </Dialog>
   );

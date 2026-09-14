@@ -39,7 +39,9 @@ export function buildRecruiterPayload(value: string) {
 
 export function getRecruiterDisplay(
   history?: EmploymentHistoryRecord | null,
-  internalUsers?: ReadonlyArray<Pick<UserRecord, "id" | "full_name" | "username" | "phone" | "uid">>,
+  internalUsers?: ReadonlyArray<
+    Pick<UserRecord, "id" | "full_name" | "username" | "phone" | "uid">
+  >,
 ) {
   const partner = history?.expand?.recruiter_partner;
   if (partner) {

@@ -148,7 +148,9 @@ function txt(value) {
 // ============================================================================
 
 console.log(`\n📋 Tìm công ty code="${TARGET_COMPANY_CODE}"...`);
-const companies = await pb.collection("companies").getFullList({ filter: `code="${TARGET_COMPANY_CODE}"` });
+const companies = await pb
+  .collection("companies")
+  .getFullList({ filter: `code="${TARGET_COMPANY_CODE}"` });
 if (companies.length === 0) {
   console.error(`❌ Không tìm thấy công ty có code="${TARGET_COMPANY_CODE}"`);
   process.exit(1);
@@ -182,7 +184,8 @@ if (!fs.existsSync(FILE_PATH)) {
 }
 
 const workbook = XLSX.readFile(FILE_PATH, { cellDates: true });
-const sheetName = workbook.SheetNames.find((s) => normalizeLabel(s) === "history") || workbook.SheetNames[0];
+const sheetName =
+  workbook.SheetNames.find((s) => normalizeLabel(s) === "history") || workbook.SheetNames[0];
 const sheet = workbook.Sheets[sheetName];
 const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: true });
 
@@ -200,7 +203,9 @@ for (const [index, raw] of rawRows.entries()) {
   workerGroups.get(id).push({ rowNumber: index + 2, raw });
 }
 
-console.log(`   Gom được ${workerGroups.size} NLĐ (có ${rawRows.length - workerGroups.size} dòng lịch sử bổ sung)`);
+console.log(
+  `   Gom được ${workerGroups.size} NLĐ (có ${rawRows.length - workerGroups.size} dòng lịch sử bổ sung)`,
+);
 
 // ============================================================================
 // GĐ2: GIẢI QUYẾT THAM CHIẾU
@@ -225,10 +230,14 @@ for (const rows of workerGroups.values()) {
   }
 }
 
-const missingFactories = [...factoryNames].filter((name) => !factoryByName.has(normalizeLabel(name)));
+const missingFactories = [...factoryNames].filter(
+  (name) => !factoryByName.has(normalizeLabel(name)),
+);
 console.log(`   Nhà máy: ${existingFactories.length} có sẵn, ${missingFactories.length} cần tạo`);
 if (missingFactories.length > 0) {
-  console.log(`   → Sẽ tạo: ${missingFactories.slice(0, 5).join(", ")}${missingFactories.length > 5 ? "..." : ""}`);
+  console.log(
+    `   → Sẽ tạo: ${missingFactories.slice(0, 5).join(", ")}${missingFactories.length > 5 ? "..." : ""}`,
+  );
 }
 
 // Nhà chính + Vendor
@@ -251,7 +260,9 @@ for (const rows of workerGroups.values()) {
 }
 
 const missingEntities = [...entityNames].filter((name) => !entityByName.has(normalizeLabel(name)));
-console.log(`   Nhà chính/Vendor: ${existingEntities.length} có sẵn, ${missingEntities.length} cần tạo`);
+console.log(
+  `   Nhà chính/Vendor: ${existingEntities.length} có sẵn, ${missingEntities.length} cần tạo`,
+);
 if (missingEntities.length > 0) {
   console.log(`   → Sẽ tạo: ${missingEntities.join(", ")}`);
 }
@@ -273,8 +284,12 @@ for (const rows of workerGroups.values()) {
   }
 }
 
-const missingRecruiters = [...recruiterNames].filter((name) => !userByFullName.has(normalizeLabel(name)));
-console.log(`   Người tuyển: ${existingUsers.length} staff có sẵn, ${missingRecruiters.length} cần tạo`);
+const missingRecruiters = [...recruiterNames].filter(
+  (name) => !userByFullName.has(normalizeLabel(name)),
+);
+console.log(
+  `   Người tuyển: ${existingUsers.length} staff có sẵn, ${missingRecruiters.length} cần tạo`,
+);
 if (missingRecruiters.length > 0) {
   console.log(`   → Sẽ tạo tài khoản staff:`);
   missingRecruiters.forEach((name, i) => console.log(`      ${i + 1}. ${name}`));
@@ -401,7 +416,9 @@ for (const [workerId, rows] of workerGroups) {
   });
 }
 
-console.log(`✅ Chuẩn bị xong: ${preparedWorkers.length} NLĐ, ${preparedWorkers.reduce((sum, w) => sum + w.histories.length, 0)} lịch sử`);
+console.log(
+  `✅ Chuẩn bị xong: ${preparedWorkers.length} NLĐ, ${preparedWorkers.reduce((sum, w) => sum + w.histories.length, 0)} lịch sử`,
+);
 if (errors.length > 0) {
   console.log(`⚠️  ${errors.length} lỗi:`);
   errors.slice(0, 5).forEach((e) => console.log(`   - ${e.workerId} ${e.fullName}: ${e.reason}`));
@@ -639,7 +656,6 @@ for (const worker of preparedWorkers) {
       workersWithCccd.add(workerRecord.id);
     }
 
-
     // Tạo employment_histories (bỏ qua bản đã tồn tại theo factory + join_date)
     const workerSigs = histSigByWorker.get(workerRecord.id) || new Set();
     for (const history of worker.histories) {
@@ -656,14 +672,24 @@ for (const worker of preparedWorkers) {
 
       if (!factory) {
         console.warn(`   ⚠️  ${worker.workerId}: Không tìm thấy factory "${history.factoryName}"`);
-        errors.push({ workerId: worker.workerId, rowNumber: history.rowNumber, reason: `Không tìm thấy nhà máy "${history.factoryName}"` });
+        errors.push({
+          workerId: worker.workerId,
+          rowNumber: history.rowNumber,
+          reason: `Không tìm thấy nhà máy "${history.factoryName}"`,
+        });
         continue;
       }
 
       // main_house là trường bắt buộc trên employment_histories
       if (!mainHouse) {
-        console.warn(`   ⚠️  ${worker.workerId}: Thiếu/không khớp Nhà chính "${history.mainHouseName}"`);
-        errors.push({ workerId: worker.workerId, rowNumber: history.rowNumber, reason: `Thiếu/không khớp Nhà chính "${history.mainHouseName}"` });
+        console.warn(
+          `   ⚠️  ${worker.workerId}: Thiếu/không khớp Nhà chính "${history.mainHouseName}"`,
+        );
+        errors.push({
+          workerId: worker.workerId,
+          rowNumber: history.rowNumber,
+          reason: `Thiếu/không khớp Nhà chính "${history.mainHouseName}"`,
+        });
         continue;
       }
 

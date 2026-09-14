@@ -72,7 +72,7 @@ export function RecruiterPicker({
           normalizeUserPickerSearch(
             `${user.full_name || ""} ${user.username || ""} ${user.phone || ""} ${user.uid || ""}`,
           ).includes(keyword),
-      );
+        );
 
     if (selectedInternal && !filtered.some((user) => user.id === selectedInternal.id)) {
       return [selectedInternal, ...filtered];

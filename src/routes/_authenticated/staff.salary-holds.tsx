@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Banknote,
+  Calendar,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -70,6 +71,15 @@ function formatHistoryDate(value?: string, fallback = "Chưa có") {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString("vi-VN");
 }
 
+function formatCreatedDate(value?: string) {
+  if (!value) return "Chưa có";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const dateStr = date.toLocaleDateString("vi-VN");
+  const timeStr = date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  return `${dateStr} ${timeStr}`;
+}
+
 function SalaryHoldsPage() {
   const { user, isAdmin } = useAuth();
   const viewer = user as UserRecord;
@@ -80,6 +90,8 @@ function SalaryHoldsPage() {
   const [search, setSearch] = useState("");
   const [factoryIds, setFactoryIds] = useState<Set<string>>(new Set());
   const [factorySearch, setFactorySearch] = useState("");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
   const debouncedSearch = useDebouncedSearch(search);
   const debouncedFactorySearch = useDebouncedSearch(factorySearch);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -208,9 +220,29 @@ function SalaryHoldsPage() {
         )
           return false;
         if (factoryIds.size && !factoryIds.has(row.factory)) return false;
+
+        // Filter by date range
+        if (dateFrom || dateTo) {
+          if (!row.created) return false;
+          const createdDate = new Date(row.created);
+          if (Number.isNaN(createdDate.getTime())) return false;
+
+          if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            fromDate.setHours(0, 0, 0, 0);
+            if (createdDate < fromDate) return false;
+          }
+
+          if (dateTo) {
+            const toDate = new Date(dateTo);
+            toDate.setHours(23, 59, 59, 999);
+            if (createdDate > toDate) return false;
+          }
+        }
+
         return true;
       }),
-    [debouncedSearch, factoryIds, rows, tab],
+    [debouncedSearch, factoryIds, rows, tab, dateFrom, dateTo],
   );
   const filteredWorkers = useMemo(() => {
     const keyword = removeVietnameseTone(workerSearch.trim().toLocaleLowerCase("vi"));
@@ -290,7 +322,7 @@ function SalaryHoldsPage() {
 
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [debouncedSearch, factoryIds, tab]);
+  }, [debouncedSearch, factoryIds, tab, dateFrom, dateTo]);
 
   const updateStatus = async (
     row: SalaryHoldRecord,
@@ -541,6 +573,60 @@ function SalaryHoldsPage() {
             <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
             <span className="hidden desktop:inline">Xuất Excel</span>
           </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition ${dateFrom || dateTo ? "border-primary bg-primary/10 text-primary" : "bg-card text-muted-foreground"}`}
+                aria-label="Lọc theo ngày"
+              >
+                <Calendar className="h-4 w-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72 rounded-xl p-3">
+              <div className="mb-2 text-sm font-medium">
+                Lọc theo ngày tạo {dateFrom || dateTo ? "(đang lọc)" : ""}
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <Label htmlFor="date-from" className="text-xs">
+                    Từ ngày
+                  </Label>
+                  <Input
+                    id="date-from"
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="date-to" className="text-xs">
+                    Đến ngày
+                  </Label>
+                  <Input
+                    id="date-to"
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+                {(dateFrom || dateTo) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDateFrom("");
+                      setDateTo("");
+                    }}
+                    className="mt-2 w-full rounded-lg border py-1.5 text-xs text-muted-foreground transition hover:bg-muted"
+                  >
+                    Bỏ lọc
+                  </button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
           {isAdmin && (
             <Popover>
               <PopoverTrigger asChild>
@@ -725,6 +811,10 @@ function SalaryHoldsPage() {
                       <div className="mt-2 border-t border-border/60 pt-2 text-xs text-muted-foreground">
                         <span className="font-medium text-foreground">Nội dung: </span>
                         <span className="line-clamp-2">{row.content}</span>
+                      </div>
+                      <div className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>Tạo lúc: {formatCreatedDate(row.created)}</span>
                       </div>
                       {row.status === "rejected" && row.rejection_reason && (
                         <div className="mt-2 rounded-lg border border-destructive/25 bg-destructive/5 px-3 py-2 text-xs text-destructive">
@@ -1090,7 +1180,7 @@ function SalaryHoldDetailDialog({
             </StatusChip>
             <div className="rounded-xl border bg-muted/30 p-3 text-sm">
               <div className="mb-2 font-semibold">Lần đi làm giữ lương</div>
-              <div className="grid grid-cols-2 gap-2 desktop:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2 desktop:grid-cols-6">
                 <div className="min-w-0 rounded-lg border border-border/60 bg-background/70 px-2.5 py-2">
                   <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                     Mã NV
@@ -1129,6 +1219,14 @@ function SalaryHoldDetailDialog({
                   </div>
                   <div className="mt-0.5 truncate text-xs font-semibold">
                     {formatHistoryDate(row.expand?.employment_history?.leave_date, "Chưa nghỉ")}
+                  </div>
+                </div>
+                <div className="min-w-0 rounded-lg border border-border/60 bg-background/70 px-2.5 py-2">
+                  <div className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                    Ngày tạo
+                  </div>
+                  <div className="mt-0.5 truncate text-xs font-semibold">
+                    {formatCreatedDate(row.created)}
                   </div>
                 </div>
               </div>

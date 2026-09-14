@@ -91,10 +91,7 @@ export function BottomNav() {
                   className={className}
                 >
                   <Icon
-                    className={cn(
-                      "h-[22px] w-[22px] transition-transform",
-                      active && "scale-105",
-                    )}
+                    className={cn("h-[22px] w-[22px] transition-transform", active && "scale-105")}
                   />
                   <span className="line-clamp-2 text-center text-[11px] leading-[1.1]">
                     {item.label}

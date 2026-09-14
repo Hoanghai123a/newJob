@@ -23,7 +23,15 @@ export const USER_GUIDES: GuideItem[] = [
     id: "advance-worker",
     title: "Ứng tiền NLĐ",
     category: "Quản lý tài chính",
-    keywords: ["ứng", "ứng tiền", "báo ứng", "lương", "nld", "lao động", "ứng lương người lao động"],
+    keywords: [
+      "ứng",
+      "ứng tiền",
+      "báo ứng",
+      "lương",
+      "nld",
+      "lao động",
+      "ứng lương người lao động",
+    ],
     roleAccess: ["staff", "admin"],
     steps: [
       {

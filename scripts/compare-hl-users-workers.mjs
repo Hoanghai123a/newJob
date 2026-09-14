@@ -105,9 +105,7 @@ for (const user of users) {
   }
 
   if (found) {
-    console.log(
-      `✅ ${user.username.padEnd(30)} → ${found.full_name.padEnd(20)} (${method})`,
-    );
+    console.log(`✅ ${user.username.padEnd(30)} → ${found.full_name.padEnd(20)} (${method})`);
   } else {
     usersWithoutWorker.push(user);
     console.log(`❌ ${user.username.padEnd(30)} → KHÔNG CÓ WORKER`);

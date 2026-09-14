@@ -60,7 +60,6 @@ async function main() {
       console.log(`   Số ngày làm việc của lịch sử này: ${days} ngày`);
       console.log("");
     });
-
   } catch (error) {
     console.error("❌ Lỗi:", error);
     process.exit(1);

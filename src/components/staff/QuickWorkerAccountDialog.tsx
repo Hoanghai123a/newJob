@@ -192,18 +192,18 @@ function normalizeStoredNumericField(value: string) {
 function capitalizePersonName(value: string): string {
   return value
     .trim()
-    .replace(/\s+/g, ' ')
-    .split(' ')
-    .map(word => {
-      if (!word) return '';
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .map((word) => {
+      if (!word) return "";
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
-    .join(' ');
+    .join(" ");
 }
 
 // Normalize văn bản thông thường: trim đầu/cuối, chỉ giữ 1 space ở giữa
 function normalizeTextField(value: string): string {
-  return value.trim().replace(/\s+/g, ' ');
+  return value.trim().replace(/\s+/g, " ");
 }
 
 function hasRequiredDigits(value: string, count: number) {

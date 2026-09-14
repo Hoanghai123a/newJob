@@ -502,7 +502,9 @@ function UserProfileForm() {
         <TextField
           label="Số TK"
           value={form.bank_account_number}
-          onChange={(v) => setForm({ ...form, bank_account_number: v.replace(/[^a-zA-Z0-9]/g, "") })}
+          onChange={(v) =>
+            setForm({ ...form, bank_account_number: v.replace(/[^a-zA-Z0-9]/g, "") })
+          }
         />
         <TextField
           label="Tên TK"

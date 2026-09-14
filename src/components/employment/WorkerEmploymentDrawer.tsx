@@ -594,7 +594,8 @@ export function WorkerEmploymentDrawer({
         ...personalSnapshot,
         hometown_snapshot: personalSnapshot.worker_address_snapshot,
         worker_tax_code_snapshot: latest?.worker_tax_code_snapshot || "",
-        recruiter_staff: recruiterSelectionFromHistory(latest) || encodeInternalRecruiter(actor?.id),
+        recruiter_staff:
+          recruiterSelectionFromHistory(latest) || encodeInternalRecruiter(actor?.id),
         join_date: todayIso(),
         note: "",
       });
@@ -1682,7 +1683,10 @@ export function WorkerEmploymentDrawer({
                                   onChange={(e) =>
                                     setBankForm((c) => ({
                                       ...c,
-                                      bank_account_number: e.target.value.replace(/[^a-zA-Z0-9]/g, ""),
+                                      bank_account_number: e.target.value.replace(
+                                        /[^a-zA-Z0-9]/g,
+                                        "",
+                                      ),
                                     }))
                                   }
                                   placeholder="Nhập số tài khoản"

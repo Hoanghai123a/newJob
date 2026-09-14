@@ -42,7 +42,7 @@ function calculateAccumulatedSeniority(workerId, newJoinDate, allHistories) {
   if (isNaN(newJoin.getTime())) return 0;
 
   // Lọc các lịch sử trước ngày vào mới
-  const previousHistories = allHistories.filter(h => {
+  const previousHistories = allHistories.filter((h) => {
     if (h.worker !== workerId) return false;
     if (!h.join_date) return false;
     const hJoin = new Date(h.join_date);
@@ -134,7 +134,7 @@ async function main() {
     let errors = 0;
 
     for (const [workerId, histories] of historiesByWorker.entries()) {
-      const worker = workers.find(w => w.id === workerId);
+      const worker = workers.find((w) => w.id === workerId);
       const workerName = worker ? `${worker.full_name} (${worker.uid || workerId})` : workerId;
 
       console.log(`👤 Xử lý: ${workerName} - ${histories.length} lịch sử`);
@@ -146,7 +146,7 @@ async function main() {
         const accumulatedDays = calculateAccumulatedSeniority(
           workerId,
           history.join_date,
-          histories
+          histories,
         );
 
         // Kiểm tra xem có cần cập nhật không
@@ -160,7 +160,9 @@ async function main() {
             accumulated_seniority_days: accumulatedDays,
           });
 
-          console.log(`   ✓ Lịch sử ${i + 1}: ${accumulatedDays} ngày (ngày vào: ${history.join_date})`);
+          console.log(
+            `   ✓ Lịch sử ${i + 1}: ${accumulatedDays} ngày (ngày vào: ${history.join_date})`,
+          );
           updated++;
         } catch (error) {
           console.error(`   ✗ Lỗi cập nhật lịch sử ${history.id}: ${error.message}`);
@@ -171,13 +173,12 @@ async function main() {
       console.log("");
     }
 
-    console.log("=" .repeat(60));
+    console.log("=".repeat(60));
     console.log("📊 Kết quả:");
     console.log(`   ✅ Đã cập nhật: ${updated} lịch sử`);
     console.log(`   ⏭️  Bỏ qua: ${skipped} lịch sử (đã đúng)`);
     console.log(`   ❌ Lỗi: ${errors} lịch sử`);
-    console.log("=" .repeat(60));
-
+    console.log("=".repeat(60));
   } catch (error) {
     console.error("❌ Lỗi:", error);
     process.exit(1);

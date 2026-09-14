@@ -462,10 +462,7 @@ async function fetchVisibleStaffActionLogs(userId: string, limit: number) {
   // Include both relation names and legacy history-record references.
   try {
     const histories = await pb.collection("employment_histories").getFullList<{ id: string }>({
-      filter: joinTenantFilters(
-        pb.authStore.record as UserRecord | null,
-        `worker="${userId}"`,
-      ),
+      filter: joinTenantFilters(pb.authStore.record as UserRecord | null, `worker="${userId}"`),
       fields: "id",
     });
     histories.forEach((history) => history.id && historyIds.add(history.id));

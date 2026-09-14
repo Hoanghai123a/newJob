@@ -426,16 +426,16 @@ function AdvancesPage() {
         rows = await pb.collection("advances").getFullList<AdvanceRecord>(listOptions);
         nextTotalItems = rows.length;
       } else if (isPaginatedTab) {
-        const response = await pb.collection("advances").getList<AdvanceRecord>(
-          page,
-          ADVANCE_PAGE_SIZE,
-          listOptions,
-        );
+        const response = await pb
+          .collection("advances")
+          .getList<AdvanceRecord>(page, ADVANCE_PAGE_SIZE, listOptions);
         rows = response.items;
         nextTotalItems = response.totalItems;
         nextTotalPages = response.totalPages;
       } else {
-        const response = await pb.collection("advances").getList<AdvanceRecord>(1, 300, listOptions);
+        const response = await pb
+          .collection("advances")
+          .getList<AdvanceRecord>(1, 300, listOptions);
         rows = response.items;
         nextTotalItems = response.totalItems;
         nextTotalPages = response.totalPages;
@@ -1952,8 +1952,8 @@ function AdvancesPage() {
             </div>
           </div>
           <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-            Ngày đầu không sớm hơn {exportDefaults.from.split("-").reverse().join("/")}. Ngày cuối mặc
-            định là hôm nay.
+            Ngày đầu không sớm hơn {exportDefaults.from.split("-").reverse().join("/")}. Ngày cuối
+            mặc định là hôm nay.
           </div>
           <div className="flex gap-2">
             <Button
@@ -1971,7 +1971,11 @@ function AdvancesPage() {
               onClick={() => void exportCurrent()}
               disabled={exporting}
             >
-              {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+              {exporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileDown className="h-4 w-4" />
+              )}
               {exporting ? "Đang xuất..." : "Xuất Excel"}
             </Button>
           </div>

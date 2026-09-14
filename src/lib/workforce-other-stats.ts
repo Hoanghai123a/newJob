@@ -39,6 +39,22 @@ export type CccdCompletionDay = {
   items: CccdCompletionItem[];
 };
 
+export type EmployeeCodeDuplicateDetail = {
+  id: string;
+  employeeCode: string;
+  fullName: string;
+  factoryName: string;
+  joinDate: string;
+  leaveDate: string;
+};
+
+export type EmployeeCodeDuplicateGroup = {
+  employeeCode: string;
+  count: number;
+  factoryCount: number;
+  details: EmployeeCodeDuplicateDetail[];
+};
+
 export type MonthPeriod = {
   key: string;
   label: string;
@@ -231,4 +247,67 @@ export function buildCccdCompletionDays(
       items,
     };
   });
+}
+
+export function buildEmployeeCodeDuplicateGroups(
+  histories: EmploymentHistoryRecord[],
+  usersById: ReadonlyMap<string, UserRecord>,
+  factoriesById: ReadonlyMap<string, FactoryRecord>,
+  referenceDate = new Date(),
+): EmployeeCodeDuplicateGroup[] {
+  const today = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate(),
+  );
+  const cutoffDate = new Date(today);
+  cutoffDate.setDate(today.getDate() - 90);
+  const cutoffKey = localIsoDate(cutoffDate);
+
+  const grouped = new Map<string, EmploymentHistoryRecord[]>();
+
+  for (const history of histories) {
+    const employeeCode = history.employee_code?.trim();
+    if (!employeeCode) continue;
+
+    const leaveDate = dateKey(history.leave_date);
+    const isStillWorking = !leaveDate;
+    const isWithin90Days = leaveDate && leaveDate > cutoffKey;
+
+    if (isStillWorking || isWithin90Days) {
+      const bucket = grouped.get(employeeCode) || [];
+      bucket.push(history);
+      grouped.set(employeeCode, bucket);
+    }
+  }
+
+  return [...grouped.entries()]
+    .map(([employeeCode, records]) => {
+      const details = records
+        .map((history) => ({
+          id: history.id,
+          employeeCode: history.employee_code || "—",
+          fullName: historyName(history, usersById),
+          factoryName: factoryName(history, factoriesById),
+          joinDate: history.join_date,
+          leaveDate: history.leave_date || "",
+          factoryId: history.factory,
+        }))
+        .sort((a, b) => compareDateDesc(a.joinDate, b.joinDate))
+        .map(({ factoryId: _factoryId, ...detail }) => detail);
+
+      const factoryCount = new Set(records.map((history) => history.factory).filter(Boolean)).size;
+
+      return {
+        employeeCode,
+        count: details.length,
+        factoryCount,
+        details,
+      };
+    })
+    .filter((group) => group.count >= 2)
+    .sort(
+      (a, b) =>
+        b.count - a.count || a.employeeCode.localeCompare(b.employeeCode, "vi", { numeric: true }),
+    );
 }

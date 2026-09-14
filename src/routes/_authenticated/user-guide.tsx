@@ -47,9 +47,7 @@ function UserGuidePage() {
                 <BookOpen className="h-5 w-5 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">
-                  Có {filteredGuides.length} hướng dẫn khả dụng
-                </p>
+                <p className="text-sm font-medium">Có {filteredGuides.length} hướng dẫn khả dụng</p>
                 <p className="text-xs text-muted-foreground">
                   Tìm kiếm hoặc chọn chức năng bên dưới để xem hướng dẫn chi tiết
                 </p>

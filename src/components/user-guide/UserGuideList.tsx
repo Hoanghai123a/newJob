@@ -18,9 +18,7 @@ export function UserGuideList({ guides, onSelectGuide, className }: UserGuideLis
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <p className="text-sm text-muted-foreground">Không tìm thấy hướng dẫn phù hợp</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Thử tìm kiếm với từ khóa khác
-        </p>
+        <p className="mt-1 text-xs text-muted-foreground">Thử tìm kiếm với từ khóa khác</p>
       </div>
     );
   }
