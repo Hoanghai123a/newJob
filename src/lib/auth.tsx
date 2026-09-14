@@ -121,6 +121,17 @@ function isRejectedAuthSession(error: unknown) {
   return status === 401 || status === 403;
 }
 
+function getTokenExpiry(token: string): number | null {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const decoded = JSON.parse(atob(payload));
+    return typeof decoded.exp === "number" ? decoded.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<UserRecord | null>(null);
@@ -243,7 +254,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       Math.max(0, verifiedAt + PASSWORD_REAUTH_INTERVAL_MS - Date.now()),
     );
     const onVisibilityChange = () => {
-      if (document.visibilityState === "visible") enforcePasswordReauth();
+      if (document.visibilityState === "visible") {
+        enforcePasswordReauth();
+
+        // Kiểm tra token expiry và refresh nếu sắp hết hạn (trong vòng 1 phút)
+        const token = pb.authStore.token;
+        const expiresAt = token ? getTokenExpiry(token) : null;
+        if (expiresAt && expiresAt <= Date.now() + 60_000) {
+          refreshAuthOnce().catch((error) =>
+            console.warn("[auth] Visibility refresh failed:", error),
+          );
+        }
+      }
     };
 
     document.addEventListener("visibilitychange", onVisibilityChange);
@@ -254,6 +276,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("focus", enforcePasswordReauth);
     };
   }, [expirePasswordReauth, loading, user?.id]);
+
+  // Auto-refresh token trước khi hết hạn
+  useEffect(() => {
+    if (loading || !user?.id || !pb.authStore.token) return;
+
+    const token = pb.authStore.token;
+    const expiresAt = getTokenExpiry(token);
+
+    // Nếu không parse được exp hoặc token đã hết hạn, refresh ngay
+    if (!expiresAt || expiresAt <= Date.now()) {
+      refreshAuthOnce().catch((error) => console.warn("[auth] Immediate refresh failed:", error));
+      return;
+    }
+
+    // Schedule refresh 5 phút trước khi token hết hạn
+    const REFRESH_BEFORE_EXPIRY_MS = 5 * 60 * 1000;
+    const refreshAt = Math.max(0, expiresAt - Date.now() - REFRESH_BEFORE_EXPIRY_MS);
+
+    const timerId = window.setTimeout(async () => {
+      try {
+        await refreshAuthOnce();
+        console.log("[auth] Token auto-refreshed successfully");
+      } catch (error) {
+        console.warn("[auth] Auto-refresh failed:", error);
+        // Nếu refresh thất bại nhưng chưa hết 96h password reauth, giữ session và retry
+        const passwordVerifiedAt = getPasswordVerifiedAt(user.id);
+        if (passwordVerifiedAt && Date.now() - passwordVerifiedAt < PASSWORD_REAUTH_INTERVAL_MS) {
+          // Retry sau 1 phút
+          window.setTimeout(
+            () =>
+              refreshAuthOnce().catch((retryError) =>
+                console.warn("[auth] Retry refresh failed:", retryError),
+              ),
+            60_000,
+          );
+        }
+      }
+    }, refreshAt);
+
+    return () => window.clearTimeout(timerId);
+  }, [loading, user?.id]);
 
   const login = useCallback(
     async (
