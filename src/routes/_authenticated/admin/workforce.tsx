@@ -266,7 +266,14 @@ function WorkforcePage() {
   const users = useMemo(() => {
     const workerUsers = workspaceWorkers.map((worker) => worker.user);
     const workerIds = new Set(workerUsers.map((user) => user.id));
-    return [...workerUsers, ...staffAdminUsers.filter((user) => !workerIds.has(user.id))];
+    const nonWorkerStaffAdmins = staffAdminUsers.filter((user) => !workerIds.has(user.id));
+    const workerStaffAdmins = workerUsers.filter(
+      (user) => user.role === "staff" || user.role === "admin",
+    );
+    const regularWorkers = workerUsers.filter(
+      (user) => user.role !== "staff" && user.role !== "admin",
+    );
+    return [...workerStaffAdmins, ...nonWorkerStaffAdmins, ...regularWorkers];
   }, [staffAdminUsers, workspaceWorkers]);
 
   const refreshWorkforce = async () => {

@@ -87,7 +87,7 @@ export function useStaffDirectoryAuxQuery(viewer: UserRecord | null) {
           fetchFactories(viewer),
           fetchRecruitmentEntities({ user: viewer }),
           pb.collection("users").getFullList<UserRecord>({
-            filter: `(role="staff" || role="admin") && tenant_company="${companyIdOf(viewer)}"`,
+            filter: `(role="staff" || role="admin") && tenant_company="${companyIdOf(viewer)}" && status!="disabled"`,
             sort: "full_name,username",
           }),
         ]);
