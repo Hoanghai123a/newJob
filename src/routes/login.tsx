@@ -29,16 +29,25 @@ import { InstallFloatingBanner } from "@/components/layout/InstallFloatingBanner
 
 export const Route = createFileRoute("/login")({
   beforeLoad: () => {
-    if (typeof window === "undefined" || !pb.authStore.isValid) return;
-    if (pb.authStore.record?.must_change_password) {
-      throw redirect({ to: "/force-change-password" });
+    if (typeof window === "undefined") return;
+
+    // Nếu có token trong authStore (bất kể có hết hạn hay không)
+    // thì để AuthProvider xử lý refresh, không redirect ngay ở đây
+    if (pb.authStore.token && pb.authStore.record?.id) {
+      // Chỉ redirect nếu token còn valid và chưa hết 96h
+      if (pb.authStore.isValid) {
+        if (pb.authStore.record?.must_change_password) {
+          throw redirect({ to: "/force-change-password" });
+        }
+        const role = pb.authStore.record?.role;
+        const isDesktop = getClientDeviceProfile() === "desktop";
+        if (role === "super_admin") throw redirect({ to: "/super-admin" });
+        if (role === "admin" && isDesktop) throw redirect({ to: "/admin/workforce" });
+        if (role === "staff") throw redirect({ to: isDesktop ? "/staff/workers" : "/staff" });
+        throw redirect({ to: "/" });
+      }
+      // Token hết hạn nhưng có thể refresh được - để AuthProvider xử lý
     }
-    const role = pb.authStore.record?.role;
-    const isDesktop = getClientDeviceProfile() === "desktop";
-    if (role === "super_admin") throw redirect({ to: "/super-admin" });
-    if (role === "admin" && isDesktop) throw redirect({ to: "/admin/workforce" });
-    if (role === "staff") throw redirect({ to: isDesktop ? "/staff/workers" : "/staff" });
-    throw redirect({ to: "/" });
   },
   component: LoginPage,
 });
