@@ -92,6 +92,18 @@ export function useStaffDirectoryAuxQuery(viewer: UserRecord | null) {
           }),
         ]);
 
+      console.log('🔍 [useStaffDirectoryAuxQuery Debug]', {
+        companyId: companyIdOf(viewer),
+        staffUsersStatus: staffUsersResult.status,
+        staffUsersCount: staffUsersResult.status === "fulfilled" ? staffUsersResult.value.length : 0,
+        staffUsersRoles: staffUsersResult.status === "fulfilled"
+          ? staffUsersResult.value.reduce((acc, u) => {
+              acc[u.role] = (acc[u.role] || 0) + 1;
+              return acc;
+            }, {} as Record<string, number>)
+          : {},
+      });
+
       const failedResults = [factoriesResult, recruitmentEntitiesResult, staffUsersResult].filter(
         (result) => result.status === "rejected",
       );

@@ -266,13 +266,26 @@ function WorkforcePage() {
   const users = useMemo(() => {
     const workerUsers = workspaceWorkers.map((worker) => worker.user);
     const workerIds = new Set(workerUsers.map((user) => user.id));
+    const staffAdminIds = new Set(staffAdminUsers.map((user) => user.id));
+
+    // Staff/admin từ staffAdminUsers (dữ liệu mới nhất từ bảng users)
+    const workerStaffAdmins = staffAdminUsers.filter((user) => workerIds.has(user.id));
     const nonWorkerStaffAdmins = staffAdminUsers.filter((user) => !workerIds.has(user.id));
-    const workerStaffAdmins = workerUsers.filter(
-      (user) => user.role === "staff" || user.role === "admin",
-    );
-    const regularWorkers = workerUsers.filter(
-      (user) => user.role !== "staff" && user.role !== "admin",
-    );
+
+    // Workers thường (không phải staff/admin)
+    const regularWorkers = workerUsers.filter((user) => !staffAdminIds.has(user.id));
+
+    console.log('🔍 [Admin Workforce Debug]', {
+      staffAdminUsers: staffAdminUsers.length,
+      staffAdminUsersData: staffAdminUsers.map(u => ({ id: u.id, name: u.full_name, role: u.role, status: u.status })),
+      workspaceWorkers: workspaceWorkers.length,
+      workerStaffAdmins: workerStaffAdmins.length,
+      workerStaffAdminsData: workerStaffAdmins.map(u => ({ id: u.id, name: u.full_name, role: u.role })),
+      nonWorkerStaffAdmins: nonWorkerStaffAdmins.length,
+      nonWorkerStaffAdminsData: nonWorkerStaffAdmins.map(u => ({ id: u.id, name: u.full_name, role: u.role })),
+      finalUsers: [...workerStaffAdmins, ...nonWorkerStaffAdmins, ...regularWorkers].length,
+    });
+
     return [...workerStaffAdmins, ...nonWorkerStaffAdmins, ...regularWorkers];
   }, [staffAdminUsers, workspaceWorkers]);
 
