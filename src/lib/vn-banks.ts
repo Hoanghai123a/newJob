@@ -5,7 +5,7 @@ export const VN_BANKS: VnBank[] = [
   { code: "VCB", name: "Vietcombank - NH TMCP Ngoại thương Việt Nam", bin: "970436" },
   { code: "ICB", name: "VietinBank - NH TMCP Công thương Việt Nam", bin: "970415" },
   { code: "BIDV", name: "BIDV - NH TMCP Đầu tư và Phát triển Việt Nam", bin: "970418" },
-  { code: "AGR", name: "Agribank - NH Nông nghiệp và PT Nông thôn", bin: "970405" },
+  { code: "VBA", name: "Agribank - NH Nông nghiệp và PT Nông thôn", bin: "970405" },
   { code: "TCB", name: "Techcombank - NH TMCP Kỹ thương Việt Nam", bin: "970407" },
   { code: "MB", name: "MB Bank - NH TMCP Quân đội", bin: "970422" },
   { code: "ACB", name: "ACB - NH TMCP Á Châu", bin: "970416" },
@@ -51,7 +51,7 @@ export const VN_BANKS: VnBank[] = [
 const QR_BANK_NAMES: Record<string, string> = {
   ABB: "Ngân hàng TMCP An Bình",
   ACB: "Ngân hàng TMCP Á Châu",
-  AGR: "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam",
+  VBA: "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam",
   BAB: "Ngân hàng TMCP Bắc Á",
   BIDV: "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam",
   BVB: "Ngân hàng TMCP Bảo Việt",
