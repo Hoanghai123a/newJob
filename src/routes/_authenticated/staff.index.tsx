@@ -189,12 +189,13 @@ function StaffDashboardPage() {
               icon={BadgeDollarSign}
               size="compact"
             />
-            <FeatureTile
+            {/* Tạm ẩn - Thống kê giờ */}
+            {/* <FeatureTile
               to="/staff/hour-stats"
               label="Thống kê giờ"
               icon={CalendarCheck}
               size="compact"
-            />
+            /> */}
             <FeatureTile
               to="/last-working-day"
               label="Ngày Công Cuối"

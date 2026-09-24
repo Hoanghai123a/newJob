@@ -471,9 +471,9 @@ export function FinanceDashboard({
             </div>
           ) : (
             <>
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(19rem,0.85fr)]">
+              <div className="space-y-4 xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(19rem,0.85fr)] xl:gap-4 xl:space-y-0">
                 <section
-                  className={`rounded-3xl border border-border/70 bg-card shadow-soft ${compactMobile ? "p-3" : "p-5"}`}
+                  className={`overflow-x-auto rounded-3xl border border-border/70 bg-card shadow-soft ${compactMobile ? "p-3" : "p-5"}`}
                 >
                   <div className="mb-4">
                     <h3 className="text-base font-semibold">Dòng tiền theo ngày</h3>
@@ -481,64 +481,66 @@ export function FinanceDashboard({
                       Yêu cầu theo ngày tạo, chi và thu hồi theo ngày nghiệp vụ.
                     </p>
                   </div>
-                  <ChartContainer config={financeChartConfig} className="h-[290px] w-full">
-                    <ComposedChart
-                      data={report.days}
-                      margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis
-                        dataKey="label"
-                        tick={{ fontSize: 10 }}
-                        tickLine={false}
-                        interval="preserveStartEnd"
-                      />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value: number) => `${Math.round(value / 1_000_000)}tr`}
-                      />
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value, name) => (
-                              <div className="flex min-w-0 items-center justify-between gap-3">
-                                <span className="text-muted-foreground">
-                                  {financeChartConfig[name as keyof typeof financeChartConfig]
-                                    ?.label || name}
-                                  :
-                                </span>
-                                <span className="font-medium tabular-nums">
-                                  {money(Number(value))}
-                                </span>
-                              </div>
-                            )}
-                          />
-                        }
-                      />
-                      <ChartLegend content={<ChartLegendContent />} />
-                      <Bar
-                        dataKey="requested"
-                        fill="var(--color-requested)"
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="disbursed"
-                        stroke="var(--color-disbursed)"
-                        strokeWidth={2.25}
-                        dot={false}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="recovered"
-                        stroke="var(--color-recovered)"
-                        strokeWidth={2.25}
-                        dot={false}
-                      />
-                    </ComposedChart>
-                  </ChartContainer>
+                  <div className="min-w-[500px]">
+                    <ChartContainer config={financeChartConfig} className="h-[290px] w-full">
+                      <ComposedChart
+                        data={report.days}
+                        margin={{ top: 8, right: 8, bottom: 0, left: 4 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis
+                          dataKey="label"
+                          tick={{ fontSize: 10 }}
+                          tickLine={false}
+                          interval="preserveStartEnd"
+                        />
+                        <YAxis
+                          tick={{ fontSize: 10 }}
+                          tickLine={false}
+                          axisLine={false}
+                          tickFormatter={(value: number) => `${Math.round(value / 1_000_000)}tr`}
+                        />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value, name) => (
+                                <div className="flex min-w-0 items-center justify-between gap-3">
+                                  <span className="text-muted-foreground">
+                                    {financeChartConfig[name as keyof typeof financeChartConfig]
+                                      ?.label || name}
+                                    :
+                                  </span>
+                                  <span className="font-medium tabular-nums">
+                                    {money(Number(value))}
+                                  </span>
+                                </div>
+                              )}
+                            />
+                          }
+                        />
+                        <ChartLegend content={<ChartLegendContent />} />
+                        <Bar
+                          dataKey="requested"
+                          fill="var(--color-requested)"
+                          radius={[4, 4, 0, 0]}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="disbursed"
+                          stroke="var(--color-disbursed)"
+                          strokeWidth={2.25}
+                          dot={false}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="recovered"
+                          stroke="var(--color-recovered)"
+                          strokeWidth={2.25}
+                          dot={false}
+                        />
+                      </ComposedChart>
+                    </ChartContainer>
+                  </div>
                 </section>
 
                 <section
@@ -687,9 +689,9 @@ function FinanceKpi({
   return (
     <section className="rounded-3xl border border-border/70 bg-card p-3 shadow-soft desktop:p-4">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-xs font-medium text-muted-foreground">{label}</p>
-          <p className="mt-2 truncate text-xl font-bold tabular-nums tracking-tight">{value}</p>
+          <p className="mt-2 break-words text-base font-bold tabular-nums tracking-tight desktop:text-xl">{value}</p>
         </div>
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${toneClass}`}
@@ -697,7 +699,7 @@ function FinanceKpi({
           <Icon className="h-5 w-5" />
         </div>
       </div>
-      <p className="mt-2 truncate text-xs text-muted-foreground">{detail}</p>
+      <p className="mt-2 text-[11px] leading-tight text-muted-foreground desktop:text-xs">{detail}</p>
     </section>
   );
 }

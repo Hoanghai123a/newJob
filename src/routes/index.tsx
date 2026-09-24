@@ -476,22 +476,24 @@ function DashboardPage() {
                   </div>
                   <span className="w-full text-xs font-semibold">Dashboard</span>
                 </button>
-                <FeatureTile
+                {/* Tạm ẩn - Check công/lương */}
+                {/* <FeatureTile
                   to="/check-attendance"
                   label="Check công/lương"
                   icon={CalendarCheck}
                   variant="accent"
                   size="compact"
                   align="start"
-                />
-                <FeatureTile
+                /> */}
+                {/* Tạm ẩn - Thống kê giờ */}
+                {/* <FeatureTile
                   to="/staff/hour-stats"
                   label="Thống kê giờ"
                   icon={Clock}
                   variant="accent"
                   size="compact"
                   align="start"
-                />
+                /> */}
                 <FeatureTile
                   to="/admin/settings"
                   label="Cài đặt"
@@ -854,7 +856,8 @@ function DesktopAdminDashboard({
               >
                 <TabsTrigger value="overview">Tổng quan khác</TabsTrigger>
                 <TabsTrigger value="progress">Tiến độ công việc</TabsTrigger>
-                <TabsTrigger value="hour-stats">Thống kê giờ</TabsTrigger>
+                {/* Tạm ẩn - Tab Thống kê giờ */}
+                {/* <TabsTrigger value="hour-stats">Thống kê giờ</TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="overview" className="mt-0 space-y-4">
@@ -878,9 +881,10 @@ function DesktopAdminDashboard({
                 <WorkProgressBoard />
               </TabsContent>
 
-              <TabsContent value="hour-stats" className="mt-0">
+              {/* Tạm ẩn - Nội dung tab Thống kê giờ */}
+              {/* <TabsContent value="hour-stats" className="mt-0">
                 <HourStatsDashboard />
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           )}
         </section>

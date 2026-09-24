@@ -54,7 +54,8 @@ function getPasswordVerifiedAt(userId: string): number | undefined | null {
   if (value === null) return undefined;
 
   const verifiedAt = Number(value);
-  const isValid = Number.isFinite(verifiedAt) && verifiedAt > 0 && verifiedAt <= Date.now();
+  // Chỉ kiểm tra timestamp hợp lệ, không yêu cầu <= Date.now() để tránh vấn đề đồng hồ không đồng bộ
+  const isValid = Number.isFinite(verifiedAt) && verifiedAt > 0;
 
   // Auto-fix corrupt/invalid timestamp: treat as first login
   if (!isValid) {
@@ -62,7 +63,6 @@ function getPasswordVerifiedAt(userId: string): number | undefined | null {
       userId,
       value,
       verifiedAt,
-      now: Date.now(),
     });
     window.localStorage.removeItem(passwordReauthStorageKey(userId));
     return undefined; // Treat as new session, will be set on line 157

@@ -1045,12 +1045,13 @@ function StaffWorkerDetailPage() {
             setAdvanceOpen(true);
           }}
         />
-        <ActionButton
+        {/* Tạm ẩn - Check công lương */}
+        {/* <ActionButton
           icon={CalendarRange}
           label="Check công lương"
           disabled={!canViewPayrollForWorker}
           onClick={() => navigate({ to: "/staff/workers/$workerId/payroll", params: { workerId } })}
-        />
+        /> */}
         <ActionButton
           icon={Clock3}
           label="Báo nghỉ"
