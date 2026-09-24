@@ -2,72 +2,43 @@
 /**
  * Migration script: Đổi mã ngân hàng AGR -> VBA
  *
- * Cập nhật tất cả bản ghi trong collection `users` có bank_name = "AGR"
- * thành "VBA" (Agribank).
+ * Cập nhật tất cả bản ghi trong collection `workers` có bank_name = "AGR"
+ * thành "VBA" (Agribank) - áp dụng cho toàn bộ workers, không phân biệt tenant.
  *
- * Usage: node scripts/migrate-agr-to-vba.mjs --code=COMPANY_CODE
+ * Usage: node scripts/migrate-agr-to-vba.mjs
  */
 
 import PocketBase from "pocketbase";
 
-const args = process.argv.slice(2);
-const codeArg = args.find((a) => a.startsWith("--code="));
+console.log(`🔧 Migration: AGR -> VBA cho toàn bộ workers`);
 
-if (!codeArg) {
-  console.error("❌ Thiếu tham số --code=COMPANY_CODE");
-  console.error("Usage: node scripts/migrate-agr-to-vba.mjs --code=COMPANY_CODE");
-  process.exit(1);
-}
-
-const companyCode = codeArg.split("=")[1];
-if (!companyCode) {
-  console.error("❌ Mã công ty không hợp lệ");
-  process.exit(1);
-}
-
-console.log(`🔧 Migration: AGR -> VBA cho tenant [${companyCode}]`);
-
-const pb = new PocketBase("http://127.0.0.1:8090");
+const pb = new PocketBase("http://127.0.0.1:8290");
 
 try {
   // Đăng nhập bằng superuser
-  const adminEmail = process.env.PB_ADMIN_EMAIL || "admin@example.com";
-  const adminPassword = process.env.PB_ADMIN_PASSWORD || "admin123456";
+  const adminEmail = process.env.PB_ADMIN_EMAIL || "admin@ccc.com";
+  const adminPassword = process.env.PB_ADMIN_PASSWORD || "Hoanghai12!";
 
   await pb.admins.authWithPassword(adminEmail, adminPassword);
   console.log("✅ Đăng nhập admin thành công");
 
-  // Lấy app_settings của công ty
-  const settings = await pb
-    .collection("app_settings")
-    .getFirstListItem(`company_code="${companyCode}"`)
-    .catch(() => null);
-
-  if (!settings) {
-    console.error(`❌ Không tìm thấy tenant: ${companyCode}`);
-    process.exit(1);
-  }
-
-  const tenant = settings.company_code;
-  console.log(`📍 Tenant: ${tenant}`);
-
-  // Tìm tất cả users có bank_name = "AGR"
-  const usersWithAGR = await pb.collection("users").getFullList({
-    filter: `tenant="${tenant}" && bank_name="AGR"`,
-    fields: "id,username,bank_name,bank_account_number",
+  // Tìm tất cả workers có bank_name = "AGR" (toàn bộ database)
+  const workersWithAGR = await pb.collection("workers").getFullList({
+    filter: `bank_name="AGR"`,
+    fields: "id,uid,full_name,bank_name,bank_account_number,tenant_company",
   });
 
-  console.log(`\n📊 Tìm thấy ${usersWithAGR.length} bản ghi có mã ngân hàng AGR`);
+  console.log(`\n📊 Tìm thấy ${workersWithAGR.length} bản ghi có mã ngân hàng AGR`);
 
-  if (usersWithAGR.length === 0) {
+  if (workersWithAGR.length === 0) {
     console.log("✅ Không có dữ liệu cần migrate");
     process.exit(0);
   }
 
   // Hiển thị danh sách sẽ update
   console.log("\n🔍 Các bản ghi sẽ được cập nhật:");
-  usersWithAGR.forEach((user, idx) => {
-    console.log(`  ${idx + 1}. ${user.username} | Tài khoản: ${user.bank_account_number || "N/A"}`);
+  workersWithAGR.forEach((worker, idx) => {
+    console.log(`  ${idx + 1}. ${worker.uid} - ${worker.full_name} | Tài khoản: ${worker.bank_account_number || "N/A"}`);
   });
 
   console.log("\n⏳ Bắt đầu migration...");
@@ -75,16 +46,16 @@ try {
   let successCount = 0;
   let errorCount = 0;
 
-  for (const user of usersWithAGR) {
+  for (const worker of workersWithAGR) {
     try {
-      await pb.collection("users").update(user.id, {
+      await pb.collection("workers").update(worker.id, {
         bank_name: "VBA",
       });
       successCount++;
-      console.log(`  ✅ Updated: ${user.username}`);
+      console.log(`  ✅ Updated: ${worker.uid} - ${worker.full_name}`);
     } catch (err) {
       errorCount++;
-      console.error(`  ❌ Failed: ${user.username} - ${err.message}`);
+      console.error(`  ❌ Failed: ${worker.uid} - ${worker.full_name} - ${err.message}`);
     }
   }
 
