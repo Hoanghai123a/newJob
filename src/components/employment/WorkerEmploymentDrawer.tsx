@@ -1020,12 +1020,12 @@ export function WorkerEmploymentDrawer({
       }
 
       const isOldHistory = latest?.id !== editingId;
-      const originalLeaveDate = before.leave_date || "";
-      if (isOldHistory && form.leave_date !== originalLeaveDate) {
+      const originalLeaveDate = before.leave_date?.slice(0, 10) || "";
+      const currentLeaveDate = form.leave_date?.slice(0, 10) || "";
+      if (isOldHistory && currentLeaveDate !== originalLeaveDate) {
         toast.error(
           "Không được sửa ngày nghỉ của lịch sử cũ để tránh chồng chéo thời gian làm việc",
         );
-        setForm((current) => ({ ...current, leave_date: originalLeaveDate }));
         return;
       }
 
