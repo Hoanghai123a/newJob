@@ -1,0 +1,19 @@
+# Requirements for CCCD QR Scanner Migration Script
+
+# PocketBase Python SDK
+pocketbase>=0.11.0
+
+# Image processing and QR code scanning
+Pillow>=10.0.0
+pyzbar>=0.1.9
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Excel file handling
+openpyxl>=3.1.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Environment variable management
+python-dotenv>=1.0.0

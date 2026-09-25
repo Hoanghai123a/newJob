@@ -354,7 +354,7 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
   const [items, setItems] = useState<AdvanceRecord[]>([]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
-  const [tab, setTab] = useState<AdminTab>("pending");
+  const [tab, setTab] = useState<AdminTab>("recruiter_approved");
   const [loading, setLoading] = useState(true);
   const [advanceDetail, setAdvanceDetail] = useState<AdvanceRecord | null>(null);
   const [withdrawTarget, setWithdrawTarget] = useState<AdvanceRecord | null>(null);
@@ -731,17 +731,10 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
         id="staff-advance-statistics"
         className={
           showMobileStats
-            ? "grid grid-cols-2 gap-2 desktop:grid-cols-6"
-            : "hidden grid-cols-2 gap-2 md:grid desktop:grid-cols-6"
+            ? "grid grid-cols-2 gap-2 desktop:grid-cols-5"
+            : "hidden grid-cols-2 gap-2 md:grid desktop:grid-cols-5"
         }
       >
-        <StatCard
-          label="Chờ duyệt"
-          value={statValue(stats.pending)}
-          icon={Clock}
-          tone="warning"
-          className="desktop:!p-2.5 desktop:[&>div:first-child>div:first-child]:!text-[10px] desktop:[&>div:first-child>div:last-child]:!h-6 desktop:[&>div:first-child>div:last-child]:!w-6 desktop:[&>div:first-child>div:last-child>svg]:!h-3 desktop:[&>div:first-child>div:last-child>svg]:!w-3 desktop:[&>div:nth-child(2)]:!mt-0.5 desktop:[&>div:nth-child(2)]:!text-sm desktop:[&>div:nth-child(2)>span]:!text-sm"
-        />
         <StatCard
           label="Đã chuyển admin"
           value={statValue(stats.recruiter_approved)}
@@ -804,7 +797,6 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
         onSearchChange={setSearch}
         placeholder="Tìm theo tên, mã NV…"
         chips={[
-          { key: "pending", label: `Chờ duyệt (${stats.pending.count})` },
           {
             key: "recruiter_approved",
             label: `Đã chuyển admin (${stats.recruiter_approved.count})`,
@@ -868,33 +860,6 @@ function WorkerAdvancesView({ interactionAllowed }: { interactionAllowed: boolea
                   <StatusChip tone={payoutMethod === "cash" ? "warning" : "neutral"}>
                     {PAYOUT_METHOD_META[payoutMethod].label}
                   </StatusChip>
-                  {status === "pending" && interactionAllowed && (
-                    <div className="flex gap-1">
-                      <Button
-                        size="icon"
-                        className="h-7 w-7"
-                        title="Chấp nhận"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          staffResolve(row, "recruiter_approved");
-                        }}
-                      >
-                        <Check className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        className="h-7 w-7"
-                        title="Từ chối"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          staffResolve(row, "rejected");
-                        }}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  )}
                   {interactionAllowed &&
                     status === "recruiter_approved" &&
                     row.recruiter_id === user?.id && (
