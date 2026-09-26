@@ -207,7 +207,14 @@ export function RecruitmentChart({
     () => buildRecruitmentDayDetails({ histories, users, factories, selectedDay }),
     [factories, histories, selectedDay, users],
   );
-  const breakdown = dayDetails.groups;
+  const breakdown = dayDetails.groups.filter(group => group.total > 0);
+
+  console.log('=== RecruitmentChart DEBUG ===');
+  console.log('dayDetailPresentation:', dayDetailPresentation);
+  console.log('selectedDay:', selectedDay);
+  console.log('Total groups:', dayDetails.groups.length);
+  console.log('Filtered groups (total > 0):', breakdown.length);
+  console.log('Groups:', dayDetails.groups.map(g => ({ name: g.factoryName, total: g.total })));
 
   const selectedFactory = useMemo(
     () => breakdown.find((group) => group.factoryId === selectedFactoryId) || null,
@@ -371,7 +378,7 @@ export function RecruitmentChart({
             })}
           </div>
 
-          <div className="hidden gap-3 overflow-x-auto pb-2 desktop:flex">
+          <div className="hidden grid-cols-5 gap-3 desktop:grid">
             {breakdown.map((group) => {
               const internal = group.recruiters.filter((item) => !item.isVendor);
               const vendors = group.recruiters.filter((item) => item.isVendor);
@@ -385,7 +392,7 @@ export function RecruitmentChart({
                   key={group.factoryId}
                   type="button"
                   onClick={() => setSelectedFactoryId(group.factoryId)}
-                  className="w-80 shrink-0 space-y-2 rounded-xl border bg-card p-3 text-left transition hover:border-primary/40 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                  className="space-y-2 rounded-xl border bg-card p-3 text-left transition hover:border-primary/40 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
                 >
                   <div className="flex min-w-0 items-center gap-1.5 text-xs font-medium">
                     <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />

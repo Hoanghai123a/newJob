@@ -158,8 +158,9 @@ export function WorkforceDailyChart({
                 </DialogDescription>
               </DialogHeader>
               <div className="max-h-[68dvh] overflow-y-auto px-5 pb-5">
-                <div className="grid gap-4 desktop:grid-cols-2">
+                <div className="grid gap-4 desktop:grid-cols-5">
                   {[...selected.factories]
+                    .filter((factory) => factory.joined > 0)
                     .sort((a, b) => b.joined - a.joined)
                     .map((factory) => (
                       <section
@@ -197,31 +198,32 @@ export function WorkforceDailyChart({
                         </div>
                       </section>
                     ))}
-                  <section className="rounded-2xl border border-border/70 bg-card p-4 desktop:col-span-2">
-                    <h4 className="mb-3 text-sm font-semibold">Theo người tuyển</h4>
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      {[...selected.recruiters]
-                        .sort((a, b) => b.joined - a.joined)
-                        .map((item) => (
-                          <div
-                            key={`${item.source}:${item.id}`}
-                            className="flex items-center gap-3 rounded-xl bg-muted/50 px-3 py-2 text-sm"
-                          >
-                            <span className="min-w-0 flex-1 truncate">
-                              {recruiterNames.get(`${item.source}:${item.id}`) ||
-                                (item.source === "partner"
-                                  ? "Đối tác chưa xác định"
-                                  : "Nhân sự chưa xác định")}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {item.source === "partner" ? "Đối tác" : "Nội bộ"}
-                            </span>
-                            <strong className="tabular-nums text-primary">{item.joined}</strong>
-                          </div>
-                        ))}
-                    </div>
-                  </section>
                 </div>
+                <section className="mt-4 rounded-2xl border border-border/70 bg-card p-4">
+                  <h4 className="mb-3 text-sm font-semibold">Theo người tuyển</h4>
+                  <div className="grid gap-2 desktop:grid-cols-5">
+                    {[...selected.recruiters]
+                      .filter((item) => item.joined > 0)
+                      .sort((a, b) => b.joined - a.joined)
+                      .map((item) => (
+                        <div
+                          key={`${item.source}:${item.id}`}
+                          className="flex items-center gap-3 rounded-xl bg-muted/50 px-3 py-2 text-sm"
+                        >
+                          <span className="min-w-0 flex-1 truncate">
+                            {recruiterNames.get(`${item.source}:${item.id}`) ||
+                              (item.source === "partner"
+                                ? "Đối tác chưa xác định"
+                                : "Nhân sự chưa xác định")}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {item.source === "partner" ? "Đối tác" : "Nội bộ"}
+                          </span>
+                          <strong className="tabular-nums text-primary">{item.joined}</strong>
+                        </div>
+                      ))}
+                  </div>
+                </section>
                 {workers.length === 0 ? (
                   <p className="mt-4 rounded-xl border border-dashed p-4 text-center text-sm text-muted-foreground">
                     {selected.joined > 0
