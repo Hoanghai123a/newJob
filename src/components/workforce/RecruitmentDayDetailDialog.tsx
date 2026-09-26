@@ -52,7 +52,7 @@ function RecruitmentSummaryCard({ group }: { group: RecruitmentBreakdownGroup })
   const vendorPct = group.total ? Math.round((vendorTotal / group.total) * 100) : 0;
 
   return (
-    <section className="min-w-0 space-y-3 rounded-2xl border border-border/70 bg-card p-3 shadow-sm desktop:w-72 desktop:shrink-0">
+    <section className="min-w-0 space-y-3 rounded-2xl border border-border/70 bg-card p-3 shadow-sm">
       <div className="flex min-w-0 items-center gap-2 border-b border-border/60 pb-2 text-sm font-semibold">
         <Building2 className="h-4 w-4 shrink-0 text-primary" />
         <span className="min-w-0 flex-1 truncate" title={group.factoryName}>
@@ -201,6 +201,8 @@ export function RecruitmentDayDetailDialog({
     ? new Date(`${selectedDay}T12:00:00`).toLocaleDateString("vi-VN")
     : "";
 
+  const filteredGroups = details.groups.filter(group => group.total > 0);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -217,19 +219,19 @@ export function RecruitmentDayDetailDialog({
         </DialogHeader>
 
         <div className="max-h-[calc(92dvh-6.5rem)] overflow-y-auto px-4 pb-5 sm:px-5">
-          {details.groups.length === 0 ? (
+          {filteredGroups.length === 0 ? (
             <div className="mt-4 rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">
               Không có người lao động vào làm trong ngày này.
             </div>
           ) : (
-            <>
-              <div className="mt-4 grid gap-3 desktop:flex desktop:overflow-x-auto desktop:pb-2">
-                {details.groups.map((group) => (
+            <div className="space-y-4">
+              <div className="mt-4 grid gap-3 desktop:grid-cols-5">
+                {filteredGroups.map((group) => (
                   <RecruitmentSummaryCard key={group.factoryId} group={group} />
                 ))}
               </div>
 
-              <div className="my-4 flex justify-center">
+              <div className="sticky bottom-0 flex justify-center bg-background/95 py-3 backdrop-blur">
                 <Button
                   type="button"
                   variant="outline"
@@ -242,7 +244,7 @@ export function RecruitmentDayDetailDialog({
                   ) : (
                     <ChevronDown className="h-4 w-4" />
                   )}
-                  {showDetails ? "Ẩn chi tiết" : "Hiển thị chi tiết"}
+                  {showDetails ? "Ẩn chi tiết" : "Xem chi tiết"}
                 </Button>
               </div>
 
@@ -252,7 +254,7 @@ export function RecruitmentDayDetailDialog({
                   <MobileWorkerCards workers={details.workers} />
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       </DialogContent>
