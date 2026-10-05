@@ -25,11 +25,17 @@ async function requestCounter(body: Record<string, unknown>) {
   return payload;
 }
 
-export async function allocateUserUids(count = 1): Promise<string[]> {
+export function isUniqueConstraintError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return /value must be unique/i.test(msg) || /unique.*constraint/i.test(msg);
+}
+
+export async function allocateUserUids(count = 1, opts?: { forceScan?: boolean }): Promise<string[]> {
   const result = (await requestCounter({
     action: "allocate",
     type: "user",
     count,
+    ...(opts?.forceScan ? { forceScan: true } : {}),
   })) as AllocateUidResponse;
   return result.uids;
 }
@@ -37,12 +43,14 @@ export async function allocateUserUids(count = 1): Promise<string[]> {
 export async function allocateEmploymentHistoryUids(
   count = 1,
   referenceDate = new Date(),
+  opts?: { forceScan?: boolean },
 ): Promise<string[]> {
   const result = (await requestCounter({
     action: "allocate",
     type: "employment_history",
     count,
     referenceDate: referenceDate.toISOString(),
+    ...(opts?.forceScan ? { forceScan: true } : {}),
   })) as AllocateUidResponse;
   return result.uids;
 }

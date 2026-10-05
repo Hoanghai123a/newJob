@@ -11,7 +11,7 @@ import {
 } from "./cccd-versions";
 import { escapePb, relationInFilter } from "./delegations";
 import { updateCachedHistory, updateCachedUser } from "./staff-cache";
-import { allocateEmploymentHistoryUids } from "./uid-counter";
+import { allocateEmploymentHistoryUids, isUniqueConstraintError } from "./uid-counter";
 import { companyFilter, joinTenantFilters } from "./tenant";
 import { normalizeDate } from "./date-utils";
 import { createStaffActionLog, type StaffActionType } from "./staff-log";
@@ -686,14 +686,27 @@ export async function createEmploymentHistory(
   }
 
   const uid = opts?.uid || (await generateEmploymentHistoryUid());
-  const response = await fetch("/api/employment-histories", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${pb.authStore.token}` },
-    body: JSON.stringify({ payload: { ...normalizedDraft, uid }, mode }),
-  });
-  const body = await response.json().catch(() => null);
-  if (!response.ok) throw new Error(body?.message || "Không tạo được lịch sử lao động.");
-  const record = { ...body, worker: body.worker } as EmploymentHistoryRecord;
+  const postHistory = async (historyUid: string) => {
+    const response = await fetch("/api/employment-histories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${pb.authStore.token}` },
+      body: JSON.stringify({ payload: { ...normalizedDraft, uid: historyUid }, mode }),
+    });
+    const body = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(body?.message || "Không tạo được lịch sử lao động.");
+    return { ...body, worker: body.worker } as EmploymentHistoryRecord;
+  };
+
+  let record: EmploymentHistoryRecord;
+  try {
+    record = await postHistory(uid);
+  } catch (error) {
+    if (!isUniqueConstraintError(error) || opts?.uid) throw error;
+    // UID vừa cấp đã tồn tại — bộ đếm bị lệch; quét lại max thực tế rồi thử lại
+    const [retryUid] = await allocateEmploymentHistoryUids(1, normalizedDraft.start_date ? new Date(normalizedDraft.start_date as string) : new Date(), { forceScan: true });
+    if (!retryUid) throw new Error("Không cấp được UID lịch sử đi làm sau khi đồng bộ bộ đếm.");
+    record = await postHistory(retryUid);
+  }
   await updateCachedHistory(record);
   return record;
 }

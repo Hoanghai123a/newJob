@@ -20,6 +20,7 @@ type AllocateBody = {
   referenceDate?: string;
   uid?: string;
   actorId?: string;
+  forceScan?: boolean;
 };
 
 const locks = new Map<string, Promise<void>>();
@@ -335,6 +336,25 @@ async function allocate(body: AllocateBody, actor: AuthUser | null, adminToken: 
         undefined,
         adminToken,
       );
+    } else if (body.forceScan) {
+      // Chỉ quét lại khi client báo có lỗi "value must be unique" với UID vừa cấp
+      const actualMax = await scanMaximum(type, companyId, prefix, meta.period, adminToken);
+      if (actualMax > Number(counter.current_value || 0)) {
+        counter = await saveCounter(
+          {
+            counter_key: meta.key,
+            counter_type: type,
+            prefix,
+            period: meta.period,
+            current_value: actualMax,
+            updated_by: actor?.id || body.actorId || "",
+            note: counter.note || "",
+            tenant_company: companyId,
+          },
+          counter.id,
+          adminToken,
+        );
+      }
     }
     const startValue = Number(counter.current_value || 0) + 1;
     const endValue = startValue + count - 1;
