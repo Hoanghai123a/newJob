@@ -196,7 +196,7 @@ function AdminImportsPage() {
         }
 
         const target = uidMatches[0];
-        if (!userById.has(target.user)) {
+        if (!workerById.has(target.worker)) {
           addFailedRow(row, rowNumber, "Không tìm thấy NLĐ của lịch sử được chọn");
           continue;
         }
