@@ -99,13 +99,17 @@ function AdminImportsPage() {
     setImportingBulkEdit(true);
     setBulkEditResult("");
     try {
-      const [factoryRows, allUsers, allHistories] = await Promise.all([
+      const [factoryRows, allUsers, allHistories, allWorkers] = await Promise.all([
         fetchFactories(currentUser),
         pb.collection("users").getFullList<UserRecord>({
           filter: companyFilter(currentUser, "tenant_company"),
           sort: "full_name,username",
         }),
         fetchEmploymentHistories(undefined, currentUser),
+        pb.collection("workers").getFullList<{ id: string }>({
+          filter: companyFilter(currentUser, "tenant_company"),
+          fields: "id",
+        }),
       ]);
       const factoryByName = new Map(
         factoryRows.map((factory) => [accountIdentityKey(factory.name), factory]),
@@ -115,7 +119,7 @@ function AdminImportsPage() {
           .filter((factory) => factory.code)
           .map((factory) => [accountIdentityKey(factory.code), factory]),
       );
-      const userById = new Map(allUsers.map((user) => [user.id, user]));
+      const workerById = new Map(allWorkers.map((worker) => [worker.id, worker]));
       const userByUsername = new Map(
         allUsers
           .filter((user) => user.username)
