@@ -501,7 +501,7 @@ export function WorkerQuickDrawer({
       await createStaffActionLog({
         actor: viewer,
         targetUserId: worker.user.id,
-        targetCollection: "users",
+        targetCollection: "workers",
         targetRecord: worker.user.id,
         action: "update_bank",
         note: "Cập nhật ngân hàng từ danh sách",

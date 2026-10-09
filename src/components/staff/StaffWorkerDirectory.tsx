@@ -106,28 +106,40 @@ function readDirectoryState(
   }
 }
 
+function normalizeSearchText(text: string) {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLocaleLowerCase("vi-VN")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function buildWorkerSearchText(worker: StaffWorkerRecord) {
-  return [
-    worker.user.full_name,
-    worker.user.phone,
-    worker.user.uid,
-    ...worker.histories.flatMap((history) => [
-      history.uid,
-      history.employee_code,
-      history.worker_name_snapshot,
-      history.worker_cccd_snapshot,
-      history.worker_tax_code_snapshot,
-      history.expand?.factory?.name,
-      history.expand?.main_house?.name,
-      history.expand?.recruiter_staff?.full_name,
-      history.expand?.recruiter_staff?.username,
-      history.expand?.recruiter_partner?.name,
-      history.expand?.recruiter_partner?.hotline,
-    ]),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLocaleLowerCase("vi-VN");
+  return normalizeSearchText(
+    [
+      worker.user.full_name,
+      worker.user.phone,
+      worker.user.uid,
+      ...worker.histories.flatMap((history) => [
+        history.uid,
+        history.employee_code,
+        history.worker_name_snapshot,
+        history.worker_cccd_snapshot,
+        history.worker_tax_code_snapshot,
+        history.expand?.factory?.name,
+        history.expand?.main_house?.name,
+        history.expand?.recruiter_staff?.full_name,
+        history.expand?.recruiter_staff?.username,
+        history.expand?.recruiter_partner?.name,
+        history.expand?.recruiter_partner?.hotline,
+      ]),
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
 }
 
 function formatDate(value?: string) {
@@ -209,7 +221,7 @@ export function StaffWorkerDirectory({
   );
 
   const filteredWorkers = useMemo(() => {
-    const query = debouncedSearch.trim().toLocaleLowerCase("vi-VN");
+    const query = normalizeSearchText(debouncedSearch);
 
     return indexedWorkers
       .filter(({ worker, searchText }) => {

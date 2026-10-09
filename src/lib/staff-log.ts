@@ -569,24 +569,30 @@ export async function createStaffActionLog(input: StaffActionLogInput) {
   let targetUserId = input.targetUserId || "";
   let targetWorkerId = "";
 
-  // Chỉ tìm worker khi target không phải là staff/admin (collection users)
-  if (targetUserId && input.targetCollection !== "users") {
+  // Xử lý target dựa trên collection
+  if (input.targetCollection === "users") {
+    // Target là user (staff/admin) - chỉ set target_user
+    targetUserId = input.targetUserId || "";
+    targetWorkerId = "";
+  } else if (input.targetCollection === "workers") {
+    // Target là worker - chỉ set target_worker
+    targetUserId = "";
+    targetWorkerId = input.targetUserId || "";
+  } else if (targetUserId && input.targetCollection !== "users") {
+    // Các collection khác - cố tìm worker từ targetUserId
     const worker = await getWorker(targetUserId).catch(() => null);
     if (worker) {
-      targetUserId = worker.id;
+      targetUserId = "";
       targetWorkerId = worker.id;
     }
-  } else if (targetUserId && input.targetCollection === "users") {
-    // Khi target là user (staff/admin), dùng target_user thay vì target_worker
-    targetWorkerId = "";
   }
 
   await pb.collection("staff_action_logs").create({
     ...companyPayload(input.actor as UserRecord),
     actor: input.actor.id,
     actor_role_snapshot: input.actor.role || "user",
-    target_user: input.targetCollection === "users" ? targetUserId : "",
-    target_worker: targetWorkerId || (input.targetCollection !== "users" ? targetUserId : ""),
+    target_user: targetUserId,
+    target_worker: targetWorkerId,
     target_collection: input.targetCollection,
     target_record: input.targetRecord || "",
     action: input.action,

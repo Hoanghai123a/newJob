@@ -754,21 +754,26 @@ function StaffWorkerDetailPage() {
       ...bankForm,
       bank_name: resolveBankName(bankForm.bank_name.trim()),
     };
-    const updatedUser = await updateUserAndCache(workerUser.id, payload);
-    await createStaffActionLog({
-      actor: viewer,
-      targetUserId: workerUser.id,
-      targetCollection: "users",
-      targetRecord: workerUser.id,
-      action: "update_bank",
-      before,
-      after: payload,
-      note: "Cập nhật tài khoản ngân hàng cho user",
-    });
 
-    setWorkerUser(updatedUser);
-    setBankOpen(false);
-    toast.success("Đã cập nhật tài khoản ngân hàng");
+    try {
+      const updatedUser = await updateUserAndCache(workerUser.id, payload);
+      await createStaffActionLog({
+        actor: viewer,
+        targetUserId: workerUser.id,
+        targetCollection: "users",
+        targetRecord: workerUser.id,
+        action: "update_bank",
+        before,
+        after: payload,
+        note: "Cập nhật tài khoản ngân hàng cho user",
+      });
+
+      setWorkerUser(updatedUser);
+      setBankOpen(false);
+      toast.success("Đã cập nhật tài khoản ngân hàng");
+    } catch (error: any) {
+      toast.error(error?.message || "Không thể cập nhật tài khoản ngân hàng");
+    }
   };
 
   const openEditHistory = (history: EmploymentHistoryRecord) => {
