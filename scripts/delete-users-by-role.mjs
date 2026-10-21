@@ -5,32 +5,36 @@
  * Usage:
  *   node scripts/delete-users-by-role.mjs --code=HL
  *   node scripts/delete-users-by-role.mjs --code=DV --yes
+ *   node scripts/delete-users-by-role.mjs --all
  *
  * Options:
- *   --code=XX    : Mã công ty (bắt buộc)
+ *   --code=XX    : Mã công ty (chọn --code hoặc --all)
+ *   --all        : Xóa role=user toàn collection và tự xác nhận
  *   --yes        : Tự động confirm, không hỏi
  */
 
 import fs from "node:fs";
 import readline from "node:readline";
-import PocketBase from "pocketbase";
 
 // ============================================================================
 // Parse arguments
 // ============================================================================
 
 const args = process.argv.slice(2);
+const BATCH_SIZE = 100;
 const companyCode = args
   .find((arg) => arg.startsWith("--code="))
   ?.split("=")[1]
   ?.toUpperCase();
-const autoYes = args.includes("--yes");
+const deleteAll = args.includes("--all");
+const autoYes = args.includes("--yes") || deleteAll;
 
-if (!companyCode) {
-  console.error("❌ Lỗi: Thiếu tham số --code=");
+if ((!companyCode && !deleteAll) || (companyCode && deleteAll)) {
+  console.error("❌ Lỗi: Chọn đúng một trong --code=XX hoặc --all.");
   console.log("\nUsage:");
   console.log("  node scripts/delete-users-by-role.mjs --code=HL");
   console.log("  node scripts/delete-users-by-role.mjs --code=DV --yes");
+  console.log("  node scripts/delete-users-by-role.mjs --all");
   process.exit(1);
 }
 
@@ -64,13 +68,77 @@ if (!url || !email || !password) {
 // Connect to PocketBase
 // ============================================================================
 
-const pb = new PocketBase(url);
-pb.autoCancellation(false);
+let authToken = "";
 
-await pb
-  .collection("_superusers")
-  .authWithPassword(email, password)
-  .catch(() => pb.admins.authWithPassword(email, password));
+async function request(path, { method = "GET", query = {}, body } = {}) {
+  const endpoint = new URL(`/api${path}`, url.endsWith("/") ? url : `${url}/`);
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== "") endpoint.searchParams.set(key, String(value));
+  }
+
+  const response = await fetch(endpoint, {
+    method,
+    headers: {
+      ...(authToken ? { Authorization: authToken } : {}),
+      ...(body ? { "Content-Type": "application/json" } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await response.text();
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { message: text };
+  }
+  if (!response.ok) throw new Error(data?.message || `PocketBase HTTP ${response.status}`);
+  return data;
+}
+
+async function authenticate() {
+  const payload = { identity: email, password };
+  try {
+    const result = await request("/collections/_superusers/auth-with-password", {
+      method: "POST",
+      body: payload,
+    });
+    authToken = result.token;
+  } catch {
+    const result = await request("/admins/auth-with-password", {
+      method: "POST",
+      body: payload,
+    });
+    authToken = result.token;
+  }
+}
+
+async function getFullList(collection, query = {}) {
+  const items = [];
+  for (let page = 1; ; page++) {
+    const result = await request(`/collections/${encodeURIComponent(collection)}/records`, {
+      query: { ...query, page, perPage: BATCH_SIZE },
+    });
+    items.push(...(result.items || []));
+    console.log(`   Đã quét ${items.length}/${result.totalItems || items.length} record...`);
+    if (page >= (result.totalPages || 1)) return items;
+  }
+}
+
+async function getFirstRecord(collection, query = {}) {
+  const result = await request(`/collections/${encodeURIComponent(collection)}/records`, {
+    query: { ...query, page: 1, perPage: 1 },
+  });
+  return result.items?.[0] || null;
+}
+
+async function deleteRecord(collection, id) {
+  await request(
+    `/collections/${encodeURIComponent(collection)}/records/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+  );
+}
+
+await authenticate();
 
 console.log(`🔗 Đã kết nối: ${url}\n`);
 
@@ -81,23 +149,27 @@ console.log(`🔗 Đã kết nối: ${url}\n`);
 const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
 
 try {
-  // 1. Lấy company
-  console.log(`1️⃣ Lấy thông tin công ty ${companyCode}...`);
-  const company = await pb
-    .collection("companies")
-    .getFirstListItem(`code="${companyCode}"`)
-    .catch(() => null);
+  let company = null;
+  if (!deleteAll) {
+    // 1. Lấy company
+    console.log(`1️⃣ Lấy thông tin công ty ${companyCode}...`);
+    company = await getFirstRecord("companies", { filter: `code="${companyCode}"` }).catch(
+      () => null,
+    );
 
-  if (!company) {
-    throw new Error(`Không tìm thấy công ty với mã ${companyCode}`);
+    if (!company) {
+      throw new Error(`Không tìm thấy công ty với mã ${companyCode}`);
+    }
+
+    console.log(`   ✅ ${company.name} (ID: ${company.id})\n`);
+  } else {
+    console.log("1️⃣ Xóa trong toàn bộ collection users (mọi công ty)...\n");
   }
-
-  console.log(`   ✅ ${company.name} (ID: ${company.id})\n`);
 
   // 2. Lấy danh sách users cần xóa
   console.log("2️⃣ Lấy danh sách users có role=user...");
-  const users = await pb.collection("users").getFullList({
-    filter: `tenant_company="${company.id}" && role="user"`,
+  const users = await getFullList("users", {
+    filter: deleteAll ? 'role="user"' : `tenant_company="${company.id}" && role="user"`,
     fields: "id,username,full_name,uid,cccd,created",
     sort: "created",
   });
@@ -109,18 +181,7 @@ try {
     process.exit(0);
   }
 
-  // 3. Hiển thị danh sách
-  console.log("3️⃣ Danh sách users sẽ bị xóa:");
-  console.log("=".repeat(80));
-  for (let i = 0; i < users.length; i++) {
-    const user = users[i];
-    console.log(`${String(i + 1).padStart(3)}. ${user.username.padEnd(35)} ${user.full_name}`);
-    console.log(
-      `     ID: ${user.id} | UID: ${user.uid || "N/A"} | Created: ${user.created.slice(0, 10)}`,
-    );
-  }
-  console.log("=".repeat(80));
-  console.log("");
+  console.log(`3️⃣ Sẽ xóa ${users.length} users theo từng lô tối đa ${BATCH_SIZE} record.\n`);
 
   // 4. Confirm
   if (!autoYes) {
@@ -131,7 +192,7 @@ try {
 
     const answer = await new Promise((resolve) => {
       rl.question(
-        `⚠️  BẠN ĐỒNG Ý XÓA ${users.length} USERS Ở CÔNG TY ${company.name}? (yes/no): `,
+        `⚠️  BẠN ĐỒNG Ý XÓA ${users.length} USERS ${deleteAll ? "TRONG TOÀN BỘ COLLECTION" : `Ở CÔNG TY ${company.name}`}? (yes/no): `,
         resolve,
       );
     });
@@ -151,38 +212,44 @@ try {
 
   const report = {
     timestamp,
-    company: { id: company.id, name: company.name, code: companyCode },
+    scope: deleteAll ? "all" : "company",
+    company: company ? { id: company.id, name: company.name, code: companyCode } : null,
     totalUsers: users.length,
     deleted: [],
     failed: [],
   };
 
-  for (let i = 0; i < users.length; i++) {
-    const user = users[i];
-    try {
-      await pb.collection("users").delete(user.id);
-      console.log(
-        `✅ [${i + 1}/${users.length}] Đã xóa: ${user.username} (${user.full_name})`,
-      );
-      report.deleted.push({
-        id: user.id,
-        username: user.username,
-        full_name: user.full_name,
-        uid: user.uid,
-        cccd: user.cccd,
-        created: user.created,
-      });
-    } catch (err) {
-      console.error(
-        `❌ [${i + 1}/${users.length}] Lỗi khi xóa ${user.username}: ${err.message}`,
-      );
-      report.failed.push({
-        id: user.id,
-        username: user.username,
-        full_name: user.full_name,
-        error: err.message,
-      });
+  const batchCount = Math.ceil(users.length / BATCH_SIZE);
+  for (let offset = 0; offset < users.length; offset += BATCH_SIZE) {
+    const batch = users.slice(offset, offset + BATCH_SIZE);
+    const currentBatch = Math.floor(offset / BATCH_SIZE) + 1;
+    console.log(`Đang xử lý lô ${currentBatch}/${batchCount} (${batch.length} users)...`);
+
+    for (const user of batch) {
+      try {
+        await deleteRecord("users", user.id);
+        report.deleted.push({
+          id: user.id,
+          username: user.username,
+          full_name: user.full_name,
+          uid: user.uid,
+          cccd: user.cccd,
+          created: user.created,
+        });
+      } catch (err) {
+        console.error(`❌ Lỗi khi xóa ${user.username}: ${err.message}`);
+        report.failed.push({
+          id: user.id,
+          username: user.username,
+          full_name: user.full_name,
+          error: err.message,
+        });
+      }
     }
+
+    console.log(
+      `✅ Hoàn tất lô ${currentBatch}/${batchCount}: ${batch.length} đã xử lý, ${report.deleted.length} xóa thành công, ${report.failed.length} lỗi.`,
+    );
   }
 
   console.log("-".repeat(80));
@@ -194,7 +261,7 @@ try {
     fs.mkdirSync(reportDir, { recursive: true });
   }
 
-  const reportPath = `${reportDir}/delete-users-${companyCode}-${timestamp}.json`;
+  const reportPath = `${reportDir}/delete-users-${deleteAll ? "all" : companyCode}-${timestamp}.json`;
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), "utf8");
 
   // 7. Tóm tắt

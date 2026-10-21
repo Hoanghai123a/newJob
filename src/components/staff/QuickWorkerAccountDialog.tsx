@@ -65,6 +65,7 @@ import { updateCachedUser } from "@/lib/staff-cache";
 import { createStaffActionLog } from "@/lib/staff-log";
 import { companyIdOf } from "@/lib/tenant";
 import { allocateEmploymentHistoryUids, allocateUserUids } from "@/lib/uid-counter";
+import { createWithUidRetry } from "@/lib/uid-retry";
 import { cn } from "@/lib/utils";
 import { FactoryPicker, MainHousePicker } from "@/components/workforce/UserPicker";
 import { RecruiterPicker } from "@/components/employment/RecruiterPicker";
@@ -624,7 +625,16 @@ export function QuickWorkerAccountDialog({
     const tenantCompany = companyIdOf(currentActor);
     if (!tenantCompany) throw new Error("Tài khoản chưa được gán công ty.");
     fd.append("tenant_company", tenantCompany);
-    const createdWorker = await pb.collection("workers").create<WorkerRecord>(fd);
+    const { record: createdWorker, uid: assignedUid } = await createWithUidRetry(
+      uid,
+      (candidateUid) => {
+        fd.set("uid", candidateUid);
+        return pb.collection("workers").create<WorkerRecord>(fd);
+      },
+      async (forceScan) => {
+        return allocateUserUids(5, { forceScan, scanCollection: "workers" });
+      },
+    );
     const secondaryWarnings: string[] = [];
     const cacheUser: WorkerRecord = {
       ...createdWorker,
@@ -694,7 +704,7 @@ export function QuickWorkerAccountDialog({
         targetCollection: "workers",
         targetRecord: createdWorker.id,
         action: "create",
-        after: { id: createdWorker.id, uid, full_name: realName, cccd },
+        after: { id: createdWorker.id, uid: assignedUid, full_name: realName, cccd },
         note: "Tạo nhanh hồ sơ NLĐ từ mục NLĐ",
       });
       if (historyId) {
@@ -752,7 +762,7 @@ export function QuickWorkerAccountDialog({
     let historyUids: string[] = [];
     try {
       [userUids, historyUids] = await Promise.all([
-        allocateUserUids(entries.length),
+        allocateUserUids(entries.length, { scanCollection: "workers" }),
         allocateEmploymentHistoryUids(entries.length),
       ]);
     } catch (error) {

@@ -980,7 +980,7 @@ export async function prepareBulkWorkerImport(file: File): Promise<PreparedBulkW
       0,
     );
     const [userUids, historyUids] = await Promise.all([
-      allocateUserUids(preparedWorkers.length),
+      allocateUserUids(preparedWorkers.length, { scanCollection: "workers" }),
       allocateEmploymentHistoryUids(historyCount),
     ]);
     let historyIndex = 0;

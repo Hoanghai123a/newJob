@@ -30,12 +30,16 @@ export function isUniqueConstraintError(error: unknown): boolean {
   return /value must be unique/i.test(msg) || /unique.*constraint/i.test(msg);
 }
 
-export async function allocateUserUids(count = 1, opts?: { forceScan?: boolean }): Promise<string[]> {
+export async function allocateUserUids(
+  count = 1,
+  opts?: { forceScan?: boolean; scanCollection?: "users" | "workers" },
+): Promise<string[]> {
   const result = (await requestCounter({
     action: "allocate",
     type: "user",
     count,
     ...(opts?.forceScan ? { forceScan: true } : {}),
+    ...(opts?.scanCollection ? { scanCollection: opts.scanCollection } : {}),
   })) as AllocateUidResponse;
   return result.uids;
 }

@@ -21,6 +21,7 @@ type AllocateBody = {
   uid?: string;
   actorId?: string;
   forceScan?: boolean;
+  scanCollection?: "users" | "workers";
 };
 
 const locks = new Map<string, Promise<void>>();
@@ -246,9 +247,10 @@ async function scanMaximum(
   prefix: string,
   period: string,
   token: string,
+  userCollection: "users" | "workers" = "users",
 ) {
-  const collection = type === "user" ? "users" : "employment_histories";
-  const buildUrl = (page: number) => {
+  const collection = type === "user" ? userCollection : "employment_histories";
+  const buildUrl = (collection: string, page: number) => {
     const params = new URLSearchParams({
       page: String(page),
       perPage: "500",
@@ -257,10 +259,6 @@ async function scanMaximum(
     });
     return `/api/collections/${collection}/records?${params}`;
   };
-  const response = await pbFetch(buildUrl(1), {}, token);
-  if (!response.ok) throw new Error("Không thể khởi tạo bộ đếm từ dữ liệu UID hiện tại.");
-  const body = await readJson(response);
-  const totalPages = Math.max(1, Number(body?.totalPages || 1));
   let max = 0;
   const inspect = (items: Array<{ uid?: string }>) => {
     const pattern =
@@ -274,9 +272,13 @@ async function scanMaximum(
       if (match) max = Math.max(max, Number(match[1]));
     }
   };
+  const response = await pbFetch(buildUrl(collection, 1), {}, token);
+  if (!response.ok) throw new Error("Không thể khởi tạo bộ đếm từ dữ liệu UID hiện tại.");
+  const body = await readJson(response);
+  const totalPages = Math.max(1, Number(body?.totalPages || 1));
   inspect(body?.items || []);
   for (let page = 2; page <= totalPages; page += 1) {
-    const next = await pbFetch(buildUrl(page), {}, token);
+    const next = await pbFetch(buildUrl(collection, page), {}, token);
     if (!next.ok) throw new Error("Không thể quét đầy đủ UID hiện tại.");
     inspect((await readJson(next))?.items || []);
   }
@@ -315,13 +317,27 @@ async function allocate(body: AllocateBody, actor: AuthUser | null, adminToken: 
   if (!actor) return jsonError("Cần đăng nhập để cấp UID.", 401);
   const companyId = String(actor.tenant_company || "").trim();
   if (!companyId) return jsonError("Tài khoản chưa gắn với công ty nào.", 403);
+  if (
+    body.scanCollection &&
+    (type !== "user" || (body.scanCollection !== "users" && body.scanCollection !== "workers"))
+  ) {
+    return jsonError("Collection quét UID không hợp lệ.");
+  }
 
   const prefix = await getPrefix(companyId, adminToken);
   const meta = counterMeta(type, companyId, prefix, body.referenceDate);
+  const scanCollection = body.scanCollection || "users";
   return withCounterLock(meta.key, async () => {
     let counter = await getCounter(meta.key, adminToken);
     if (!counter) {
-      const current = await scanMaximum(type, companyId, prefix, meta.period, adminToken);
+      const current = await scanMaximum(
+        type,
+        companyId,
+        prefix,
+        meta.period,
+        adminToken,
+        scanCollection,
+      );
       counter = await saveCounter(
         {
           counter_key: meta.key,
@@ -338,7 +354,14 @@ async function allocate(body: AllocateBody, actor: AuthUser | null, adminToken: 
       );
     } else if (body.forceScan) {
       // Chỉ quét lại khi client báo có lỗi "value must be unique" với UID vừa cấp
-      const actualMax = await scanMaximum(type, companyId, prefix, meta.period, adminToken);
+      const actualMax = await scanMaximum(
+        type,
+        companyId,
+        prefix,
+        meta.period,
+        adminToken,
+        scanCollection,
+      );
       if (actualMax > Number(counter.current_value || 0)) {
         counter = await saveCounter(
           {
