@@ -3,6 +3,9 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { renderSVG } from "uqr";
 import { findBankByCode, getQrBankLabel, type VnBank } from "@/lib/vn-banks";
+import { parseQrAmount } from "@/lib/bank-qr-amount";
+
+export { parseQrAmount } from "@/lib/bank-qr-amount";
 
 export const QR_BULK_LIMIT = 200;
 export const QR_DESCRIPTION_MAX_BYTES = 95;
@@ -56,17 +59,6 @@ export function normalizeTransferDescription(value: unknown) {
       .replace(/\s+/g, " ")
       .trim(),
   );
-}
-
-export function parseQrAmount(value: unknown): { amount?: number; error?: string } {
-  const raw = String(value ?? "").trim();
-  if (!raw) return {};
-  const digits = raw.replace(/[.,\s]/g, "");
-  if (!/^\d+$/.test(digits)) return { error: "Số tiền không hợp lệ" };
-  const amount = Number(digits);
-  if (!Number.isSafeInteger(amount) || amount <= 0)
-    return { error: "Số tiền phải là số nguyên dương" };
-  return { amount };
 }
 
 export function buildQrTransferData(input: {

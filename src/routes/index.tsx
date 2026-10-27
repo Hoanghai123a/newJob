@@ -54,6 +54,7 @@ import {
   NotebookPen,
   ClipboardCheck,
   LogIn,
+  Trophy,
 } from "lucide-react";
 import {
   Dialog,
@@ -861,6 +862,14 @@ function DesktopAdminDashboard({
               </TabsList>
 
               <TabsContent value="overview" className="mt-0 space-y-4">
+                <div className="grid max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
+                  <FeatureTile
+                    to="/admin/rankings"
+                    label="Xếp hạng"
+                    description="Giờ làm và thâm niên NLĐ"
+                    icon={Trophy}
+                  />
+                </div>
                 <OtherDashboard
                   histories={histories}
                   users={users}

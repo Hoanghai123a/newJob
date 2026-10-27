@@ -49,6 +49,7 @@ import { Route as ApiPublicAppIconRouteImport } from './routes/api/public/app-ic
 import { Route as ApiEmploymentHistoriesCapacityRouteImport } from './routes/api/employment-histories.capacity'
 import { Route as ApiCompanyLoginContextRouteImport } from './routes/api/company/login-context'
 import { Route as ApiAdvancesHydrateRequestersRouteImport } from './routes/api/advances/hydrate-requesters'
+import { Route as ApiAdminEmployeeMonthlyHoursRouteImport } from './routes/api/admin/employee-monthly-hours'
 import { Route as ApiAdminCompanyRecordsRouteImport } from './routes/api/admin/company-records'
 import { Route as AuthenticatedStaffWorkforceRouteImport } from './routes/_authenticated/staff.workforce'
 import { Route as AuthenticatedStaffToolsRouteImport } from './routes/_authenticated/staff.tools'
@@ -63,6 +64,7 @@ import { Route as AuthenticatedAdminWorkforceRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminWorkProgressRouteImport } from './routes/_authenticated/admin/work-progress'
 import { Route as AuthenticatedAdminStaffRouteImport } from './routes/_authenticated/admin/staff'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminRankingsRouteImport } from './routes/_authenticated/admin.rankings'
 import { Route as AuthenticatedAdminManageRouteImport } from './routes/_authenticated/admin/manage'
 import { Route as AuthenticatedAdminLogsRouteImport } from './routes/_authenticated/admin/logs'
 import { Route as AuthenticatedAdminImportsRouteImport } from './routes/_authenticated/admin/imports'
@@ -297,6 +299,12 @@ const ApiAdvancesHydrateRequestersRoute =
     path: '/api/advances/hydrate-requesters',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminEmployeeMonthlyHoursRoute =
+  ApiAdminEmployeeMonthlyHoursRouteImport.update({
+    id: '/api/admin/employee-monthly-hours',
+    path: '/api/admin/employee-monthly-hours',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminCompanyRecordsRoute = ApiAdminCompanyRecordsRouteImport.update({
   id: '/api/admin/company-records',
   path: '/api/admin/company-records',
@@ -376,6 +384,12 @@ const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/admin/settings',
     path: '/admin/settings',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminRankingsRoute =
+  AuthenticatedAdminRankingsRouteImport.update({
+    id: '/admin/rankings',
+    path: '/admin/rankings',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminManageRoute =
@@ -567,6 +581,7 @@ export interface FileRoutesByFullPath {
   '/admin/imports': typeof AuthenticatedAdminImportsRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/manage': typeof AuthenticatedAdminManageRoute
+  '/admin/rankings': typeof AuthenticatedAdminRankingsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/staff': typeof AuthenticatedAdminStaffRouteWithChildren
   '/admin/work-progress': typeof AuthenticatedAdminWorkProgressRoute
@@ -581,6 +596,7 @@ export interface FileRoutesByFullPath {
   '/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
   '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
   '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/admin/employee-monthly-hours': typeof ApiAdminEmployeeMonthlyHoursRoute
   '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
@@ -647,6 +663,7 @@ export interface FileRoutesByTo {
   '/admin/imports': typeof AuthenticatedAdminImportsRoute
   '/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/admin/manage': typeof AuthenticatedAdminManageRoute
+  '/admin/rankings': typeof AuthenticatedAdminRankingsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/work-progress': typeof AuthenticatedAdminWorkProgressRoute
   '/admin/workforce': typeof AuthenticatedAdminWorkforceRoute
@@ -659,6 +676,7 @@ export interface FileRoutesByTo {
   '/staff/salary-holds': typeof AuthenticatedStaffSalaryHoldsRoute
   '/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
   '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/admin/employee-monthly-hours': typeof ApiAdminEmployeeMonthlyHoursRoute
   '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
@@ -729,6 +747,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/imports': typeof AuthenticatedAdminImportsRoute
   '/_authenticated/admin/logs': typeof AuthenticatedAdminLogsRoute
   '/_authenticated/admin/manage': typeof AuthenticatedAdminManageRoute
+  '/_authenticated/admin/rankings': typeof AuthenticatedAdminRankingsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/staff': typeof AuthenticatedAdminStaffRouteWithChildren
   '/_authenticated/admin/work-progress': typeof AuthenticatedAdminWorkProgressRoute
@@ -743,6 +762,7 @@ export interface FileRoutesById {
   '/_authenticated/staff/tools': typeof AuthenticatedStaffToolsRouteWithChildren
   '/_authenticated/staff/workforce': typeof AuthenticatedStaffWorkforceRoute
   '/api/admin/company-records': typeof ApiAdminCompanyRecordsRoute
+  '/api/admin/employee-monthly-hours': typeof ApiAdminEmployeeMonthlyHoursRoute
   '/api/advances/hydrate-requesters': typeof ApiAdvancesHydrateRequestersRoute
   '/api/company/login-context': typeof ApiCompanyLoginContextRoute
   '/api/employment-histories/capacity': typeof ApiEmploymentHistoriesCapacityRoute
@@ -813,6 +833,7 @@ export interface FileRouteTypes {
     | '/admin/imports'
     | '/admin/logs'
     | '/admin/manage'
+    | '/admin/rankings'
     | '/admin/settings'
     | '/admin/staff'
     | '/admin/work-progress'
@@ -827,6 +848,7 @@ export interface FileRouteTypes {
     | '/staff/tools'
     | '/staff/workforce'
     | '/api/admin/company-records'
+    | '/api/admin/employee-monthly-hours'
     | '/api/advances/hydrate-requesters'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
@@ -893,6 +915,7 @@ export interface FileRouteTypes {
     | '/admin/imports'
     | '/admin/logs'
     | '/admin/manage'
+    | '/admin/rankings'
     | '/admin/settings'
     | '/admin/work-progress'
     | '/admin/workforce'
@@ -905,6 +928,7 @@ export interface FileRouteTypes {
     | '/staff/salary-holds'
     | '/staff/workforce'
     | '/api/admin/company-records'
+    | '/api/admin/employee-monthly-hours'
     | '/api/advances/hydrate-requesters'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
@@ -974,6 +998,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/imports'
     | '/_authenticated/admin/logs'
     | '/_authenticated/admin/manage'
+    | '/_authenticated/admin/rankings'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/staff'
     | '/_authenticated/admin/work-progress'
@@ -988,6 +1013,7 @@ export interface FileRouteTypes {
     | '/_authenticated/staff/tools'
     | '/_authenticated/staff/workforce'
     | '/api/admin/company-records'
+    | '/api/admin/employee-monthly-hours'
     | '/api/advances/hydrate-requesters'
     | '/api/company/login-context'
     | '/api/employment-histories/capacity'
@@ -1039,6 +1065,7 @@ export interface RootRouteChildren {
   ApiTenantCompanyRoute: typeof ApiTenantCompanyRoute
   ApiUidCounterRoute: typeof ApiUidCounterRoute
   ApiAdminCompanyRecordsRoute: typeof ApiAdminCompanyRecordsRoute
+  ApiAdminEmployeeMonthlyHoursRoute: typeof ApiAdminEmployeeMonthlyHoursRoute
   ApiAdvancesHydrateRequestersRoute: typeof ApiAdvancesHydrateRequestersRoute
   ApiCompanyLoginContextRoute: typeof ApiCompanyLoginContextRoute
   ApiPublicAppIconRoute: typeof ApiPublicAppIconRoute
@@ -1342,6 +1369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdvancesHydrateRequestersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/employee-monthly-hours': {
+      id: '/api/admin/employee-monthly-hours'
+      path: '/api/admin/employee-monthly-hours'
+      fullPath: '/api/admin/employee-monthly-hours'
+      preLoaderRoute: typeof ApiAdminEmployeeMonthlyHoursRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/company-records': {
       id: '/api/admin/company-records'
       path: '/api/admin/company-records'
@@ -1438,6 +1472,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/rankings': {
+      id: '/_authenticated/admin/rankings'
+      path: '/admin/rankings'
+      fullPath: '/admin/rankings'
+      preLoaderRoute: typeof AuthenticatedAdminRankingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/manage': {
@@ -1741,6 +1782,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminImportsRoute: typeof AuthenticatedAdminImportsRoute
   AuthenticatedAdminLogsRoute: typeof AuthenticatedAdminLogsRoute
   AuthenticatedAdminManageRoute: typeof AuthenticatedAdminManageRoute
+  AuthenticatedAdminRankingsRoute: typeof AuthenticatedAdminRankingsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminStaffRoute: typeof AuthenticatedAdminStaffRouteWithChildren
   AuthenticatedAdminWorkProgressRoute: typeof AuthenticatedAdminWorkProgressRoute
@@ -1768,6 +1810,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminImportsRoute: AuthenticatedAdminImportsRoute,
   AuthenticatedAdminLogsRoute: AuthenticatedAdminLogsRoute,
   AuthenticatedAdminManageRoute: AuthenticatedAdminManageRoute,
+  AuthenticatedAdminRankingsRoute: AuthenticatedAdminRankingsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminStaffRoute: AuthenticatedAdminStaffRouteWithChildren,
   AuthenticatedAdminWorkProgressRoute: AuthenticatedAdminWorkProgressRoute,
@@ -1874,6 +1917,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTenantCompanyRoute: ApiTenantCompanyRoute,
   ApiUidCounterRoute: ApiUidCounterRoute,
   ApiAdminCompanyRecordsRoute: ApiAdminCompanyRecordsRoute,
+  ApiAdminEmployeeMonthlyHoursRoute: ApiAdminEmployeeMonthlyHoursRoute,
   ApiAdvancesHydrateRequestersRoute: ApiAdvancesHydrateRequestersRoute,
   ApiCompanyLoginContextRoute: ApiCompanyLoginContextRoute,
   ApiPublicAppIconRoute: ApiPublicAppIconRoute,

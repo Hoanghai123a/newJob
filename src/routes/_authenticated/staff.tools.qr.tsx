@@ -153,11 +153,14 @@ function SingleQr() {
           <Field label="Số tiền">
             <Input
               className="h-12 rounded-xl"
-              inputMode="numeric"
+              inputMode="decimal"
               value={form.amount}
               onChange={(e) => setField("amount", e.target.value)}
               placeholder="Để trống nếu không cố định"
             />
+            <p className="text-xs text-muted-foreground">
+              Hỗ trợ 1.000.000 hoặc 1,000,000; phần thập phân nếu có sẽ bị bỏ.
+            </p>
           </Field>
           <Field label="Nội dung chuyển khoản">
             <Textarea
