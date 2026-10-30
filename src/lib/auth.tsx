@@ -297,7 +297,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const timerId = window.setTimeout(async () => {
       try {
         await refreshAuthOnce();
-        console.log("[auth] Token auto-refreshed successfully");
       } catch (error) {
         console.warn("[auth] Auto-refresh failed:", error);
         // Nếu refresh thất bại nhưng chưa hết 96h password reauth, giữ session và retry

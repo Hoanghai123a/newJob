@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useId, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, FileSpreadsheet, RefreshCw, Search, Upload } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  FileSpreadsheet,
+  RefreshCw,
+  Search,
+  SlidersHorizontal,
+  Upload,
+} from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MonthInput } from "@/components/ui/month-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   parseEmployeeMonthlyHoursImport,
@@ -164,6 +174,7 @@ export function EmployeeRankingsPage() {
   const [seniorityLoading, setSeniorityLoading] = useState(true);
   const [seniorityError, setSeniorityError] = useState("");
   const [factories, setFactories] = useState<FactoryOption[]>([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
   const loadHours = useCallback(async () => {
@@ -249,25 +260,18 @@ export function EmployeeRankingsPage() {
     event.preventDefault();
     setHoursPage(1);
     setHoursFilters(hoursDraft);
+    setFiltersOpen(false);
   };
   const applySeniorityFilters = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSeniorityPage(1);
     setSeniorityFilters(seniorityDraft);
+    setFiltersOpen(false);
   };
 
   return (
     <main className="mx-auto w-full max-w-[110rem] min-w-0 space-y-5 px-4 py-5 desktop:px-8 desktop:py-7">
-      <header className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
-        <div className="min-w-0">
-          <h1 className="text-xl font-bold">Xếp hạng</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Giờ làm và thâm niên NLĐ</p>
-        </div>
-        <Button type="button" className="gap-2" onClick={() => setImportOpen(true)}>
-          <Upload className="h-4 w-4" />
-          Nhập Excel
-        </Button>
-      </header>
+
 
       <Tabs value={tab} onValueChange={setTab} className="min-w-0 space-y-5">
         <TabsList aria-label="Loại xếp hạng" className="grid h-auto w-full max-w-md grid-cols-2">
@@ -276,46 +280,36 @@ export function EmployeeRankingsPage() {
         </TabsList>
 
         <TabsContent value="hours" className="mt-0 space-y-4">
-          <form onSubmit={applyHoursFilters} className="space-y-4 border-b border-border pb-4">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Field label="Từ tháng" htmlFor={monthFromId}>
-                <Input id={monthFromId} type="month" value={hoursDraft.monthFrom} onChange={(event) => setHoursDraft((current) => ({ ...current, monthFrom: event.target.value }))} required />
-              </Field>
-              <Field label="Đến tháng" htmlFor={monthToId}>
-                <Input id={monthToId} type="month" value={hoursDraft.monthTo} onChange={(event) => setHoursDraft((current) => ({ ...current, monthTo: event.target.value }))} required />
-              </Field>
-              <Field label="Nhà máy" htmlFor={factoryId}>
-                <select id={factoryId} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={hoursDraft.factoryId} onChange={(event) => setHoursDraft((current) => ({ ...current, factoryId: event.target.value }))}>
-                  <option value="">Tất cả nhà máy</option>
-                  {factories.map((factory) => <option key={factory.id} value={factory.id}>{factory.name}</option>)}
-                </select>
-              </Field>
-              <Field label="Trạng thái làm việc" htmlFor={statusId}>
-                <select id={statusId} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={hoursDraft.status} onChange={(event) => setHoursDraft((current) => ({ ...current, status: event.target.value as EmploymentStatusFilter }))}>
-                  <option value="all">Tất cả</option>
-                  <option value="working">Đang làm</option>
-                  <option value="left">Đã nghỉ</option>
-                </select>
-              </Field>
-              <Field label="Mã NV" htmlFor={codeId}>
-                <Input id={codeId} value={hoursDraft.employeeCode} onChange={(event) => setHoursDraft((current) => ({ ...current, employeeCode: event.target.value }))} placeholder="Tìm theo mã NV" />
-              </Field>
-              <Field label="Họ tên" htmlFor={nameId}>
-                <Input id={nameId} value={hoursDraft.workerName} onChange={(event) => setHoursDraft((current) => ({ ...current, workerName: event.target.value }))} placeholder="Tìm theo họ tên" />
-              </Field>
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label>Chỉ số xếp hạng</Label>
-                <MetricSwitch value={hoursDraft.metric} onChange={(metric) => setHoursDraft((current) => ({ ...current, metric }))} />
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button type="submit" className="gap-2"><Search className="h-4 w-4" />Lọc</Button>
-              <Button type="button" variant="outline" size="icon" aria-label="Tải lại bảng xếp hạng giờ" title="Tải lại" onClick={() => void loadHours()}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" className="gap-2" onClick={() => setImportOpen(true)}>
+                <Upload className="h-4 w-4" />
+                Nhập Excel
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2"
+                onClick={() => setFiltersOpen(true)}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Bộ lọc
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Tải lại bảng xếp hạng giờ"
+                title="Tải lại"
+                onClick={() => void loadHours()}
+              >
                 <RefreshCw className={`h-4 w-4 ${hoursLoading ? "animate-spin" : ""}`} />
               </Button>
-              <span className="text-xs text-muted-foreground">{hoursTotal.toLocaleString("vi-VN")} kết quả</span>
             </div>
-          </form>
+            <span className="text-xs text-muted-foreground">
+              {hoursTotal.toLocaleString("vi-VN")} kết quả
+            </span>
+          </div>
 
           {hoursError && <ErrorMessage message={hoursError} onRetry={() => void loadHours()} />}
           {!hoursError && hoursLoading && <LoadingRows />}
@@ -330,29 +324,32 @@ export function EmployeeRankingsPage() {
         </TabsContent>
 
         <TabsContent value="seniority" className="mt-0 space-y-4">
-          <form onSubmit={applySeniorityFilters} className="space-y-4 border-b border-border pb-4">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Field label="Nhà máy" htmlFor={seniorityFactoryId}>
-                <select id={seniorityFactoryId} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={seniorityDraft.factoryId} onChange={(event) => setSeniorityDraft((current) => ({ ...current, factoryId: event.target.value }))}>
-                  <option value="">Tất cả nhà máy</option>
-                  {factories.map((factory) => <option key={factory.id} value={factory.id}>{factory.name}</option>)}
-                </select>
-              </Field>
-              <Field label="Ngày vào làm từ" htmlFor={joinFromId}>
-                <Input id={joinFromId} type="date" value={seniorityDraft.joinDateFrom} onChange={(event) => setSeniorityDraft((current) => ({ ...current, joinDateFrom: event.target.value }))} />
-              </Field>
-              <Field label="Ngày vào làm đến" htmlFor={joinToId}>
-                <Input id={joinToId} type="date" value={seniorityDraft.joinDateTo} onChange={(event) => setSeniorityDraft((current) => ({ ...current, joinDateTo: event.target.value }))} />
-              </Field>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button type="submit" className="gap-2"><Search className="h-4 w-4" />Lọc</Button>
-              <Button type="button" variant="outline" size="icon" aria-label="Tải lại bảng thâm niên" title="Tải lại" onClick={() => void loadSeniority()}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2"
+                onClick={() => setFiltersOpen(true)}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Bộ lọc
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Tải lại bảng thâm niên"
+                title="Tải lại"
+                onClick={() => void loadSeniority()}
+              >
                 <RefreshCw className={`h-4 w-4 ${seniorityLoading ? "animate-spin" : ""}`} />
               </Button>
-              <span className="text-xs text-muted-foreground">{seniorityTotal.toLocaleString("vi-VN")} kết quả đang làm</span>
             </div>
-          </form>
+            <span className="text-xs text-muted-foreground">
+              {seniorityTotal.toLocaleString("vi-VN")} kết quả đang làm
+            </span>
+          </div>
 
           {seniorityError && <ErrorMessage message={seniorityError} onRetry={() => void loadSeniority()} />}
           {!seniorityError && seniorityLoading && <LoadingRows />}
@@ -366,6 +363,168 @@ export function EmployeeRankingsPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <DialogContent className="max-h-[90dvh] max-w-[calc(100vw-2rem)] overflow-hidden p-0 desktop:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{tab === "hours" ? "Lọc số giờ" : "Lọc thâm niên"}</DialogTitle>
+            <DialogDescription>Chọn điều kiện rồi nhấn Lọc để cập nhật kết quả.</DialogDescription>
+          </DialogHeader>
+          <DialogBody>
+            {tab === "hours" ? (
+              <form
+                id="hours-filter-form"
+                onSubmit={applyHoursFilters}
+                className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+              >
+                <Field label="Từ tháng" htmlFor={monthFromId}>
+                  <MonthInput
+                    id={monthFromId}
+                    value={hoursDraft.monthFrom}
+                    onChange={(monthFrom) => setHoursDraft((current) => ({ ...current, monthFrom }))}
+                    required
+                  />
+                </Field>
+                <Field label="Đến tháng" htmlFor={monthToId}>
+                  <MonthInput
+                    id={monthToId}
+                    value={hoursDraft.monthTo}
+                    onChange={(monthTo) => setHoursDraft((current) => ({ ...current, monthTo }))}
+                    required
+                  />
+                </Field>
+                <Field label="Nhà máy" htmlFor={factoryId}>
+                  <select
+                    id={factoryId}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={hoursDraft.factoryId}
+                    onChange={(event) =>
+                      setHoursDraft((current) => ({ ...current, factoryId: event.target.value }))
+                    }
+                  >
+                    <option value="">Tất cả nhà máy</option>
+                    {factories.map((factory) => (
+                      <option key={factory.id} value={factory.id}>
+                        {factory.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Trạng thái làm việc" htmlFor={statusId}>
+                  <select
+                    id={statusId}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={hoursDraft.status}
+                    onChange={(event) =>
+                      setHoursDraft((current) => ({
+                        ...current,
+                        status: event.target.value as EmploymentStatusFilter,
+                      }))
+                    }
+                  >
+                    <option value="all">Tất cả</option>
+                    <option value="working">Đang làm</option>
+                    <option value="left">Đã nghỉ</option>
+                  </select>
+                </Field>
+                <Field label="Mã NV" htmlFor={codeId}>
+                  <Input
+                    id={codeId}
+                    value={hoursDraft.employeeCode}
+                    onChange={(event) =>
+                      setHoursDraft((current) => ({ ...current, employeeCode: event.target.value }))
+                    }
+                    placeholder="Tìm theo mã NV"
+                  />
+                </Field>
+                <Field label="Họ tên" htmlFor={nameId}>
+                  <Input
+                    id={nameId}
+                    value={hoursDraft.workerName}
+                    onChange={(event) =>
+                      setHoursDraft((current) => ({ ...current, workerName: event.target.value }))
+                    }
+                    placeholder="Tìm theo họ tên"
+                  />
+                </Field>
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label>Chỉ số xếp hạng</Label>
+                  <MetricSwitch
+                    value={hoursDraft.metric}
+                    onChange={(metric) => setHoursDraft((current) => ({ ...current, metric }))}
+                  />
+                </div>
+              </form>
+            ) : (
+              <form
+                id="seniority-filter-form"
+                onSubmit={applySeniorityFilters}
+                className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+              >
+                <Field label="Nhà máy" htmlFor={seniorityFactoryId}>
+                  <select
+                    id={seniorityFactoryId}
+                    className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                    value={seniorityDraft.factoryId}
+                    onChange={(event) =>
+                      setSeniorityDraft((current) => ({
+                        ...current,
+                        factoryId: event.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Tất cả nhà máy</option>
+                    {factories.map((factory) => (
+                      <option key={factory.id} value={factory.id}>
+                        {factory.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Ngày vào làm từ" htmlFor={joinFromId}>
+                  <Input
+                    id={joinFromId}
+                    type="date"
+                    value={seniorityDraft.joinDateFrom}
+                    onChange={(event) =>
+                      setSeniorityDraft((current) => ({
+                        ...current,
+                        joinDateFrom: event.target.value,
+                      }))
+                    }
+                  />
+                </Field>
+                <Field label="Ngày vào làm đến" htmlFor={joinToId}>
+                  <Input
+                    id={joinToId}
+                    type="date"
+                    value={seniorityDraft.joinDateTo}
+                    onChange={(event) =>
+                      setSeniorityDraft((current) => ({
+                        ...current,
+                        joinDateTo: event.target.value,
+                      }))
+                    }
+                  />
+                </Field>
+              </form>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setFiltersOpen(false)}>
+              Đóng
+            </Button>
+            <Button
+              type="submit"
+              form={tab === "hours" ? "hours-filter-form" : "seniority-filter-form"}
+              className="gap-2"
+            >
+              <Search className="h-4 w-4" />
+              Lọc
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <EmployeeMonthlyHoursImportDialog
         open={importOpen}
@@ -565,7 +724,6 @@ function EmployeeMonthlyHoursImportDialog({
       const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(firstSheet, {
         defval: "",
         raw: true,
-        blankrows: true,
       });
       const parsed = parseEmployeeMonthlyHoursImport(rawRows);
       setErrors(parsed.errors);
@@ -662,7 +820,7 @@ function EmployeeMonthlyHoursImportDialog({
           {!busy && !preview && !result && !errors.length && !error && (
             <div className="flex items-start gap-2 rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
               <FileSpreadsheet className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>File cần có các cột UID lịch sử, Mã NV, Họ tên, Tên nhà máy, Tháng, Số giờ HC và Số giờ TC.</span>
+              <span>File cần có các cột UID lịch sử, Họ tên, Tên nhà máy, Tháng, Số giờ HC và Số giờ TC. Mã NV là tùy chọn.</span>
             </div>
           )}
         </DialogBody>

@@ -15,6 +15,7 @@ import { FinanceDashboard } from "@/components/dashboard/FinanceDashboard";
 import { OtherDashboard } from "@/components/dashboard/OtherDashboard";
 import { ApprovalDashboard } from "@/components/dashboard/ApprovalDashboard";
 import { WorkProgressBoard } from "@/components/dashboard/WorkProgressBoard";
+import { EmployeeRankingsPage } from "@/components/dashboard/EmployeeRankingsPage";
 import { HourStatsDashboard } from "@/components/dashboard/HourStatsDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,6 @@ import {
   NotebookPen,
   ClipboardCheck,
   LogIn,
-  Trophy,
 } from "lucide-react";
 import {
   Dialog,
@@ -857,19 +857,12 @@ function DesktopAdminDashboard({
               >
                 <TabsTrigger value="overview">Tổng quan khác</TabsTrigger>
                 <TabsTrigger value="progress">Tiến độ công việc</TabsTrigger>
+                <TabsTrigger value="rankings">Xếp hạng</TabsTrigger>
                 {/* Tạm ẩn - Tab Thống kê giờ */}
                 {/* <TabsTrigger value="hour-stats">Thống kê giờ</TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="overview" className="mt-0 space-y-4">
-                <div className="grid max-w-md grid-cols-1 gap-3 sm:grid-cols-2">
-                  <FeatureTile
-                    to="/admin/rankings"
-                    label="Xếp hạng"
-                    description="Giờ làm và thâm niên NLĐ"
-                    icon={Trophy}
-                  />
-                </div>
                 <OtherDashboard
                   histories={histories}
                   users={users}
@@ -888,6 +881,10 @@ function DesktopAdminDashboard({
 
               <TabsContent value="progress" className="mt-0">
                 <WorkProgressBoard />
+              </TabsContent>
+
+              <TabsContent value="rankings" className="mt-0">
+                <EmployeeRankingsPage />
               </TabsContent>
 
               {/* Tạm ẩn - Nội dung tab Thống kê giờ */}

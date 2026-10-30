@@ -178,9 +178,6 @@ function SuperAdminPage() {
               const compressedFile = new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), {
                 type: "image/jpeg",
               });
-              console.log(
-                `Compressed: ${file.size} bytes → ${compressedFile.size} bytes (${Math.round((compressedFile.size / file.size) * 100)}%)`,
-              );
               resolve(compressedFile);
             },
             "image/jpeg",
@@ -316,21 +313,18 @@ function SuperAdminPage() {
       const compressed = await compressImage(logoFile);
       const formData = new FormData();
       formData.append("logo", compressed);
-      console.log("Uploading system logo:", compressed.name, compressed.type, compressed.size);
       const r = await fetch("/api/super-admin/system-logo", {
         method: "POST",
         headers,
         body: formData,
       });
       const b = await r.json();
-      console.log("Upload response:", r.status, b);
       if (!r.ok) throw new Error(b?.message || "Không upload được logo hệ thống.");
       toast.success("Đã cập nhật logo hệ thống.");
       setSystemLogoOpen(false);
       setLogoFile(null);
       setLogoBust(Date.now());
     } catch (e: any) {
-      console.error("Upload error:", e);
       toast.error(e.message);
     } finally {
       setLogoSaving(false);

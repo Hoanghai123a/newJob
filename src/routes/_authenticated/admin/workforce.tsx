@@ -275,17 +275,6 @@ function WorkforcePage() {
     // Workers thường (không phải staff/admin)
     const regularWorkers = workerUsers.filter((user) => !staffAdminIds.has(user.id));
 
-    console.log('🔍 [Admin Workforce Debug]', {
-      staffAdminUsers: staffAdminUsers.length,
-      staffAdminUsersData: staffAdminUsers.map(u => ({ id: u.id, name: u.full_name, role: u.role, status: u.status })),
-      workspaceWorkers: workspaceWorkers.length,
-      workerStaffAdmins: workerStaffAdmins.length,
-      workerStaffAdminsData: workerStaffAdmins.map(u => ({ id: u.id, name: u.full_name, role: u.role })),
-      nonWorkerStaffAdmins: nonWorkerStaffAdmins.length,
-      nonWorkerStaffAdminsData: nonWorkerStaffAdmins.map(u => ({ id: u.id, name: u.full_name, role: u.role })),
-      finalUsers: [...workerStaffAdmins, ...nonWorkerStaffAdmins, ...regularWorkers].length,
-    });
-
     return [...workerStaffAdmins, ...nonWorkerStaffAdmins, ...regularWorkers];
   }, [staffAdminUsers, workspaceWorkers]);
 

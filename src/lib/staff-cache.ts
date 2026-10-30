@@ -390,7 +390,6 @@ export async function reconcileStaffData(opts: {
   // Full reconcile định kỳ để dọn tombstone (record bị xóa khi offline).
   // Delta path nhanh hơn nhưng không phát hiện được xóa cứng.
   if (needsFullReconcile) {
-    console.debug("[staff-cache] running full reconcile (scheduled housekeeping)");
     await reconcileStaffDataFull(opts);
     await setLastFullReconcileAt(db, now);
     return;

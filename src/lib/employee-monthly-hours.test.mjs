@@ -68,6 +68,35 @@ test("báo cột thiếu, giờ âm hoặc khóa UID + tháng trùng", () => {
   );
 });
 
+test("cho phép bỏ trống hoặc không có cột Mã NV khi import", () => {
+  const blankCode = parseEmployeeMonthlyHoursImport([
+    {
+      "UID lịch sử": "LS001",
+      "Mã NV": "",
+      "Họ tên": "Nguyễn An",
+      "Tên nhà máy": "Nhà máy A",
+      Tháng: "2026-01",
+      "Số giờ HC": 176,
+      "Số giờ TC": 12,
+    },
+  ]);
+  const withoutCodeColumn = parseEmployeeMonthlyHoursImport([
+    {
+      "UID lịch sử": "LS002",
+      "Họ tên": "Trần Bình",
+      "Tên nhà máy": "Nhà máy B",
+      Tháng: "2026-01",
+      "Số giờ HC": 160,
+      "Số giờ TC": 8,
+    },
+  ]);
+
+  assert.deepEqual(blankCode.errors, []);
+  assert.equal(blankCode.rows[0].employeeCode, "");
+  assert.deepEqual(withoutCodeColumn.errors, []);
+  assert.equal(withoutCodeColumn.rows[0].employeeCode, "");
+});
+
 test("trạng thái NLĐ lấy từ lịch sử mới nhất theo ngày vào và thời điểm tạo", () => {
   const histories = [
     { id: "old", uid: "LS001", worker: "w1", factory: "f1", join_date: "2025-01-01", leave_date: "2025-03-01" },

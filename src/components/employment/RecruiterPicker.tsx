@@ -54,20 +54,7 @@ export function RecruiterPicker({
       ? internalUsers.find((user) => user.id === selectedInternalId)
       : undefined;
   const availableInternalUsers = useMemo(() => {
-    const filtered = filterInternalRecruiters(internalUsers, selectedInternalId);
-    console.log('🔍 [RecruiterPicker Debug]', {
-      internalUsers: internalUsers.length,
-      internalUsersRoles: internalUsers.reduce((acc, u) => {
-        acc[u.role] = (acc[u.role] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
-      filtered: filtered.length,
-      filteredRoles: filtered.reduce((acc, u) => {
-        acc[u.role] = (acc[u.role] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
-    });
-    return filtered;
+    return filterInternalRecruiters(internalUsers, selectedInternalId);
   }, [internalUsers, selectedInternalId]);
   const activePartners = useMemo(
     () => partners.filter((partner) => partner.status !== "inactive"),

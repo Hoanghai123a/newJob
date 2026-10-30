@@ -138,6 +138,7 @@ function headerValue(row: Record<string, unknown>, aliases: readonly string[]) {
 export function parseEmployeeMonthlyHoursImport(rawRows: Record<string, unknown>[]) {
   const headers = new Set(rawRows.length ? Object.keys(rawRows[0]).map(columnKey) : []);
   const missing = Object.entries(IMPORT_COLUMNS)
+    .filter(([field]) => field !== "employeeCode")
     .filter(([, aliases]) => !aliases.some((alias) => headers.has(columnKey(alias))))
     .map(([field]) => field);
 
@@ -178,7 +179,6 @@ export function parseEmployeeMonthlyHoursImport(rawRows: Record<string, unknown>
     }
     const missingValues = [
       [historyUid, "UID lịch sử"],
-      [employeeCode, "Mã NV"],
       [workerName, "Họ tên"],
       [factoryName, "Tên nhà máy"],
       [month, "Tháng hợp lệ"],

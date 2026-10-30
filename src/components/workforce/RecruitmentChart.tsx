@@ -209,13 +209,6 @@ export function RecruitmentChart({
   );
   const breakdown = dayDetails.groups.filter(group => group.total > 0);
 
-  console.log('=== RecruitmentChart DEBUG ===');
-  console.log('dayDetailPresentation:', dayDetailPresentation);
-  console.log('selectedDay:', selectedDay);
-  console.log('Total groups:', dayDetails.groups.length);
-  console.log('Filtered groups (total > 0):', breakdown.length);
-  console.log('Groups:', dayDetails.groups.map(g => ({ name: g.factoryName, total: g.total })));
-
   const selectedFactory = useMemo(
     () => breakdown.find((group) => group.factoryId === selectedFactoryId) || null,
     [breakdown, selectedFactoryId],

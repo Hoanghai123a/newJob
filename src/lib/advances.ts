@@ -66,8 +66,6 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
 
   if (!requesterIds.length) return rows;
 
-  console.log(`Hydrating ${requesterIds.length} advance requesters:`, requesterIds);
-
   // Fallback: if we can't fetch users from PocketBase, try to get from API route
   // which uses admin token to bypass listRule restrictions
   try {
@@ -82,7 +80,6 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
 
     if (response.ok) {
       const requesters = (await response.json()) as UserRecord[];
-      console.log(`Fetched ${requesters.length} requesters via API route`);
       const byId = new Map(requesters.map((requester) => [requester.id, requester]));
 
       return rows.map((row) => {
@@ -118,10 +115,6 @@ export async function hydrateAdvanceRequesters(rows: AdvanceRecord[]) {
         fields: "id,full_name,username,phone,role,tenant_company",
       });
       allRequesters.push(...requesters);
-      console.log(
-        `Fetched ${requesters.length} requesters in batch`,
-        requesters.map((r) => r.id),
-      );
     } catch (error) {
       console.error(`Failed to fetch batch of ${batch.length} advance requesters:`, error);
       console.error(`Filter used: ${filter}`);

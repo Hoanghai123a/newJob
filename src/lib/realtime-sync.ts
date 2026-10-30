@@ -114,10 +114,7 @@ async function handleHistoryEvent(
 
   const userChanged = relatedUser ? await upsertCachedUserIfNewer(relatedUser) : false;
   const historyChanged = await upsertCachedHistoryIfNewer(record);
-  if (!historyChanged && !userChanged) {
-    console.debug("[realtime-sync] skip stale echo history", record.id);
-    return;
-  }
+  if (!historyChanged && !userChanged) return;
   dispatchSignal({ collection: "employment_histories", action, id: record.id });
 }
 
@@ -152,10 +149,7 @@ async function handleWorkerEvent(event: RealtimeEvent<WorkerRecord>) {
   }
 
   const changed = await upsertCachedUserIfNewer(record);
-  if (!changed) {
-    console.debug("[realtime-sync] skip stale echo worker", record.id);
-    return;
-  }
+  if (!changed) return;
   dispatchSignal({ collection: "workers", action, id: record.id });
 }
 async function handleCccdVersionEvent(event: RealtimeEvent<CccdVersionRecord>) {
@@ -417,7 +411,6 @@ export function catchUpStaffRealtimeSync(viewer: UserRecord): Promise<void> {
       );
       if (state === current) {
         dispatchSignal({ collection: "employment_histories", action: "update", id: "__catchup__" });
-        console.debug("[realtime-sync] catch-up done");
       }
     } catch (error) {
       console.warn("[realtime-sync] catch-up error", error);

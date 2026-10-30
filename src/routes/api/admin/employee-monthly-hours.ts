@@ -16,6 +16,7 @@ import { escapePb, pbServerFetch, readPbJson } from "@/lib/tenant-server";
 const MAX_IMPORT_ROWS = 5_000;
 const MAX_PAGE_SIZE = 100;
 const PB_PAGE_SIZE = 500;
+const IMPORT_QUERY_CHUNK_SIZE = 50;
 
 type ImportError = { rowNumber: number; reason: string };
 type PreparedRow = {
@@ -240,6 +241,7 @@ async function previewImport(
     }
     const history = matches[0];
     const mismatches = [
+      row.employeeCode &&
       normalizeImportIdentity(row.employeeCode) !== normalizeImportIdentity(history.employee_code)
         ? "Mã NV"
         : "",
@@ -263,8 +265,9 @@ async function previewImport(
   const historyIds = [...new Set(candidates.map((candidate) => candidate.history.id))];
   const months = candidates.map((candidate) => candidate.source.month).sort();
   const existingByKey = new Map<string, EmployeeMonthlyHoursRecord>();
-  if (historyIds.length) {
-    const relationFilter = historyIds
+  for (let index = 0; index < historyIds.length; index += IMPORT_QUERY_CHUNK_SIZE) {
+    const chunk = historyIds.slice(index, index + IMPORT_QUERY_CHUNK_SIZE);
+    const relationFilter = chunk
       .map((id) => `employment_history = "${escapePb(id)}"`)
       .join(" || ");
     const records = await listAll<EmployeeMonthlyHoursRecord>(
@@ -344,13 +347,13 @@ export const Route = createFileRoute("/api/admin/employee-monthly-hours")({
         }
       },
       POST: async ({ request }) => {
-        const context = await requireCompanyAdmin(request);
-        if (!context) return responseError("Bạn không có quyền quản trị công ty.", 403);
-        const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-        if (body?.action !== "preview" && body?.action !== "commit") {
-          return responseError("Yêu cầu nhập Excel không hợp lệ.");
-        }
         try {
+          const context = await requireCompanyAdmin(request);
+          if (!context) return responseError("Bạn không có quyền quản trị công ty.", 403);
+          const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+          if (body?.action !== "preview" && body?.action !== "commit") {
+            return responseError("Yêu cầu nhập Excel không hợp lệ.");
+          }
           return await previewImport(
             body.rows,
             context.token,
