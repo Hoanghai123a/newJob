@@ -83,6 +83,63 @@ function currentMonth() {
   return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function defaultHoursFilters(): HoursFilters {
+  return {
+    monthFrom: currentMonth(),
+    monthTo: currentMonth(),
+    factoryId: "",
+    employeeCode: "",
+    workerName: "",
+    status: "all",
+    metric: "both",
+  };
+}
+
+function rankingFiltersStorageKey(companyId: string) {
+  return `employee-rankings-filters:${companyId}`;
+}
+
+function readRankingFilters(companyId: string) {
+  const defaults = {
+    hours: defaultHoursFilters(),
+    seniority: { factoryId: "", joinDateFrom: "", joinDateTo: "" },
+  };
+  try {
+    const saved = JSON.parse(
+      window.localStorage.getItem(rankingFiltersStorageKey(companyId)) || "null",
+    );
+    if (!saved || typeof saved !== "object") return defaults;
+    const hours = saved.hours || {};
+    const seniority = saved.seniority || {};
+    return {
+      hours: {
+        monthFrom: /^\d{4}-(0[1-9]|1[0-2])$/.test(hours.monthFrom)
+          ? hours.monthFrom
+          : defaults.hours.monthFrom,
+        monthTo: /^\d{4}-(0[1-9]|1[0-2])$/.test(hours.monthTo)
+          ? hours.monthTo
+          : defaults.hours.monthTo,
+        factoryId: typeof hours.factoryId === "string" ? hours.factoryId : "",
+        employeeCode: typeof hours.employeeCode === "string" ? hours.employeeCode : "",
+        workerName: typeof hours.workerName === "string" ? hours.workerName : "",
+        status: ["all", "working", "left"].includes(hours.status)
+          ? (hours.status as EmploymentStatusFilter)
+          : defaults.hours.status,
+        metric: ["hc", "tc", "both"].includes(hours.metric)
+          ? (hours.metric as HoursMetric)
+          : defaults.hours.metric,
+      },
+      seniority: {
+        factoryId: typeof seniority.factoryId === "string" ? seniority.factoryId : "",
+        joinDateFrom: typeof seniority.joinDateFrom === "string" ? seniority.joinDateFrom : "",
+        joinDateTo: typeof seniority.joinDateTo === "string" ? seniority.joinDateTo : "",
+      },
+    };
+  } catch {
+    return defaults;
+  }
+}
+
 async function requestEmployeeHours<T>(url: string, init: RequestInit = {}) {
   const headers = new Headers(init.headers);
   headers.set("Authorization", `Bearer ${pb.authStore.token}`);
@@ -151,15 +208,7 @@ export function EmployeeRankingsPage() {
   const joinToId = useId();
   const seniorityFactoryId = useId();
   const [tab, setTab] = useState("hours");
-  const [hoursDraft, setHoursDraft] = useState<HoursFilters>(() => ({
-    monthFrom: currentMonth(),
-    monthTo: currentMonth(),
-    factoryId: "",
-    employeeCode: "",
-    workerName: "",
-    status: "all",
-    metric: "both",
-  }));
+  const [hoursDraft, setHoursDraft] = useState<HoursFilters>(defaultHoursFilters);
   const [hoursFilters, setHoursFilters] = useState(hoursDraft);
   const [hoursPage, setHoursPage] = useState(1);
   const [hoursRows, setHoursRows] = useState<HourRankingRow[]>([]);
@@ -183,10 +232,37 @@ export function EmployeeRankingsPage() {
   const [factories, setFactories] = useState<FactoryOption[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [filtersRestoredFor, setFiltersRestoredFor] = useState("");
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const companyId = companyIdOf(user);
+    const saved = readRankingFilters(companyId);
+    setHoursDraft(saved.hours);
+    setHoursFilters(saved.hours);
+    setSeniorityDraft(saved.seniority);
+    setSeniorityFilters(saved.seniority);
+    setFiltersRestoredFor(companyId);
+  }, [user?.id, user?.tenant_company]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const companyId = companyIdOf(user);
+    if (filtersRestoredFor !== companyId) return;
+    try {
+      window.localStorage.setItem(
+        rankingFiltersStorageKey(companyId),
+        JSON.stringify({ hours: hoursFilters, seniority: seniorityFilters }),
+      );
+    } catch {
+      // Filtering remains available when browser storage is disabled or full.
+    }
+  }, [filtersRestoredFor, hoursFilters, seniorityFilters, user?.id, user?.tenant_company]);
 
   const loadHours = useCallback(async () => {
     if (!user?.id) return;
     const companyId = companyIdOf(user);
+    if (filtersRestoredFor !== companyId) return;
     const query = new URLSearchParams({
       view: "hours",
       monthFrom: hoursFilters.monthFrom,
@@ -230,15 +306,16 @@ export function EmployeeRankingsPage() {
     } finally {
       setHoursLoading(false);
     }
-  }, [hoursFilters, hoursPage, user?.id]);
+  }, [filtersRestoredFor, hoursFilters, hoursPage, user?.id]);
 
   const loadSeniority = useCallback(async () => {
     if (!user?.id) return;
+    const companyId = companyIdOf(user);
+    if (filtersRestoredFor !== companyId) return;
     setSeniorityLoading(true);
     setSeniorityError("");
     try {
       const cached = await readCachedStaffData();
-      const companyId = companyIdOf(user);
       const histories = (cached?.histories || [])
         .filter((history) => (history as typeof history & { tenant_company?: string }).tenant_company === companyId)
         .map((history) => ({ ...history, factory_name: history.expand?.factory?.name || "" }));
@@ -268,7 +345,7 @@ export function EmployeeRankingsPage() {
     } finally {
       setSeniorityLoading(false);
     }
-  }, [seniorityFilters, seniorityPage, user?.id]);
+  }, [filtersRestoredFor, seniorityFilters, seniorityPage, user?.id]);
 
   useEffect(() => {
     void loadHours();
