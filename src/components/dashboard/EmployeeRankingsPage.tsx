@@ -715,6 +715,7 @@ function EmployeeMonthlyHoursImportDialog({
 }) {
   const fileInputId = useId();
   const [fileName, setFileName] = useState("");
+  const [sourceRows, setSourceRows] = useState<Record<string, unknown>[]>([]);
   const [rows, setRows] = useState<EmployeeMonthlyHoursImportRow[]>([]);
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
@@ -724,6 +725,7 @@ function EmployeeMonthlyHoursImportDialog({
 
   const reset = () => {
     setFileName("");
+    setSourceRows([]);
     setRows([]);
     setPreview(null);
     setResult(null);
@@ -754,6 +756,7 @@ function EmployeeMonthlyHoursImportDialog({
         defval: "",
         raw: true,
       });
+      setSourceRows(rawRows);
       const parsed = parseEmployeeMonthlyHoursImport(rawRows);
       setErrors(parsed.errors);
       setRows(parsed.rows);
@@ -795,6 +798,18 @@ function EmployeeMonthlyHoursImportDialog({
     } finally {
       setBusy(false);
     }
+  };
+
+  const downloadErrorRows = () => {
+    const failedRows = errors.map((item) => ({
+      "Dòng lỗi": item.rowNumber,
+      "Lý do lỗi": item.reason,
+      ...(sourceRows[item.rowNumber - 2] || {}),
+    }));
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(failedRows), "Dong loi");
+    const baseName = fileName.replace(/\.[^.]+$/, "") || "import_gio_lam";
+    XLSX.writeFile(workbook, `${baseName}_dong_loi.xlsx`);
   };
 
   return (
@@ -855,6 +870,11 @@ function EmployeeMonthlyHoursImportDialog({
         </DialogBody>
         <DialogFooter>
           <Button type="button" variant="outline" disabled={busy} onClick={() => handleOpenChange(false)}>{result ? "Đóng" : "Hủy"}</Button>
+          {errors.length > 0 && (
+            <Button type="button" variant="outline" className="gap-2" disabled={busy} onClick={downloadErrorRows}>
+              <Download className="h-4 w-4" />Tải dòng lỗi
+            </Button>
+          )}
           {preview && !result && (
             <Button type="button" disabled={busy || (!preview.created && !preview.updated)} onClick={() => void commitImport()}>
               {busy ? "Đang nhập..." : `Nhập ${preview.created + preview.updated} dòng`}
