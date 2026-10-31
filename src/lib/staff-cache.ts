@@ -7,7 +7,7 @@ import type { FactoryRecord } from "./factories";
 import type { RecruitmentEntityRecord } from "./recruitment-entities";
 
 const DB_NAME = "jobconnect-staff-cache";
-const DB_VERSION = 7;
+const DB_VERSION = 8;
 const STORE_HISTORIES = "employment_histories";
 const STORE_USERS = "workers";
 const STORE_CCCD_VERSIONS = "cccd_versions";
@@ -15,6 +15,7 @@ const STORE_FACTORIES = "factories";
 const STORE_RECRUITMENT_ENTITIES = "recruitment_entities";
 const STORE_STAFF_USERS = "staff_users";
 const STORE_META = "_meta";
+const STORE_RANKING_HOURS = "employee_monthly_hours_rankings";
 const BATCH_SIZE = 50;
 // Sau khoảng thời gian này, catch-up chạy full reconcile để dọn record bị xóa khi offline.
 const FULL_RECONCILE_INTERVAL_MS = 6 * 60 * 60 * 1000;
@@ -62,6 +63,9 @@ function openDB(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains(STORE_META)) {
         db.createObjectStore(STORE_META);
       }
+      if (!db.objectStoreNames.contains(STORE_RANKING_HOURS)) {
+        db.createObjectStore(STORE_RANKING_HOURS);
+      }
       if (event.oldVersion < 7) {
         for (const store of [
           STORE_HISTORIES,
@@ -86,6 +90,7 @@ function openDB(): Promise<IDBDatabase> {
         STORE_RECRUITMENT_ENTITIES,
         STORE_STAFF_USERS,
         STORE_META,
+        STORE_RANKING_HOURS,
       ];
       if (requiredStores.some((store) => !db.objectStoreNames.contains(store))) {
         db.close();
@@ -242,6 +247,24 @@ export async function readCachedStaffData(): Promise<{
     return { histories, users };
   } catch {
     return null;
+  }
+}
+
+export async function readCachedRankingHours<T>(key: string): Promise<T | undefined> {
+  try {
+    const db = await openDB();
+    return await idbGet<T>(db, STORE_RANKING_HOURS, key);
+  } catch {
+    return undefined;
+  }
+}
+
+export async function writeCachedRankingHours<T>(key: string, value: T): Promise<void> {
+  try {
+    const db = await openDB();
+    await idbPut(db, STORE_RANKING_HOURS, value, key);
+  } catch {
+    // Cache is optional; ranking data remains available from the API.
   }
 }
 
@@ -588,6 +611,7 @@ export async function clearStaffCache(): Promise<void> {
     await idbClear(db, STORE_FACTORIES);
     await idbClear(db, STORE_RECRUITMENT_ENTITIES);
     await idbClear(db, STORE_STAFF_USERS);
+    await idbClear(db, STORE_RANKING_HOURS);
     await idbClear(db, STORE_META);
   } catch {
     // Ignore IndexedDB cache failures.

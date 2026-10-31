@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { MonthInput } from "@/components/ui/month-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  buildEmployeeSeniorityRanking,
   parseEmployeeMonthlyHoursImport,
   type EmploymentStatusFilter,
   type EmployeeMonthlyHoursImportRow,
@@ -26,6 +27,12 @@ import {
 } from "@/lib/employee-monthly-hours";
 import { useAuth } from "@/lib/auth";
 import { pb } from "@/lib/pocketbase";
+import {
+  readCachedRankingHours,
+  readCachedStaffData,
+  writeCachedRankingHours,
+} from "@/lib/staff-cache";
+import { companyIdOf } from "@/lib/tenant";
 
 const PAGE_SIZE = 50;
 const IMPORT_HEADERS = [
@@ -179,8 +186,7 @@ export function EmployeeRankingsPage() {
 
   const loadHours = useCallback(async () => {
     if (!user?.id) return;
-    setHoursLoading(true);
-    setHoursError("");
+    const companyId = companyIdOf(user);
     const query = new URLSearchParams({
       view: "hours",
       monthFrom: hoursFilters.monthFrom,
@@ -193,6 +199,18 @@ export function EmployeeRankingsPage() {
     if (hoursFilters.factoryId) query.set("factoryId", hoursFilters.factoryId);
     if (hoursFilters.employeeCode.trim()) query.set("employeeCode", hoursFilters.employeeCode.trim());
     if (hoursFilters.workerName.trim()) query.set("workerName", hoursFilters.workerName.trim());
+    const cacheKey = `${companyId}|${query.toString()}`;
+    const cached = await readCachedRankingHours<RankingResponse<HourRankingRow>>(cacheKey);
+    if (cached) {
+      setHoursRows(cached.items);
+      setHoursTotal(cached.totalItems);
+      setHoursPages(cached.totalPages);
+      setFactories(cached.factories);
+      setHoursLoading(false);
+    } else {
+      setHoursLoading(true);
+    }
+    setHoursError("");
     try {
       const result = await requestEmployeeHours<RankingResponse<HourRankingRow>>(
         `/api/admin/employee-monthly-hours?${query}`,
@@ -201,10 +219,13 @@ export function EmployeeRankingsPage() {
       setHoursTotal(result.totalItems);
       setHoursPages(result.totalPages);
       setFactories(result.factories);
+      await writeCachedRankingHours(cacheKey, result);
     } catch (error) {
-      setHoursRows([]);
-      setHoursTotal(0);
-      setHoursPages(1);
+      if (!cached) {
+        setHoursRows([]);
+        setHoursTotal(0);
+        setHoursPages(1);
+      }
       setHoursError(error instanceof Error ? error.message : "Không tải được bảng xếp hạng giờ.");
     } finally {
       setHoursLoading(false);
@@ -215,27 +236,35 @@ export function EmployeeRankingsPage() {
     if (!user?.id) return;
     setSeniorityLoading(true);
     setSeniorityError("");
-    const query = new URLSearchParams({
-      view: "seniority",
-      page: String(seniorityPage),
-      perPage: String(PAGE_SIZE),
-    });
-    if (seniorityFilters.factoryId) query.set("factoryId", seniorityFilters.factoryId);
-    if (seniorityFilters.joinDateFrom) query.set("joinDateFrom", seniorityFilters.joinDateFrom);
-    if (seniorityFilters.joinDateTo) query.set("joinDateTo", seniorityFilters.joinDateTo);
     try {
-      const result = await requestEmployeeHours<RankingResponse<SeniorityRankingRow>>(
-        `/api/admin/employee-monthly-hours?${query}`,
+      const cached = await readCachedStaffData();
+      const companyId = companyIdOf(user);
+      const histories = (cached?.histories || [])
+        .filter((history) => (history as typeof history & { tenant_company?: string }).tenant_company === companyId)
+        .map((history) => ({ ...history, factory_name: history.expand?.factory?.name || "" }));
+      const rows = buildEmployeeSeniorityRanking(histories, seniorityFilters);
+      setSeniorityTotal(rows.length);
+      setSeniorityPages(Math.max(1, Math.ceil(rows.length / PAGE_SIZE)));
+      setSeniorityRows(rows.slice((seniorityPage - 1) * PAGE_SIZE, seniorityPage * PAGE_SIZE));
+      const factoryById = new Map<string, FactoryOption>();
+      for (const history of histories) {
+        if (history.factory) {
+          factoryById.set(history.factory, {
+            id: history.factory,
+            name: history.factory_name || "",
+          });
+        }
+      }
+      setFactories(
+        [...factoryById.values()].sort((a, b) =>
+          a.name.localeCompare(b.name, "vi", { sensitivity: "base" }),
+        ),
       );
-      setSeniorityRows(result.items);
-      setSeniorityTotal(result.totalItems);
-      setSeniorityPages(result.totalPages);
-      setFactories(result.factories);
     } catch (error) {
       setSeniorityRows([]);
       setSeniorityTotal(0);
       setSeniorityPages(1);
-      setSeniorityError(error instanceof Error ? error.message : "Không tải được bảng thâm niên.");
+      setSeniorityError(error instanceof Error ? error.message : "Không đọc được dữ liệu thâm niên trong bộ nhớ cục bộ.");
     } finally {
       setSeniorityLoading(false);
     }
@@ -314,7 +343,7 @@ export function EmployeeRankingsPage() {
           {hoursError && <ErrorMessage message={hoursError} onRetry={() => void loadHours()} />}
           {!hoursError && hoursLoading && <LoadingRows />}
           {!hoursError && !hoursLoading && !hoursRows.length && <EmptyState message="Không có dữ liệu giờ trong khoảng đã chọn." />}
-          {!hoursError && !hoursLoading && hoursRows.length > 0 && (
+          {!hoursLoading && hoursRows.length > 0 && (
             <>
               <HoursDesktop rows={hoursRows} />
               <HoursMobile rows={hoursRows} />
@@ -353,7 +382,7 @@ export function EmployeeRankingsPage() {
 
           {seniorityError && <ErrorMessage message={seniorityError} onRetry={() => void loadSeniority()} />}
           {!seniorityError && seniorityLoading && <LoadingRows />}
-          {!seniorityError && !seniorityLoading && !seniorityRows.length && <EmptyState message="Không có NLĐ đang làm trong khoảng đã chọn." />}
+          {!seniorityError && !seniorityLoading && !seniorityRows.length && <EmptyState message="Không có lịch sử lao động phù hợp trong bộ nhớ cục bộ." />}
           {!seniorityError && !seniorityLoading && seniorityRows.length > 0 && (
             <>
               <SeniorityDesktop rows={seniorityRows} />

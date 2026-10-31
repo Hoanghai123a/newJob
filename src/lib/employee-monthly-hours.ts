@@ -24,6 +24,7 @@ export interface EmployeeMonthlyHoursRecord {
 
 export interface RankingHistory extends EmploymentHistoryRecord {
   factory_name?: string;
+  tenant_company?: string;
 }
 
 export interface HourRankingRow {
@@ -360,7 +361,7 @@ export function buildEmployeeSeniorityRanking(
 ) {
   const rows: SeniorityRankingRow[] = [];
   for (const history of latestHistoryByWorker(histories).values()) {
-    if (!history.uid || !isWorkingAt(history, referenceDate)) continue;
+    if (!history.uid || history.recruiter_partner || !isWorkingAt(history, referenceDate)) continue;
     const joinDate = String(history.join_date || "").slice(0, 10);
     if (!joinDate) continue;
     if (filters.factoryId && history.factory !== filters.factoryId) continue;

@@ -152,6 +152,7 @@ test("xếp hạng thâm niên chỉ lấy lịch sử mới nhất đang làm v
     { id: "h1", uid: "LS001", worker: "w1", factory: "f1", factory_name: "A", employee_code: "NV01", worker_name_snapshot: "An", join_date: "2025-01-01", leave_date: "2025-06-01" },
     { id: "h2", uid: "LS002", worker: "w1", factory: "f2", factory_name: "B", employee_code: "NV01", worker_name_snapshot: "An", join_date: "2026-01-01", accumulated_seniority_days: 120 },
     { id: "h3", uid: "LS003", worker: "w2", factory: "f1", factory_name: "A", employee_code: "NV02", worker_name_snapshot: "Bình", join_date: "2025-01-01", leave_date: "2025-02-01" },
+    { id: "h4", uid: "LS004", worker: "w3", factory: "f2", factory_name: "B", employee_code: "NV03", worker_name_snapshot: "Chi", join_date: "2024-01-01", recruiter_partner: "partner-1" },
   ];
   const rows = buildEmployeeSeniorityRanking(
     histories,
@@ -162,4 +163,17 @@ test("xếp hạng thâm niên chỉ lấy lịch sử mới nhất đang làm v
   assert.equal(rows.length, 1);
   assert.equal(rows[0].historyUid, "LS002");
   assert.equal(rows[0].seniorityDays, 151);
+});
+
+test("không xếp hạng thâm niên cho NLĐ được tuyển qua đối tác", () => {
+  const rows = buildEmployeeSeniorityRanking(
+    [
+      { id: "h1", uid: "LS001", worker: "w1", factory: "f1", worker_name_snapshot: "An", join_date: "2025-01-01" },
+      { id: "h2", uid: "LS002", worker: "w2", factory: "f1", worker_name_snapshot: "Bình", join_date: "2024-01-01", recruiter_partner: "partner-1" },
+    ],
+    {},
+    new Date(2026, 0, 1),
+  );
+
+  assert.deepEqual(rows.map((row) => row.historyUid), ["LS001"]);
 });
