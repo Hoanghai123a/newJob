@@ -139,7 +139,7 @@ function headerValue(row: Record<string, unknown>, aliases: readonly string[]) {
 export function parseEmployeeMonthlyHoursImport(rawRows: Record<string, unknown>[]) {
   const headers = new Set(rawRows.length ? Object.keys(rawRows[0]).map(columnKey) : []);
   const missing = Object.entries(IMPORT_COLUMNS)
-    .filter(([field]) => field !== "employeeCode")
+    .filter(([field]) => field !== "workerName" && field !== "factoryName")
     .filter(([, aliases]) => !aliases.some((alias) => headers.has(columnKey(alias))))
     .map(([field]) => field);
 
@@ -180,8 +180,7 @@ export function parseEmployeeMonthlyHoursImport(rawRows: Record<string, unknown>
     }
     const missingValues = [
       [historyUid, "UID lịch sử"],
-      [workerName, "Họ tên"],
-      [factoryName, "Tên nhà máy"],
+      [employeeCode, "Mã NV"],
       [month, "Tháng hợp lệ"],
       [regularHours, "Số giờ HC hợp lệ"],
       [overtimeHours, "Số giờ TC hợp lệ"],
@@ -193,6 +192,12 @@ export function parseEmployeeMonthlyHoursImport(rawRows: Record<string, unknown>
         rowNumber,
         reason: `Thiếu hoặc không hợp lệ: ${missingValues.map(([, label]) => label).join(", ")}.`,
       });
+      return;
+    }
+
+    if ((regularHours as number) + (overtimeHours as number) <= 0) {
+      rowErrors.add(rowNumber);
+      errors.push({ rowNumber, reason: "Số giờ HC và TC không được đồng thời bằng 0." });
       return;
     }
 

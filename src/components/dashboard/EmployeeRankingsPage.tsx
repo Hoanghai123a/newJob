@@ -849,7 +849,7 @@ function EmployeeMonthlyHoursImportDialog({
           {!busy && !preview && !result && !errors.length && !error && (
             <div className="flex items-start gap-2 rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
               <FileSpreadsheet className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>File cần có các cột UID lịch sử, Họ tên, Tên nhà máy, Tháng, Số giờ HC và Số giờ TC. Mã NV là tùy chọn.</span>
+              <span>File cần có UID lịch sử, Mã NV, Tháng, Số giờ HC và Số giờ TC. Họ tên và tên nhà máy chỉ để tham khảo; HC hoặc TC có thể bằng 0 nhưng tổng giờ phải lớn hơn 0.</span>
             </div>
           )}
         </DialogBody>

@@ -240,22 +240,10 @@ async function previewImport(
       continue;
     }
     const history = matches[0];
-    const mismatches = [
-      row.employeeCode &&
-      normalizeImportIdentity(row.employeeCode) !== normalizeImportIdentity(history.employee_code)
-        ? "Mã NV"
-        : "",
-      normalizeImportIdentity(row.workerName) !== normalizeImportIdentity(history.worker_name_snapshot)
-        ? "Họ tên"
-        : "",
-      normalizeImportIdentity(row.factoryName) !== normalizeImportIdentity(history.factory_name)
-        ? "Tên nhà máy"
-        : "",
-    ].filter(Boolean);
-    if (mismatches.length) {
+    if (normalizeImportIdentity(row.employeeCode) !== normalizeImportIdentity(history.employee_code)) {
       errors.push({
         rowNumber: row.rowNumber,
-        reason: `${mismatches.join(", ")} không khớp với lịch sử ${row.historyUid}.`,
+        reason: `Mã NV không khớp với lịch sử ${row.historyUid}.`,
       });
       continue;
     }

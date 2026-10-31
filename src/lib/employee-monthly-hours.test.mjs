@@ -36,7 +36,7 @@ test("đọc file Excel giờ theo UID lịch sử và nhận tháng dạng ngà
   ]);
 });
 
-test("báo cột thiếu, giờ âm hoặc khóa UID + tháng trùng", () => {
+test("báo cột thiếu, giờ âm, tổng giờ bằng 0 hoặc khóa UID + tháng trùng", () => {
   const result = parseEmployeeMonthlyHoursImport([
     {
       "UID lịch sử": "LS001",
@@ -66,35 +66,70 @@ test("báo cột thiếu, giờ âm hoặc khóa UID + tháng trùng", () => {
     parseEmployeeMonthlyHoursImport([{ "UID lịch sử": "LS001" }]).errors[0].reason,
     /Thiếu cột/,
   );
-});
 
-test("cho phép bỏ trống hoặc không có cột Mã NV khi import", () => {
-  const blankCode = parseEmployeeMonthlyHoursImport([
+  const zeroTotal = parseEmployeeMonthlyHoursImport([
     {
-      "UID lịch sử": "LS001",
-      "Mã NV": "",
+      "UID lịch sử": "LS003",
+      "Mã NV": "NV03",
       "Họ tên": "Nguyễn An",
       "Tên nhà máy": "Nhà máy A",
       Tháng: "2026-01",
-      "Số giờ HC": 176,
-      "Số giờ TC": 12,
+      "Số giờ HC": 0,
+      "Số giờ TC": 0,
+    },
+  ]);
+  assert.equal(zeroTotal.rows.length, 0);
+  assert.match(zeroTotal.errors[0].reason, /không được đồng thời bằng 0/);
+});
+
+test("cho phép HC hoặc TC bằng 0 miễn tổng giờ lớn hơn 0 và bắt buộc mã NV", () => {
+  const zeroRegular = parseEmployeeMonthlyHoursImport([
+    {
+      "UID lịch sử": "LS002",
+      "Mã NV": "NV02",
+      "Họ tên": "Trần Bình",
+      "Tên nhà máy": "Nhà máy B",
+      Tháng: "2026-01",
+      "Số giờ HC": 0,
+      "Số giờ TC": 8,
+    },
+  ]);
+  const zeroOvertime = parseEmployeeMonthlyHoursImport([
+    {
+      "UID lịch sử": "LS003",
+      "Mã NV": "NV03",
+      "Họ tên": "Trần Bình",
+      "Tên nhà máy": "Nhà máy B",
+      Tháng: "2026-01",
+      "Số giờ HC": 160,
+      "Số giờ TC": 0,
     },
   ]);
   const withoutCodeColumn = parseEmployeeMonthlyHoursImport([
     {
-      "UID lịch sử": "LS002",
-      "Họ tên": "Trần Bình",
-      "Tên nhà máy": "Nhà máy B",
+      "UID lịch sử": "LS004",
       Tháng: "2026-01",
       "Số giờ HC": 160,
       "Số giờ TC": 8,
     },
   ]);
 
-  assert.deepEqual(blankCode.errors, []);
-  assert.equal(blankCode.rows[0].employeeCode, "");
-  assert.deepEqual(withoutCodeColumn.errors, []);
-  assert.equal(withoutCodeColumn.rows[0].employeeCode, "");
+  assert.deepEqual(zeroRegular.errors, []);
+  assert.deepEqual(zeroOvertime.errors, []);
+  assert.equal(zeroRegular.rows[0].regularHours, 0);
+  assert.equal(zeroOvertime.rows[0].overtimeHours, 0);
+  assert.match(withoutCodeColumn.errors[0].reason, /Mã NV/);
+
+  const withoutReferenceFields = parseEmployeeMonthlyHoursImport([
+    {
+      "UID lịch sử": "LS004",
+      "Mã NV": "NV04",
+      Tháng: "2026-01",
+      "Số giờ HC": 160,
+      "Số giờ TC": 0,
+    },
+  ]);
+  assert.deepEqual(withoutReferenceFields.errors, []);
 });
 
 test("trạng thái NLĐ lấy từ lịch sử mới nhất theo ngày vào và thời điểm tạo", () => {
