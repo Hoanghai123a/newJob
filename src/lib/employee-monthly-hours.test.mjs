@@ -36,6 +36,21 @@ test("đọc file Excel giờ theo UID lịch sử và nhận tháng dạng ngà
   ]);
 });
 
+test("không lùi tháng khi đọc số serial ngày Excel", () => {
+  const result = parseEmployeeMonthlyHoursImport([
+    {
+      "UID lịch sử": "LS009",
+      "Mã NV": "NV09",
+      Tháng: 46266,
+      "Số giờ HC": 160,
+      "Số giờ TC": 8,
+    },
+  ]);
+
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.rows[0].month, "2026-09");
+});
+
 test("báo cột thiếu, giờ âm, tổng giờ bằng 0 hoặc khóa UID + tháng trùng", () => {
   const result = parseEmployeeMonthlyHoursImport([
     {

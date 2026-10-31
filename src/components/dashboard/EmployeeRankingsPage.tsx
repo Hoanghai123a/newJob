@@ -826,7 +826,8 @@ function EmployeeMonthlyHoursImportDialog({
     setError("");
     setBusy(true);
     try {
-      const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: true });
+      // Keep Excel date serials so timezone conversion cannot move the month to the previous day.
+      const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: false });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       if (!firstSheet) throw new Error("File Excel không có trang tính dữ liệu.");
       const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(firstSheet, {
