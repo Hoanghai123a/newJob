@@ -856,9 +856,12 @@ function EmployeeMonthlyHoursImportDialog({
             </div>
           )}
           {errors.length > 0 && (
-            <div className="max-h-44 space-y-1 overflow-y-auto rounded-md border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-950">
-              {errors.slice(0, 30).map((item, index) => <div key={`${item.rowNumber}-${index}`}><strong>Dòng {item.rowNumber}:</strong> {item.reason}</div>)}
-              {errors.length > 30 && <div>Còn {errors.length - 30} lỗi khác.</div>}
+            <div className="space-y-2 rounded-md border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-950">
+              <strong>{errors.length.toLocaleString("vi-VN")} dòng lỗi</strong>
+              <div className="max-h-36 space-y-1 overflow-y-auto">
+                {errors.slice(0, 30).map((item, index) => <div key={`${item.rowNumber}-${index}`}><strong>Dòng {item.rowNumber}:</strong> {item.reason}</div>)}
+                {errors.length > 30 && <div>Còn {errors.length - 30} lỗi khác.</div>}
+              </div>
             </div>
           )}
           {!busy && !preview && !result && !errors.length && !error && (
@@ -868,18 +871,18 @@ function EmployeeMonthlyHoursImportDialog({
             </div>
           )}
         </DialogBody>
-        <DialogFooter>
-          <Button type="button" variant="outline" disabled={busy} onClick={() => handleOpenChange(false)}>{result ? "Đóng" : "Hủy"}</Button>
-          {errors.length > 0 && (
-            <Button type="button" variant="outline" className="gap-2" disabled={busy} onClick={downloadErrorRows}>
-              <Download className="h-4 w-4" />Tải dòng lỗi
-            </Button>
-          )}
+        <DialogFooter className="flex-row flex-wrap justify-end">
           {preview && !result && (
             <Button type="button" disabled={busy || (!preview.created && !preview.updated)} onClick={() => void commitImport()}>
               {busy ? "Đang nhập..." : `Nhập ${preview.created + preview.updated} dòng`}
             </Button>
           )}
+          {errors.length > 0 && (
+            <Button type="button" variant="outline" className="gap-2" disabled={busy} onClick={downloadErrorRows}>
+              <Download className="h-4 w-4" />Tải dòng lỗi
+            </Button>
+          )}
+          <Button type="button" variant="outline" disabled={busy} onClick={() => handleOpenChange(false)}>{result ? "Đóng" : "Hủy"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
