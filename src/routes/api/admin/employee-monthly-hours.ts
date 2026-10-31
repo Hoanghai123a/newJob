@@ -99,7 +99,31 @@ async function createOrUpdate(
     token,
   );
   const body = await readPbJson(response);
-  if (!response.ok) throw new Error(body?.message || "Không lưu được số giờ của NLĐ.");
+  if (!response.ok) {
+    const fieldErrors = Object.entries(body?.data || {})
+      .map(([field, detail]) => {
+        const message = (detail as { message?: unknown })?.message;
+        return message ? `${field}: ${String(message)}` : "";
+      })
+      .filter(Boolean)
+      .join("; ");
+    throw new Error(
+      [body?.message || "Không lưu được số giờ của NLĐ.", fieldErrors]
+        .filter(Boolean)
+        .join(" "),
+    );
+  }
+  if (!body?.id) throw new Error("PocketBase không trả về bản ghi đã lưu.");
+
+  const verifyResponse = await pbServerFetch(
+    `/api/collections/employee_monthly_hours/records/${encodeURIComponent(body.id)}`,
+    {},
+    token,
+  );
+  const verified = await readPbJson(verifyResponse);
+  if (!verifyResponse.ok || verified?.id !== body.id) {
+    throw new Error("PocketBase chưa xác nhận bản ghi số giờ đã được lưu.");
+  }
   return body as EmployeeMonthlyHoursRecord;
 }
 
