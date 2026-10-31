@@ -166,11 +166,10 @@ function buildHistoryFilter(
   user: UserRecord,
   factoryIds: string[],
   status: ExportStatus,
-  historyFromDate: string,
   managedFactoryIds: Set<string>,
 ) {
   const selectedFactoryFilter = `(${relationInFilter("factory", factoryIds)})`;
-  const parts = [selectedFactoryFilter, `(leave_date="" || leave_date>="${historyFromDate}")`];
+  const parts = [selectedFactoryFilter];
 
   if (user.role === "staff") {
     const permissionParts = [`recruiter_staff="${escapePb(user.id)}"`];
@@ -247,50 +246,40 @@ async function fetchLatestWorkerInfo(workerIds: string[], token: string) {
 
     const query = new URLSearchParams({
       page: "1",
-      perPage: String(chunk.length),
+      perPage: "500",
       filter: workerFilter,
       sort: "-join_date,-created",
       fields: "id,worker,leave_date,join_date",
     });
-
-    const response = await pbFetch(
-      `/api/collections/employment_histories/records?${query}`,
-      { method: "GET" },
-      token,
-    );
-
-    if (!response.ok) {
-      console.warn("[staff-export] failed to fetch latest worker info", {
-        status: response.status,
-        chunk: chunk.length,
-      });
-      continue;
-    }
-
-    const body = (await readJson(response)) as PocketBaseList<EmploymentHistoryRecord> | null;
-    const records = body?.items || [];
-
+    let page = 1;
+    let totalPages = 1;
     const workerLatestMap = new Map<string, EmploymentHistoryRecord>();
-    for (const record of records) {
-      if (!record.worker) continue;
-      const existing = workerLatestMap.get(record.worker);
-      if (!existing) {
-        workerLatestMap.set(record.worker, record);
-        continue;
+
+    do {
+      query.set("page", String(page));
+      const response = await pbFetch(
+        `/api/collections/employment_histories/records?${query}`,
+        { method: "GET" },
+        token,
+      );
+      if (!response.ok) {
+        const body = await readJson(response);
+        throw new PocketBaseExportError(
+          "Không tải được lịch sử cuối cùng của người lao động từ PocketBase.",
+          response.status,
+          body,
+        );
       }
 
-      const recordJoinDate = record.join_date ? Date.parse(record.join_date) : 0;
-      const existingJoinDate = existing.join_date ? Date.parse(existing.join_date) : 0;
-      if (recordJoinDate > existingJoinDate) {
-        workerLatestMap.set(record.worker, record);
-      } else if (recordJoinDate === existingJoinDate) {
-        const recordCreated = record.created ? Date.parse(record.created) : 0;
-        const existingCreated = existing.created ? Date.parse(existing.created) : 0;
-        if (recordCreated > existingCreated) {
+      const body = (await readJson(response)) as PocketBaseList<EmploymentHistoryRecord> | null;
+      for (const record of body?.items || []) {
+        if (record.worker && !workerLatestMap.has(record.worker)) {
           workerLatestMap.set(record.worker, record);
         }
       }
-    }
+      totalPages = Math.max(1, Number(body?.totalPages || 1));
+      page += 1;
+    } while (page <= totalPages && workerLatestMap.size < chunk.length);
 
     for (const [workerId, latestRecord] of workerLatestMap) {
       infoMap.set(workerId, {
@@ -448,7 +437,6 @@ export async function handleStaffExcelExport(request: Request) {
       auth.user,
       factoryIds,
       status,
-      historyFromDate,
       managedFactoryIds,
     );
     const histories = await fetchAllHistories(filter, auth.token);
@@ -456,8 +444,17 @@ export async function handleStaffExcelExport(request: Request) {
 
     const workerIds = histories.map((h) => h.worker).filter((id): id is string => Boolean(id));
     const latestInfoMap = await fetchLatestWorkerInfo(workerIds, auth.token);
+    const eligibleWorkerIds = new Set(
+      [...latestInfoMap]
+        .filter(([, info]) => !info.leaveDate || info.leaveDate.slice(0, 10) >= historyFromDate)
+        .map(([workerId]) => workerId),
+    );
+    const eligibleHistories = histories.filter(
+      (history) => history.worker && eligibleWorkerIds.has(history.worker),
+    );
+    if (!eligibleHistories.length) return jsonError("Không có dữ liệu phù hợp để xuất.", 404);
 
-    const exportHistories = sortEmploymentHistoriesForExport(histories);
+    const exportHistories = sortEmploymentHistoriesForExport(eligibleHistories);
     const rows =
       mode === "basic"
         ? buildBasicRows(exportHistories, latestInfoMap)

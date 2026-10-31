@@ -49,7 +49,7 @@ function exportRequest(mode) {
   });
 }
 
-async function runExport(mode, histories) {
+async function runExport(mode, histories, latestHistories = histories) {
   const originalFetch = globalThis.fetch;
   const requests = [];
 
@@ -68,7 +68,8 @@ async function runExport(mode, histories) {
     }
 
     if (url.pathname.endsWith("/employment_histories/records")) {
-      return jsonResponse({ page: 1, totalPages: 1, items: histories });
+      const items = url.searchParams.has("fields") ? latestHistories : histories;
+      return jsonResponse({ page: 1, totalPages: 1, items });
     }
 
     throw new Error(`Unexpected PocketBase request: ${url} ${init?.method || "GET"}`);
@@ -152,6 +153,42 @@ test("xuat co ban dung tham nien da luu va mac dinh 0 khi PocketBase khong co gi
   const workbook = XLSX.read(await response.arrayBuffer(), { type: "array" });
   const rows = XLSX.utils.sheet_to_json(workbook.Sheets["Lao động cơ bản"]);
   assert.equal(rows[0]?.["Thâm niên tích luỹ (ngày)"], 0);
+});
+
+test("giu tat ca lich su cua worker neu ngay nghi cua lich su cuoi cung dat ngay da chon", async () => {
+  const histories = [
+    historyFixture({
+      id: "history-old",
+      uid: "HISTORY-OLD",
+      leave_date: "2026-03-01T00:00:00.000Z",
+    }),
+    historyFixture({
+      id: "history-latest",
+      uid: "HISTORY-LATEST",
+      join_date: "2026-06-01T00:00:00.000Z",
+      leave_date: "2026-06-30T00:00:00.000Z",
+    }),
+    historyFixture({
+      id: "history-excluded",
+      worker: "worker-2",
+      uid: "HISTORY-EXCLUDED",
+      leave_date: "2026-03-15T00:00:00.000Z",
+    }),
+  ];
+  const { response, requests } = await runExport("basic", histories, [histories[1], histories[2]]);
+
+  assert.equal(response.status, 200);
+  const historyRequest = requests.find(
+    (url) => url.pathname.endsWith("/employment_histories/records") && !url.searchParams.has("fields"),
+  );
+  assert.ok(historyRequest);
+  assert.doesNotMatch(historyRequest.searchParams.get("filter") || "", /leave_date/);
+  const workbook = XLSX.read(await response.arrayBuffer(), { type: "array" });
+  const rows = XLSX.utils.sheet_to_json(workbook.Sheets["Lao động cơ bản"]);
+  assert.deepEqual(
+    rows.map((row) => row["Mã lịch sử"]),
+    ["HISTORY-LATEST", "HISTORY-OLD"],
+  );
 });
 
 test("tao dung ten file theo ma cong ty va timestamp", () => {
