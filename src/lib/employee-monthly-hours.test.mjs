@@ -51,6 +51,21 @@ test("không lùi tháng khi đọc số serial ngày Excel", () => {
   assert.equal(result.rows[0].month, "2026-09");
 });
 
+test("không lùi tháng với Date bị lệch vài giây trước nửa đêm", () => {
+  const result = parseEmployeeMonthlyHoursImport([
+    {
+      "UID lịch sử": "LS010",
+      "Mã NV": "NV10",
+      Tháng: new Date(2026, 7, 31, 23, 59, 56),
+      "Số giờ HC": 160,
+      "Số giờ TC": 8,
+    },
+  ]);
+
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.rows[0].month, "2026-09");
+});
+
 test("báo cột thiếu, giờ âm, tổng giờ bằng 0 hoặc khóa UID + tháng trùng", () => {
   const result = parseEmployeeMonthlyHoursImport([
     {

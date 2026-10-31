@@ -83,6 +83,10 @@ function columnKey(value: unknown) {
 
 function excelMonth(value: unknown) {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    // SheetJS can produce 23:59:56 for a date at local midnight after timezone conversion.
+    if (value.getHours() === 23 && value.getMinutes() === 59) {
+      value = new Date(value.getTime() + 60_000);
+    }
     return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}`;
   }
   if (typeof value === "number" && Number.isFinite(value) && value > 0) {
